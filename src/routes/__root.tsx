@@ -29,14 +29,18 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Infinite Sound" },
+      { name: "description", content: "Infinite Loop Studio is a touch-first sound design lab for creating and exporting infinitely looping audio samples." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Infinite Sound" },
+      { property: "og:description", content: "Infinite Loop Studio is a touch-first sound design lab for creating and exporting infinitely looping audio samples." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Infinite Sound" },
+      { name: "twitter:description", content: "Infinite Loop Studio is a touch-first sound design lab for creating and exporting infinitely looping audio samples." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8a7ca160-ac0d-4ab1-971c-d6236f2125d7/id-preview-20576fe2--314fee07-75a3-477a-8568-6ddbc44a035f.lovable.app-1777776966709.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/8a7ca160-ac0d-4ab1-971c-d6236f2125d7/id-preview-20576fe2--314fee07-75a3-477a-8568-6ddbc44a035f.lovable.app-1777776966709.png" },
     ],
     links: [
       {
