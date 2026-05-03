@@ -39,14 +39,14 @@ export function SettingsDrawer({ onClose }: { onClose: () => void }) {
 
         <Section title="Audio">
           <Pills label="Sample rate" options={[44100, 48000, 96000]} value={settings.sampleRate}
-            onChange={(v) => setSettings({ sampleRate: v as any })} format={(v) => `${v / 1000}k`} />
+            onChange={(v: number) => setSettings({ sampleRate: v as any })} format={(v: number) => `${v / 1000}k`} />
           <Pills label="Bit depth" options={[16, 24, 32]} value={settings.bitDepth}
-            onChange={(v) => setSettings({ bitDepth: v as any })} format={(v) => `${v}`} />
+            onChange={(v: number) => setSettings({ bitDepth: v as any })} format={(v: number) => `${v}`} />
         </Section>
 
         <Section title="Loop defaults">
           <Pills label="Default type" options={["forward", "pingpong", "oneshot"]} value={settings.defaultLoopType}
-            onChange={(v) => setSettings({ defaultLoopType: v as any })} format={(v) => String(v)} />
+            onChange={(v: string) => setSettings({ defaultLoopType: v as any })} format={(v: string) => String(v)} />
           <label className="flex items-center justify-between py-2 text-sm">Auto-loop on import
             <input type="checkbox" checked={settings.autoLoop} onChange={(e) => setSettings({ autoLoop: e.target.checked })} className="h-4 w-4 accent-[color:var(--cyan)]" /></label>
           <label className="flex items-center justify-between py-2 text-sm">Snap to zero-cross

@@ -104,6 +104,6 @@ export function suggestLoops(data: Float32Array, sampleRate: number): LoopSugges
 // Float32 buffer -> stereo AudioBuffer
 export function monoToBuffer(ctx: BaseAudioContext, data: Float32Array, sampleRate: number): AudioBuffer {
   const buf = ctx.createBuffer(1, data.length, sampleRate);
-  buf.copyToChannel(data, 0);
+  buf.copyToChannel(data as Float32Array<ArrayBuffer>, 0);
   return buf;
 }
