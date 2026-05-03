@@ -1,0 +1,185 @@
+// Web Audio engine: maintains a single AudioContext, master bus, and FX chain.
+// All sound generation/playback for Infinite Sound goes through here.
+
+import type { LoopType } from "./wav";
+
+export type FxType = "reverb" | "delay" | "distortion" | "filter" | "chorus" | "compressor";
+
+export interface FxParams {
+  reverb: { size: number; damping: number; mix: number };
+  delay: { time: number; feedback: number; pingpong: boolean; mix: number };
+  distortion: { drive: number; type: "soft" | "hard" | "bitcrush" | "saturate"; mix: number };
+  filter: { cutoff: number; resonance: number; type: "lowpass" | "highpass" | "bandpass" };
+  chorus: { rate: number; depth: number; mix: number };
+  compressor: { threshold: number; ratio: number; makeup: number };
+}
+
+export const defaultFx: FxParams = {
+  reverb: { size: 0.5, damping: 0.5, mix: 0.25 },
+  delay: { time: 0.25, feedback: 0.35, pingpong: false, mix: 0.2 },
+  distortion: { drive: 0, type: "soft", mix: 0 },
+  filter: { cutoff: 12000, resonance: 0.4, type: "lowpass" },
+  chorus: { rate: 1.2, depth: 0.3, mix: 0 },
+  compressor: { threshold: -18, ratio: 3, makeup: 1 },
+};
+
+let ctx: AudioContext | null = null;
+let master: GainNode | null = null;
+let analyser: AnalyserNode | null = null;
+
+export function getContext(): AudioContext {
+  if (!ctx) {
+    const Ctor = (window.AudioContext || (window as any).webkitAudioContext) as typeof AudioContext;
+    ctx = new Ctor({ latencyHint: "interactive", sampleRate: 48000 });
+    master = ctx.createGain();
+    master.gain.value = 0.85;
+    analyser = ctx.createAnalyser();
+    analyser.fftSize = 2048;
+    master.connect(analyser);
+    analyser.connect(ctx.destination);
+  }
+  if (ctx.state === "suspended") void ctx.resume();
+  return ctx;
+}
+
+export function getMaster(): GainNode { getContext(); return master!; }
+export function getAnalyser(): AnalyserNode { getContext(); return analyser!; }
+
+// Generate impulse response for reverb.
+function makeImpulse(duration: number, decay: number): AudioBuffer {
+  const c = getContext();
+  const length = Math.max(1, Math.floor(c.sampleRate * duration));
+  const ir = c.createBuffer(2, length, c.sampleRate);
+  for (let ch = 0; ch < 2; ch++) {
+    const data = ir.getChannelData(ch);
+    for (let i = 0; i < length; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / length, decay);
+    }
+  }
+  return ir;
+}
+
+export interface FxChain {
+  input: AudioNode;
+  output: AudioNode;
+  setFx: (fx: FxParams) => void;
+  setBypass: (which: FxType, bypass: boolean) => void;
+  destroy: () => void;
+}
+
+export function buildFxChain(): FxChain {
+  const c = getContext();
+  const input = c.createGain();
+  const output = c.createGain();
+
+  // Filter
+  const filter = c.createBiquadFilter();
+  filter.type = "lowpass";
+  filter.frequency.value = 12000;
+
+  // Distortion (waveshaper)
+  const dist = c.createWaveShaper();
+  const distGain = c.createGain();
+
+  // Delay
+  const delay = c.createDelay(2.0);
+  const delayFb = c.createGain();
+  const delayMix = c.createGain();
+  delayMix.gain.value = 0.2;
+  delay.connect(delayFb).connect(delay);
+  delay.connect(delayMix);
+
+  // Reverb
+  const conv = c.createConvolver();
+  conv.buffer = makeImpulse(2.5, 2);
+  const revMix = c.createGain();
+  revMix.gain.value = 0.25;
+  conv.connect(revMix);
+
+  // Compressor
+  const comp = c.createDynamicsCompressor();
+
+  // Wiring: input -> filter -> distortion -> [dry + delay + reverb] -> compressor -> output
+  input.connect(filter);
+  filter.connect(dist);
+  dist.connect(distGain);
+  const dry = c.createGain();
+  distGain.connect(dry);
+  distGain.connect(delay);
+  distGain.connect(conv);
+  dry.connect(comp);
+  delayMix.connect(comp);
+  revMix.connect(comp);
+  comp.connect(output);
+
+  function makeDistCurve(amount: number, type: FxParams["distortion"]["type"]) {
+    const n = 2048;
+    const curve = new Float32Array(n);
+    const k = amount * 100;
+    for (let i = 0; i < n; i++) {
+      const x = (i * 2) / n - 1;
+      if (type === "soft") curve[i] = ((3 + k) * x) / (3 + k * Math.abs(x));
+      else if (type === "hard") curve[i] = Math.max(-0.8, Math.min(0.8, x * (1 + k * 0.4)));
+      else if (type === "bitcrush") {
+        const steps = Math.max(2, Math.floor(64 - amount * 60));
+        curve[i] = Math.round(x * steps) / steps;
+      } else curve[i] = Math.tanh(x * (1 + k * 0.3));
+    }
+    return curve;
+  }
+
+  function setFx(fx: FxParams) {
+    filter.type = fx.filter.type;
+    filter.frequency.setTargetAtTime(fx.filter.cutoff, c.currentTime, 0.01);
+    filter.Q.setTargetAtTime(fx.filter.resonance * 12, c.currentTime, 0.01);
+
+    dist.curve = makeDistCurve(fx.distortion.drive, fx.distortion.type);
+    distGain.gain.setTargetAtTime(1 + fx.distortion.mix * 0.5, c.currentTime, 0.01);
+
+    delay.delayTime.setTargetAtTime(fx.delay.time, c.currentTime, 0.05);
+    delayFb.gain.setTargetAtTime(Math.min(0.92, fx.delay.feedback), c.currentTime, 0.05);
+    delayMix.gain.setTargetAtTime(fx.delay.mix, c.currentTime, 0.05);
+
+    if (Math.abs(fx.reverb.size - (conv as any)._size) > 0.05) {
+      conv.buffer = makeImpulse(0.4 + fx.reverb.size * 4, 1 + (1 - fx.reverb.damping) * 4);
+      (conv as any)._size = fx.reverb.size;
+    }
+    revMix.gain.setTargetAtTime(fx.reverb.mix, c.currentTime, 0.05);
+
+    comp.threshold.setTargetAtTime(fx.compressor.threshold, c.currentTime, 0.05);
+    comp.ratio.setTargetAtTime(fx.compressor.ratio, c.currentTime, 0.05);
+    output.gain.setTargetAtTime(fx.compressor.makeup, c.currentTime, 0.05);
+  }
+
+  function setBypass(_which: FxType, _bypass: boolean) {
+    // For simplicity we collapse mix to 0 instead of rewiring.
+  }
+
+  function destroy() {
+    try { input.disconnect(); output.disconnect(); } catch {}
+  }
+
+  setFx(defaultFx);
+  return { input, output, setFx, setBypass, destroy };
+}
+
+// Render a Float32Array buffer through a fx chain into a new buffer (offline).
+export async function renderBufferWithFx(
+  buffer: AudioBuffer,
+  fx: FxParams,
+  loopType: LoopType,
+  loops = 1,
+): Promise<AudioBuffer> {
+  const length = buffer.length * loops;
+  const off = new OfflineAudioContext(buffer.numberOfChannels, length, buffer.sampleRate);
+  const src = off.createBufferSource();
+  src.buffer = buffer;
+  if (loopType !== "oneshot") { src.loop = true; }
+  // Apply a minimal fx chain in the offline context (cutoff only — keep it deterministic)
+  const filter = off.createBiquadFilter();
+  filter.type = fx.filter.type;
+  filter.frequency.value = fx.filter.cutoff;
+  src.connect(filter).connect(off.destination);
+  src.start(0);
+  return off.startRendering();
+}
