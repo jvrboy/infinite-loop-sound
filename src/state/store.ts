@@ -34,6 +34,9 @@ export interface Settings {
   filenameTemplate: string;
   dawPreset: "ableton" | "logic" | "fl" | "bitwig" | "cubase" | "generic";
   normalizeOnExport: boolean;
+  snapWindowMs: number;            // 1..50
+  snapMode: "zero" | "zeroSlope" | "peak";
+  liveAudioEnabled: boolean;
 }
 
 export const defaultSettings: Settings = {
@@ -50,6 +53,9 @@ export const defaultSettings: Settings = {
   filenameTemplate: "{name}_{date}",
   dawPreset: "generic",
   normalizeOnExport: true,
+  snapWindowMs: 10,
+  snapMode: "zeroSlope",
+  liveAudioEnabled: true,
 };
 
 interface AppState {
@@ -62,6 +68,8 @@ interface AppState {
   settings: Settings;
   infiniteFolderName: string | null;
   isPlaying: boolean;
+  view: { zoom: number; offset: number };
+  onboarded: boolean;
 
   setMode: (m: Mode) => void;
   setTab: (t: ToolTab) => void;
@@ -78,6 +86,9 @@ interface AppState {
   setIsPlaying: (b: boolean) => void;
   setSettings: (patch: Partial<Settings>) => void;
   setInfiniteFolderName: (n: string | null) => void;
+  setView: (patch: Partial<{ zoom: number; offset: number }>) => void;
+  nudgeLoop: (edge: "start" | "end", samples: number) => void;
+  setOnboarded: (b: boolean) => void;
 }
 
 const seed = (): Sound => ({
@@ -114,6 +125,8 @@ export const useApp = create<AppState>((set, get) => ({
   settings: loadSettings(),
   infiniteFolderName: null,
   isPlaying: false,
+  view: { zoom: 1, offset: 0 },
+  onboarded: typeof window !== "undefined" && !!localStorage.getItem("infinite-sound-onboarded"),
 
   setMode: (m) => set({ mode: m }),
   setTab: (t) => set({ tab: t }),
@@ -169,6 +182,20 @@ export const useApp = create<AppState>((set, get) => ({
     return { settings: next };
   }),
   setInfiniteFolderName: (n) => set({ infiniteFolderName: n }),
+  setView: (patch) => set((s) => ({ view: { ...s.view, ...patch } })),
+  nudgeLoop: (edge, samples) => set((s) => {
+    const total = s.sound.buffer?.length ?? Math.floor(s.sound.params.duration * 48000);
+    if (edge === "start") {
+      const v = Math.max(0, Math.min(s.sound.loopEnd - 64, s.sound.loopStart + samples));
+      return { sound: { ...s.sound, loopStart: v } };
+    }
+    const v = Math.max(s.sound.loopStart + 64, Math.min(total, s.sound.loopEnd + samples));
+    return { sound: { ...s.sound, loopEnd: v } };
+  }),
+  setOnboarded: (b) => {
+    try { if (b) localStorage.setItem("infinite-sound-onboarded", "1"); else localStorage.removeItem("infinite-sound-onboarded"); } catch {}
+    set({ onboarded: b });
+  },
 }));
 
 export function haptic(intensity: "light" | "medium" | "heavy" = "light") {

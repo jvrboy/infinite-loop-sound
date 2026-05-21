@@ -45,6 +45,133 @@ export function getContext(): AudioContext {
 export function getMaster(): GainNode { getContext(); return master!; }
 export function getAnalyser(): AnalyserNode { getContext(); return analyser!; }
 
+// ----- Realtime live voice -----
+// A persistent voice that follows SoundParams + FxParams changes in realtime.
+// Used by SoundCanvas (touch-to-sound) and FX panels for instant audibility.
+import type { SoundParams } from "./synth";
+
+export interface LiveVoice {
+  gate: (on: boolean) => void;
+  setParams: (p: SoundParams) => void;
+  setFx: (fx: FxParams) => void;
+  modulate: (cutoffHz?: number, pitchCents?: number) => void;
+  destroy: () => void;
+}
+
+let liveVoice: LiveVoice | null = null;
+
+export function ensureLiveVoice(): LiveVoice {
+  if (liveVoice) return liveVoice;
+  const c = getContext();
+  const chain = buildFxChain();
+  chain.output.connect(getMaster());
+
+  const amp = c.createGain();
+  amp.gain.value = 0;
+  amp.connect(chain.input);
+
+  // Up to 8 unison voices
+  const MAX = 8;
+  const oscs: OscillatorNode[] = [];
+  const subGains: GainNode[] = [];
+  const panners: StereoPannerNode[] = [];
+  for (let i = 0; i < MAX; i++) {
+    const o = c.createOscillator();
+    o.type = "sine";
+    o.frequency.value = 110;
+    const g = c.createGain();
+    g.gain.value = 0;
+    const pan = c.createStereoPanner();
+    o.connect(g).connect(pan).connect(amp);
+    o.start();
+    oscs.push(o); subGains.push(g); panners.push(pan);
+  }
+
+  // Noise source
+  const noiseBuf = c.createBuffer(1, c.sampleRate, c.sampleRate);
+  const nd = noiseBuf.getChannelData(0);
+  for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+  const noise = c.createBufferSource();
+  noise.buffer = noiseBuf; noise.loop = true;
+  const noiseGain = c.createGain(); noiseGain.gain.value = 0;
+  noise.connect(noiseGain).connect(amp);
+  noise.start();
+
+  let lastParams: SoundParams | null = null;
+  let gated = false;
+
+  function setParams(p: SoundParams) {
+    lastParams = p;
+    const t = c.currentTime;
+    const types: OscillatorType[] = ["sine", "sawtooth", "square"];
+    const baseType = types[Math.min(2, Math.floor(p.waveshape * 2.999))];
+    const voices = Math.max(1, Math.min(MAX, Math.floor(p.unison)));
+    for (let v = 0; v < MAX; v++) {
+      if (v < voices) {
+        oscs[v].type = baseType;
+        const detune = ((v / Math.max(1, voices - 1)) * 2 - 1) * p.detune;
+        oscs[v].frequency.setTargetAtTime(p.fundamental, t, 0.02);
+        oscs[v].detune.setTargetAtTime(detune, t, 0.02);
+        const g = (0.55 / voices) * (0.6 + p.harmonics * 0.4);
+        subGains[v].gain.setTargetAtTime(g, t, 0.02);
+        const pan = ((v / Math.max(1, voices - 1)) * 2 - 1) * p.stereoWidth;
+        panners[v].pan.setTargetAtTime(pan, t, 0.02);
+      } else {
+        subGains[v].gain.setTargetAtTime(0, t, 0.02);
+      }
+    }
+    noiseGain.gain.setTargetAtTime(p.noiseMix * 0.4, t, 0.02);
+  }
+
+  function gate(on: boolean) {
+    const t = c.currentTime;
+    const p = lastParams;
+    gated = on;
+    if (on) {
+      amp.gain.cancelScheduledValues(t);
+      amp.gain.setValueAtTime(amp.gain.value, t);
+      amp.gain.linearRampToValueAtTime(0.85, t + Math.max(0.005, p?.attack ?? 0.02));
+    } else {
+      amp.gain.cancelScheduledValues(t);
+      amp.gain.setValueAtTime(amp.gain.value, t);
+      amp.gain.linearRampToValueAtTime(0, t + Math.max(0.02, p?.release ?? 0.2));
+    }
+  }
+
+  function modulate(cutoffHz?: number, pitchCents?: number) {
+    const t = c.currentTime;
+    if (pitchCents != null) {
+      for (const o of oscs) o.detune.setTargetAtTime(pitchCents, t, 0.01);
+    }
+    if (cutoffHz != null) {
+      // route via fx chain filter — read back via setFx call from app
+      void cutoffHz;
+    }
+  }
+
+  function destroy() {
+    try {
+      for (const o of oscs) o.stop();
+      noise.stop();
+      amp.disconnect();
+      chain.destroy();
+    } catch {}
+    liveVoice = null;
+  }
+
+  liveVoice = {
+    gate,
+    setParams,
+    setFx: (fx) => chain.setFx(fx),
+    modulate,
+    destroy,
+  };
+  void gated;
+  return liveVoice;
+}
+
+export function getLiveVoice(): LiveVoice | null { return liveVoice; }
+
 // Generate impulse response for reverb.
 function makeImpulse(duration: number, decay: number): AudioBuffer {
   const c = getContext();
