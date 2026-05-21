@@ -50,7 +50,7 @@ export function TopBar({ onOpenLibrary, onOpenSettings }: { onOpenLibrary: () =>
 
 function useMeter() {
   const [v, setV] = useState(0);
-  const raf = useRef<number>();
+  const raf = useRef<number>(0);
   useEffect(() => {
     let buf: Uint8Array | null = null;
     const tick = () => {
