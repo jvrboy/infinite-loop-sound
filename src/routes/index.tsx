@@ -8,6 +8,7 @@ import { Toolbar } from "@/components/infinite/Toolbar";
 import { Controls } from "@/components/infinite/Controls";
 import { SettingsDrawer } from "@/components/infinite/SettingsDrawer";
 import { LibraryDrawer } from "@/components/infinite/LibraryDrawer";
+import { SetupWizard } from "@/components/infinite/SetupWizard";
 import { useApp } from "@/state/store";
 import { stopPlayback } from "@/audio/playback";
 import { getInfiniteFolderName } from "@/state/folder";
@@ -27,6 +28,8 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const onboarded = useApp((s) => s.onboarded);
+  const [wizardOpen, setWizardOpen] = useState(!onboarded);
   const setIsPlaying = useApp((s) => s.setIsPlaying);
   const setFolder = useApp((s) => s.setInfiniteFolderName);
 
@@ -43,8 +46,9 @@ function Index() {
       <WaveformLoop />
       <Toolbar />
       <Controls />
-      {settingsOpen && <SettingsDrawer onClose={() => setSettingsOpen(false)} />}
+      {settingsOpen && <SettingsDrawer onClose={() => setSettingsOpen(false)} onRunWizard={() => { setSettingsOpen(false); setWizardOpen(true); }} />}
       {libraryOpen && <LibraryDrawer onClose={() => setLibraryOpen(false)} />}
+      {wizardOpen && <SetupWizard onClose={() => setWizardOpen(false)} />}
     </div>
   );
 }

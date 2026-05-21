@@ -1,10 +1,10 @@
 import { useApp } from "@/state/store";
-import { X, FolderOpen } from "lucide-react";
+import { X, FolderOpen, Wand2 } from "lucide-react";
 import { pickInfiniteFolder, getInfiniteFolderName, FOLDER_SUPPORTED } from "@/state/folder";
 import { useEffect } from "react";
 import { Slider } from "./Slider";
 
-export function SettingsDrawer({ onClose }: { onClose: () => void }) {
+export function SettingsDrawer({ onClose, onRunWizard }: { onClose: () => void; onRunWizard?: () => void }) {
   const settings = useApp((s) => s.settings);
   const setSettings = useApp((s) => s.setSettings);
   const folder = useApp((s) => s.infiniteFolderName);
@@ -51,7 +51,18 @@ export function SettingsDrawer({ onClose }: { onClose: () => void }) {
             <input type="checkbox" checked={settings.autoLoop} onChange={(e) => setSettings({ autoLoop: e.target.checked })} className="h-4 w-4 accent-[color:var(--cyan)]" /></label>
           <label className="flex items-center justify-between py-2 text-sm">Snap to zero-cross
             <input type="checkbox" checked={settings.snapToZero} onChange={(e) => setSettings({ snapToZero: e.target.checked })} className="h-4 w-4 accent-[color:var(--cyan)]" /></label>
+          <Pills label="Snap mode" options={["zero", "zeroSlope", "peak"]} value={settings.snapMode}
+            onChange={(v: string) => setSettings({ snapMode: v as any })} format={(v: string) => v === "zeroSlope" ? "Zero+slope" : v[0].toUpperCase() + v.slice(1)} />
+          <Slider label="Snap window" value={settings.snapWindowMs} min={1} max={50} step={1} unit=" ms" onChange={(v) => setSettings({ snapWindowMs: v })} />
           <Slider label="Crossfade" value={settings.crossfadeMs} min={0} max={50} step={1} unit=" ms" onChange={(v) => setSettings({ crossfadeMs: v })} />
+        </Section>
+
+        <Section title="Realtime audio">
+          <label className="flex items-center justify-between py-2 text-sm">Touch-to-sound
+            <input type="checkbox" checked={settings.liveAudioEnabled} onChange={(e) => setSettings({ liveAudioEnabled: e.target.checked })} className="h-4 w-4 accent-[color:var(--cyan)]" /></label>
+          <p className="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+            Drawing in the canvas plays the synth live as you sculpt.
+          </p>
         </Section>
 
         <Section title="Appearance">
@@ -61,6 +72,15 @@ export function SettingsDrawer({ onClose }: { onClose: () => void }) {
             <input type="checkbox" checked={settings.reduceMotion} onChange={(e) => setSettings({ reduceMotion: e.target.checked })} className="h-4 w-4 accent-[color:var(--cyan)]" /></label>
           <Slider label="Preview volume" value={settings.previewVolume} onChange={(v) => setSettings({ previewVolume: v })} />
         </Section>
+
+        {onRunWizard && (
+          <Section title="Onboarding">
+            <button onClick={onRunWizard}
+              className="flex w-full items-center justify-center gap-2 rounded-xl glass py-3 text-xs font-bold uppercase tracking-wider">
+              <Wand2 className="h-4 w-4" /> Re-run setup wizard
+            </button>
+          </Section>
+        )}
 
         <p className="mt-6 font-mono text-[9px] uppercase tracking-[0.18em] text-muted-foreground">
           Infinite Sound v1 · web edition · WAV smpl + acid loop chunks · all processing local
