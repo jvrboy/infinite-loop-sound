@@ -198,6 +198,49 @@ export function findNearestZeroCrossing(
   return best;
 }
 
+export type SnapMode = "zero" | "zeroSlope" | "peak";
+
+// Snap helper with selectable strategy. Reference slope (sign of first derivative
+// at target) is used by zeroSlope to enforce matching seams between loop start/end.
+export function findSnapPoint(
+  data: Float32Array,
+  target: number,
+  windowSamples: number,
+  mode: SnapMode,
+  refSlope?: number, // +1 or -1 — required for zeroSlope to match seams
+): number {
+  const start = Math.max(1, target - windowSamples);
+  const end = Math.min(data.length - 1, target + windowSamples);
+  let best = target;
+  let bestDist = Infinity;
+  if (mode === "peak") {
+    let bestAbs = -1;
+    for (let i = start; i < end; i++) {
+      const a = Math.abs(data[i]);
+      if (a > bestAbs) { bestAbs = a; best = i; }
+    }
+    return best;
+  }
+  for (let i = start; i < end; i++) {
+    const a = data[i - 1], b = data[i];
+    const cross = (a <= 0 && b > 0) || (a >= 0 && b < 0);
+    if (!cross) continue;
+    if (mode === "zeroSlope" && refSlope != null) {
+      const slope = b - a >= 0 ? 1 : -1;
+      if (slope !== refSlope) continue;
+    }
+    const d = Math.abs(i - target);
+    if (d < bestDist) { bestDist = d; best = i; }
+  }
+  return best;
+}
+
+export function slopeAt(data: Float32Array, idx: number): number {
+  const a = data[Math.max(0, idx - 1)] ?? 0;
+  const b = data[Math.min(data.length - 1, idx + 1)] ?? 0;
+  return b - a >= 0 ? 1 : -1;
+}
+
 // Spectral similarity score between two short windows (for "loopability").
 export function loopabilityScore(
   data: Float32Array,
