@@ -168,8 +168,8 @@ export function getPlayheadSample(): number | null {
   }
   // pingpong: src.buffer is the synthesized 2x buffer, but playhead inside
   // refers to the original buffer's [loopStart, loopEnd] either forward or reversed.
-  const period = current.buffer ? (current.loopEndSec - current.loopStartSec) : 0;
-  if (period <= 0) return current.loopStart ?? 0;
+  const period = current.loopEndSec - current.loopStartSec;
+  if (period <= 0) return Math.floor(current.loopStartSec * sr);
   const ppElapsed = elapsed % (period * 2);
   if (ppElapsed < period) {
     return Math.floor((current.loopStartSec + ppElapsed) * sr);
