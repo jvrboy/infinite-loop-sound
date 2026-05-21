@@ -3,6 +3,7 @@ import { useApp, haptic } from "@/state/store";
 import { ensureBuffer } from "@/audio/playback";
 import { detectGesture, type Gesture } from "@/lib/gestures";
 import { applyGesture } from "@/lib/gestureToSynth";
+import { ensureLiveVoice } from "@/audio/engine";
 
 export function SoundCanvas() {
   const mode = useApp((s) => s.mode);
@@ -33,9 +34,19 @@ function CreateCanvas() {
   const updateParams = useApp((s) => s.updateParams);
   const sound = useApp((s) => s.sound);
   const pushHistory = useApp((s) => s.pushHistory);
+  const liveEnabled = useApp((s) => s.settings.liveAudioEnabled);
   const [path, setPath] = useState<Array<{ x: number; y: number }>>([]);
   const drawing = useRef(false);
   const particles = useRef<Array<{ x: number; y: number; vx: number; vy: number; life: number; hue: number }>>([]);
+
+  // Keep live voice params in sync with current sound while it's audible.
+  useEffect(() => {
+    if (!liveEnabled) return;
+    const v = (window.AudioContext || (window as any).webkitAudioContext) ? ensureLiveVoice() : null;
+    if (!v) return;
+    v.setParams(sound.params);
+    v.setFx(sound.fx);
+  }, [sound.params, sound.fx, liveEnabled]);
 
   // Particle animation loop
   useEffect(() => {
@@ -96,17 +107,33 @@ function CreateCanvas() {
   function onDown(e: React.PointerEvent) {
     drawing.current = true;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    setPath([{ x: relPos(e).x, y: relPos(e).y }]);
+    const p = relPos(e);
+    setPath([{ x: p.x, y: p.y }]);
+    if (liveEnabled) {
+      const v = ensureLiveVoice();
+      v.setParams(sound.params);
+      v.setFx(sound.fx);
+      // map Y to pitch detune, X to brightness/cutoff via filter cutoff target
+      const pitchCents = (0.5 - p.y / p.h) * 1200;
+      v.modulate(undefined, pitchCents);
+      v.gate(true);
+    }
     haptic("light");
   }
   function onMove(e: React.PointerEvent) {
     if (!drawing.current) return;
     const p = relPos(e);
     setPath((prev) => [...prev, { x: p.x, y: p.y }]);
+    if (liveEnabled) {
+      const v = ensureLiveVoice();
+      const pitchCents = (0.5 - p.y / p.h) * 1200;
+      v.modulate(undefined, pitchCents);
+    }
   }
   function onUp(e: React.PointerEvent) {
     if (!drawing.current) return;
     drawing.current = false;
+    if (liveEnabled) ensureLiveVoice().gate(false);
     const r = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const g = detectGesture(path, r.width, r.height);
     if (g) {
