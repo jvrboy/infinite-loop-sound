@@ -1,117 +1,129 @@
 
-# Infinite Sound — Build Plan
+# Infinite Sound — Precision Loop & Realtime Playback Update
 
-A touch-first sound design lab in the browser. One screen, three modes (Create / Import / Resample), four toolbars (Shape / Flow / DNA / FX), and a one-tap ∞ Export that writes seamless looping WAVs straight into your DAW's sample folder.
+## 1. Waveform editor: zoom + precise snap
 
-## Scope note (please read)
+**File:** `src/components/infinite/WaveformLoop.tsx` (+ small helpers in `src/audio/wav.ts`)
 
-You picked "everything in the spec." The full vision is a multi-month native app. In one Lovable build I can deliver a **functionally complete web version** of the entire surface area — every mode, every tab, every toolbar, the loop engine, packs, settings — but some things will be **lighter than the spec implies**:
+- Add zoom state `{ zoom: 1..64, offset: 0..1 }` driving the view window over the buffer.
+- Gestures:
+  - Pinch (two-pointer) → zoom around midpoint.
+  - Wheel + ⌘/Ctrl → zoom; wheel alone → horizontal scroll.
+  - Double-tap empty area → zoom to fit loop region.
+  - Drag on empty area (no marker) → pan.
+- Recompute downsampled peaks per view window (RMS + peak min/max) so zoomed-in views show real sample detail (not stretched pixels). At zoom > ~16, draw individual sample dots with connecting line.
+- Render a zoom mini-map strip below the waveform showing the full buffer and a draggable view window.
+- Marker hit-testing uses screen-space (account for zoom/offset). Add a thin "playhead" line during preview.
 
-- **Audio engine**: Web Audio API + custom DSP in JS/AudioWorklets (not C++). Fast enough for the described sounds; granular will cap at ~64 grains rather than 256 for stability.
-- **AI-style features** (vocal extraction, drum extraction, smart-loop scoring, evolve/mutate): implemented with classical DSP heuristics — phase-cancel for vocals, transient detection for drums, zero-crossing + spectral-similarity scoring for loops, parameter randomization for evolve. Useful, not magic.
-- **DAW folder sync**: File System Access API (Chromium desktop). Safari/Firefox/mobile fall back to per-export downloads + an in-app library.
-- **Native-only items** dropped or stubbed: MIDI drag-into-DAW, true Mac Catalyst/Windows builds, system-wide haptics, inter-app audio. Web haptics (`navigator.vibrate`) used where available.
+**Snap controls** (new row above waveform):
+- Toggle: snap on/off (existing `settings.snapToZero`).
+- Search window slider: 1–50 ms (default 10 ms). Stored as `settings.snapWindowMs`.
+- Mode segmented control: `Zero` (current), `Zero +slope` (only zero-crossings with matching slope sign — better seamlessness), `Peak` (snap to local max amplitude). Stored as `settings.snapMode`.
+- Update `findNearestZeroCrossing` → `findSnapPoint(data, target, windowSamples, mode)` and call from drag handler in `WaveformLoop`. Old function kept as thin wrapper for backward compat.
+- Show readout next to marker while dragging: sample index, ms, frequency-locked length (e.g. "≈ 220 Hz" if integer period).
 
-If any of those compromises is a dealbreaker, tell me before I start.
+## 2. Loop type override with live marker feedback
 
-## What the user gets
+**Files:** `src/components/infinite/WaveformLoop.tsx`, `src/state/store.ts`, `src/audio/dsp.ts`
 
-### One-screen layout
-- Top bar: ∞ Infinite Sound logo, Library (≡), Settings (⚙)
-- **Sound Canvas** (top): mode-specific big visual — particle cloud (Create), waveform+spectrum (Import), dual morph view (Resample)
-- **Mode switch row**: CREATE / IMPORT / RESAMPLE — three big glass buttons
-- **Waveform + loop editor**: always visible, draggable 🔵 start / 🟢 end markers, snap-to-zero toggle, loop-type icons (Forward / Ping-pong / One-shot), tap-region-to-preview-loop
-- **Toolbar tabs**: SHAPE / FLOW / DNA / FX — content swaps per active mode
-- **Bottom right**: ▶ Play, ∞ Export
+- Replace the small icon row with a prominent 3-way segmented control labelled **SUSTAIN / ONE-SHOT / PING-PONG** under the waveform (always visible, large touch targets).
+- Rename internal `forward` → `sustain` (display) but keep WAV chunk type compatible; `pingpong` → `pingpong`; `oneshot` → `oneshot`. Map in `wav.ts` smpl chunk writer.
+- On switch, immediately mutate the visualization:
+  - **SUSTAIN:** standard S/E markers, region tinted cyan, loopability score visible.
+  - **ONE-SHOT:** hide loop region; show only a fade-out tail handle (uses `loopEnd` as fade end); score replaced with "tail Xms".
+  - **PING-PONG:** S/E markers with a mirrored "ghost" overlay drawn from E→S to visualize reverse pass; tint magenta.
+- Marker drag is disabled in one-shot.
 
-### Core loop engine
-- Zero-crossing detector (10ms window) → snaps loop markers automatically
-- Spectral similarity score between loop start/end → "Loopability %" badge
-- Smart-Loop suggests 3 candidate regions, ranked, color-coded
-- Custom WAV writer in JS that emits 24-bit/48kHz PCM with proper **`smpl` chunk** (loop start/end/type), **`acid` chunk** (seamless flag, BPM if detected), **`LIST INFO`** chunk (tags, key, date)
-- Crossfade-loop option (0–50ms) to mask imperfect joins
+## 3. Loop preview playback (audition before export)
 
-### CREATE mode
-- Particle-cloud canvas; gestures map to synthesis:
-  - Circle → sine fundamental (size = freq)
-  - Spiral → pitch sweep
-  - Vertical line → harmonic stack
-  - Horizontal line → noise/texture
-  - Zigzag → rhythmic pulses
-  - Star → chord
-  - Smudge → granular cloud
-- Each gesture spawns voices in a polyphonic Web Audio graph
-- SHAPE: timbre wheel (bright/dark × soft/sharp), harmonic morph (sine→saw→square), noise mix, advanced (phase, stereo width, unison 1–8)
-- FLOW: draw-a-modulation-curve LFO + presets (rise/fall/oscillate/spike/random) routed to pitch/cutoff/volume/pan/fx
-- DNA: Evolve (4 mutated children), Mutate (single 5–20% jitter), Crossbreed (blend two saved sounds), History tree, Save to Library
-- FX chain: Reverb / Delay / Distortion / Filter / Chorus / Compressor — drag to reorder, tap to bypass
+**Files:** `src/audio/playback.ts`, `src/components/infinite/WaveformLoop.tsx`, `src/state/store.ts`
 
-### IMPORT mode
-- Tap canvas → file picker (WAV/AIFF/MP3/M4A/FLAC via Web Audio decode)
-- Auto-analyze: tempo (autocorrelation), fundamental (FFT peak), dynamic range, loopability
-- Actions: Auto-Loop, Trim, Normalize, Reverse, Strip Silence, Extract Drums (transient gate), Extract Vocals (mid/side phase cancel)
-- SHAPE: spectral paint editor (boost/cut/smudge on a live spectrogram), formant shift
-- FLOW: time-stretch (phase vocoder), pitch shift, grain size
-- DNA: Analyze panel, Smart-Loop with 3 ranked suggestions
-- FX: same chain as Create
+- Extend `playSound` to honor loop type properly:
+  - `sustain` → current behavior.
+  - `oneshot` → `src.loop=false`, schedule a gain ramp 0 dB → −∞ over `(loopEnd-loopStart)/sr` as fade tail.
+  - `pingpong` → since Web Audio has no native ping-pong, render a one-shot AudioBuffer: forward slice + reversed slice concatenated with `settings.crossfadeMs` equal-power crossfade between joins; loop that synthetic buffer.
+- Add a persistent floating **Preview** transport in `WaveformLoop`:
+  - ▶ Play loop region (loops continuously)
+  - ▶ Play full sound (head → loop → release)
+  - ◼ Stop
+  - Cycle counter ("loop 3×") so user can hear seam reliability.
+- Drive an animated playhead via `requestAnimationFrame`, reading `ctx.currentTime` against playback start.
+- Wire global state `isPlaying` and current mode so other components (TopBar) can show status.
 
-### RESAMPLE mode
-- Dual-waveform morph view (source on top, result on bottom)
-- Source = current sound; Target = imported or library pick
-- Modes: Morph (spectral blend), Conform (force target's rhythm/spectrum onto source), Granulate (rearrange source grains using target's transient timing)
-- Sliders: Morph Amount, Spectral Weight, Rhythm Weight, Grain Size
-- DNA: Family-tree history, Breed, Mutate
+## 4. First-run setup wizard
 
-### Pack system
-- Pack drawer in top bar; add current sound, reorder, name pack
-- Export Pack → in-app generates folder structure + Pack_Info.txt + Preview.wav, then either writes to chosen Infinite Folder or downloads as a zip
-- Starter templates: Drum Kit, Pad Pack, Bass Pack, Arp Pack, FX Pack (templates pre-fill DNA seeds + loop-type defaults)
+**New file:** `src/components/infinite/SetupWizard.tsx` (+ tiny additions to `src/state/store.ts`, `src/state/folder.ts`, `src/routes/index.tsx`)
 
-### Settings
-- **Infinite Folder**: pick once via File System Access; app creates `/My Designs /Imported /Resampled /Packs /Temp` subfolders. Fallback: downloads + IndexedDB library
-- DAW preset (Ableton/Logic/FL/etc.) — only affects suggested folder layout
-- File-naming: Auto / Manual / Template
-- Audio: sample rate (44.1/48/96), bit depth (16/24/32f), latency, mono/stereo
-- Loop defaults: auto-loop on/off, default type, crossfade ms, snap-to-zero
-- Appearance: theme (Liquid Glass default), motion, haptics, preview volume
-- Pro: wavetable export (Serum/Vital-compatible 256-frame WAV), debug overlay (zero-crossing markers), reset
+- Trigger: on mount, if `localStorage["infinite-sound-onboarded"]` is missing AND no Infinite Sound folder picked, open a 4-step glass modal.
+- Steps:
+  1. **Welcome** — what the app does, "one tap → loop WAV in your DAW".
+  2. **Pick your Infinite Sound folder** — big button calling `pickInfiniteFolder()` (File System Access API). Shows browser compatibility note and falls back to "Use downloads instead" if API unavailable.
+  3. **Point your DAW here** — DAW selector (Ableton / Logic / FL / Bitwig / Cubase / Generic) with copy-pasteable instructions per DAW (e.g. Ableton: drag folder into Places sidebar; Logic: add to Loop Browser). Stored as `settings.dawPreset`.
+  4. **Test export** — generates a tiny ping sound and saves to the folder, confirms write succeeded.
+- Skip / Later button on every step. On finish: `localStorage["infinite-sound-onboarded"] = "1"`.
+- Re-launchable from Settings drawer ("Re-run setup").
 
-### Gestures
-Tap, double-tap, long-press, pinch-zoom, two-finger rotate, three-finger reset, drag markers, tap-loop-to-preview, shake-to-undo (devicemotion), two-finger swipe = history prev/next.
+## 5. More tools
 
-### Visual design — Liquid Glass (locked)
-- Bg `#0A0A0F` + 5% noise texture
-- Glass panels: 80% opacity, 20px backdrop-blur, 0.5px border at 15% white
-- Accents: cyan `#32ADE6`, magenta `#FF2D55`, success green `#34C759`, warning orange `#FF9500`
-- Typography: SF Pro Display/Text/Mono via `-apple-system` stack with web fallback
-- 0.3s cubic transitions, 0.1s spring on gesture feedback, pulsing border on active loop region, shimmer on ∞ when export-ready
-- `navigator.vibrate` for haptics where supported
+Tightly scoped additions, no scope creep:
 
-## Build order
+- **Waveform toolbar buttons** (next to snap): Zoom In, Zoom Out, Fit, Zoom-to-Loop.
+- **Loop nudge buttons** (±1 sample, ±1 ms, ±1 cycle for the detected fundamental). Useful with snap off for surgical placement.
+- **Crossfade preview overlay** — render the crossfade region as a dashed band when `settings.crossfadeMs > 0`.
+- **"Find best loop" sweep** — runs `suggestLoops` constrained to user's current loop length and picks the highest-scoring placement; one-click button in the waveform toolbar.
 
-1. **Shell + Liquid Glass design system** — colors, glass panel component, top bar, mode buttons, bottom toolbar skeleton, settings drawer
-2. **Audio engine core** — Web Audio graph manager, sound model (params + buffer), playback with loop, WAV encoder with `smpl`/`acid`/`LIST` chunks, zero-crossing detector
-3. **Waveform + loop editor component** — canvas waveform, draggable markers, snap-to-zero, loop preview, loop-type selector
-4. **Export flow** — name dialog, format/normalize options, File System Access folder picker + write, download fallback, IndexedDB library
-5. **CREATE mode** — particle canvas, gesture recognizer, gesture→synthesis mapping, SHAPE/FLOW/DNA/FX tabs
-6. **IMPORT mode** — file picker + decoder, analysis panel, spectral paint, time-stretch/pitch-shift, smart-loop ranking
-7. **RESAMPLE mode** — dual-view, morph/conform/granulate engines, slider controls
-8. **Packs** — pack drawer, templates, multi-WAV / zip export
-9. **Polish** — gestures (pinch/rotate/shake), haptics, animations, accessibility (reduce-motion, high-contrast, ARIA)
+## 6. Realtime audio playback (engine-wide)
+
+**Files:** `src/audio/engine.ts`, `src/audio/playback.ts`, `src/audio/synth.ts`, `src/components/infinite/SoundCanvas.tsx`, `src/components/infinite/panels/ShapePanel.tsx`, `src/components/infinite/panels/FxPanel.tsx`
+
+Today playback only fires when the user hits play after a render. We will make every parameter audible immediately:
+
+- **Realtime synth voice**: in `engine.ts` add a persistent `LiveVoice` graph (oscillator bank + noise + filter + amp env) routed through the FX chain. Voice is lazily created on first interaction (browser autoplay policy) and reused.
+- **Param subscription**: `useApp.subscribe` listens to `sound.params` and `sound.fx` and patches the live voice in <16 ms (smoothed via `AudioParam.linearRampToValueAtTime` over 20 ms to avoid zipper noise).
+- **Touch-to-sound** in `SoundCanvas`: pointer-down opens gate, pointer-up closes; X/Y modulate pitch/brightness in realtime; gestures still feed `gestureToSynth` to update stored params. So drawing literally sounds.
+- **FX panel**: every knob change audible immediately (route taps through live FX chain).
+- **Imported audio**: when a buffer exists, a separate `LivePlayer` source is the audible one (already covered by §3 preview), so realtime applies to FX changes on the buffer too.
+- **Rendered export buffer** is still produced offline on Export (unchanged).
+- **Master meter** in TopBar (post-FX RMS via `AnalyserNode`) so user sees output level.
 
 ## Technical notes
 
-- Stack: TanStack Start + React 19 + Tailwind v4 (already in project). All client-side; no backend needed for v1.
-- Audio: Web Audio API + `AudioWorkletNode` for granular and phase-vocoder DSP.
-- WAV writer: hand-rolled in TS to control chunk order; verified against `smpl` spec so Kontakt/Ableton Simpler/Logic Quick Sampler honor loop points.
-- File System Access API with capability detection and graceful fallback.
-- IndexedDB for in-app library + history tree + DNA lineage.
-- No database, no auth, no Lovable Cloud needed for v1. Add later if you want cloud sync of libraries/packs.
+```text
+┌─ WaveformLoop ─────────────────────────────────────┐
+│ [snap▾][zoomIn][zoomOut][fit][findBest]   loop:Xms │
+│ ╔══════════ canvas (zoom+pan) ═════════════╗       │
+│ ║  ░░░░░|████████|░░░░░  (crossfade dashed)║       │
+│ ╚══════════════════════════════════════════╝       │
+│ ┌── minimap ──────────────────────────────┐        │
+│ │     [ view window ]                     │        │
+│ └─────────────────────────────────────────┘        │
+│ [ SUSTAIN | ONE-SHOT | PING-PONG ]                 │
+│ ◀ -1smp -1ms   ▶▶ loop  ▶ full  ◼  loops:3        │
+└────────────────────────────────────────────────────┘
+```
 
-## Out of scope for v1 (call out so it's explicit)
+State additions in `Settings`:
+```ts
+snapWindowMs: number;        // default 10
+snapMode: "zero" | "zeroSlope" | "peak";
+liveAudioEnabled: boolean;   // default true
+```
 
-- Native iOS/macOS/Windows apps — this is a web app
-- MIDI drag-into-DAW (no browser API for it)
-- Live mic input recording — easy to add later as a follow-up
-- Cloud accounts / sharing
-- Real-time inter-app audio
+Store additions:
+```ts
+view: { zoom: number; offset: number };
+setView(patch): void;
+nudgeLoop(edge: "start"|"end", samples: number): void;
+```
+
+Engine additions:
+```ts
+ensureLiveVoice(): LiveVoice
+LiveVoice = { gate(on:boolean), setParams(p), setFx(fx), meter():number, destroy() }
+```
+
+## Out of scope (explicit)
+
+- No new mode tabs, no pack/library changes.
+- No worklet rewrite — realtime uses ScriptProcessor-free graph of native nodes.
+- Pinch on devices without two pointers falls back to wheel/buttons.
