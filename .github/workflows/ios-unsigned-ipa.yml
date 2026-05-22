@@ -1,0 +1,121 @@
+name: Build Unsigned iOS IPA
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  build-ios:
+    name: Build unsigned IPA
+    runs-on: macos-14
+
+    env:
+      # CHANGE THIS to your real Xcode scheme/app name
+      SCHEME: "YourAppName"
+
+      CONFIGURATION: "Release"
+      IOS_DEPLOYMENT_TARGET: "12.0"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Find Xcode project or workspace
+        id: find_project
+        run: |
+          WORKSPACE=$(find . -name "*.xcworkspace" | head -n 1)
+          PROJECT=$(find . -name "*.xcodeproj" | head -n 1)
+
+          if [ -n "$WORKSPACE" ]; then
+            echo "type=workspace" >> $GITHUB_OUTPUT
+            echo "path=$WORKSPACE" >> $GITHUB_OUTPUT
+            echo "Found workspace: $WORKSPACE"
+          elif [ -n "$PROJECT" ]; then
+            echo "type=project" >> $GITHUB_OUTPUT
+            echo "path=$PROJECT" >> $GITHUB_OUTPUT
+            echo "Found project: $PROJECT"
+          else
+            echo "No .xcworkspace or .xcodeproj found"
+            exit 1
+          fi
+
+      - name: Install CocoaPods dependencies if needed
+        run: |
+          if [ -f "Podfile" ]; then
+            pod install
+          else
+            echo "No Podfile found, skipping CocoaPods"
+          fi
+
+      - name: Force iOS 12 deployment target
+        run: |
+          find . -name "project.pbxproj" -print0 | while IFS= read -r -d '' file; do
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*;/IPHONEOS_DEPLOYMENT_TARGET = 12.0;/g' "$file"
+          done
+
+      - name: List available schemes
+        run: |
+          if [ "${{ steps.find_project.outputs.type }}" = "workspace" ]; then
+            xcodebuild -list -workspace "${{ steps.find_project.outputs.path }}"
+          else
+            xcodebuild -list -project "${{ steps.find_project.outputs.path }}"
+          fi
+
+      - name: Build app without code signing
+        run: |
+          if [ "${{ steps.find_project.outputs.type }}" = "workspace" ]; then
+            xcodebuild clean build \
+              -workspace "${{ steps.find_project.outputs.path }}" \
+              -scheme "$SCHEME" \
+              -configuration "$CONFIGURATION" \
+              -sdk iphoneos \
+              -derivedDataPath build/DerivedData \
+              IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOYMENT_TARGET" \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY="" \
+              DEVELOPMENT_TEAM=""
+          else
+            xcodebuild clean build \
+              -project "${{ steps.find_project.outputs.path }}" \
+              -scheme "$SCHEME" \
+              -configuration "$CONFIGURATION" \
+              -sdk iphoneos \
+              -derivedDataPath build/DerivedData \
+              IPHONEOS_DEPLOYMENT_TARGET="$IOS_DEPLOYMENT_TARGET" \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY="" \
+              DEVELOPMENT_TEAM=""
+          fi
+
+      - name: Create unsigned IPA
+        run: |
+          APP_PATH=$(find build/DerivedData/Build/Products/Release-iphoneos -name "*.app" -type d | head -n 1)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app file found"
+            exit 1
+          fi
+
+          echo "Found app: $APP_PATH"
+
+          mkdir -p Payload
+          cp -R "$APP_PATH" Payload/
+
+          IPA_NAME="${SCHEME}-unsigned.ipa"
+          zip -qry "$IPA_NAME" Payload
+
+          echo "IPA created: $IPA_NAME"
+
+      - name: Upload unsigned IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-ios-ipa
+          path: "*.ipa"
