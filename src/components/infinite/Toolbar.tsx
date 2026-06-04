@@ -1,18 +1,20 @@
 import { useApp, type ToolTab } from "@/state/store";
 import { cn } from "@/lib/utils";
-import { Sparkles, Activity, Dna, Wand2 } from "lucide-react";
+import { Sparkles, Activity, Dna, Wand2, SlidersHorizontal } from "lucide-react";
 import { ShapePanel } from "./panels/ShapePanel";
 import { FlowPanel } from "./panels/FlowPanel";
 import { DnaPanel } from "./panels/DnaPanel";
 import { FxPanel } from "./panels/FxPanel";
 import { ImportActions } from "./panels/ImportActions";
 import { ResamplePanel } from "./panels/ResamplePanel";
+import { ToolsPanel } from "./panels/ToolsPanel";
 
 const tabs: { id: ToolTab; label: string; icon: any }[] = [
   { id: "shape", label: "Shape", icon: Sparkles },
   { id: "flow", label: "Flow", icon: Activity },
   { id: "dna", label: "DNA", icon: Dna },
   { id: "fx", label: "FX", icon: Wand2 },
+  { id: "tools", label: "Tools", icon: SlidersHorizontal },
 ];
 
 export function Toolbar() {
@@ -53,6 +55,7 @@ export function Toolbar() {
           {tab === "flow" && <FlowPanel />}
           {tab === "dna" && <DnaPanel />}
           {tab === "fx" && <FxPanel />}
+          {tab === "tools" && <ToolsPanel />}
         </div>
       </div>
     </div>
