@@ -4,7 +4,7 @@ import { defaultFx, type FxParams } from "@/audio/engine";
 import type { LoopType } from "@/audio/wav";
 
 export type Mode = "create" | "import" | "resample";
-export type ToolTab = "shape" | "flow" | "dna" | "fx";
+export type ToolTab = "shape" | "flow" | "dna" | "fx" | "tools";
 
 export interface Sound {
   id: string;
