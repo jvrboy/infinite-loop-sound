@@ -172,6 +172,131 @@ export function ensureLiveVoice(): LiveVoice {
 
 export function getLiveVoice(): LiveVoice | null { return liveVoice; }
 
+// ----- Polyphonic transient note (for keyboard, sequencer, looper triggers) -----
+// Plays a single note through a dedicated short-lived voice + shared FX chain.
+let noteChain: FxChain | null = null;
+function getNoteChain(): FxChain {
+  if (noteChain) return noteChain;
+  noteChain = buildFxChain();
+  noteChain.output.connect(getMaster());
+  return noteChain;
+}
+export function setNoteFx(fx: FxParams) { getNoteChain().setFx(fx); }
+
+export interface NoteHandle { stop: (when?: number) => void; }
+export function playNote(
+  freq: number,
+  params: SoundParams,
+  durSec?: number,
+  velocity = 1,
+): NoteHandle {
+  const c = getContext();
+  const chain = getNoteChain();
+  const t = c.currentTime;
+  const amp = c.createGain();
+  amp.gain.value = 0;
+  amp.connect(chain.input);
+
+  const types: OscillatorType[] = ["sine", "sawtooth", "square"];
+  const baseType = types[Math.min(2, Math.floor(params.waveshape * 2.999))];
+  const voices = Math.max(1, Math.min(8, Math.floor(params.unison)));
+  const oscs: OscillatorNode[] = [];
+  for (let v = 0; v < voices; v++) {
+    const o = c.createOscillator();
+    o.type = baseType;
+    o.frequency.value = freq;
+    const detune = voices > 1 ? ((v / (voices - 1)) * 2 - 1) * params.detune : 0;
+    o.detune.value = detune;
+    const g = c.createGain();
+    g.gain.value = 0.6 / voices;
+    const pan = c.createStereoPanner();
+    pan.pan.value = voices > 1 ? ((v / (voices - 1)) * 2 - 1) * params.stereoWidth : 0;
+    o.connect(g).connect(pan).connect(amp);
+    o.start(t);
+    oscs.push(o);
+  }
+
+  // noise component
+  let noise: AudioBufferSourceNode | null = null;
+  if (params.noiseMix > 0.001) {
+    const nb = c.createBuffer(1, c.sampleRate * 0.5, c.sampleRate);
+    const nd = nb.getChannelData(0);
+    for (let i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+    noise = c.createBufferSource();
+    noise.buffer = nb; noise.loop = true;
+    const ng = c.createGain(); ng.gain.value = params.noiseMix * 0.35;
+    noise.connect(ng).connect(amp);
+    noise.start(t);
+  }
+
+  const a = Math.max(0.003, params.attack);
+  const d = Math.max(0.005, params.decay);
+  const s = Math.max(0.0001, params.sustain) * velocity;
+  const r = Math.max(0.02, params.release);
+  amp.gain.setValueAtTime(0, t);
+  amp.gain.linearRampToValueAtTime(velocity, t + a);
+  amp.gain.linearRampToValueAtTime(s, t + a + d);
+
+  let stopped = false;
+  function stop(when?: number) {
+    if (stopped) return;
+    stopped = true;
+    const t0 = when ?? c.currentTime;
+    amp.gain.cancelScheduledValues(t0);
+    amp.gain.setValueAtTime(amp.gain.value, t0);
+    amp.gain.linearRampToValueAtTime(0.0001, t0 + r);
+    for (const o of oscs) o.stop(t0 + r + 0.05);
+    if (noise) noise.stop(t0 + r + 0.05);
+    setTimeout(() => { try { amp.disconnect(); } catch {} }, (r + 0.2) * 1000);
+  }
+  if (durSec != null) stop(t + durSec);
+  return { stop };
+}
+
+// ----- Mic input source (for live recorder + sampler) -----
+let micStream: MediaStream | null = null;
+let micSource: MediaStreamAudioSourceNode | null = null;
+export async function getMicSource(): Promise<MediaStreamAudioSourceNode> {
+  const c = getContext();
+  if (micSource) return micSource;
+  micStream = await navigator.mediaDevices.getUserMedia({
+    audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
+  });
+  micSource = c.createMediaStreamSource(micStream);
+  return micSource;
+}
+export function releaseMic() {
+  try { micSource?.disconnect(); } catch {}
+  micSource = null;
+  micStream?.getTracks().forEach((t) => t.stop());
+  micStream = null;
+}
+
+// ----- Master tap for live recording (records audible output) -----
+export function createMasterRecorder(): { start: () => void; stop: () => Promise<AudioBuffer> } {
+  const c = getContext();
+  const dest = c.createMediaStreamDestination();
+  getMaster().connect(dest);
+  const rec = new MediaRecorder(dest.stream);
+  const chunks: Blob[] = [];
+  rec.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data); };
+  return {
+    start: () => rec.start(),
+    stop: () => new Promise<AudioBuffer>((resolve, reject) => {
+      rec.onstop = async () => {
+        try {
+          const blob = new Blob(chunks, { type: rec.mimeType || "audio/webm" });
+          const ab = await blob.arrayBuffer();
+          const buf = await c.decodeAudioData(ab);
+          try { getMaster().disconnect(dest); } catch {}
+          resolve(buf);
+        } catch (e) { reject(e); }
+      };
+      rec.stop();
+    }),
+  };
+}
+
 // Generate impulse response for reverb.
 function makeImpulse(duration: number, decay: number): AudioBuffer {
   const c = getContext();
