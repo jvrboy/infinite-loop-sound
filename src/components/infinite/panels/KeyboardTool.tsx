@@ -68,7 +68,8 @@ export function KeyboardTool() {
       const access: MIDIAccess = await (navigator as any).requestMIDIAccess();
       const wire = (inp: MIDIInput) => {
         inp.onmidimessage = (e: MIDIMessageEvent) => {
-          const [status, d1, d2] = e.data;
+          if (!e.data) return;
+          const [status, d1, d2] = e.data as Uint8Array;
           const cmd = status & 0xf0;
           if (cmd === 0x90 && d2 > 0) noteOn(d1, d2 / 127);
           else if (cmd === 0x80 || (cmd === 0x90 && d2 === 0)) noteOff(d1);
