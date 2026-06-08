@@ -9,38 +9,756 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ZoRouteImport } from './routes/zo'
+import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
+import { Route as UptimeRouteImport } from './routes/uptime'
+import { Route as UltraRouteImport } from './routes/ultra'
+import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as TelegramRouteImport } from './routes/telegram'
+import { Route as SystemRouteImport } from './routes/system'
+import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as SentimentRouteImport } from './routes/sentiment'
+import { Route as ScreenerRouteImport } from './routes/screener'
+import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as PnlRouteImport } from './routes/pnl'
+import { Route as PersistenceRouteImport } from './routes/persistence'
+import { Route as OptionsFlowRouteImport } from './routes/options-flow'
+import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as MarketProfileRouteImport } from './routes/market-profile'
+import { Route as HeatmapRouteImport } from './routes/heatmap'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DlqRouteImport } from './routes/dlq'
+import { Route as DerivRouteImport } from './routes/deriv'
+import { Route as DarkPoolRouteImport } from './routes/dark-pool'
+import { Route as CorrelationRouteImport } from './routes/correlation'
+import { Route as ChatRouteImport } from './routes/chat'
+import { Route as ChartRouteImport } from './routes/chart'
+import { Route as BotRouteImport } from './routes/bot'
+import { Route as BacktestRouteImport } from './routes/backtest'
+import { Route as ApiKeysRouteImport } from './routes/api-keys'
+import { Route as AnalysisRouteImport } from './routes/analysis'
+import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
+import { Route as ApiPublicV1SignalsRouteImport } from './routes/api/public/v1/signals'
+import { Route as ApiPublicV1AnalysisRouteImport } from './routes/api/public/v1/analysis'
+import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
+import { Route as ApiPublicHooksReplayStatusRouteImport } from './routes/api/public/hooks/replay-status'
+import { Route as ApiPublicHooksReplayDlqRouteImport } from './routes/api/public/hooks/replay-dlq'
+import { Route as ApiPublicHooksReconcileTradesRouteImport } from './routes/api/public/hooks/reconcile-trades'
+import { Route as ApiPublicHooksKeepaliveRouteImport } from './routes/api/public/hooks/keepalive'
+import { Route as ApiPublicV1WebhooksSubscribeRouteImport } from './routes/api/public/v1/webhooks/subscribe'
+import { Route as ApiPublicV1SignalsIncomingRouteImport } from './routes/api/public/v1/signals/incoming'
 
+const ZoRoute = ZoRouteImport.update({
+  id: '/zo',
+  path: '/zo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebhookEventsRoute = WebhookEventsRouteImport.update({
+  id: '/webhook-events',
+  path: '/webhook-events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UptimeRoute = UptimeRouteImport.update({
+  id: '/uptime',
+  path: '/uptime',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UltraRoute = UltraRouteImport.update({
+  id: '/ultra',
+  path: '/ultra',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ToolsRoute = ToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TelegramRoute = TelegramRouteImport.update({
+  id: '/telegram',
+  path: '/telegram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SystemRoute = SystemRouteImport.update({
+  id: '/system',
+  path: '/system',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignalsRoute = SignalsRouteImport.update({
+  id: '/signals',
+  path: '/signals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SentimentRoute = SentimentRouteImport.update({
+  id: '/sentiment',
+  path: '/sentiment',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScreenerRoute = ScreenerRouteImport.update({
+  id: '/screener',
+  path: '/screener',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScannerRoute = ScannerRouteImport.update({
+  id: '/scanner',
+  path: '/scanner',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PnlRoute = PnlRouteImport.update({
+  id: '/pnl',
+  path: '/pnl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PersistenceRoute = PersistenceRouteImport.update({
+  id: '/persistence',
+  path: '/persistence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OptionsFlowRoute = OptionsFlowRouteImport.update({
+  id: '/options-flow',
+  path: '/options-flow',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NeuralRoute = NeuralRouteImport.update({
+  id: '/neural',
+  path: '/neural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketProfileRoute = MarketProfileRouteImport.update({
+  id: '/market-profile',
+  path: '/market-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HeatmapRoute = HeatmapRouteImport.update({
+  id: '/heatmap',
+  path: '/heatmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DlqRoute = DlqRouteImport.update({
+  id: '/dlq',
+  path: '/dlq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DerivRoute = DerivRouteImport.update({
+  id: '/deriv',
+  path: '/deriv',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DarkPoolRoute = DarkPoolRouteImport.update({
+  id: '/dark-pool',
+  path: '/dark-pool',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorrelationRoute = CorrelationRouteImport.update({
+  id: '/correlation',
+  path: '/correlation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChartRoute = ChartRouteImport.update({
+  id: '/chart',
+  path: '/chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BotRoute = BotRouteImport.update({
+  id: '/bot',
+  path: '/bot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BacktestRoute = BacktestRouteImport.update({
+  id: '/backtest',
+  path: '/backtest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiKeysRoute = ApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnalysisRoute = AnalysisRouteImport.update({
+  id: '/analysis',
+  path: '/analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AlertsRoute = AlertsRouteImport.update({
+  id: '/alerts',
+  path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
+  id: '/api/public/health',
+  path: '/api/public/health',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1SignalsRoute = ApiPublicV1SignalsRouteImport.update({
+  id: '/api/public/v1/signals',
+  path: '/api/public/v1/signals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1AnalysisRoute = ApiPublicV1AnalysisRouteImport.update({
+  id: '/api/public/v1/analysis',
+  path: '/api/public/v1/analysis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicTelegramWebhookRoute =
+  ApiPublicTelegramWebhookRouteImport.update({
+    id: '/api/public/telegram/webhook',
+    path: '/api/public/telegram/webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksReplayStatusRoute =
+  ApiPublicHooksReplayStatusRouteImport.update({
+    id: '/api/public/hooks/replay-status',
+    path: '/api/public/hooks/replay-status',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksReplayDlqRoute = ApiPublicHooksReplayDlqRouteImport.update({
+  id: '/api/public/hooks/replay-dlq',
+  path: '/api/public/hooks/replay-dlq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicHooksReconcileTradesRoute =
+  ApiPublicHooksReconcileTradesRouteImport.update({
+    id: '/api/public/hooks/reconcile-trades',
+    path: '/api/public/hooks/reconcile-trades',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicHooksKeepaliveRoute = ApiPublicHooksKeepaliveRouteImport.update({
+  id: '/api/public/hooks/keepalive',
+  path: '/api/public/hooks/keepalive',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicV1WebhooksSubscribeRoute =
+  ApiPublicV1WebhooksSubscribeRouteImport.update({
+    id: '/api/public/v1/webhooks/subscribe',
+    path: '/api/public/v1/webhooks/subscribe',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const ApiPublicV1SignalsIncomingRoute =
+  ApiPublicV1SignalsIncomingRouteImport.update({
+    id: '/incoming',
+    path: '/incoming',
+    getParentRoute: () => ApiPublicV1SignalsRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/analysis': typeof AnalysisRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/backtest': typeof BacktestRoute
+  '/bot': typeof BotRoute
+  '/chart': typeof ChartRoute
+  '/chat': typeof ChatRoute
+  '/correlation': typeof CorrelationRoute
+  '/dark-pool': typeof DarkPoolRoute
+  '/deriv': typeof DerivRoute
+  '/dlq': typeof DlqRoute
+  '/docs': typeof DocsRoute
+  '/heatmap': typeof HeatmapRoute
+  '/market-profile': typeof MarketProfileRoute
+  '/neural': typeof NeuralRoute
+  '/options-flow': typeof OptionsFlowRoute
+  '/persistence': typeof PersistenceRoute
+  '/pnl': typeof PnlRoute
+  '/scanner': typeof ScannerRoute
+  '/screener': typeof ScreenerRoute
+  '/sentiment': typeof SentimentRoute
+  '/signals': typeof SignalsRoute
+  '/system': typeof SystemRoute
+  '/telegram': typeof TelegramRoute
+  '/tools': typeof ToolsRoute
+  '/ultra': typeof UltraRoute
+  '/uptime': typeof UptimeRoute
+  '/webhook-events': typeof WebhookEventsRoute
+  '/zo': typeof ZoRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
+  '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
+  '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
+  '/api/public/hooks/replay-status': typeof ApiPublicHooksReplayStatusRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/v1/analysis': typeof ApiPublicV1AnalysisRoute
+  '/api/public/v1/signals': typeof ApiPublicV1SignalsRouteWithChildren
+  '/api/public/v1/signals/incoming': typeof ApiPublicV1SignalsIncomingRoute
+  '/api/public/v1/webhooks/subscribe': typeof ApiPublicV1WebhooksSubscribeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/analysis': typeof AnalysisRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/backtest': typeof BacktestRoute
+  '/bot': typeof BotRoute
+  '/chart': typeof ChartRoute
+  '/chat': typeof ChatRoute
+  '/correlation': typeof CorrelationRoute
+  '/dark-pool': typeof DarkPoolRoute
+  '/deriv': typeof DerivRoute
+  '/dlq': typeof DlqRoute
+  '/docs': typeof DocsRoute
+  '/heatmap': typeof HeatmapRoute
+  '/market-profile': typeof MarketProfileRoute
+  '/neural': typeof NeuralRoute
+  '/options-flow': typeof OptionsFlowRoute
+  '/persistence': typeof PersistenceRoute
+  '/pnl': typeof PnlRoute
+  '/scanner': typeof ScannerRoute
+  '/screener': typeof ScreenerRoute
+  '/sentiment': typeof SentimentRoute
+  '/signals': typeof SignalsRoute
+  '/system': typeof SystemRoute
+  '/telegram': typeof TelegramRoute
+  '/tools': typeof ToolsRoute
+  '/ultra': typeof UltraRoute
+  '/uptime': typeof UptimeRoute
+  '/webhook-events': typeof WebhookEventsRoute
+  '/zo': typeof ZoRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
+  '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
+  '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
+  '/api/public/hooks/replay-status': typeof ApiPublicHooksReplayStatusRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/v1/analysis': typeof ApiPublicV1AnalysisRoute
+  '/api/public/v1/signals': typeof ApiPublicV1SignalsRouteWithChildren
+  '/api/public/v1/signals/incoming': typeof ApiPublicV1SignalsIncomingRoute
+  '/api/public/v1/webhooks/subscribe': typeof ApiPublicV1WebhooksSubscribeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/alerts': typeof AlertsRoute
+  '/analysis': typeof AnalysisRoute
+  '/api-keys': typeof ApiKeysRoute
+  '/backtest': typeof BacktestRoute
+  '/bot': typeof BotRoute
+  '/chart': typeof ChartRoute
+  '/chat': typeof ChatRoute
+  '/correlation': typeof CorrelationRoute
+  '/dark-pool': typeof DarkPoolRoute
+  '/deriv': typeof DerivRoute
+  '/dlq': typeof DlqRoute
+  '/docs': typeof DocsRoute
+  '/heatmap': typeof HeatmapRoute
+  '/market-profile': typeof MarketProfileRoute
+  '/neural': typeof NeuralRoute
+  '/options-flow': typeof OptionsFlowRoute
+  '/persistence': typeof PersistenceRoute
+  '/pnl': typeof PnlRoute
+  '/scanner': typeof ScannerRoute
+  '/screener': typeof ScreenerRoute
+  '/sentiment': typeof SentimentRoute
+  '/signals': typeof SignalsRoute
+  '/system': typeof SystemRoute
+  '/telegram': typeof TelegramRoute
+  '/tools': typeof ToolsRoute
+  '/ultra': typeof UltraRoute
+  '/uptime': typeof UptimeRoute
+  '/webhook-events': typeof WebhookEventsRoute
+  '/zo': typeof ZoRoute
+  '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
+  '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
+  '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
+  '/api/public/hooks/replay-status': typeof ApiPublicHooksReplayStatusRoute
+  '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
+  '/api/public/v1/analysis': typeof ApiPublicV1AnalysisRoute
+  '/api/public/v1/signals': typeof ApiPublicV1SignalsRouteWithChildren
+  '/api/public/v1/signals/incoming': typeof ApiPublicV1SignalsIncomingRoute
+  '/api/public/v1/webhooks/subscribe': typeof ApiPublicV1WebhooksSubscribeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/alerts'
+    | '/analysis'
+    | '/api-keys'
+    | '/backtest'
+    | '/bot'
+    | '/chart'
+    | '/chat'
+    | '/correlation'
+    | '/dark-pool'
+    | '/deriv'
+    | '/dlq'
+    | '/docs'
+    | '/heatmap'
+    | '/market-profile'
+    | '/neural'
+    | '/options-flow'
+    | '/persistence'
+    | '/pnl'
+    | '/scanner'
+    | '/screener'
+    | '/sentiment'
+    | '/signals'
+    | '/system'
+    | '/telegram'
+    | '/tools'
+    | '/ultra'
+    | '/uptime'
+    | '/webhook-events'
+    | '/zo'
+    | '/api/public/health'
+    | '/api/public/hooks/keepalive'
+    | '/api/public/hooks/reconcile-trades'
+    | '/api/public/hooks/replay-dlq'
+    | '/api/public/hooks/replay-status'
+    | '/api/public/telegram/webhook'
+    | '/api/public/v1/analysis'
+    | '/api/public/v1/signals'
+    | '/api/public/v1/signals/incoming'
+    | '/api/public/v1/webhooks/subscribe'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/alerts'
+    | '/analysis'
+    | '/api-keys'
+    | '/backtest'
+    | '/bot'
+    | '/chart'
+    | '/chat'
+    | '/correlation'
+    | '/dark-pool'
+    | '/deriv'
+    | '/dlq'
+    | '/docs'
+    | '/heatmap'
+    | '/market-profile'
+    | '/neural'
+    | '/options-flow'
+    | '/persistence'
+    | '/pnl'
+    | '/scanner'
+    | '/screener'
+    | '/sentiment'
+    | '/signals'
+    | '/system'
+    | '/telegram'
+    | '/tools'
+    | '/ultra'
+    | '/uptime'
+    | '/webhook-events'
+    | '/zo'
+    | '/api/public/health'
+    | '/api/public/hooks/keepalive'
+    | '/api/public/hooks/reconcile-trades'
+    | '/api/public/hooks/replay-dlq'
+    | '/api/public/hooks/replay-status'
+    | '/api/public/telegram/webhook'
+    | '/api/public/v1/analysis'
+    | '/api/public/v1/signals'
+    | '/api/public/v1/signals/incoming'
+    | '/api/public/v1/webhooks/subscribe'
+  id:
+    | '__root__'
+    | '/'
+    | '/alerts'
+    | '/analysis'
+    | '/api-keys'
+    | '/backtest'
+    | '/bot'
+    | '/chart'
+    | '/chat'
+    | '/correlation'
+    | '/dark-pool'
+    | '/deriv'
+    | '/dlq'
+    | '/docs'
+    | '/heatmap'
+    | '/market-profile'
+    | '/neural'
+    | '/options-flow'
+    | '/persistence'
+    | '/pnl'
+    | '/scanner'
+    | '/screener'
+    | '/sentiment'
+    | '/signals'
+    | '/system'
+    | '/telegram'
+    | '/tools'
+    | '/ultra'
+    | '/uptime'
+    | '/webhook-events'
+    | '/zo'
+    | '/api/public/health'
+    | '/api/public/hooks/keepalive'
+    | '/api/public/hooks/reconcile-trades'
+    | '/api/public/hooks/replay-dlq'
+    | '/api/public/hooks/replay-status'
+    | '/api/public/telegram/webhook'
+    | '/api/public/v1/analysis'
+    | '/api/public/v1/signals'
+    | '/api/public/v1/signals/incoming'
+    | '/api/public/v1/webhooks/subscribe'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AlertsRoute: typeof AlertsRoute
+  AnalysisRoute: typeof AnalysisRoute
+  ApiKeysRoute: typeof ApiKeysRoute
+  BacktestRoute: typeof BacktestRoute
+  BotRoute: typeof BotRoute
+  ChartRoute: typeof ChartRoute
+  ChatRoute: typeof ChatRoute
+  CorrelationRoute: typeof CorrelationRoute
+  DarkPoolRoute: typeof DarkPoolRoute
+  DerivRoute: typeof DerivRoute
+  DlqRoute: typeof DlqRoute
+  DocsRoute: typeof DocsRoute
+  HeatmapRoute: typeof HeatmapRoute
+  MarketProfileRoute: typeof MarketProfileRoute
+  NeuralRoute: typeof NeuralRoute
+  OptionsFlowRoute: typeof OptionsFlowRoute
+  PersistenceRoute: typeof PersistenceRoute
+  PnlRoute: typeof PnlRoute
+  ScannerRoute: typeof ScannerRoute
+  ScreenerRoute: typeof ScreenerRoute
+  SentimentRoute: typeof SentimentRoute
+  SignalsRoute: typeof SignalsRoute
+  SystemRoute: typeof SystemRoute
+  TelegramRoute: typeof TelegramRoute
+  ToolsRoute: typeof ToolsRoute
+  UltraRoute: typeof UltraRoute
+  UptimeRoute: typeof UptimeRoute
+  WebhookEventsRoute: typeof WebhookEventsRoute
+  ZoRoute: typeof ZoRoute
+  ApiPublicHealthRoute: typeof ApiPublicHealthRoute
+  ApiPublicHooksKeepaliveRoute: typeof ApiPublicHooksKeepaliveRoute
+  ApiPublicHooksReconcileTradesRoute: typeof ApiPublicHooksReconcileTradesRoute
+  ApiPublicHooksReplayDlqRoute: typeof ApiPublicHooksReplayDlqRoute
+  ApiPublicHooksReplayStatusRoute: typeof ApiPublicHooksReplayStatusRoute
+  ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
+  ApiPublicV1AnalysisRoute: typeof ApiPublicV1AnalysisRoute
+  ApiPublicV1SignalsRoute: typeof ApiPublicV1SignalsRouteWithChildren
+  ApiPublicV1WebhooksSubscribeRoute: typeof ApiPublicV1WebhooksSubscribeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/zo': {
+      id: '/zo'
+      path: '/zo'
+      fullPath: '/zo'
+      preLoaderRoute: typeof ZoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/webhook-events': {
+      id: '/webhook-events'
+      path: '/webhook-events'
+      fullPath: '/webhook-events'
+      preLoaderRoute: typeof WebhookEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/uptime': {
+      id: '/uptime'
+      path: '/uptime'
+      fullPath: '/uptime'
+      preLoaderRoute: typeof UptimeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ultra': {
+      id: '/ultra'
+      path: '/ultra'
+      fullPath: '/ultra'
+      preLoaderRoute: typeof UltraRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/tools': {
+      id: '/tools'
+      path: '/tools'
+      fullPath: '/tools'
+      preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/telegram': {
+      id: '/telegram'
+      path: '/telegram'
+      fullPath: '/telegram'
+      preLoaderRoute: typeof TelegramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/system': {
+      id: '/system'
+      path: '/system'
+      fullPath: '/system'
+      preLoaderRoute: typeof SystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signals': {
+      id: '/signals'
+      path: '/signals'
+      fullPath: '/signals'
+      preLoaderRoute: typeof SignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sentiment': {
+      id: '/sentiment'
+      path: '/sentiment'
+      fullPath: '/sentiment'
+      preLoaderRoute: typeof SentimentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/screener': {
+      id: '/screener'
+      path: '/screener'
+      fullPath: '/screener'
+      preLoaderRoute: typeof ScreenerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scanner': {
+      id: '/scanner'
+      path: '/scanner'
+      fullPath: '/scanner'
+      preLoaderRoute: typeof ScannerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pnl': {
+      id: '/pnl'
+      path: '/pnl'
+      fullPath: '/pnl'
+      preLoaderRoute: typeof PnlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/persistence': {
+      id: '/persistence'
+      path: '/persistence'
+      fullPath: '/persistence'
+      preLoaderRoute: typeof PersistenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/options-flow': {
+      id: '/options-flow'
+      path: '/options-flow'
+      fullPath: '/options-flow'
+      preLoaderRoute: typeof OptionsFlowRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/neural': {
+      id: '/neural'
+      path: '/neural'
+      fullPath: '/neural'
+      preLoaderRoute: typeof NeuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-profile': {
+      id: '/market-profile'
+      path: '/market-profile'
+      fullPath: '/market-profile'
+      preLoaderRoute: typeof MarketProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/heatmap': {
+      id: '/heatmap'
+      path: '/heatmap'
+      fullPath: '/heatmap'
+      preLoaderRoute: typeof HeatmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dlq': {
+      id: '/dlq'
+      path: '/dlq'
+      fullPath: '/dlq'
+      preLoaderRoute: typeof DlqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/deriv': {
+      id: '/deriv'
+      path: '/deriv'
+      fullPath: '/deriv'
+      preLoaderRoute: typeof DerivRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dark-pool': {
+      id: '/dark-pool'
+      path: '/dark-pool'
+      fullPath: '/dark-pool'
+      preLoaderRoute: typeof DarkPoolRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/correlation': {
+      id: '/correlation'
+      path: '/correlation'
+      fullPath: '/correlation'
+      preLoaderRoute: typeof CorrelationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chart': {
+      id: '/chart'
+      path: '/chart'
+      fullPath: '/chart'
+      preLoaderRoute: typeof ChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/bot': {
+      id: '/bot'
+      path: '/bot'
+      fullPath: '/bot'
+      preLoaderRoute: typeof BotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/backtest': {
+      id: '/backtest'
+      path: '/backtest'
+      fullPath: '/backtest'
+      preLoaderRoute: typeof BacktestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api-keys': {
+      id: '/api-keys'
+      path: '/api-keys'
+      fullPath: '/api-keys'
+      preLoaderRoute: typeof ApiKeysRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/analysis': {
+      id: '/analysis'
+      path: '/analysis'
+      fullPath: '/analysis'
+      preLoaderRoute: typeof AnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/alerts': {
+      id: '/alerts'
+      path: '/alerts'
+      fullPath: '/alerts'
+      preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,12 +766,141 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/health': {
+      id: '/api/public/health'
+      path: '/api/public/health'
+      fullPath: '/api/public/health'
+      preLoaderRoute: typeof ApiPublicHealthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/signals': {
+      id: '/api/public/v1/signals'
+      path: '/api/public/v1/signals'
+      fullPath: '/api/public/v1/signals'
+      preLoaderRoute: typeof ApiPublicV1SignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/analysis': {
+      id: '/api/public/v1/analysis'
+      path: '/api/public/v1/analysis'
+      fullPath: '/api/public/v1/analysis'
+      preLoaderRoute: typeof ApiPublicV1AnalysisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/telegram/webhook': {
+      id: '/api/public/telegram/webhook'
+      path: '/api/public/telegram/webhook'
+      fullPath: '/api/public/telegram/webhook'
+      preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/replay-status': {
+      id: '/api/public/hooks/replay-status'
+      path: '/api/public/hooks/replay-status'
+      fullPath: '/api/public/hooks/replay-status'
+      preLoaderRoute: typeof ApiPublicHooksReplayStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/replay-dlq': {
+      id: '/api/public/hooks/replay-dlq'
+      path: '/api/public/hooks/replay-dlq'
+      fullPath: '/api/public/hooks/replay-dlq'
+      preLoaderRoute: typeof ApiPublicHooksReplayDlqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/reconcile-trades': {
+      id: '/api/public/hooks/reconcile-trades'
+      path: '/api/public/hooks/reconcile-trades'
+      fullPath: '/api/public/hooks/reconcile-trades'
+      preLoaderRoute: typeof ApiPublicHooksReconcileTradesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/hooks/keepalive': {
+      id: '/api/public/hooks/keepalive'
+      path: '/api/public/hooks/keepalive'
+      fullPath: '/api/public/hooks/keepalive'
+      preLoaderRoute: typeof ApiPublicHooksKeepaliveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/webhooks/subscribe': {
+      id: '/api/public/v1/webhooks/subscribe'
+      path: '/api/public/v1/webhooks/subscribe'
+      fullPath: '/api/public/v1/webhooks/subscribe'
+      preLoaderRoute: typeof ApiPublicV1WebhooksSubscribeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/v1/signals/incoming': {
+      id: '/api/public/v1/signals/incoming'
+      path: '/incoming'
+      fullPath: '/api/public/v1/signals/incoming'
+      preLoaderRoute: typeof ApiPublicV1SignalsIncomingRouteImport
+      parentRoute: typeof ApiPublicV1SignalsRoute
+    }
   }
 }
 
+interface ApiPublicV1SignalsRouteChildren {
+  ApiPublicV1SignalsIncomingRoute: typeof ApiPublicV1SignalsIncomingRoute
+}
+
+const ApiPublicV1SignalsRouteChildren: ApiPublicV1SignalsRouteChildren = {
+  ApiPublicV1SignalsIncomingRoute: ApiPublicV1SignalsIncomingRoute,
+}
+
+const ApiPublicV1SignalsRouteWithChildren =
+  ApiPublicV1SignalsRoute._addFileChildren(ApiPublicV1SignalsRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AlertsRoute: AlertsRoute,
+  AnalysisRoute: AnalysisRoute,
+  ApiKeysRoute: ApiKeysRoute,
+  BacktestRoute: BacktestRoute,
+  BotRoute: BotRoute,
+  ChartRoute: ChartRoute,
+  ChatRoute: ChatRoute,
+  CorrelationRoute: CorrelationRoute,
+  DarkPoolRoute: DarkPoolRoute,
+  DerivRoute: DerivRoute,
+  DlqRoute: DlqRoute,
+  DocsRoute: DocsRoute,
+  HeatmapRoute: HeatmapRoute,
+  MarketProfileRoute: MarketProfileRoute,
+  NeuralRoute: NeuralRoute,
+  OptionsFlowRoute: OptionsFlowRoute,
+  PersistenceRoute: PersistenceRoute,
+  PnlRoute: PnlRoute,
+  ScannerRoute: ScannerRoute,
+  ScreenerRoute: ScreenerRoute,
+  SentimentRoute: SentimentRoute,
+  SignalsRoute: SignalsRoute,
+  SystemRoute: SystemRoute,
+  TelegramRoute: TelegramRoute,
+  ToolsRoute: ToolsRoute,
+  UltraRoute: UltraRoute,
+  UptimeRoute: UptimeRoute,
+  WebhookEventsRoute: WebhookEventsRoute,
+  ZoRoute: ZoRoute,
+  ApiPublicHealthRoute: ApiPublicHealthRoute,
+  ApiPublicHooksKeepaliveRoute: ApiPublicHooksKeepaliveRoute,
+  ApiPublicHooksReconcileTradesRoute: ApiPublicHooksReconcileTradesRoute,
+  ApiPublicHooksReplayDlqRoute: ApiPublicHooksReplayDlqRoute,
+  ApiPublicHooksReplayStatusRoute: ApiPublicHooksReplayStatusRoute,
+  ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
+  ApiPublicV1AnalysisRoute: ApiPublicV1AnalysisRoute,
+  ApiPublicV1SignalsRoute: ApiPublicV1SignalsRouteWithChildren,
+  ApiPublicV1WebhooksSubscribeRoute: ApiPublicV1WebhooksSubscribeRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
