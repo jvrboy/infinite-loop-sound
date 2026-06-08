@@ -109,7 +109,7 @@ const buildMessage = (s: z.infer<typeof SignalSchema>) => {
 };
 
 export const sendSignalToTelegram = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     signalId: z.string().uuid().optional(),
     signal: SignalSchema,
     closes: z.array(z.number()).optional(),
@@ -143,7 +143,7 @@ export const sendSignalToTelegram = createServerFn({ method: "POST" })
   });
 
 export const subscribeChatId = createServerFn({ method: "POST" })
-  .validator((d) => z.object({ chatId: z.number().int(), username: z.string().optional() }).parse(d))
+  .inputValidator((d) => z.object({ chatId: z.number().int(), username: z.string().optional() }).parse(d))
   .handler(async ({ data }) => {
     const sb = admin();
     const { error } = await sb.from("telegram_subscribers").upsert(
@@ -163,7 +163,7 @@ export const listSubscribers = createServerFn({ method: "GET" })
   });
 
 export const sendTestMessage = createServerFn({ method: "POST" })
-  .validator((d) => z.object({ chatId: z.number().int() }).parse(d))
+  .inputValidator((d) => z.object({ chatId: z.number().int() }).parse(d))
   .handler(async ({ data }) => {
     await tgFetch("sendMessage", {
       chat_id: data.chatId,
@@ -179,7 +179,7 @@ export const getBotInfo = createServerFn({ method: "GET" })
   });
 
 export const setupTelegramWebhook = createServerFn({ method: "POST" })
-  .validator((d) => z.object({ webhookUrl: z.string().url() }).parse(d))
+  .inputValidator((d) => z.object({ webhookUrl: z.string().url() }).parse(d))
   .handler(async ({ data }) => {
     const result = await tgFetch("setWebhook", {
       url: data.webhookUrl,
