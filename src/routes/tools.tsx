@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { analyzeSignalsWithAI, predictSignalOutcome } from "@/lib/ai-filter.functions";
+import { ForexTools } from "@/components/app/ForexTools";
 
 export const Route = createFileRoute("/tools")({
   component: ToolsPage,
