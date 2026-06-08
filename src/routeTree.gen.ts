@@ -40,6 +40,7 @@ import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
+import { Route as ApiKeepaliveZoRouteImport } from './routes/api/keepalive/zo'
 import { Route as ApiPublicV1SignalsRouteImport } from './routes/api/public/v1/signals'
 import { Route as ApiPublicV1AnalysisRouteImport } from './routes/api/public/v1/analysis'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
@@ -205,6 +206,11 @@ const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
   path: '/api/public/health',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiKeepaliveZoRoute = ApiKeepaliveZoRouteImport.update({
+  id: '/api/keepalive/zo',
+  path: '/api/keepalive/zo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicV1SignalsRoute = ApiPublicV1SignalsRouteImport.update({
   id: '/api/public/v1/signals',
   path: '/api/public/v1/signals',
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/zo': typeof ZoRoute
+  '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
@@ -329,6 +336,7 @@ export interface FileRoutesByTo {
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/zo': typeof ZoRoute
+  '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/zo': typeof ZoRoute
+  '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
@@ -416,6 +425,7 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/webhook-events'
     | '/zo'
+    | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/webhook-events'
     | '/zo'
+    | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
@@ -500,6 +511,7 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/webhook-events'
     | '/zo'
+    | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
@@ -543,6 +555,7 @@ export interface RootRouteChildren {
   UptimeRoute: typeof UptimeRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
   ZoRoute: typeof ZoRoute
+  ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicHooksKeepaliveRoute: typeof ApiPublicHooksKeepaliveRoute
   ApiPublicHooksReconcileTradesRoute: typeof ApiPublicHooksReconcileTradesRoute
@@ -773,6 +786,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHealthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/keepalive/zo': {
+      id: '/api/keepalive/zo'
+      path: '/api/keepalive/zo'
+      fullPath: '/api/keepalive/zo'
+      preLoaderRoute: typeof ApiKeepaliveZoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/signals': {
       id: '/api/public/v1/signals'
       path: '/api/public/v1/signals'
@@ -881,6 +901,7 @@ const rootRouteChildren: RootRouteChildren = {
   UptimeRoute: UptimeRoute,
   WebhookEventsRoute: WebhookEventsRoute,
   ZoRoute: ZoRoute,
+  ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicHooksKeepaliveRoute: ApiPublicHooksKeepaliveRoute,
   ApiPublicHooksReconcileTradesRoute: ApiPublicHooksReconcileTradesRoute,
@@ -894,13 +915,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

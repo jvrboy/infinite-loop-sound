@@ -109,7 +109,7 @@ function SignalsPage() {
       s.pair, s.timeframe, s.direction, s.score, s.rating,
       s.entry, s.sl, s.tp1, s.tp2, s.tp3,
       new Date(s.created_at).toISOString(),
-      s.result || ""
+      (s as any).result || ""
     ]);
     const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")).join("\n");
     const blob = new Blob([csv], { type: "text/csv" });

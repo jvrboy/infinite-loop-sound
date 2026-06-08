@@ -11,7 +11,7 @@ let lastAppPing = 0;
 let pingInterval: NodeJS.Timeout | null = null;
 
 export const pingZoComputer = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     apiKey: z.string().optional(),
   }).parse(d))
   .handler(async ({ data }) => {
@@ -61,7 +61,7 @@ export const pingZoComputer = createServerFn({ method: "POST" })
   });
 
 export const receiveZoPing = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     source: z.string(),
     timestamp: z.number().optional(),
   }).parse(d))
@@ -103,7 +103,7 @@ export const getKeepaliveStatus = createServerFn({ method: "GET" })
   });
 
 export const start24x7Keepalive = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     apiKey: z.string(),
     intervalSeconds: z.number().optional().default(60),
   }).parse(d))

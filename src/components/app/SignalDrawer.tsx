@@ -39,7 +39,7 @@ export function SignalDrawer({ open, onOpenChange, signal }: Props) {
     const oscs = passedDivOscs.length ? passedDivOscs : ["RSI", "MACD", "STOCH"];
     oscs.forEach(osc => {
       fetchStats({ data: { pair: signal.pair, timeframe: signal.timeframe, oscillator: osc, limit: 5 } })
-        .then(r => setStats(s => ({ ...s, [osc]: r })))
+        .then((r: any) => setStats(s => ({ ...s, [osc]: r })))
         .catch(() => {});
     });
     // eslint-disable-next-line

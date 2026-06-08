@@ -123,7 +123,7 @@ export const runHealthCheck = createServerFn({ method: "GET" })
   });
 
 export const startHealthMonitoring = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     intervalSeconds: z.number().optional().default(30),
     autoRestart: z.boolean().optional().default(true),
   }).parse(d))
