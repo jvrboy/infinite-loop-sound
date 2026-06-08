@@ -33,7 +33,7 @@ function PersistencePage() {
     try {
       const s = await getStatus();
       setStatus(s);
-      setIsActive(s.mutual);
+      setIsActive(!!s.mutual);
     } catch {}
   };
 
