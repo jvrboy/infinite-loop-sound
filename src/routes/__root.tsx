@@ -1,10 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, createRootRouteWithContext, useRouter, HeadContent, Scripts, Link } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
+import appCss from "../styles.css?url";
 import { PasswordGate } from "@/components/app/PasswordGate";
 import { useEffect } from "react";
 import { seedBuiltinKeys } from "@/lib/ai/client";
-import "../styles.css";
 
 function NotFoundComponent() {
   return (
@@ -57,6 +57,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
     ],
     links: [
+      { rel: "stylesheet", href: appCss },
       { rel: "manifest", href: "/manifest.json" },
       { rel: "apple-touch-icon", href: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/759c30b0-4d8a-4c48-8eed-413e731c94bc/id-preview-25d01455--cd2125b3-e3ec-4fc2-a7f2-25e144c8a534.lovable.app-1778502594091.png" },
     ],
