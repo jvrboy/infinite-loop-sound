@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { PasswordGate } from "@/components/app/PasswordGate";
 import { useEffect } from "react";
 import { seedBuiltinKeys } from "@/lib/ai/client";
+import "../styles.css";
 
 function NotFoundComponent() {
   return (
