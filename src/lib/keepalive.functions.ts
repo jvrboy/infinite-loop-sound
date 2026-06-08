@@ -8,7 +8,7 @@ const DEFAULT_API_KEY = ZO_CONFIG.apiKey;
 // Store last ping times
 let lastZoPing = 0;
 let lastAppPing = 0;
-let pingInterval: NodeJS.Timeout | null = null;
+let pingInterval: ReturnType<typeof setInterval> | null = null;
 
 export const pingZoComputer = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({
@@ -153,14 +153,5 @@ async function performKeepaliveTasks() {
   }
 }
 
-// Auto-start on server init if API key exists
-if (typeof process !== "undefined" && (process.env.ZO_API_KEY || DEFAULT_API_KEY)) {
-  setTimeout(() => {
-    start24x7Keepalive({ 
-      data: { 
-        apiKey: process.env.ZO_API_KEY || DEFAULT_API_KEY, 
-        intervalSeconds: 60 
-      } 
-    }).catch(console.error);
-  }, 5000);
-}
+// Keepalive is started explicitly from the UI/API. Server functions require a request
+// context, so they must not be invoked from module-level timers during SSR startup.
