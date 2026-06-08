@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import type { LucideIcon } from "lucide-react";
 import {
   Activity,
@@ -147,7 +147,7 @@ function PipCalc({ selected, livePrice }: { selected: Pair; livePrice?: number }
   return (
     <ToolCard icon={Calculator} title="Pip Value" status={livePrice ? "Live price linked" : "Waiting for feed"}>
       <Row>
-        <Field label="Pair"><div className="readonly-field">{selected.label}</div></Field>
+        <Field label="Pair"><div className="flex h-10 items-center rounded-md border border-input bg-muted/30 px-3 text-sm font-mono">{selected.label}</div></Field>
         <Field label="Lots"><Input type="number" step="0.01" value={lots} onChange={(event) => setLots(Number(event.target.value) || 0)} /></Field>
         <Field label="Account"><Input value={account} maxLength={3} onChange={(event) => setAccount(event.target.value.toUpperCase())} /></Field>
       </Row>
@@ -187,7 +187,7 @@ function MarginCalc({ selected, livePrice }: { selected: Pair; livePrice?: numbe
   return (
     <ToolCard icon={DollarSign} title="Margin Required" status={livePrice ? "Using live quote" : "Waiting for quote"}>
       <Row>
-        <Field label="Pair"><div className="readonly-field">{selected.label}</div></Field>
+        <Field label="Pair"><div className="flex h-10 items-center rounded-md border border-input bg-muted/30 px-3 text-sm font-mono">{selected.label}</div></Field>
         <Field label="Lots"><Input type="number" step="0.01" value={lots} onChange={(event) => setLots(Number(event.target.value) || 0)} /></Field>
         <Field label="Leverage"><Input type="number" value={leverage} onChange={(event) => setLeverage(Number(event.target.value) || 1)} /></Field>
       </Row>
@@ -353,7 +353,7 @@ function Converter({ selected, livePrice }: { selected: Pair; livePrice?: number
     <ToolCard icon={Globe2} title="Live Converter" status={livePrice ? "Using Deriv quote" : "Waiting for quote"}>
       <Row>
         <Field label={`Amount ${base}`}><Input type="number" value={amount} onChange={(event) => setAmount(Number(event.target.value) || 0)} /></Field>
-        <Field label="Pair"><div className="readonly-field">{selected.label}</div></Field>
+        <Field label="Pair"><div className="flex h-10 items-center rounded-md border border-input bg-muted/30 px-3 text-sm font-mono">{selected.label}</div></Field>
       </Row>
       <Result label="Converted" highlight>{livePrice ? `${converted.toFixed(2)} ${quote}` : "—"}</Result>
     </ToolCard>
@@ -365,7 +365,7 @@ function ToolCard({ icon: Icon, title, status, children }: { icon: LucideIcon; t
     <section className="rounded-lg border border-border bg-card/90 p-4 shadow-sm backdrop-blur">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/12 text-primary">
+          <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary">
             <Icon className="h-4 w-4" />
           </div>
           <div>

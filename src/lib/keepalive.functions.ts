@@ -14,7 +14,9 @@ export const pingZoComputer = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({
     apiKey: z.string().optional(),
   }).parse(d))
-  .handler(async ({ data }) => {
+  .handler(async ({ data }) => pingZoComputerTask(data));
+
+async function pingZoComputerTask(data: { apiKey?: string }) {
     const apiKey = data.apiKey || DEFAULT_API_KEY || process.env.ZO_API_KEY;
     if (!apiKey) {
       return { success: false, error: "No Zo API key" };
@@ -58,7 +60,7 @@ export const pingZoComputer = createServerFn({ method: "POST" })
     } catch (e: any) {
       return { success: false, error: e.message };
     }
-  });
+}
 
 export const receiveZoPing = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({
@@ -115,7 +117,7 @@ export const start24x7Keepalive = createServerFn({ method: "POST" })
     // Start pinging Zo every minute
     pingInterval = setInterval(async () => {
       try {
-        await pingZoComputer({ data: { apiKey: data.apiKey } });
+        await pingZoComputerTask({ apiKey: data.apiKey });
         console.log(`[KEEPALIVE] Pinged Zo at ${new Date().toISOString()}`);
       } catch (e) {
         console.error("[KEEPALIVE] Failed to ping Zo:", e);
@@ -123,7 +125,7 @@ export const start24x7Keepalive = createServerFn({ method: "POST" })
     }, data.intervalSeconds * 1000);
 
     // Initial ping
-    await pingZoComputer({ data: { apiKey: data.apiKey } });
+    await pingZoComputerTask({ apiKey: data.apiKey });
 
     return { 
       success: true, 

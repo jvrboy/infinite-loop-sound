@@ -20,7 +20,7 @@ function ToolsPage() {
     <AppShell>
       <main className="mx-auto max-w-7xl space-y-6 p-4 md:p-6">
         <div className="flex items-center gap-3">
-          <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/12 text-primary">
+          <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
             <Wrench className="h-5 w-5" />
           </div>
           <div>
