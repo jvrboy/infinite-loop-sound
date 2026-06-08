@@ -148,7 +148,7 @@ export function WebGPUBackground() {
 
         const uniformBuffer = device.createBuffer({
           size: 20,
-          usage: (GPUBufferUsage as any).UNIFORM | (GPUBufferUsage as any).COPY_DST,
+          usage: 0x0040 | 0x0008,
         });
 
         const bindGroup = device.createBindGroup({
