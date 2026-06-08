@@ -20,7 +20,7 @@ export function WebGPUBackground() {
         if (!adapter) throw new Error("No adapter");
         
         const device = await adapter.requestDevice();
-        const context = canvas.getContext("webgpu");
+        const context = canvas.getContext("webgpu" as any) as any;
         if (!context) throw new Error("No context");
 
         useWebGPU = true;
@@ -148,7 +148,7 @@ export function WebGPUBackground() {
 
         const uniformBuffer = device.createBuffer({
           size: 20,
-          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+          usage: (GPUBufferUsage as any).UNIFORM | (GPUBufferUsage as any).COPY_DST,
         });
 
         const bindGroup = device.createBindGroup({
