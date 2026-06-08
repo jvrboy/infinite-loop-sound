@@ -138,6 +138,8 @@ function ToolsPage() {
           })}
         </div>
 
+        <ForexTools />
+
         <div className="grid lg:grid-cols-3 gap-4">
           <div className="lg:col-span-2 rounded-xl border border-border bg-card/80 backdrop-blur p-6">
             <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
