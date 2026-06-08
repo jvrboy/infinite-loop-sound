@@ -11,13 +11,15 @@ interface HealthCheck {
 }
 
 const healthChecks = new Map<string, HealthCheck>();
-let monitoringInterval: NodeJS.Timeout | null = null;
+let monitoringInterval: ReturnType<typeof setInterval> | null = null;
 let autoRestartEnabled = true;
 let crashCount = 0;
 const MAX_CRASHES = 3;
 
 export const runHealthCheck = createServerFn({ method: "GET" })
-  .handler(async () => {
+  .handler(async () => runHealthCheckTask());
+
+async function runHealthCheckTask() {
     const checks: HealthCheck[] = [];
     const start = Date.now();
 
@@ -120,7 +122,7 @@ export const runHealthCheck = createServerFn({ method: "GET" })
       timestamp: Date.now(),
       uptime: process.uptime(),
     };
-  });
+}
 
 export const startHealthMonitoring = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({
@@ -135,12 +137,12 @@ export const startHealthMonitoring = createServerFn({ method: "POST" })
     }
 
     // Run immediately
-    await runHealthCheck();
+    await runHealthCheckTask();
 
     // Then every interval
     monitoringInterval = setInterval(async () => {
       try {
-        const result = await runHealthCheck();
+        const result = await runHealthCheckTask();
         
         // Auto-restart logic
         if (autoRestartEnabled && result.status === "down") {
@@ -219,8 +221,7 @@ async function triggerAutoRestart() {
     healthChecks.clear();
     crashCount = 0;
     
-    // Re-run health check
-    setTimeout(() => runHealthCheck(), 2000);
+    // A fresh health check is run by the next explicit monitor tick.
     
     console.log("[HEALTH] Auto-restart completed");
     return true;
@@ -240,10 +241,5 @@ function formatUptime(seconds: number): string {
   return `${mins}m`;
 }
 
-// Auto-start monitoring
-if (typeof process !== "undefined") {
-  setTimeout(() => {
-    startHealthMonitoring({ data: { intervalSeconds: 30, autoRestart: true } })
-      .catch(console.error);
-  }, 3000);
-}
+// Monitoring is started explicitly from the uptime screen. Server functions must
+// not be called from module-level timers during SSR startup.

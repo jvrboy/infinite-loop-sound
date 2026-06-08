@@ -20,11 +20,20 @@ export const Route = createFileRoute("/api/public/hooks/keepalive")({
             } catch { /* no body */ }
           }
         } catch { /* ignore */ }
-        const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-        const { error } = await sb.from("system_health").upsert({
-          id: 1, last_ping: new Date().toISOString(), ws_ok: true,
-          notes: "cron keepalive",
-        });
+        const supabaseUrl = process.env.SUPABASE_URL;
+        const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        let dbError: string | null = null;
+        const sb = supabaseUrl && serviceKey ? createClient(supabaseUrl, serviceKey) : null;
+
+        if (sb) {
+          const { error } = await sb.from("system_health").upsert({
+            id: 1, last_ping: new Date().toISOString(), ws_ok: true,
+            notes: "cron keepalive",
+          });
+          dbError = error?.message ?? null;
+        } else {
+          dbError = "Cloud environment is not configured for keepalive storage";
+        }
 
         // Best-effort ping zo.computer to keep that side warm too.
         let zo: { ok: boolean; status?: number; error?: string } = { ok: false };
@@ -44,14 +53,14 @@ export const Route = createFileRoute("/api/public/hooks/keepalive")({
         }
 
         const duration = Date.now() - startedAt;
-        try {
+        if (sb) try {
           await sb.from("keepalive_logs").insert({
-            source, ok: !error, zo_ok: zoKey ? zo.ok : null,
+            source, ok: !dbError, zo_ok: zoKey ? zo.ok : null,
             zo_status: zo.status ?? null, zo_error: zo.error ?? null,
-            duration_ms: duration, notes: error?.message ?? null,
+            duration_ms: duration, notes: dbError,
           });
         } catch { /* logging best-effort */ }
-        return Response.json({ ok: !error, error: error?.message ?? null, zo, at: new Date().toISOString() });
+        return Response.json({ ok: !dbError, error: dbError, zo, at: new Date().toISOString() });
       },
       GET: async () => Response.json({ ok: true, at: new Date().toISOString() }),
     },
