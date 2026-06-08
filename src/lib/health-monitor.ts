@@ -17,7 +17,9 @@ let crashCount = 0;
 const MAX_CRASHES = 3;
 
 export const runHealthCheck = createServerFn({ method: "GET" })
-  .handler(async () => {
+  .handler(async () => runHealthCheckTask());
+
+async function runHealthCheckTask() {
     const checks: HealthCheck[] = [];
     const start = Date.now();
 
@@ -120,7 +122,7 @@ export const runHealthCheck = createServerFn({ method: "GET" })
       timestamp: Date.now(),
       uptime: process.uptime(),
     };
-  });
+}
 
 export const startHealthMonitoring = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({
@@ -135,12 +137,12 @@ export const startHealthMonitoring = createServerFn({ method: "POST" })
     }
 
     // Run immediately
-    await runHealthCheck();
+    await runHealthCheckTask();
 
     // Then every interval
     monitoringInterval = setInterval(async () => {
       try {
-        const result = await runHealthCheck();
+        const result = await runHealthCheckTask();
         
         // Auto-restart logic
         if (autoRestartEnabled && result.status === "down") {
