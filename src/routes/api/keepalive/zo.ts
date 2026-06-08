@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { receiveZoPing } from "@/lib/keepalive.functions";
+
+let lastZoPing = 0;
 
 export const Route = createFileRoute("/api/keepalive/zo")({
   server: {
@@ -7,8 +8,14 @@ export const Route = createFileRoute("/api/keepalive/zo")({
       POST: async ({ request }: { request: Request }) => {
         try {
           const body = await request.json();
-          const result = await receiveZoPing({ data: body });
-          return new Response(JSON.stringify(result), {
+          const source = typeof body?.source === "string" ? body.source : "zo-computer";
+          lastZoPing = Date.now();
+          return new Response(JSON.stringify({
+            success: true,
+            appStatus: "alive",
+            source,
+            timestamp: lastZoPing,
+          }), {
             status: 200,
             headers: { "Content-Type": "application/json" },
           });
