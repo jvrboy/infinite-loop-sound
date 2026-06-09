@@ -182,9 +182,9 @@ function MarketProfilePage() {
       height: 400,
     });
     const candle = chart.addSeries(CandlestickSeries, { upColor: "#10b981", downColor: "#ef4444", borderUpColor: "#10b981", borderDownColor: "#ef4444", wickUpColor: "#10b981", wickDownColor: "#ef4444" });
-    const pocLine = chart.addSeries(LineSeries, { color: "#38bdf8", lineWidth: 2.5, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
-    const vahLine = chart.addSeries(LineSeries, { color: "#10b981", lineWidth: 1.5, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
-    const valLine = chart.addSeries(LineSeries, { color: "#10b981", lineWidth: 1.5, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
+    const pocLine = chart.addSeries(LineSeries, { color: "#38bdf8", lineWidth: 2, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
+    const vahLine = chart.addSeries(LineSeries, { color: "#10b981", lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
+    const valLine = chart.addSeries(LineSeries, { color: "#10b981", lineWidth: 1, lineStyle: 2, priceLineVisible: false, lastValueVisible: false });
 
     const cd = candles.map(c => ({ time: c.epoch as UTCTimestamp, open: c.open, high: c.high, low: c.low, close: c.close }));
     candle.setData(cd);
