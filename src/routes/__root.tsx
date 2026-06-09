@@ -46,6 +46,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "DivergenceIQ" },
       { name: "description", content: "Forex divergence scanner & auto signals by Tsepang Mashigo" },
       { name: "theme-color", content: "#0b1020" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "DivergenceIQ" },
