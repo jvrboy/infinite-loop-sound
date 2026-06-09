@@ -48,7 +48,7 @@ function ScannerPage() {
   const [scanHistory, setScanHistory] = useState<ScanHistory[]>([]);
   const [minScore, setMinScore] = useState(60);
   const [tfFilter, setTfFilter] = useState<TF | "ALL">("ALL");
-  const [autoScan, setAutoScan] = useState(false);
+  const [autoScan, setAutoScan] = useState(true); // 24/7 autonomous scanning enabled by default
   const [autoBroadcast, setAutoBroadcast] = useState(true);
   const [intervalSec, setIntervalSec] = useState(300);
   const [lastRun, setLastRun] = useState<Date | null>(null);
