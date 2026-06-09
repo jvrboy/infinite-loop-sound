@@ -11,7 +11,7 @@ interface HealthCheck {
 }
 
 const healthChecks = new Map<string, HealthCheck>();
-let monitoringInterval: NodeJS.Timeout | null = null;
+let monitoringInterval: ReturnType<typeof setInterval> | null = null;
 let autoRestartEnabled = true;
 let crashCount = 0;
 const MAX_CRASHES = 3;
@@ -123,7 +123,7 @@ export const runHealthCheck = createServerFn({ method: "GET" })
   });
 
 export const startHealthMonitoring = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     intervalSeconds: z.number().optional().default(30),
     autoRestart: z.boolean().optional().default(true),
   }).parse(d))
@@ -238,12 +238,4 @@ function formatUptime(seconds: number): string {
   if (days > 0) return `${days}d ${hours}h ${mins}m`;
   if (hours > 0) return `${hours}h ${mins}m`;
   return `${mins}m`;
-}
-
-// Auto-start monitoring
-if (typeof process !== "undefined") {
-  setTimeout(() => {
-    startHealthMonitoring({ data: { intervalSeconds: 30, autoRestart: true } })
-      .catch(console.error);
-  }, 3000);
 }

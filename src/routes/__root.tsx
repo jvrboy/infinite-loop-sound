@@ -46,6 +46,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "DivergenceIQ" },
       { name: "description", content: "Forex divergence scanner & auto signals by Tsepang Mashigo" },
       { name: "theme-color", content: "#0b1020" },
+      { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "DivergenceIQ" },
@@ -118,7 +119,7 @@ function RootComponent() {
                   entry: a.trade.entry, sl: a.trade.sl, tp1: a.trade.tp1, tp2: a.trade.tp2, tp3: a.trade.tp3,
                   score: a.scorePct, rating: a.rating, confluence: a.confluence as any,
                   source: "auto_scan", status: "active",
-                }).select().single().then(({ error }) => {
+                } as any).select().single().then(({ error }) => {
                   if (!error) {
                     console.log("[AUTO-SCAN] Saved", key, a.rating, a.scorePct);
                   }

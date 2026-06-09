@@ -12,15 +12,16 @@ export function WebGPUBackground() {
 
     const initWebGPU = async () => {
       try {
-        if (!navigator.gpu) throw new Error("WebGPU not supported");
+        const gpu = (navigator as Navigator & { gpu?: any }).gpu;
+        if (!gpu) throw new Error("WebGPU not supported");
         
-        const adapter = await navigator.gpu.requestAdapter({
+        const adapter = await gpu.requestAdapter({
           powerPreference: "high-performance"
         });
         if (!adapter) throw new Error("No adapter");
         
         const device = await adapter.requestDevice();
-        const context = canvas.getContext("webgpu");
+        const context = canvas.getContext("webgpu") as any;
         if (!context) throw new Error("No context");
 
         useWebGPU = true;
@@ -34,7 +35,7 @@ export function WebGPUBackground() {
         resize();
         window.addEventListener("resize", resize);
 
-        const format = navigator.gpu.getPreferredCanvasFormat();
+        const format = gpu.getPreferredCanvasFormat();
         context.configure({ device, format, alphaMode: "premultiplied" });
 
         // WebGPU shader for neural network visualization
@@ -148,7 +149,7 @@ export function WebGPUBackground() {
 
         const uniformBuffer = device.createBuffer({
           size: 20,
-          usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+          usage: 0x0040 | 0x0008,
         });
 
         const bindGroup = device.createBindGroup({

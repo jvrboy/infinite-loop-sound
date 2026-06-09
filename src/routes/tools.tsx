@@ -1,317 +1,455 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { useState } from "react";
-import { Wrench, Sparkles, Filter, Brain, Target, TrendingUp, Clock, BarChart3, Volume2, Infinity, Zap, LineChart, Mic, Crosshair, TrendingDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import { useServerFn } from "@tanstack/react-start";
-import { analyzeSignalsWithAI, predictSignalOutcome } from "@/lib/ai-filter.functions";
+import { FOREX_ASSETS, deriv, displayPair } from "@/lib/engine/deriv";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Activity,
+  BarChart3,
+  Calculator,
+  Clock,
+  Gauge,
+  LineChart,
+  RefreshCw,
+  ShieldCheck,
+  Target,
+  TrendingDown,
+  TrendingUp,
+  Wallet,
+  Zap,
+  type LucideIcon,
+} from "lucide-react";
+import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/tools")({
+  head: () => ({
+    meta: [
+      { title: "Forex Tools — DivergenceIQ" },
+      { name: "description", content: "Real-time forex calculators, sessions, tick volatility, and currency strength tools powered by live market quotes." },
+    ],
+  }),
   component: ToolsPage,
 });
 
-function ToolsPage() {
-  const [activeTool, setActiveTool] = useState<string | null>(null);
-  const [aiResults, setAiResults] = useState<any>(null);
-  const [loading, setLoading] = useState(false);
-  const analyzeAI = useServerFn(analyzeSignalsWithAI);
+type LiveQuote = {
+  symbol: string;
+  price: number;
+  previous: number;
+  change: number;
+  changePct: number;
+  ticks: number[];
+  updatedAt: number;
+};
 
-  const tools = [
-    {
-      id: "ai-filter",
-      name: "AI Signal Filter",
-      desc: "Neural net analyzes 500 signals to find edge",
-      icon: Brain,
-      color: "from-violet-600 to-purple-600",
-      action: async () => {
-        setActiveTool("ai-filter");
-        setLoading(true);
-        try {
-          const results = await analyzeAI({ data: { minTrades: 5 } });
-          setAiResults(results);
-          toast.success(`AI analyzed ${results.totalAnalyzed} signals`, {
-            description: `Found ${results.patterns.length} profitable patterns`,
+const WATCHLIST = FOREX_ASSETS.slice(0, 12);
+const USD_PAIRS = ["frxEURUSD", "frxGBPUSD", "frxAUDUSD", "frxNZDUSD", "frxUSDJPY", "frxUSDCAD", "frxUSDCHF", "frxEURJPY", "frxGBPJPY"];
+const CURRENCIES = ["USD", "EUR", "GBP", "JPY", "AUD", "CAD", "CHF", "NZD"];
+
+function ToolsPage() {
+  const [selectedPair, setSelectedPair] = useState("frxEURUSD");
+  const [quotes, setQuotes] = useState<Record<string, LiveQuote>>({});
+  const [connected, setConnected] = useState(false);
+  const [lastError, setLastError] = useState<string | null>(null);
+  const [balance, setBalance] = useState(10000);
+  const [riskPct, setRiskPct] = useState(1);
+  const [stopPips, setStopPips] = useState(25);
+  const [lots, setLots] = useState(0.1);
+  const [leverage, setLeverage] = useState(100);
+  const [targetPips, setTargetPips] = useState(50);
+  const [fromCurrency, setFromCurrency] = useState("EUR");
+  const [toCurrency, setToCurrency] = useState("USD");
+  const [convertAmount, setConvertAmount] = useState(1000);
+  const [clock, setClock] = useState<Date | null>(null);
+  const unsubRef = useRef<(() => void)[]>([]);
+
+  useEffect(() => {
+    setClock(new Date());
+    const id = window.setInterval(() => setClock(new Date()), 1000);
+    return () => window.clearInterval(id);
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+    const symbols = Array.from(new Set([...WATCHLIST.map((p) => p.symbol), ...USD_PAIRS]));
+    setLastError(null);
+    deriv.connect()
+      .then(() => {
+        if (!mounted) return;
+        setConnected(true);
+        unsubRef.current = symbols.map((symbol) => deriv.subscribeTicks(symbol, (tick) => {
+          if (!mounted) return;
+          setQuotes((prev) => {
+            const old = prev[symbol];
+            const previous = old?.price ?? tick.quote;
+            const ticks = [...(old?.ticks ?? []), tick.quote].slice(-90);
+            const change = tick.quote - previous;
+            return {
+              ...prev,
+              [symbol]: {
+                symbol,
+                price: tick.quote,
+                previous,
+                change,
+                changePct: previous ? (change / previous) * 100 : 0,
+                ticks,
+                updatedAt: Date.now(),
+              },
+            };
           });
-        } catch (e: any) {
-          toast.error("AI analysis failed: " + e.message);
-          setAiResults({
-            patterns: [
-              { pattern: "RSI Divergence+EMA 50/200 Aligned+ADX Trending (>22)", trades: 19, wins: 16, winRate: 84, aiScore: 92, confidence: 88 },
-              { pattern: "MACD Divergence+Supertrend Aligned", trades: 24, wins: 19, winRate: 79, aiScore: 87, confidence: 82 },
-            ],
-            insights: [
-              { title: "Highest Win Rate", value: "RSI+EMA+ADX", metric: "84% (19 trades)" },
-              { title: "Optimal Window", value: "08:00-11:00 UTC", metric: "London open" },
-              { title: "AI Recommends", value: "TRADE NOW", metric: "Neural confidence: 88%" },
-            ],
-            totalAnalyzed: 247,
-          });
-        } finally {
-          setLoading(false);
-        }
-      }
-    },
-    {
-      id: "confluence-builder",
-      name: "Confluence Builder",
-      desc: "Build custom indicator combinations",
-      icon: Target,
-      color: "from-cyan-600 to-blue-600",
-      action: () => toast.info("Drag & drop 11 indicators to create custom score")
-    },
-    {
-      id: "time-machine",
-      name: "Time Machine",
-      desc: "Replay any signal as if live",
-      icon: Clock,
-      color: "from-amber-600 to-orange-600",
-      action: () => toast.info("Replaying EUR/USD ELITE signal from yesterday")
-    },
-    {
-      id: "correlation",
-      name: "Pair Correlation Matrix",
-      desc: "See which pairs move together",
-      icon: BarChart3,
-      color: "from-emerald-600 to-teal-600",
-      action: () => toast.success("Matrix updated: EUR/USD ↔ GBP/USD 0.87 correlation")
-    },
-    {
-      id: "smart-alerts",
-      name: "Smart Alerts",
-      desc: "AI predicts best entry timing",
-      icon: Sparkles,
-      color: "from-pink-600 to-rose-600",
-      action: () => toast.info("Alert set: Notify when RSI divergence + EMA cross on 15m")
-    },
-    {
-      id: "risk-calc",
-      name: "Risk Calculator Pro",
-      desc: "Position sizing with Kelly Criterion",
-      icon: TrendingUp,
-      color: "from-indigo-600 to-violet-600",
-      action: () => toast.success("Optimal risk: 2.3% per trade based on 64% win rate")
-    },
-    {
-      id: "infinite-sound",
-      name: "Infinite Loop Sound",
-      desc: "Ultra powerful signal alerts with 24/7 infinite loop audio engine",
-      icon: Volume2,
-      color: "from-rose-600 to-pink-600",
-      action: () => toast.success("Infinite sound loop activated - signals will trigger every 5 min 24/7")
-    },
-    {
-      id: "ultra-signals",
-      name: "Ultra Powerful Signals",
-      desc: "6-factor ultra confluence + Zo 24/7 trigger engine",
-      icon: Zap,
-      color: "from-violet-600 to-fuchsia-600",
-      action: () => toast.success("Ultra signals synced to Zo.computer - triggering every 5 minutes")
-    },
-    {
-      id: "zo-trigger",
-      name: "Zo 24/7 Trigger",
-      desc: "Mutual trigger loop with zo.computer every 5 minutes",
-      icon: Infinity,
-      color: "from-emerald-600 to-teal-600",
-      action: () => toast.success("Connected to Zo - mutual 5min triggers active 24/7")
-    },
-    // NEW MAJOR TOOLS
-    {
-      id: "market-profile-scanner",
-      name: "Market Profile Scanner",
-      desc: "Scan 50+ pairs for POC/VA breaks + volume imbalances 24/7",
-      icon: BarChart3,
-      color: "from-amber-600 to-yellow-600",
-      action: () => toast.success("Market Profile Scanner: 12 pairs with VA break detected • Synced to Zo every 5min")
-    },
-    {
-      id: "realtime-profile-overlay",
-      name: "Real-time Profile Overlay",
-      desc: "Live candlestick + dynamic market profile on any chart",
-      icon: LineChart,
-      color: "from-cyan-600 to-teal-600",
-      action: () => toast.success("Overlay activated: Real-time POC/VA updating every tick on chart + market-profile tab")
-    },
-    {
-      id: "ultra-signal-sound",
-      name: "Ultra Signal Sound Engine",
-      desc: "Infinite loop audio alerts for ultra signals + profile breaks",
-      icon: Mic,
-      color: "from-rose-600 to-red-600",
-      action: () => toast.success("Sound Engine: 24/7 infinite loop playing for ELITE + VAH/VAL breaks")
-    },
-    {
-      id: "ai-divergence-hunter",
-      name: "AI Divergence Hunter",
-      desc: "Neural net hunts hidden divergences across all timeframes",
-      icon: Crosshair,
-      color: "from-purple-600 to-indigo-600",
-      action: () => toast.success("AI Hunter: 8 new hidden divergences found • 94% confidence • Zo triggered")
-    },
-    {
-      id: "24x7-auto-bot",
-      name: "24/7 Auto-Bot Enhancer",
-      desc: "Zo-powered auto-trader with market profile filters",
-      icon: TrendingDown,
-      color: "from-emerald-600 to-green-600",
-      action: () => toast.success("Auto-Bot: Profile-based entries enabled • Running 24/7 via Zo.computer")
-    },
-    // NEW: Signal fixes
-    {
-      id: "signal-outcome-monitor",
-      name: "Signal Outcome Monitor & Fixer",
-      desc: "24/7 tracks every signal to TP/SL, analyzes losses, boosts accuracy",
-      icon: Target,
-      color: "from-red-600 to-orange-600",
-      action: () => toast.success("Outcome Monitor: 247 signals tracked • 12 losses analyzed • Accuracy +8% this week • Zo learning enabled")
-    },
-    {
-      id: "ultra-signal-generator",
-      name: "Ultra Signal Generator",
-      desc: "Autonomous ultra confluence signals every 5 min 24/7",
-      icon: Sparkles,
-      color: "from-fuchsia-600 to-violet-600",
-      action: () => toast.success("Ultra Signals: 9 new ELITE ultra signals generated • Auto-saved & broadcast")
-    },
-    {
-      id: "accuracy-booster",
-      name: "AI Accuracy Booster",
-      desc: "Neural learning from all past signals to increase win rate",
-      icon: Brain,
-      color: "from-blue-600 to-cyan-600",
-      action: () => toast.success("Accuracy Booster: Model retrained on 1,284 signals • New win rate projection: 81%")
-    },
-  ];
+        }));
+      })
+      .catch((error) => {
+        if (!mounted) return;
+        setConnected(false);
+        setLastError(error?.message || "Live quote connection failed");
+      });
+    return () => {
+      mounted = false;
+      unsubRef.current.forEach((unsub) => unsub());
+      unsubRef.current = [];
+    };
+  }, []);
+
+  const quote = quotes[selectedPair];
+  const pairParts = splitPair(selectedPair);
+  const entry = quote?.price ?? 0;
+  const pipValue = entry ? pipValueUsd(selectedPair, entry, lots, quotes) : null;
+  const recommendedLots = entry && stopPips > 0 ? Math.max(0, (balance * (riskPct / 100)) / (stopPips * (pipValueUsd(selectedPair, entry, 1, quotes) || 1))) : 0;
+  const riskAmount = balance * (riskPct / 100);
+  const profitAtTarget = pipValue ? pipValue * targetPips : 0;
+  const lossAtStop = pipValue ? pipValue * stopPips : 0;
+  const margin = entry ? marginUsd(selectedPair, entry, lots, leverage, quotes) : 0;
+  const conversionRate = currencyRate(fromCurrency, toCurrency, quotes);
+  const convertedAmount = conversionRate ? convertAmount * conversionRate : null;
+  const strength = useMemo(() => buildCurrencyStrength(quotes), [quotes]);
+  const sessions = useMemo(() => buildSessions(clock), [clock]);
+  const volatilityRows = WATCHLIST.map((asset) => ({ asset, quote: quotes[asset.symbol], pips: tickVolatilityPips(asset.symbol, quotes[asset.symbol]) }))
+    .sort((a, b) => b.pips - a.pips);
 
   return (
     <AppShell>
-      <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-amber-500 grid place-items-center">
-              <Wrench className="w-5 h-5 text-white" />
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-6">
+        <section className="flex flex-col gap-4 rounded-lg border border-border bg-card/80 p-4 shadow-sm md:flex-row md:items-end md:justify-between md:p-5">
+          <div className="min-w-0">
+            <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2 py-1">
+                <span className={`h-2 w-2 rounded-full ${connected ? "bg-bull" : "bg-bear"}`} />
+                {connected ? "Live market data" : "Disconnected"}
+              </span>
+              <span>{clock ? clock.toUTCString().slice(17, 25) : "--:--:--"} UTC</span>
             </div>
-            Advanced Tools
-          </h1>
-          <p className="text-sm text-muted-foreground mt-2">Pro trader toolkit • 14 powerful utilities • Major 24/7 Upgrades</p>
-        </div>
-
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {tools.map(tool => {
-            const Icon = tool.icon;
-            return (
-              <div
-                key={tool.id}
-                className="group relative overflow-hidden rounded-2xl border border-border bg-card/50 backdrop-blur hover:border-primary/50 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/10"
-              >
-                <div className={`absolute inset-0 bg-gradient-to-br ${tool.color} opacity-0 group-hover:opacity-10 transition-opacity`} />
-                <div className="relative p-6">
-                  <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} grid place-items-center mb-4 shadow-lg`}>
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-lg mb-2">{tool.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4 leading-relaxed">{tool.desc}</p>
-                  <Button 
-                    size="sm" 
-                    className="w-full group-hover:bg-primary group-hover:text-primary-foreground"
-                    variant="outline"
-                    onClick={tool.action}
-                  >
-                    Launch Tool
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div className="grid lg:grid-cols-3 gap-4">
-          <div className="lg:col-span-2 rounded-xl border border-border bg-card/80 backdrop-blur p-6">
-            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-              <Filter className="w-5 h-5 text-primary" />
-              Advanced Filter Builder
-            </h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {["RSI Div + MACD", "Score ≥85", "London Session", "No News", "POC Break", "VAH/VAL Cross", "Volume Imbalance", "Profile Confluence"].map((preset) => (
-                  <button
-                    key={preset}
-                    onClick={() => toast.success(`Applied: ${preset}`)}
-                    className="px-3 py-2 rounded-lg border border-border bg-background hover:bg-accent text-xs font-mono text-left transition-colors"
-                  >
-                    {preset}
-                  </button>
-                ))}
-              </div>
-              <div className="p-4 rounded-lg bg-muted/30 border border-dashed border-border">
-                <p className="text-xs text-muted-foreground text-center">
-                  Drag conditions here • AND / OR logic • Save as preset • 24/7 Zo sync
-                </p>
-              </div>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={() => toast.success("Filter saved as 'My Elite Setup'")}>Save Preset</Button>
-                <Button size="sm" variant="outline" onClick={() => toast.info("Testing filter on last 100 signals...")}>Test Filter</Button>
-                <Button size="sm" variant="ghost">Reset</Button>
-              </div>
-            </div>
+            <h1 className="text-2xl font-semibold tracking-normal md:text-3xl">Professional Forex Tools</h1>
+            <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
+              Real-time calculators, session timing, volatility, conversion, and currency strength built from live Deriv quote streams.
+            </p>
           </div>
-
-          <div className="rounded-xl border border-border bg-gradient-to-br from-primary/10 to-violet-500/10 p-6 backdrop-blur">
-            <h3 className="font-semibold mb-3">Quick Stats</h3>
-            <div className="space-y-3">
-              {[
-                { label: "Filters Active", value: "8" },
-                { label: "Signals Matched", value: "47/512" },
-                { label: "Avg Score", value: "91.4" },
-                { label: "Win Rate", value: "78%" },
-                { label: "24/7 Zo Triggers", value: "Active" },
-              ].map(stat => (
-                <div key={stat.label} className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">{stat.label}</span>
-                  <span className="font-mono font-medium">{stat.value}</span>
-                </div>
-              ))}
-            </div>
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center">
+            <select value={selectedPair} onChange={(event) => setSelectedPair(event.target.value)} className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring">
+              {WATCHLIST.map((asset) => <option key={asset.symbol} value={asset.symbol}>{asset.display}</option>)}
+            </select>
+            <button onClick={() => window.location.reload()} className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-secondary px-3 text-sm font-medium text-secondary-foreground transition hover:bg-accent">
+              <RefreshCw className="h-4 w-4" /> Refresh
+            </button>
           </div>
-        </div>
+        </section>
 
-        {activeTool === "ai-filter" && aiResults && (
-          <div className="rounded-xl border border-violet-500/30 bg-violet-500/5 p-6 animate-in fade-in backdrop-blur">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <Brain className="w-5 h-5 text-violet-400" />
-              Neural Network Analysis • {aiResults.totalAnalyzed} signals
-              {loading && <span className="text-xs text-muted-foreground ml-2">Training...</span>}
-            </h3>
-            <div className="grid md:grid-cols-3 gap-4 text-sm mb-6">
-              {aiResults.insights.map((insight: any, i: number) => (
-                <div key={i}>
-                  <div className="text-xs text-muted-foreground mb-1">{insight.title}</div>
-                  <div className="font-mono text-base">{insight.value}</div>
-                  <div className="text-xs text-bull mt-1">{insight.metric}</div>
-                </div>
-              ))}
-            </div>
-            <div className="space-y-2">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Top Patterns (Neural Net Ranked)</div>
-              {aiResults.patterns.slice(0, 5).map((p: any, i: number) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-border hover:border-violet-500/50 transition-colors">
-                  <div className="flex-1 min-w-0">
-                    <div className="font-mono text-xs truncate">{p.pattern.split("+").slice(0, 2).join(" + ")}</div>
-                    <div className="text-[10px] text-muted-foreground mt-0.5">{p.trades} trades • AI score {p.aiScore}</div>
-                  </div>
-                  <div className="text-right ml-4">
-                    <div className={`text-lg font-bold font-mono ${p.winRate >= 75 ? "text-bull" : p.winRate >= 65 ? "text-amber-400" : "text-muted-foreground"}`}>
-                      {p.winRate}%
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">{p.confidence}% conf</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+        {lastError && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+            {lastError}. Calculators remain available, but live values will appear once the quote stream reconnects.
           </div>
         )}
-      </div>
+
+        <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          <MetricCard icon={LineChart} label="Selected pair" value={displayPair(selectedPair)} detail={entry ? formatPrice(entry, pairParts.quote) : "Waiting for first tick"} tone={quote ? (quote.change >= 0 ? "bull" : "bear") : "neutral"} />
+          <MetricCard icon={Activity} label="Live move" value={quote ? `${quote.changePct >= 0 ? "+" : ""}${quote.changePct.toFixed(4)}%` : "--"} detail={quote ? `${quote.ticks.length} live ticks sampled` : "No tick yet"} tone={quote ? (quote.changePct >= 0 ? "bull" : "bear") : "neutral"} />
+          <MetricCard icon={Gauge} label="Tick volatility" value={`${tickVolatilityPips(selectedPair, quote).toFixed(1)} pips`} detail="Range from the latest live ticks" tone="neutral" />
+          <MetricCard icon={Clock} label="Open sessions" value={sessions.filter((s) => s.open).length.toString()} detail={sessions.filter((s) => s.open).map((s) => s.name).join(" / ") || "Markets transitioning"} tone="neutral" />
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
+          <Panel title="Risk, Position & P/L Calculator" icon={Calculator}>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <NumberField label="Account balance" value={balance} onChange={setBalance} prefix="$" />
+              <NumberField label="Risk" value={riskPct} onChange={setRiskPct} suffix="%" step={0.1} />
+              <NumberField label="Stop loss" value={stopPips} onChange={setStopPips} suffix="pips" />
+              <NumberField label="Lot size" value={lots} onChange={setLots} step={0.01} />
+              <NumberField label="Leverage" value={leverage} onChange={setLeverage} prefix="1:" />
+              <NumberField label="Target" value={targetPips} onChange={setTargetPips} suffix="pips" />
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <Result label="Pip value" value={pipValue ? money(pipValue) : "Need live price"} />
+              <Result label="Suggested lots" value={recommendedLots ? recommendedLots.toFixed(2) : "--"} />
+              <Result label="Risk amount" value={money(riskAmount)} />
+              <Result label="Margin required" value={margin ? money(margin) : "--"} />
+              <Result label="Profit at target" value={profitAtTarget ? money(profitAtTarget) : "--"} tone="bull" />
+              <Result label="Loss at stop" value={lossAtStop ? money(lossAtStop) : "--"} tone="bear" />
+              <Result label="Risk : reward" value={stopPips ? `1:${(targetPips / stopPips).toFixed(2)}` : "--"} />
+              <Result label="Breakeven win rate" value={targetPips > 0 ? `${((stopPips / (stopPips + targetPips)) * 100).toFixed(1)}%` : "--"} />
+            </div>
+          </Panel>
+
+          <Panel title="Live Currency Converter" icon={Wallet}>
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto_1fr] sm:items-end">
+              <NumberField label="Amount" value={convertAmount} onChange={setConvertAmount} />
+              <div className="grid grid-cols-2 gap-2 sm:contents">
+                <SelectField label="From" value={fromCurrency} onChange={setFromCurrency} options={CURRENCIES} />
+                <SelectField label="To" value={toCurrency} onChange={setToCurrency} options={CURRENCIES} />
+              </div>
+            </div>
+            <div className="mt-4 rounded-lg border border-border bg-background p-4">
+              <div className="text-xs uppercase tracking-wide text-muted-foreground">Converted value</div>
+              <div className="mt-1 text-2xl font-semibold tabular">
+                {convertedAmount == null ? "Waiting for rate" : `${convertedAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} ${toCurrency}`}
+              </div>
+              <div className="mt-1 text-xs text-muted-foreground">{conversionRate ? `1 ${fromCurrency} = ${conversionRate.toFixed(5)} ${toCurrency}` : "Rate appears when matching live pair data is available."}</div>
+            </div>
+          </Panel>
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-3">
+          <Panel title="Live Watchlist" icon={BarChart3} className="xl:col-span-2">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[620px] text-sm">
+                <thead className="text-xs uppercase tracking-wide text-muted-foreground">
+                  <tr className="border-b border-border">
+                    <th className="py-2 text-left font-medium">Pair</th>
+                    <th className="py-2 text-right font-medium">Price</th>
+                    <th className="py-2 text-right font-medium">Move</th>
+                    <th className="py-2 text-right font-medium">Volatility</th>
+                    <th className="py-2 text-right font-medium">Ticks</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {WATCHLIST.map((asset) => {
+                    const row = quotes[asset.symbol];
+                    const parts = splitPair(asset.symbol);
+                    const up = (row?.change ?? 0) >= 0;
+                    return (
+                      <tr key={asset.symbol} className="border-b border-border/60 last:border-0">
+                        <td className="py-3 font-medium">{asset.display}</td>
+                        <td className="py-3 text-right font-mono tabular">{row ? formatPrice(row.price, parts.quote) : "--"}</td>
+                        <td className={`py-3 text-right font-mono tabular ${up ? "text-bull" : "text-bear"}`}>{row ? `${up ? "+" : ""}${row.changePct.toFixed(4)}%` : "--"}</td>
+                        <td className="py-3 text-right font-mono tabular">{tickVolatilityPips(asset.symbol, row).toFixed(1)} pips</td>
+                        <td className="py-3 text-right font-mono tabular">{row?.ticks.length ?? 0}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Panel>
+
+          <Panel title="Market Sessions" icon={Clock}>
+            <div className="space-y-3">
+              {sessions.map((session) => (
+                <div key={session.name} className="rounded-lg border border-border bg-background p-3">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="font-medium">{session.name}</div>
+                    <span className={`rounded-md px-2 py-1 text-xs font-semibold ${session.open ? "bg-bull/15 text-bull" : "bg-muted text-muted-foreground"}`}>{session.open ? "OPEN" : "CLOSED"}</span>
+                  </div>
+                  <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
+                    <div className="h-full rounded-full bg-primary" style={{ width: `${session.progress}%` }} />
+                  </div>
+                  <div className="mt-2 text-xs text-muted-foreground">{session.hours} UTC</div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+        </section>
+
+        <section className="grid gap-4 xl:grid-cols-3">
+          <Panel title="Currency Strength" icon={ShieldCheck}>
+            <div className="space-y-3">
+              {strength.map((item) => (
+                <div key={item.currency}>
+                  <div className="mb-1 flex items-center justify-between text-sm">
+                    <span className="font-medium">{item.currency}</span>
+                    <span className={`font-mono tabular ${item.score >= 0 ? "text-bull" : "text-bear"}`}>{item.score >= 0 ? "+" : ""}{item.score.toFixed(2)}</span>
+                  </div>
+                  <div className="h-2 overflow-hidden rounded-full bg-muted">
+                    <div className={`h-full rounded-full ${item.score >= 0 ? "bg-bull" : "bg-bear"}`} style={{ width: `${Math.min(100, Math.abs(item.score) * 18)}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel title="Volatility Leaderboard" icon={Zap}>
+            <div className="space-y-2">
+              {volatilityRows.slice(0, 7).map(({ asset, pips }, index) => (
+                <div key={asset.symbol} className="flex items-center justify-between rounded-md border border-border bg-background px-3 py-2 text-sm">
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 text-xs text-muted-foreground">#{index + 1}</span>
+                    <span className="font-medium">{asset.display}</span>
+                  </div>
+                  <span className="font-mono tabular">{pips.toFixed(1)}</span>
+                </div>
+              ))}
+            </div>
+          </Panel>
+
+          <Panel title="Trade Readiness" icon={Target}>
+            <div className="space-y-3">
+              <ReadinessItem icon={entry ? Activity : RefreshCw} label="Live price" ok={Boolean(entry)} />
+              <ReadinessItem icon={riskPct <= 2 ? ShieldCheck : TrendingDown} label="Risk ≤ 2%" ok={riskPct <= 2} />
+              <ReadinessItem icon={targetPips > stopPips ? TrendingUp : TrendingDown} label="Positive reward" ok={targetPips > stopPips} />
+              <ReadinessItem icon={margin < balance ? Wallet : TrendingDown} label="Margin within balance" ok={Boolean(margin && margin < balance)} />
+            </div>
+          </Panel>
+        </section>
+      </main>
     </AppShell>
   );
+}
+
+function Panel({ title, icon: Icon, children, className = "" }: { title: string; icon: LucideIcon; children: ReactNode; className?: string }) {
+  return (
+    <section className={`rounded-lg border border-border bg-card/80 p-4 shadow-sm md:p-5 ${className}`}>
+      <div className="mb-4 flex items-center gap-2">
+        <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/12 text-primary"><Icon className="h-4 w-4" /></div>
+        <h2 className="text-base font-semibold tracking-normal">{title}</h2>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function MetricCard({ icon: Icon, label, value, detail, tone }: { icon: LucideIcon; label: string; value: string; detail: string; tone: "bull" | "bear" | "neutral" }) {
+  const toneClass = tone === "bull" ? "text-bull" : tone === "bear" ? "text-bear" : "text-foreground";
+  return (
+    <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+        <Icon className="h-4 w-4 text-muted-foreground" />
+      </div>
+      <div className={`text-xl font-semibold tabular ${toneClass}`}>{value}</div>
+      <div className="mt-1 truncate text-xs text-muted-foreground">{detail}</div>
+    </div>
+  );
+}
+
+function NumberField({ label, value, onChange, prefix, suffix, step = 1 }: { label: string; value: number; onChange: (value: number) => void; prefix?: string; suffix?: string; step?: number }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      <div className="flex h-10 items-center rounded-md border border-input bg-background px-3 focus-within:ring-2 focus-within:ring-ring">
+        {prefix && <span className="mr-1 text-sm text-muted-foreground">{prefix}</span>}
+        <input type="number" value={Number.isFinite(value) ? value : 0} min={0} step={step} onChange={(event) => onChange(Number(event.target.value))} className="min-w-0 flex-1 bg-transparent text-sm font-medium outline-none" />
+        {suffix && <span className="ml-1 text-sm text-muted-foreground">{suffix}</span>}
+      </div>
+    </label>
+  );
+}
+
+function SelectField({ label, value, onChange, options }: { label: string; value: string; onChange: (value: string) => void; options: string[] }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+      <select value={value} onChange={(event) => onChange(event.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring">
+        {options.map((option) => <option key={option} value={option}>{option}</option>)}
+      </select>
+    </label>
+  );
+}
+
+function Result({ label, value, tone = "neutral" }: { label: string; value: string; tone?: "bull" | "bear" | "neutral" }) {
+  return (
+    <div className="rounded-lg border border-border bg-background p-3">
+      <div className="text-xs uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div className={`mt-1 text-lg font-semibold tabular ${tone === "bull" ? "text-bull" : tone === "bear" ? "text-bear" : "text-foreground"}`}>{value}</div>
+    </div>
+  );
+}
+
+function ReadinessItem({ icon: Icon, label, ok }: { icon: LucideIcon; label: string; ok: boolean }) {
+  return (
+    <div className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2.5">
+      <div className="flex items-center gap-2 text-sm"><Icon className="h-4 w-4 text-muted-foreground" /> {label}</div>
+      <span className={`rounded-md px-2 py-1 text-xs font-semibold ${ok ? "bg-bull/15 text-bull" : "bg-bear/15 text-bear"}`}>{ok ? "OK" : "CHECK"}</span>
+    </div>
+  );
+}
+
+function splitPair(symbol: string) {
+  const clean = symbol.replace(/^frx/, "");
+  return { base: clean.slice(0, 3), quote: clean.slice(3, 6) };
+}
+
+function formatPrice(price: number, quoteCurrency: string) {
+  return price.toLocaleString(undefined, { minimumFractionDigits: quoteCurrency === "JPY" ? 3 : 5, maximumFractionDigits: quoteCurrency === "JPY" ? 3 : 5 });
+}
+
+function money(value: number) {
+  return value.toLocaleString(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+}
+
+function currencyRate(from: string, to: string, quotes: Record<string, LiveQuote>): number | null {
+  if (from === to) return 1;
+  const directOrInverse = (base: string, quote: string) => {
+    const direct = quotes[`frx${base}${quote}`]?.price;
+    if (direct) return direct;
+    const inverse = quotes[`frx${quote}${base}`]?.price;
+    return inverse ? 1 / inverse : null;
+  };
+  const directRate = directOrInverse(from, to);
+  if (directRate) return directRate;
+  const fromUsd = from === "USD" ? 1 : directOrInverse(from, "USD");
+  const toUsd = to === "USD" ? 1 : directOrInverse(to, "USD");
+  return fromUsd && toUsd ? fromUsd / toUsd : null;
+}
+
+function pipValueUsd(symbol: string, price: number, lots: number, quotes: Record<string, LiveQuote>) {
+  const { quote } = splitPair(symbol);
+  const pipSize = quote === "JPY" ? 0.01 : 0.0001;
+  const quotePipValue = pipSize * 100000 * lots;
+  if (quote === "USD") return quotePipValue;
+  if (symbol === `frxUSD${quote}`) return quotePipValue / price;
+  const rate = currencyRate(quote, "USD", quotes);
+  return rate ? quotePipValue * rate : null;
+}
+
+function marginUsd(symbol: string, price: number, lots: number, leverage: number, quotes: Record<string, LiveQuote>) {
+  if (!leverage) return 0;
+  const { base, quote } = splitPair(symbol);
+  const baseUnits = 100000 * lots;
+  if (base === "USD") return baseUnits / leverage;
+  if (quote === "USD") return (baseUnits * price) / leverage;
+  const baseUsd = currencyRate(base, "USD", quotes);
+  return baseUsd ? (baseUnits * baseUsd) / leverage : 0;
+}
+
+function tickVolatilityPips(symbol: string, quote?: LiveQuote) {
+  if (!quote?.ticks.length) return 0;
+  const { quote: quoteCurrency } = splitPair(symbol);
+  const pipSize = quoteCurrency === "JPY" ? 0.01 : 0.0001;
+  const high = Math.max(...quote.ticks);
+  const low = Math.min(...quote.ticks);
+  return (high - low) / pipSize;
+}
+
+function buildCurrencyStrength(quotes: Record<string, LiveQuote>) {
+  const scores = Object.fromEntries(CURRENCIES.map((currency) => [currency, 0])) as Record<string, number>;
+  Object.values(quotes).forEach((quote) => {
+    if (!quote.symbol.startsWith("frx") || !quote.changePct) return;
+    const { base, quote: quoteCurrency } = splitPair(quote.symbol);
+    if (scores[base] == null || scores[quoteCurrency] == null) return;
+    scores[base] += quote.changePct;
+    scores[quoteCurrency] -= quote.changePct;
+  });
+  return Object.entries(scores).map(([currency, score]) => ({ currency, score })).sort((a, b) => b.score - a.score);
+}
+
+function buildSessions(now: Date | null) {
+  const hour = now ? now.getUTCHours() + now.getUTCMinutes() / 60 : 0;
+  const sessions = [
+    { name: "Sydney", start: 21, end: 6, hours: "21:00–06:00" },
+    { name: "Tokyo", start: 0, end: 9, hours: "00:00–09:00" },
+    { name: "London", start: 7, end: 16, hours: "07:00–16:00" },
+    { name: "New York", start: 12, end: 21, hours: "12:00–21:00" },
+  ];
+  return sessions.map((session) => {
+    const open = session.start < session.end ? hour >= session.start && hour < session.end : hour >= session.start || hour < session.end;
+    const length = session.start < session.end ? session.end - session.start : 24 - session.start + session.end;
+    const elapsed = open ? (hour >= session.start ? hour - session.start : 24 - session.start + hour) : 0;
+    return { ...session, open, progress: open ? Math.min(100, (elapsed / length) * 100) : 0 };
+  });
 }

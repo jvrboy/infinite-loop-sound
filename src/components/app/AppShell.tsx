@@ -3,6 +3,7 @@ import { Activity, BarChart3, Bot, Gauge, History, LineChart, Palette, Radio, Wa
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
 import { ThreeBackground } from "./ThreeBackground";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV = [
   { to: "/",         label: "Dashboard", icon: Gauge },
@@ -61,6 +62,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [themeOpen, setThemeOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [zenMode, setZenMode] = useState(false);
+  const isMobile = useIsMobile();
 
   // Background scanner interval for continuous 24/7 scanning simulation
   useEffect(() => {
@@ -127,7 +129,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen flex bg-background text-foreground relative">
       <ThreeBackground />
-      <aside className="hidden md:flex w-60 flex-col bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border relative z-10">
+      {!isMobile && <aside className="flex w-60 flex-col bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border relative z-10">
         <div className="px-5 py-5 border-b border-sidebar-border flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-gradient-bull grid place-items-center shadow-glow-bull">
@@ -180,18 +182,18 @@ export function AppShell({ children }: { children: ReactNode }) {
             </div>
           )}
         </div>
-      </aside>
+      </aside>}
       <div className="flex-1 flex flex-col min-w-0 relative z-10">
-        <header className="md:hidden flex items-center justify-between px-4 py-3 border-b border-border bg-sidebar">
+        {isMobile && <header className="flex items-center justify-between px-4 py-3 border-b border-border bg-sidebar">
           <Link to="/" className="font-bold flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-gradient-bull grid place-items-center"><BarChart3 className="w-3 h-3" /></div>
             DivergenceIQ
           </Link>
           <span className="pulse-dot text-xs font-mono">LIVE</span>
-        </header>
+        </header>}
         <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
         {/* Mobile bottom tab bar — fixed, native-app style */}
-        <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-sidebar/95 backdrop-blur border-t border-sidebar-border grid grid-cols-5 h-16 pb-[env(safe-area-inset-bottom)]">
+        {isMobile && <nav className="fixed bottom-0 inset-x-0 z-30 bg-sidebar/95 backdrop-blur border-t border-sidebar-border grid grid-cols-5 h-16 pb-[env(safe-area-inset-bottom)]">
           {MOBILE_PRIMARY.map(({ to, label, icon: Icon }) => {
             const active = to === "/" ? path === "/" : path.startsWith(to);
             return (
@@ -209,9 +211,9 @@ export function AppShell({ children }: { children: ReactNode }) {
             <MoreHorizontal className="w-5 h-5" />
             <span className="font-mono">More</span>
           </button>
-        </nav>
-        {moreOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" onClick={() => setMoreOpen(false)}>
+        </nav>}
+        {isMobile && moreOpen && (
+          <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" onClick={() => setMoreOpen(false)}>
             <div className="absolute bottom-16 inset-x-0 bg-sidebar border-t border-sidebar-border p-3 grid grid-cols-3 gap-2 max-h-[75vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               {MOBILE_SECONDARY.map(({ to, label, icon: Icon }) => {
                 const active = path.startsWith(to);

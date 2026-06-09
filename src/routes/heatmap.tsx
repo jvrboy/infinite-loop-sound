@@ -97,9 +97,9 @@ function HeatmapPage() {
     const vp = showVolumeProfile ? buildVolumeProfile(candles) : null;
     const swing = detectSwing(candles);
     const fib = showFibs && swing ? fibLevels(swing) : null;
-    const sr = showSR ? findSRLevels(vp) : [];
+    const sr = showSR && vp ? findSRLevels(vp) : [];
     const zones = showZones ? findSupplyDemand(candles) : [];
-    const flow = showOrderFlow ? computeOrderFlow(ticksRef.current) : { buyVol: 0, sellVol: 0, delta: 0, imbalance: 0 };
+    const flow = showOrderFlow ? computeOrderFlow(ticksRef.current) : { buyVol: 0, sellVol: 0, delta: 0, imbalance: 0, cvd: [], lastQuote: null };
     const total = candles.length;
     const visibleCount = Math.max(20, Math.min(total, Math.round(total / zoom)));
     const endIdx = Math.max(visibleCount, total - panCols);
