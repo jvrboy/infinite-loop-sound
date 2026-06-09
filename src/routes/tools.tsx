@@ -16,7 +16,9 @@ import {
   TrendingUp,
   Wallet,
   Zap,
+  type LucideIcon,
 } from "lucide-react";
+import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -110,7 +112,6 @@ function ToolsPage() {
   const quote = quotes[selectedPair];
   const pairParts = splitPair(selectedPair);
   const entry = quote?.price ?? 0;
-  const pipSize = pairParts.quote === "JPY" ? 0.01 : 0.0001;
   const pipValue = entry ? pipValueUsd(selectedPair, entry, lots, quotes) : null;
   const recommendedLots = entry && stopPips > 0 ? Math.max(0, (balance * (riskPct / 100)) / (stopPips * (pipValueUsd(selectedPair, entry, 1, quotes) || 1))) : 0;
   const riskAmount = balance * (riskPct / 100);
@@ -300,7 +301,7 @@ function ToolsPage() {
   );
 }
 
-function Panel({ title, icon: Icon, children, className = "" }: { title: string; icon: typeof Activity; children: React.ReactNode; className?: string }) {
+function Panel({ title, icon: Icon, children, className = "" }: { title: string; icon: LucideIcon; children: ReactNode; className?: string }) {
   return (
     <section className={`rounded-lg border border-border bg-card/80 p-4 shadow-sm md:p-5 ${className}`}>
       <div className="mb-4 flex items-center gap-2">
@@ -312,7 +313,7 @@ function Panel({ title, icon: Icon, children, className = "" }: { title: string;
   );
 }
 
-function MetricCard({ icon: Icon, label, value, detail, tone }: { icon: typeof Activity; label: string; value: string; detail: string; tone: "bull" | "bear" | "neutral" }) {
+function MetricCard({ icon: Icon, label, value, detail, tone }: { icon: LucideIcon; label: string; value: string; detail: string; tone: "bull" | "bear" | "neutral" }) {
   const toneClass = tone === "bull" ? "text-bull" : tone === "bear" ? "text-bear" : "text-foreground";
   return (
     <div className="rounded-lg border border-border bg-card/80 p-4 shadow-sm">
@@ -359,7 +360,7 @@ function Result({ label, value, tone = "neutral" }: { label: string; value: stri
   );
 }
 
-function ReadinessItem({ icon: Icon, label, ok }: { icon: typeof Activity; label: string; ok: boolean }) {
+function ReadinessItem({ icon: Icon, label, ok }: { icon: LucideIcon; label: string; ok: boolean }) {
   return (
     <div className="flex items-center justify-between rounded-lg border border-border bg-background px-3 py-2.5">
       <div className="flex items-center gap-2 text-sm"><Icon className="h-4 w-4 text-muted-foreground" /> {label}</div>
