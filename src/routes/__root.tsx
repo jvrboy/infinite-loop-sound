@@ -118,7 +118,7 @@ function RootComponent() {
                   entry: a.trade.entry, sl: a.trade.sl, tp1: a.trade.tp1, tp2: a.trade.tp2, tp3: a.trade.tp3,
                   score: a.scorePct, rating: a.rating, confluence: a.confluence as any,
                   source: "auto_scan", status: "active",
-                }).select().single().then(({ error }) => {
+                } as any).select().single().then(({ error }) => {
                   if (!error) {
                     console.log("[AUTO-SCAN] Saved", key, a.rating, a.scorePct);
                   }

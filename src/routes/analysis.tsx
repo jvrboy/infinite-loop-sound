@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { deriv, TIMEFRAMES, displayPair, type TF } from "@/lib/engine/deriv";
 import { analyze, type AnalysisResult } from "@/lib/engine/signal";
 import {
