@@ -70,7 +70,7 @@ export function useRealtimeTraining() {
               // Show toast for significant updates
               if (Math.random() < 0.3) { // 30% of the time to avoid spam
                 toast.success(`Neural net learned from ${newSignal.pair}`, {
-                  description: `${isWin ? "✓ Win" : "✗ Loss"} • Accuracy now ${trainingStats.accuracy.toFixed(1)}%`,
+                  description: `${isWin ? "Win" : "Loss"} • Accuracy now ${trainingStats.accuracy.toFixed(1)}%`,
                   duration: 2000,
                 });
               }

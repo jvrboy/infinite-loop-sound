@@ -16,23 +16,39 @@ import { Route as UltraRouteImport } from './routes/ultra'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as SystemRouteImport } from './routes/system'
+import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as SentimentRouteImport } from './routes/sentiment'
 import { Route as ScreenerRouteImport } from './routes/screener'
 import { Route as ScannerRouteImport } from './routes/scanner'
+import { Route as ScalingRouteImport } from './routes/scaling'
+import { Route as RiskCalculatorRouteImport } from './routes/risk-calculator'
+import { Route as RecoveryRouteImport } from './routes/recovery'
 import { Route as PnlRouteImport } from './routes/pnl'
+import { Route as PlanRouteImport } from './routes/plan'
+import { Route as PivotRouteImport } from './routes/pivot'
+import { Route as PipValueRouteImport } from './routes/pip-value'
 import { Route as PersistenceRouteImport } from './routes/persistence'
 import { Route as OptionsFlowRouteImport } from './routes/options-flow'
+import { Route as OptionsCalcRouteImport } from './routes/options-calc'
+import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as NeuralRouteImport } from './routes/neural'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
+import { Route as MarginRouteImport } from './routes/margin'
+import { Route as JournalRouteImport } from './routes/journal'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
+import { Route as FibonacciRouteImport } from './routes/fibonacci'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DlqRouteImport } from './routes/dlq'
 import { Route as DerivRouteImport } from './routes/deriv'
 import { Route as DarkPoolRouteImport } from './routes/dark-pool'
+import { Route as CurrencyStrengthRouteImport } from './routes/currency-strength'
 import { Route as CorrelationRouteImport } from './routes/correlation'
+import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ChartRouteImport } from './routes/chart'
+import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BotRouteImport } from './routes/bot'
 import { Route as BacktestRouteImport } from './routes/backtest'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
@@ -40,7 +56,6 @@ import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
-import { Route as ApiKeepaliveZoRouteImport } from './routes/api/keepalive/zo'
 import { Route as ApiPublicV1SignalsRouteImport } from './routes/api/public/v1/signals'
 import { Route as ApiPublicV1AnalysisRouteImport } from './routes/api/public/v1/analysis'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
@@ -86,9 +101,19 @@ const SystemRoute = SystemRouteImport.update({
   path: '/system',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SimulatorRoute = SimulatorRouteImport.update({
+  id: '/simulator',
+  path: '/simulator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignalsRoute = SignalsRouteImport.update({
   id: '/signals',
   path: '/signals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionsRoute = SessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SentimentRoute = SentimentRouteImport.update({
@@ -106,9 +131,39 @@ const ScannerRoute = ScannerRouteImport.update({
   path: '/scanner',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScalingRoute = ScalingRouteImport.update({
+  id: '/scaling',
+  path: '/scaling',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RiskCalculatorRoute = RiskCalculatorRouteImport.update({
+  id: '/risk-calculator',
+  path: '/risk-calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RecoveryRoute = RecoveryRouteImport.update({
+  id: '/recovery',
+  path: '/recovery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PnlRoute = PnlRouteImport.update({
   id: '/pnl',
   path: '/pnl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlanRoute = PlanRouteImport.update({
+  id: '/plan',
+  path: '/plan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PivotRoute = PivotRouteImport.update({
+  id: '/pivot',
+  path: '/pivot',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipValueRoute = PipValueRouteImport.update({
+  id: '/pip-value',
+  path: '/pip-value',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersistenceRoute = PersistenceRouteImport.update({
@@ -121,6 +176,16 @@ const OptionsFlowRoute = OptionsFlowRouteImport.update({
   path: '/options-flow',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OptionsCalcRoute = OptionsCalcRouteImport.update({
+  id: '/options-calc',
+  path: '/options-calc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OptimizerRoute = OptimizerRouteImport.update({
+  id: '/optimizer',
+  path: '/optimizer',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
@@ -131,9 +196,24 @@ const MarketProfileRoute = MarketProfileRouteImport.update({
   path: '/market-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarginRoute = MarginRouteImport.update({
+  id: '/margin',
+  path: '/margin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JournalRoute = JournalRouteImport.update({
+  id: '/journal',
+  path: '/journal',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HeatmapRoute = HeatmapRouteImport.update({
   id: '/heatmap',
   path: '/heatmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FibonacciRoute = FibonacciRouteImport.update({
+  id: '/fibonacci',
+  path: '/fibonacci',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsRoute = DocsRouteImport.update({
@@ -156,9 +236,19 @@ const DarkPoolRoute = DarkPoolRouteImport.update({
   path: '/dark-pool',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CurrencyStrengthRoute = CurrencyStrengthRouteImport.update({
+  id: '/currency-strength',
+  path: '/currency-strength',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CorrelationRoute = CorrelationRouteImport.update({
   id: '/correlation',
   path: '/correlation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompoundRoute = CompoundRouteImport.update({
+  id: '/compound',
+  path: '/compound',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -169,6 +259,11 @@ const ChatRoute = ChatRouteImport.update({
 const ChartRoute = ChartRouteImport.update({
   id: '/chart',
   path: '/chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CalendarRoute = CalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BotRoute = BotRouteImport.update({
@@ -204,11 +299,6 @@ const IndexRoute = IndexRouteImport.update({
 const ApiPublicHealthRoute = ApiPublicHealthRouteImport.update({
   id: '/api/public/health',
   path: '/api/public/health',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiKeepaliveZoRoute = ApiKeepaliveZoRouteImport.update({
-  id: '/api/keepalive/zo',
-  path: '/api/keepalive/zo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiPublicV1SignalsRoute = ApiPublicV1SignalsRouteImport.update({
@@ -269,23 +359,39 @@ export interface FileRoutesByFullPath {
   '/api-keys': typeof ApiKeysRoute
   '/backtest': typeof BacktestRoute
   '/bot': typeof BotRoute
+  '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
+  '/compound': typeof CompoundRoute
   '/correlation': typeof CorrelationRoute
+  '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/deriv': typeof DerivRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
+  '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
+  '/journal': typeof JournalRoute
+  '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
+  '/optimizer': typeof OptimizerRoute
+  '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
   '/persistence': typeof PersistenceRoute
+  '/pip-value': typeof PipValueRoute
+  '/pivot': typeof PivotRoute
+  '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
+  '/recovery': typeof RecoveryRoute
+  '/risk-calculator': typeof RiskCalculatorRoute
+  '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
   '/screener': typeof ScreenerRoute
   '/sentiment': typeof SentimentRoute
+  '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
+  '/simulator': typeof SimulatorRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
@@ -293,7 +399,6 @@ export interface FileRoutesByFullPath {
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/zo': typeof ZoRoute
-  '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
@@ -312,23 +417,39 @@ export interface FileRoutesByTo {
   '/api-keys': typeof ApiKeysRoute
   '/backtest': typeof BacktestRoute
   '/bot': typeof BotRoute
+  '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
+  '/compound': typeof CompoundRoute
   '/correlation': typeof CorrelationRoute
+  '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/deriv': typeof DerivRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
+  '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
+  '/journal': typeof JournalRoute
+  '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
+  '/optimizer': typeof OptimizerRoute
+  '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
   '/persistence': typeof PersistenceRoute
+  '/pip-value': typeof PipValueRoute
+  '/pivot': typeof PivotRoute
+  '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
+  '/recovery': typeof RecoveryRoute
+  '/risk-calculator': typeof RiskCalculatorRoute
+  '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
   '/screener': typeof ScreenerRoute
   '/sentiment': typeof SentimentRoute
+  '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
+  '/simulator': typeof SimulatorRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
@@ -336,7 +457,6 @@ export interface FileRoutesByTo {
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/zo': typeof ZoRoute
-  '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
@@ -356,23 +476,39 @@ export interface FileRoutesById {
   '/api-keys': typeof ApiKeysRoute
   '/backtest': typeof BacktestRoute
   '/bot': typeof BotRoute
+  '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
+  '/compound': typeof CompoundRoute
   '/correlation': typeof CorrelationRoute
+  '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/deriv': typeof DerivRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
+  '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
+  '/journal': typeof JournalRoute
+  '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
+  '/optimizer': typeof OptimizerRoute
+  '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
   '/persistence': typeof PersistenceRoute
+  '/pip-value': typeof PipValueRoute
+  '/pivot': typeof PivotRoute
+  '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
+  '/recovery': typeof RecoveryRoute
+  '/risk-calculator': typeof RiskCalculatorRoute
+  '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
   '/screener': typeof ScreenerRoute
   '/sentiment': typeof SentimentRoute
+  '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
+  '/simulator': typeof SimulatorRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
@@ -380,7 +516,6 @@ export interface FileRoutesById {
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/zo': typeof ZoRoute
-  '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
@@ -401,23 +536,39 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/backtest'
     | '/bot'
+    | '/calendar'
     | '/chart'
     | '/chat'
+    | '/compound'
     | '/correlation'
+    | '/currency-strength'
     | '/dark-pool'
     | '/deriv'
     | '/dlq'
     | '/docs'
+    | '/fibonacci'
     | '/heatmap'
+    | '/journal'
+    | '/margin'
     | '/market-profile'
     | '/neural'
+    | '/optimizer'
+    | '/options-calc'
     | '/options-flow'
     | '/persistence'
+    | '/pip-value'
+    | '/pivot'
+    | '/plan'
     | '/pnl'
+    | '/recovery'
+    | '/risk-calculator'
+    | '/scaling'
     | '/scanner'
     | '/screener'
     | '/sentiment'
+    | '/sessions'
     | '/signals'
+    | '/simulator'
     | '/system'
     | '/telegram'
     | '/tools'
@@ -425,7 +576,6 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/webhook-events'
     | '/zo'
-    | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
@@ -444,23 +594,39 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/backtest'
     | '/bot'
+    | '/calendar'
     | '/chart'
     | '/chat'
+    | '/compound'
     | '/correlation'
+    | '/currency-strength'
     | '/dark-pool'
     | '/deriv'
     | '/dlq'
     | '/docs'
+    | '/fibonacci'
     | '/heatmap'
+    | '/journal'
+    | '/margin'
     | '/market-profile'
     | '/neural'
+    | '/optimizer'
+    | '/options-calc'
     | '/options-flow'
     | '/persistence'
+    | '/pip-value'
+    | '/pivot'
+    | '/plan'
     | '/pnl'
+    | '/recovery'
+    | '/risk-calculator'
+    | '/scaling'
     | '/scanner'
     | '/screener'
     | '/sentiment'
+    | '/sessions'
     | '/signals'
+    | '/simulator'
     | '/system'
     | '/telegram'
     | '/tools'
@@ -468,7 +634,6 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/webhook-events'
     | '/zo'
-    | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
@@ -487,23 +652,39 @@ export interface FileRouteTypes {
     | '/api-keys'
     | '/backtest'
     | '/bot'
+    | '/calendar'
     | '/chart'
     | '/chat'
+    | '/compound'
     | '/correlation'
+    | '/currency-strength'
     | '/dark-pool'
     | '/deriv'
     | '/dlq'
     | '/docs'
+    | '/fibonacci'
     | '/heatmap'
+    | '/journal'
+    | '/margin'
     | '/market-profile'
     | '/neural'
+    | '/optimizer'
+    | '/options-calc'
     | '/options-flow'
     | '/persistence'
+    | '/pip-value'
+    | '/pivot'
+    | '/plan'
     | '/pnl'
+    | '/recovery'
+    | '/risk-calculator'
+    | '/scaling'
     | '/scanner'
     | '/screener'
     | '/sentiment'
+    | '/sessions'
     | '/signals'
+    | '/simulator'
     | '/system'
     | '/telegram'
     | '/tools'
@@ -511,7 +692,6 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/webhook-events'
     | '/zo'
-    | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
@@ -531,23 +711,39 @@ export interface RootRouteChildren {
   ApiKeysRoute: typeof ApiKeysRoute
   BacktestRoute: typeof BacktestRoute
   BotRoute: typeof BotRoute
+  CalendarRoute: typeof CalendarRoute
   ChartRoute: typeof ChartRoute
   ChatRoute: typeof ChatRoute
+  CompoundRoute: typeof CompoundRoute
   CorrelationRoute: typeof CorrelationRoute
+  CurrencyStrengthRoute: typeof CurrencyStrengthRoute
   DarkPoolRoute: typeof DarkPoolRoute
   DerivRoute: typeof DerivRoute
   DlqRoute: typeof DlqRoute
   DocsRoute: typeof DocsRoute
+  FibonacciRoute: typeof FibonacciRoute
   HeatmapRoute: typeof HeatmapRoute
+  JournalRoute: typeof JournalRoute
+  MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
   NeuralRoute: typeof NeuralRoute
+  OptimizerRoute: typeof OptimizerRoute
+  OptionsCalcRoute: typeof OptionsCalcRoute
   OptionsFlowRoute: typeof OptionsFlowRoute
   PersistenceRoute: typeof PersistenceRoute
+  PipValueRoute: typeof PipValueRoute
+  PivotRoute: typeof PivotRoute
+  PlanRoute: typeof PlanRoute
   PnlRoute: typeof PnlRoute
+  RecoveryRoute: typeof RecoveryRoute
+  RiskCalculatorRoute: typeof RiskCalculatorRoute
+  ScalingRoute: typeof ScalingRoute
   ScannerRoute: typeof ScannerRoute
   ScreenerRoute: typeof ScreenerRoute
   SentimentRoute: typeof SentimentRoute
+  SessionsRoute: typeof SessionsRoute
   SignalsRoute: typeof SignalsRoute
+  SimulatorRoute: typeof SimulatorRoute
   SystemRoute: typeof SystemRoute
   TelegramRoute: typeof TelegramRoute
   ToolsRoute: typeof ToolsRoute
@@ -555,7 +751,6 @@ export interface RootRouteChildren {
   UptimeRoute: typeof UptimeRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
   ZoRoute: typeof ZoRoute
-  ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicHooksKeepaliveRoute: typeof ApiPublicHooksKeepaliveRoute
   ApiPublicHooksReconcileTradesRoute: typeof ApiPublicHooksReconcileTradesRoute
@@ -618,11 +813,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SystemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/simulator': {
+      id: '/simulator'
+      path: '/simulator'
+      fullPath: '/simulator'
+      preLoaderRoute: typeof SimulatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signals': {
       id: '/signals'
       path: '/signals'
       fullPath: '/signals'
       preLoaderRoute: typeof SignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sessions': {
+      id: '/sessions'
+      path: '/sessions'
+      fullPath: '/sessions'
+      preLoaderRoute: typeof SessionsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sentiment': {
@@ -646,11 +855,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ScannerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/scaling': {
+      id: '/scaling'
+      path: '/scaling'
+      fullPath: '/scaling'
+      preLoaderRoute: typeof ScalingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/risk-calculator': {
+      id: '/risk-calculator'
+      path: '/risk-calculator'
+      fullPath: '/risk-calculator'
+      preLoaderRoute: typeof RiskCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/recovery': {
+      id: '/recovery'
+      path: '/recovery'
+      fullPath: '/recovery'
+      preLoaderRoute: typeof RecoveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pnl': {
       id: '/pnl'
       path: '/pnl'
       fullPath: '/pnl'
       preLoaderRoute: typeof PnlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/plan': {
+      id: '/plan'
+      path: '/plan'
+      fullPath: '/plan'
+      preLoaderRoute: typeof PlanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pivot': {
+      id: '/pivot'
+      path: '/pivot'
+      fullPath: '/pivot'
+      preLoaderRoute: typeof PivotRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pip-value': {
+      id: '/pip-value'
+      path: '/pip-value'
+      fullPath: '/pip-value'
+      preLoaderRoute: typeof PipValueRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/persistence': {
@@ -667,6 +918,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OptionsFlowRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/options-calc': {
+      id: '/options-calc'
+      path: '/options-calc'
+      fullPath: '/options-calc'
+      preLoaderRoute: typeof OptionsCalcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/optimizer': {
+      id: '/optimizer'
+      path: '/optimizer'
+      fullPath: '/optimizer'
+      preLoaderRoute: typeof OptimizerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/neural': {
       id: '/neural'
       path: '/neural'
@@ -681,11 +946,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MarketProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/margin': {
+      id: '/margin'
+      path: '/margin'
+      fullPath: '/margin'
+      preLoaderRoute: typeof MarginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/journal': {
+      id: '/journal'
+      path: '/journal'
+      fullPath: '/journal'
+      preLoaderRoute: typeof JournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/heatmap': {
       id: '/heatmap'
       path: '/heatmap'
       fullPath: '/heatmap'
       preLoaderRoute: typeof HeatmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fibonacci': {
+      id: '/fibonacci'
+      path: '/fibonacci'
+      fullPath: '/fibonacci'
+      preLoaderRoute: typeof FibonacciRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs': {
@@ -716,11 +1002,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DarkPoolRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/currency-strength': {
+      id: '/currency-strength'
+      path: '/currency-strength'
+      fullPath: '/currency-strength'
+      preLoaderRoute: typeof CurrencyStrengthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/correlation': {
       id: '/correlation'
       path: '/correlation'
       fullPath: '/correlation'
       preLoaderRoute: typeof CorrelationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/compound': {
+      id: '/compound'
+      path: '/compound'
+      fullPath: '/compound'
+      preLoaderRoute: typeof CompoundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -735,6 +1035,13 @@ declare module '@tanstack/react-router' {
       path: '/chart'
       fullPath: '/chart'
       preLoaderRoute: typeof ChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/calendar': {
+      id: '/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof CalendarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/bot': {
@@ -784,13 +1091,6 @@ declare module '@tanstack/react-router' {
       path: '/api/public/health'
       fullPath: '/api/public/health'
       preLoaderRoute: typeof ApiPublicHealthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/keepalive/zo': {
-      id: '/api/keepalive/zo'
-      path: '/api/keepalive/zo'
-      fullPath: '/api/keepalive/zo'
-      preLoaderRoute: typeof ApiKeepaliveZoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/public/v1/signals': {
@@ -877,23 +1177,39 @@ const rootRouteChildren: RootRouteChildren = {
   ApiKeysRoute: ApiKeysRoute,
   BacktestRoute: BacktestRoute,
   BotRoute: BotRoute,
+  CalendarRoute: CalendarRoute,
   ChartRoute: ChartRoute,
   ChatRoute: ChatRoute,
+  CompoundRoute: CompoundRoute,
   CorrelationRoute: CorrelationRoute,
+  CurrencyStrengthRoute: CurrencyStrengthRoute,
   DarkPoolRoute: DarkPoolRoute,
   DerivRoute: DerivRoute,
   DlqRoute: DlqRoute,
   DocsRoute: DocsRoute,
+  FibonacciRoute: FibonacciRoute,
   HeatmapRoute: HeatmapRoute,
+  JournalRoute: JournalRoute,
+  MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
   NeuralRoute: NeuralRoute,
+  OptimizerRoute: OptimizerRoute,
+  OptionsCalcRoute: OptionsCalcRoute,
   OptionsFlowRoute: OptionsFlowRoute,
   PersistenceRoute: PersistenceRoute,
+  PipValueRoute: PipValueRoute,
+  PivotRoute: PivotRoute,
+  PlanRoute: PlanRoute,
   PnlRoute: PnlRoute,
+  RecoveryRoute: RecoveryRoute,
+  RiskCalculatorRoute: RiskCalculatorRoute,
+  ScalingRoute: ScalingRoute,
   ScannerRoute: ScannerRoute,
   ScreenerRoute: ScreenerRoute,
   SentimentRoute: SentimentRoute,
+  SessionsRoute: SessionsRoute,
   SignalsRoute: SignalsRoute,
+  SimulatorRoute: SimulatorRoute,
   SystemRoute: SystemRoute,
   TelegramRoute: TelegramRoute,
   ToolsRoute: ToolsRoute,
@@ -901,7 +1217,6 @@ const rootRouteChildren: RootRouteChildren = {
   UptimeRoute: UptimeRoute,
   WebhookEventsRoute: WebhookEventsRoute,
   ZoRoute: ZoRoute,
-  ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicHooksKeepaliveRoute: ApiPublicHooksKeepaliveRoute,
   ApiPublicHooksReconcileTradesRoute: ApiPublicHooksReconcileTradesRoute,
@@ -915,3 +1230,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

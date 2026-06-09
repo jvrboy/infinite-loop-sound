@@ -81,35 +81,35 @@ const buildSnapshotUrl = (s: any, closes?: number[]) => {
 };
 
 const buildMessage = (s: z.infer<typeof SignalSchema>) => {
-  const dir = s.direction === "BUY" ? "🟢 BUY" : "🔴 SELL";
-  const badge = s.rating === "ELITE" ? "💎 ELITE SIGNAL" : s.rating === "STRONG" ? "🟢 STRONG SIGNAL" : s.rating === "MEDIUM" ? "🟡 MEDIUM SETUP" : "⚪ WEAK";
+  const dir = s.direction === "BUY" ? "BUY" : "SELL";
+  const badge = s.rating === "ELITE" ? "ELITE SIGNAL" : s.rating === "STRONG" ? "STRONG SIGNAL" : s.rating === "MEDIUM" ? "MEDIUM SETUP" : "WEAK";
   const confLines = s.confluence.filter(c => c.passed).map(c => `▪ ${c.label}`).join("\n");
   const pair = displaySymbol(s.pair);
   return [
     "━━━━━━━━━━━━━━━━━━━━",
-    `${badge} — DivergenceIQ`,
+    `${badge} - DivergenceIQ`,
     "━━━━━━━━━━━━━━━━━━━━",
-    `📊 ${pair} | ${s.timeframe}`,
+    `[${pair} | ${s.timeframe}]`,
     `${dir}`,
     "",
-    "💰 Trade Levels:",
+    "Trade Levels:",
     `Entry: ${fmt(s.entry)}`,
-    `SL:    ${fmt(s.sl)} 🔴`,
-    `TP1:   ${fmt(s.tp1)} 🎯`,
-    `TP2:   ${fmt(s.tp2)} 🎯🎯`,
-    `TP3:   ${fmt(s.tp3)} 🎯🎯🎯`,
+    `SL:    ${fmt(s.sl)}`,
+    `TP1:   ${fmt(s.tp1)}`,
+    `TP2:   ${fmt(s.tp2)}`,
+    `TP3:   ${fmt(s.tp3)}`,
     "",
     `Score: ${s.score}/100`,
     "",
-    "✅ Confluence:",
-    confLines || "—",
+    "Confluence:",
+    confLines || "-",
     "",
-    "⚠️ Not financial advice.",
+    "Not financial advice.",
   ].join("\n");
 };
 
 export const sendSignalToTelegram = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     signalId: z.string().uuid().optional(),
     signal: SignalSchema,
     closes: z.array(z.number()).optional(),
@@ -143,7 +143,7 @@ export const sendSignalToTelegram = createServerFn({ method: "POST" })
   });
 
 export const subscribeChatId = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ chatId: z.number().int(), username: z.string().optional() }).parse(d))
+  .validator((d) => z.object({ chatId: z.number().int(), username: z.string().optional() }).parse(d))
   .handler(async ({ data }) => {
     const sb = admin();
     const { error } = await sb.from("telegram_subscribers").upsert(
@@ -163,11 +163,11 @@ export const listSubscribers = createServerFn({ method: "GET" })
   });
 
 export const sendTestMessage = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ chatId: z.number().int() }).parse(d))
+  .validator((d) => z.object({ chatId: z.number().int() }).parse(d))
   .handler(async ({ data }) => {
     await tgFetch("sendMessage", {
       chat_id: data.chatId,
-      text: "✅ DivergenceIQ connected!\nYou will receive signal alerts here.\nUse /signals to see latest, /elite for top signals.",
+      text: "DivergenceIQ connected!\nYou will receive signal alerts here.\nUse /signals to see latest, /elite for top signals.",
     });
     return { ok: true };
   });
@@ -179,7 +179,7 @@ export const getBotInfo = createServerFn({ method: "GET" })
   });
 
 export const setupTelegramWebhook = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ webhookUrl: z.string().url() }).parse(d))
+  .validator((d) => z.object({ webhookUrl: z.string().url() }).parse(d))
   .handler(async ({ data }) => {
     const result = await tgFetch("setWebhook", {
       url: data.webhookUrl,

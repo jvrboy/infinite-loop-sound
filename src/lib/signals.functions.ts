@@ -12,7 +12,7 @@ const admin = () => createClient(
 const ConfluenceItem = z.object({ label: z.string(), passed: z.boolean(), pts: z.number() });
 
 export const saveSignal = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     pair: z.string(), timeframe: z.string(),
     direction: z.enum(["BUY", "SELL"]),
     entry: z.number(), sl: z.number(), tp1: z.number(), tp2: z.number(), tp3: z.number(),

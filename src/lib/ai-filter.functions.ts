@@ -83,7 +83,7 @@ class ConfluenceNeuralNet {
 const neuralNet = new ConfluenceNeuralNet();
 
 export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     minTrades: z.number().optional().default(5),
     timeframe: z.string().optional(),
   }).parse(d))
@@ -189,7 +189,7 @@ export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
   });
 
 export const predictSignalOutcome = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     confluence: z.array(z.object({ label: z.string(), passed: z.boolean() })),
     pair: z.string(),
     timeframe: z.string(),

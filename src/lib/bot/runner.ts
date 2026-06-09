@@ -30,7 +30,7 @@ class BotRunner {
     } else {
       try {
         await deriv.assertTradeScope(s.token);
-        this.log("Trade scope verified ✓");
+        this.log("Trade scope verified");
       } catch (e: any) {
         this.status = "stopped";
         this.log("HALT — " + e.message);

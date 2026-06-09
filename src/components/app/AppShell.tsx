@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, BarChart3, Bot, Gauge, History, LineChart, Palette, Radio, Wallet, Zap, MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Cpu, Wrench, Brain, Sparkles, Infinity, DollarSign, Eye, Twitter } from "lucide-react";
+import { Activity, BarChart3, Bot, Gauge, History, LineChart, Palette, Radio, Wallet, Zap, MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Cpu, Wrench, Brain, Sparkles, Infinity, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SplitSquareHorizontal, AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
-import { WebGPUBackground } from "./WebGPUBackground";
+import { ThreeBackground } from "./ThreeBackground";
 
 const NAV = [
   { to: "/",         label: "Dashboard", icon: Gauge },
@@ -17,10 +17,26 @@ const NAV = [
   { to: "/market-profile", label: "Market Profile", icon: BarChart3 },
   { to: "/analysis", label: "Analysis",  icon: Activity },
   { to: "/tools",    label: "Tools",     icon: Wrench },
+  { to: "/currency-strength", label: "Strength", icon: Gauge },
+  { to: "/sessions", label: "Sessions",  icon: Globe },
+  { to: "/plan",     label: "Trading Plan", icon: ListChecks },
+  { to: "/simulator",label: "Simulator", icon: Dices },
+  { to: "/options-calc", label: "Black-Scholes", icon: Percent },
+  { to: "/pip-value", label: "Pip Value", icon: Coins },
+  { to: "/compound", label: "Growth Calc", icon: TrendingUp },
+  { to: "/recovery", label: "Recovery",  icon: LifeBuoy },
+  { to: "/scaling",  label: "Scale Out", icon: SplitSquareHorizontal },
+  { to: "/risk-calculator", label: "Risk Calc", icon: Calculator },
+  { to: "/pivot",    label: "Pivots",    icon: ArrowUpFromLine },
+  { to: "/fibonacci",label: "Fibonacci", icon: AlignJustify },
+  { to: "/margin",   label: "Margin",    icon: Landmark },
+  { to: "/journal",  label: "Journal",   icon: BookOpen },
+  { to: "/calendar", label: "Calendar",  icon: CalIcon },
   { to: "/chat",     label: "AI Chat",   icon: MessageSquare },
   { to: "/chart",    label: "Chart",     icon: LineChart },
   { to: "/heatmap",  label: "Heatmap",   icon: Flame },
   { to: "/backtest", label: "Backtest",  icon: History },
+  { to: "/optimizer", label: "Optimizer", icon: Wrench },
   { to: "/bot",      label: "Auto-Bot",  icon: Rocket },
   { to: "/zo",       label: "Zo Cloud",  icon: Cpu },
   { to: "/pnl",      label: "PnL",       icon: TrendingUp },
@@ -44,6 +60,26 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { theme, setTheme } = useTheme();
   const [themeOpen, setThemeOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [zenMode, setZenMode] = useState(false);
+
+  // Background scanner interval for continuous 24/7 scanning simulation
+  useEffect(() => {
+    const runBackgroundScan = async () => {
+      // In Agent Mode / Browser only, we simulate backend crons locally by pinging the keepalive API
+      try {
+        await fetch("/api/public/hooks/keepalive", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ source: "browser_background" })
+        });
+      } catch (e) {}
+    };
+
+    // Run every 2 minutes
+    const interval = setInterval(runBackgroundScan, 120000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     setNow(new Date());
     const t = setInterval(() => setNow(new Date()), 1000);
@@ -62,15 +98,37 @@ export function AppShell({ children }: { children: ReactNode }) {
           case "3": e.preventDefault(); window.location.href = "/analysis"; break;
         }
       }
+      if (e.key === 'Escape' && zenMode) {
+        setZenMode(false);
+      }
     };
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [zenMode]);
+
+  if (zenMode) {
+    return (
+      <div className="min-h-screen flex bg-background text-foreground relative">
+        <ThreeBackground />
+        <main className="flex-1 w-full h-screen overflow-auto relative z-10">
+          {children}
+          <button 
+            onClick={() => setZenMode(false)}
+            className="fixed bottom-6 right-6 p-3 bg-primary text-primary-foreground rounded-full shadow-lg hover:scale-110 transition z-50 flex items-center gap-2 text-sm font-medium"
+            title="Exit Zen Mode (Esc)"
+          >
+            <Minimize className="w-4 h-4" /> Exit Zen Mode
+          </button>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex bg-background text-foreground relative">
-      <WebGPUBackground />
+      <ThreeBackground />
       <aside className="hidden md:flex w-60 flex-col bg-sidebar/90 backdrop-blur-xl border-r border-sidebar-border relative z-10">
-        <div className="px-5 py-5 border-b border-sidebar-border">
+        <div className="px-5 py-5 border-b border-sidebar-border flex justify-between items-center">
           <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded bg-gradient-bull grid place-items-center shadow-glow-bull">
               <BarChart3 className="w-4 h-4 text-primary-foreground" />
@@ -80,6 +138,9 @@ export function AppShell({ children }: { children: ReactNode }) {
               <div className="text-[10px] text-muted-foreground uppercase tracking-widest">Forex Edge</div>
             </div>
           </Link>
+          <button onClick={() => setZenMode(true)} className="text-muted-foreground hover:text-foreground transition" title="Zen Mode">
+            <Maximize className="w-4 h-4" />
+          </button>
         </div>
         <nav className="flex-1 p-2 space-y-0.5">
           {NAV.map(({ to, label, icon: Icon }) => {
@@ -97,7 +158,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         <div className="p-3 border-t border-sidebar-border text-[10px] text-muted-foreground font-mono flex items-center justify-between">
           <span className="pulse-dot">LIVE</span>
-          <span suppressHydrationWarning>{now ? now.toUTCString().slice(17, 25) : "--:--:--"} UTC</span>
+          <span suppressHydrationWarning>{now ? now.toLocaleTimeString('en-GB', { timeZone: 'Africa/Johannesburg', hour12: false }) : "--:--:--"} SAST</span>
         </div>
         <div className="px-3 pb-2 text-[9px] text-muted-foreground/60 font-mono">
           ⌘K scanner • ⌘1 dash • ⌘2 signals
@@ -151,7 +212,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </nav>
         {moreOpen && (
           <div className="md:hidden fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" onClick={() => setMoreOpen(false)}>
-            <div className="absolute bottom-16 inset-x-0 bg-sidebar border-t border-sidebar-border p-3 grid grid-cols-3 gap-2" onClick={e => e.stopPropagation()}>
+            <div className="absolute bottom-16 inset-x-0 bg-sidebar border-t border-sidebar-border p-3 grid grid-cols-3 gap-2 max-h-[75vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
               {MOBILE_SECONDARY.map(({ to, label, icon: Icon }) => {
                 const active = path.startsWith(to);
                 return (

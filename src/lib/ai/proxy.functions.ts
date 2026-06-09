@@ -16,7 +16,7 @@ const Input = z.object({
 type ProxyResult = { ok: true; text: string } | { ok: false; error: string };
 
 export const aiProxy = createServerFn({ method: "POST" })
-  .inputValidator((d: unknown) => Input.parse(d))
+  .validator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<ProxyResult> => {
     const { provider, apiKey, model, messages, baseUrl } = data;
     try {

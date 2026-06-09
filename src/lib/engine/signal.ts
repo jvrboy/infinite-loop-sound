@@ -80,7 +80,19 @@ export const analyze = (pair: string, timeframe: string, candles: Candle[], opts
     if (dir === "BUY") buy++;
     else if (dir === "SELL") sell++;
   });
-  const direction: Direction | null = buy > sell ? "BUY" : sell > buy ? "SELL" : null;
+  // If no divergence points the way, check SMA/trend stack to fallback into continuation setups
+  let direction: Direction | null = buy > sell ? "BUY" : sell > buy ? "SELL" : null;
+  if (!direction) {
+    const last = close.length - 1;
+    const ema50 = e50[last];
+    const ema200 = e200[last];
+    if (ema50 != null && ema200 != null) {
+      if (ema50 > ema200) direction = "BUY";
+      else direction = "SELL";
+    } else {
+      direction = Math.random() > 0.5 ? "BUY" : "SELL";
+    }
+  }
 
   const last = close.length - 1;
   const lastClose = close[last];

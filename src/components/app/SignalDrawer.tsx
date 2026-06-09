@@ -39,7 +39,7 @@ export function SignalDrawer({ open, onOpenChange, signal }: Props) {
     const oscs = passedDivOscs.length ? passedDivOscs : ["RSI", "MACD", "STOCH"];
     oscs.forEach(osc => {
       fetchStats({ data: { pair: signal.pair, timeframe: signal.timeframe, oscillator: osc, limit: 5 } })
-        .then((r: any) => setStats(s => ({ ...s, [osc]: r })))
+        .then(r => setStats(s => ({ ...s, [osc]: r })))
         .catch(() => {});
     });
     // eslint-disable-next-line
@@ -117,7 +117,7 @@ export function SignalDrawer({ open, onOpenChange, signal }: Props) {
                         {s.recent.map((r: any) => (
                           <span key={r.id} title={new Date(r.created_at).toLocaleString()}
                             className={`text-[10px] font-mono px-1.5 py-0.5 rounded ${r.is_valid ? "bg-bull/15 text-bull" : "bg-bear/15 text-bear"}`}>
-                            {r.is_valid ? "✓" : "✗"} {(r.div_type || "").replace("_", " ")}
+                            {r.is_valid ? "Valid" : "Invalid"} {(r.div_type || "").replace("_", " ")}
                           </span>
                         ))}
                       </div>

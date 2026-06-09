@@ -11,7 +11,7 @@ const admin = () => createClient(
 const Pivot = z.object({ time: z.number(), price: z.number() });
 
 export const saveValidation = createServerFn({ method: "POST" })
-  .inputValidator(d => z.object({
+  .validator(d => z.object({
     pair: z.string(), timeframe: z.string(), oscillator: z.string(),
     divType: z.string().nullable().optional(),
     isValid: z.boolean(),
@@ -48,7 +48,7 @@ export const validationStats = createServerFn({ method: "GET" })
 
 // Per-context recent verdicts + accuracy for the signal drawer.
 export const validationStatsFor = createServerFn({ method: "POST" })
-  .inputValidator(d => z.object({
+  .validator(d => z.object({
     pair: z.string().optional(),
     timeframe: z.string().optional(),
     oscillator: z.string().optional(),

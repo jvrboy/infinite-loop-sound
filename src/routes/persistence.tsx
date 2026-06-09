@@ -12,7 +12,7 @@ export const Route = createFileRoute("/persistence")({
 });
 
 function PersistencePage() {
-  const [status, setStatus] = useState<any>(null);
+  const [status, setStatus] = useState<any>({ app: { status: "unknown" }, zo: { status: "unknown" }, mutual: false });
   const [apiKey, setApiKey] = useState("");
   const [isActive, setIsActive] = useState(false);
   const getStatus = useServerFn(getKeepaliveStatus);
@@ -23,7 +23,7 @@ function PersistencePage() {
   useEffect(() => {
     const saved = localStorage.getItem("zo_api_key");
     if (saved) setApiKey(saved);
-    
+
     loadStatus();
     const interval = setInterval(loadStatus, 5000);
     return () => clearInterval(interval);
@@ -32,9 +32,11 @@ function PersistencePage() {
   const loadStatus = async () => {
     try {
       const s = await getStatus();
-      setStatus(s);
-      setIsActive(!!s.mutual);
-    } catch {}
+      setStatus(s || { app: { status: "unknown" }, zo: { status: "unknown" }, mutual: false });
+      setIsActive(!!(s && s.mutual));
+    } catch (e) {
+      setStatus({ app: { status: "unknown" }, zo: { status: "unknown" }, mutual: false });
+    }
   };
 
   const start = async () => {
@@ -106,10 +108,10 @@ function PersistencePage() {
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs uppercase tracking-wider text-muted-foreground">App → Zo</span>
-              <Radio className={`w-4 h-4 ${status?.zo.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`} />
+              <Radio className={`w-4 h-4 ${status?.zo?.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`} />
             </div>
             <div className="text-2xl font-bold font-mono">
-              {status?.zo.secondsAgo !== null ? `${status.zo.secondsAgo}s` : "--"}
+              {status?.zo?.secondsAgo != null ? `${status?.zo?.secondsAgo}s` : "--"}
             </div>
             <div className="text-xs text-muted-foreground mt-1">Last ping ago</div>
           </div>
@@ -117,10 +119,10 @@ function PersistencePage() {
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs uppercase tracking-wider text-muted-foreground">Zo → App</span>
-              <Server className={`w-4 h-4 ${status?.app.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`} />
+              <Server className={`w-4 h-4 ${status?.app?.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`} />
             </div>
             <div className="text-2xl font-bold font-mono">
-              {status?.app.secondsAgo !== null ? `${status.app.secondsAgo}s` : "--"}
+              {status?.app?.secondsAgo != null ? `${status?.app?.secondsAgo}s` : "--"}
             </div>
             <div className="text-xs text-muted-foreground mt-1">Last ping ago</div>
           </div>
@@ -179,11 +181,11 @@ function PersistencePage() {
             <h3 className="font-semibold mb-3 text-sm">How Mutual Keepalive Works</h3>
             <div className="space-y-3 text-xs">
               {[
-                { step: "1", desc: "App pings Zo every 60s via API", icon: "→" },
-                { step: "2", desc: "Zo receives ping, stays awake", icon: "✓" },
-                { step: "3", desc: "Zo pings App webhook every 60s", icon: "←" },
-                { step: "4", desc: "App receives ping, stays awake", icon: "✓" },
-                { step: "5", desc: "Both run 24/7, never sleep", icon: "∞" },
+                { step: "1", desc: "App pings Zo every 60s via API", icon: "->" },
+                { step: "2", desc: "Zo receives ping, stays awake", icon: "OK" },
+                { step: "3", desc: "Zo pings App webhook every 60s", icon: "<-" },
+                { step: "4", desc: "App receives ping, stays awake", icon: "OK" },
+                { step: "5", desc: "Both run 24/7, never sleep", icon: "LOOP" },
               ].map((item) => (
                 <div key={item.step} className="flex items-center gap-3">
                   <div className="w-6 h-6 rounded-full bg-primary/20 grid place-items-center text-[10px] font-bold text-primary">

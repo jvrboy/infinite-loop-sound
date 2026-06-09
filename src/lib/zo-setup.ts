@@ -110,10 +110,10 @@ if (typeof window === "undefined") {
   configureZoAutomations()
     .then(result => {
       if (result.success) {
-        console.log("[ZO] ✓ Automations configured successfully");
-        console.log("[ZO] ✓ Keepalive: Every 60 seconds");
-        console.log("[ZO] ✓ Scanner: Every 5 minutes");
-        console.log("[ZO] ✓ 24/7 persistence: ACTIVE");
+        console.log("[ZO] Automations configured successfully");
+        console.log("[ZO] Keepalive: Every 60 seconds");
+        console.log("[ZO] Scanner: Every 5 minutes");
+        console.log("[ZO] 24/7 persistence: ACTIVE");
       }
     })
     .catch(console.error);

@@ -67,7 +67,7 @@ function TelegramPage() {
       const status = await hookStatus();
       setHook(status);
       if (status.url === STABLE_WEBHOOK_URL && !status.lastError) {
-        toast.success("✓ Webhook registered & verified");
+        toast.success("Webhook registered & verified");
       } else if (status.lastError) {
         toast.error("Registered but error: " + status.lastError);
       } else {
@@ -154,7 +154,7 @@ function TelegramPage() {
                 />
               </div>
               <p className="text-[11px] text-muted-foreground">
-                {autoForward ? `✓ Auto-sending signals ≥${minScore} to ${subs.filter(s=>s.active).length} subscribers` : "Disabled - manual send only"}
+                {autoForward ? `Auto-sending signals ≥${minScore} to ${subs.filter(s=>s.active).length} subscribers` : "Disabled - manual send only"}
               </p>
             </div>
           </div>

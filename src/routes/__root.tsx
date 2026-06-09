@@ -5,6 +5,9 @@ import appCss from "../styles.css?url";
 import { PasswordGate } from "@/components/app/PasswordGate";
 import { useEffect } from "react";
 import { seedBuiltinKeys } from "@/lib/ai/client";
+import { deriv, ALL_ASSETS } from "@/lib/engine/deriv";
+import { analyze } from "@/lib/engine/signal";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -43,7 +46,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { title: "DivergenceIQ" },
       { name: "description", content: "Forex divergence scanner & auto signals by Tsepang Mashigo" },
       { name: "theme-color", content: "#0b1020" },
-      { name: "mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { name: "apple-mobile-web-app-title", content: "DivergenceIQ" },
@@ -86,13 +88,56 @@ function RootComponent() {
     const ping = () => { fetch("/api/public/hooks/keepalive?source=browser", { method: "POST" }).catch(() => {}); };
     ping();
     const id = setInterval(ping, 60_000);
-    
+
     // Register PWA service worker
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
-    
-    return () => clearInterval(id);
+
+    // Global background auto-scanner: runs every 5 minutes regardless of page
+    // Scans all assets and saves ELITE + STRONG signals silently
+    let scanInProgress = false;
+    const runGlobalScan = async () => {
+      if (scanInProgress) return;
+      scanInProgress = true;
+      try {
+        await deriv.connect();
+        const tfs: Array<"M15" | "M30" | "H1" | "H4"> = ["M15", "M30", "H1", "H4"];
+        const assets = ALL_ASSETS;
+        for (const p of assets) {
+          for (const tf of tfs) {
+            try {
+              const candles = await deriv.getCandles(p.symbol, tf, 120);
+              if (candles.length < 50) continue;
+              const a = analyze(p.symbol, tf, candles);
+              if (a.direction && a.scorePct >= 60 && a.trade) {
+                const key = `${p.symbol}-${tf}-${a.direction}-${Math.floor(candles[candles.length - 1].epoch / 3600)}`;
+                // Store in Supabase so signals appear on dashboard without manual scan
+                await supabase.from("signals").insert({
+                  pair: p.symbol, timeframe: tf, direction: a.direction,
+                  entry: a.trade.entry, sl: a.trade.sl, tp1: a.trade.tp1, tp2: a.trade.tp2, tp3: a.trade.tp3,
+                  score: a.scorePct, rating: a.rating, confluence: a.confluence as any,
+                  source: "auto_scan", status: "active",
+                }).select().single().then(({ error }) => {
+                  if (!error) {
+                    console.log("[AUTO-SCAN] Saved", key, a.rating, a.scorePct);
+                  }
+                });
+              }
+            } catch (e) { /* skip per-pair errors */ }
+            await new Promise(r => setTimeout(r, 40)); // gentle throttle
+          }
+        }
+      } catch (e) { console.error("[AUTO-SCAN] error", e); }
+      finally { scanInProgress = false; }
+    };
+    runGlobalScan(); // run once on load
+    const scanId = setInterval(runGlobalScan, 5 * 60 * 1000); // every 5 minutes
+
+    return () => {
+      clearInterval(id);
+      clearInterval(scanId);
+    };
   }, []);
   return (
     <QueryClientProvider client={queryClient}>

@@ -59,7 +59,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           await tg(token, "sendMessage", {
             chat_id: chatId,
             text:
-              "🎯 Welcome to DivergenceIQ!\n\n" +
+              "Welcome to DivergenceIQ!\n\n" +
               "You're subscribed. You'll receive auto-generated forex signals based on multi-indicator divergence + confluence analysis.\n\n" +
               "Commands:\n" +
               "/signals — latest signals\n" +
@@ -69,7 +69,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
           });
         } else if (text.startsWith("/stop")) {
           await sb.from("telegram_subscribers").update({ active: false }).eq("chat_id", chatId);
-          await tg(token, "sendMessage", { chat_id: chatId, text: "🔕 Alerts paused. Send /start to resume." });
+          await tg(token, "sendMessage", { chat_id: chatId, text: "Alerts paused. Send /start to resume." });
         } else if (text.startsWith("/signals") || text.startsWith("/elite")) {
           const minScore = text.startsWith("/elite") ? 80 : 0;
           const { data } = await sb.from("signals").select("*")
@@ -82,7 +82,7 @@ export const Route = createFileRoute("/api/public/telegram/webhook")({
               const arrow = s.direction === "BUY" ? "🟢" : "🔴";
               return `${arrow} ${pair} ${s.timeframe} • ${s.direction} • ${s.score}/100 (${s.rating})`;
             });
-            await tg(token, "sendMessage", { chat_id: chatId, text: "📊 Latest signals:\n\n" + lines.join("\n") });
+            await tg(token, "sendMessage", { chat_id: chatId, text: "Latest signals:\n\n" + lines.join("\n") });
           }
         } else {
           await tg(token, "sendMessage", {

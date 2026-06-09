@@ -65,7 +65,7 @@ function SentimentPage() {
             </h3>
             <div className="space-y-2.5 text-xs">
               {[
-                { text: "EUR/USD breaking 1.09 resistance 🚀", likes: 234, user: "@forex_whale" },
+                { text: "EUR/USD breaking 1.09 resistance", likes: 234, user: "@forex_whale" },
                 { text: "Gold to $2700 by EOW - loading calls", likes: 189, user: "@goldbug" },
                 { text: "GBP looking weak ahead of BoE", likes: 156, user: "@macro_trader" },
               ].map((tweet, i) => (

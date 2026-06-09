@@ -99,7 +99,7 @@ function WebhookEventsPage() {
                   {r.ip && <span className="text-[10px] text-muted-foreground font-mono hidden md:inline">{r.ip}</span>}
                 </summary>
                 <div className="p-3 bg-background/40 text-[11px] space-y-2">
-                  {r.error && <div className="text-bear">⚠ {r.error}</div>}
+                  {r.error && <div className="text-bear">Warning: {r.error}</div>}
                   <div>
                     <div className="text-muted-foreground uppercase mb-1 text-[10px]">Payload</div>
                     <pre className="font-mono whitespace-pre-wrap break-all bg-muted/40 p-2 rounded">{JSON.stringify(r.payload, null, 2).slice(0, 2000)}</pre>

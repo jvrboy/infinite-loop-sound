@@ -11,15 +11,13 @@ interface HealthCheck {
 }
 
 const healthChecks = new Map<string, HealthCheck>();
-let monitoringInterval: ReturnType<typeof setInterval> | null = null;
+let monitoringInterval: NodeJS.Timeout | null = null;
 let autoRestartEnabled = true;
 let crashCount = 0;
 const MAX_CRASHES = 3;
 
 export const runHealthCheck = createServerFn({ method: "GET" })
-  .handler(async () => runHealthCheckTask());
-
-async function runHealthCheckTask() {
+  .handler(async () => {
     const checks: HealthCheck[] = [];
     const start = Date.now();
 
@@ -122,10 +120,10 @@ async function runHealthCheckTask() {
       timestamp: Date.now(),
       uptime: process.uptime(),
     };
-}
+  });
 
 export const startHealthMonitoring = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
+  .validator((d) => z.object({
     intervalSeconds: z.number().optional().default(30),
     autoRestart: z.boolean().optional().default(true),
   }).parse(d))
@@ -137,12 +135,12 @@ export const startHealthMonitoring = createServerFn({ method: "POST" })
     }
 
     // Run immediately
-    await runHealthCheckTask();
+    await runHealthCheck();
 
     // Then every interval
     monitoringInterval = setInterval(async () => {
       try {
-        const result = await runHealthCheckTask();
+        const result = await runHealthCheck();
         
         // Auto-restart logic
         if (autoRestartEnabled && result.status === "down") {
@@ -221,7 +219,8 @@ async function triggerAutoRestart() {
     healthChecks.clear();
     crashCount = 0;
     
-    // A fresh health check is run by the next explicit monitor tick.
+    // Re-run health check
+    setTimeout(() => runHealthCheck(), 2000);
     
     console.log("[HEALTH] Auto-restart completed");
     return true;
@@ -241,5 +240,10 @@ function formatUptime(seconds: number): string {
   return `${mins}m`;
 }
 
-// Monitoring is started explicitly from the uptime screen. Server functions must
-// not be called from module-level timers during SSR startup.
+// Auto-start monitoring
+if (typeof process !== "undefined") {
+  setTimeout(() => {
+    startHealthMonitoring({ data: { intervalSeconds: 30, autoRestart: true } })
+      .catch(console.error);
+  }, 3000);
+}
