@@ -127,7 +127,7 @@ function ToolsPage() {
 
   return (
     <AppShell>
-      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 py-4 sm:px-5 md:px-6 md:py-6">
+      <main className="mx-auto flex w-full max-w-7xl flex-col gap-5 px-4 pb-24 pt-4 sm:px-5 md:px-6 md:pb-8 md:pt-6">
         <section className="flex flex-col gap-4 rounded-lg border border-border bg-card/80 p-4 shadow-sm md:flex-row md:items-end md:justify-between md:p-5">
           <div className="min-w-0">
             <div className="mb-2 flex flex-wrap items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -159,8 +159,8 @@ function ToolsPage() {
         )}
 
         <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <MetricCard icon={LineChart} label="Selected pair" value={displayPair(selectedPair)} detail={entry ? formatPrice(entry, pairParts.quote) : "Waiting for first tick"} tone={quote?.change && quote.change >= 0 ? "bull" : "bear"} />
-          <MetricCard icon={Activity} label="Live move" value={quote ? `${quote.changePct >= 0 ? "+" : ""}${quote.changePct.toFixed(4)}%` : "--"} detail={quote ? `${quote.ticks.length} live ticks sampled` : "No tick yet"} tone={quote?.changePct && quote.changePct >= 0 ? "bull" : "bear"} />
+          <MetricCard icon={LineChart} label="Selected pair" value={displayPair(selectedPair)} detail={entry ? formatPrice(entry, pairParts.quote) : "Waiting for first tick"} tone={quote ? (quote.change >= 0 ? "bull" : "bear") : "neutral"} />
+          <MetricCard icon={Activity} label="Live move" value={quote ? `${quote.changePct >= 0 ? "+" : ""}${quote.changePct.toFixed(4)}%` : "--"} detail={quote ? `${quote.ticks.length} live ticks sampled` : "No tick yet"} tone={quote ? (quote.changePct >= 0 ? "bull" : "bear") : "neutral"} />
           <MetricCard icon={Gauge} label="Tick volatility" value={`${tickVolatilityPips(selectedPair, quote).toFixed(1)} pips`} detail="Range from the latest live ticks" tone="neutral" />
           <MetricCard icon={Clock} label="Open sessions" value={sessions.filter((s) => s.open).length.toString()} detail={sessions.filter((s) => s.open).map((s) => s.name).join(" / ") || "Markets transitioning"} tone="neutral" />
         </section>
