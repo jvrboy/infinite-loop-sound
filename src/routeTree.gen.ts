@@ -13,7 +13,6 @@ import { Route as ZoRouteImport } from './routes/zo'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
 import { Route as UptimeRouteImport } from './routes/uptime'
 import { Route as UltraRouteImport } from './routes/ultra'
-import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as SystemRouteImport } from './routes/system'
 import { Route as SimulatorRouteImport } from './routes/simulator'
@@ -85,11 +84,6 @@ const UptimeRoute = UptimeRouteImport.update({
 const UltraRoute = UltraRouteImport.update({
   id: '/ultra',
   path: '/ultra',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ToolsRoute = ToolsRouteImport.update({
-  id: '/tools',
-  path: '/tools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TelegramRoute = TelegramRouteImport.update({
@@ -400,7 +394,6 @@ export interface FileRoutesByFullPath {
   '/simulator': typeof SimulatorRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
-  '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
@@ -459,7 +452,6 @@ export interface FileRoutesByTo {
   '/simulator': typeof SimulatorRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
-  '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
@@ -519,7 +511,6 @@ export interface FileRoutesById {
   '/simulator': typeof SimulatorRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
-  '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
@@ -580,7 +571,6 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/system'
     | '/telegram'
-    | '/tools'
     | '/ultra'
     | '/uptime'
     | '/webhook-events'
@@ -639,7 +629,6 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/system'
     | '/telegram'
-    | '/tools'
     | '/ultra'
     | '/uptime'
     | '/webhook-events'
@@ -698,7 +687,6 @@ export interface FileRouteTypes {
     | '/simulator'
     | '/system'
     | '/telegram'
-    | '/tools'
     | '/ultra'
     | '/uptime'
     | '/webhook-events'
@@ -758,7 +746,6 @@ export interface RootRouteChildren {
   SimulatorRoute: typeof SimulatorRoute
   SystemRoute: typeof SystemRoute
   TelegramRoute: typeof TelegramRoute
-  ToolsRoute: typeof ToolsRoute
   UltraRoute: typeof UltraRoute
   UptimeRoute: typeof UptimeRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
@@ -803,13 +790,6 @@ declare module '@tanstack/react-router' {
       path: '/ultra'
       fullPath: '/ultra'
       preLoaderRoute: typeof UltraRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/tools': {
-      id: '/tools'
-      path: '/tools'
-      fullPath: '/tools'
-      preLoaderRoute: typeof ToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/telegram': {
@@ -1232,7 +1212,6 @@ const rootRouteChildren: RootRouteChildren = {
   SimulatorRoute: SimulatorRoute,
   SystemRoute: SystemRoute,
   TelegramRoute: TelegramRoute,
-  ToolsRoute: ToolsRoute,
   UltraRoute: UltraRoute,
   UptimeRoute: UptimeRoute,
   WebhookEventsRoute: WebhookEventsRoute,
