@@ -325,6 +325,9 @@ function ChartPage() {
             className={`flex items-center gap-1.5 px-2 py-1 rounded font-mono text-xs ${settings.liveTickRescan ? "bg-bull/15 text-bull" : "bg-muted text-muted-foreground"}`}>
             <Radio className={`w-3 h-3 ${settings.liveTickRescan ? "animate-pulse" : ""}`} /> Live Rescan: {settings.liveTickRescan ? "ON" : "OFF"}
           </button>
+          <a href="/market-profile" className="px-3 py-1 rounded border text-xs font-mono flex items-center gap-1.5 hover:bg-accent">
+            <BarChart3 className="w-3.5 h-3.5" /> Open Market Profile (Real-time POC + Candles)
+          </a>
         </div>
 
         {drawVerdict && (
