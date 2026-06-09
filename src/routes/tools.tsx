@@ -384,12 +384,16 @@ function money(value: number) {
 
 function currencyRate(from: string, to: string, quotes: Record<string, LiveQuote>): number | null {
   if (from === to) return 1;
-  const direct = quotes[`frx${from}${to}`]?.price;
-  if (direct) return direct;
-  const inverse = quotes[`frx${to}${from}`]?.price;
-  if (inverse) return 1 / inverse;
-  const fromUsd = from === "USD" ? 1 : currencyRate(from, "USD", quotes);
-  const toUsd = to === "USD" ? 1 : currencyRate(to, "USD", quotes);
+  const directOrInverse = (base: string, quote: string) => {
+    const direct = quotes[`frx${base}${quote}`]?.price;
+    if (direct) return direct;
+    const inverse = quotes[`frx${quote}${base}`]?.price;
+    return inverse ? 1 / inverse : null;
+  };
+  const directRate = directOrInverse(from, to);
+  if (directRate) return directRate;
+  const fromUsd = from === "USD" ? 1 : directOrInverse(from, "USD");
+  const toUsd = to === "USD" ? 1 : directOrInverse(to, "USD");
   return fromUsd && toUsd ? fromUsd / toUsd : null;
 }
 
