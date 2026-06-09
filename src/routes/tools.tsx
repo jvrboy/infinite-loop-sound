@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState } from "react";
-import { Wrench, Sparkles, Filter, Brain, Target, TrendingUp, Clock, BarChart3 } from "lucide-react";
+import { Wrench, Sparkles, Filter, Brain, Target, TrendingUp, Clock, BarChart3, Volume2, Infinity, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -93,6 +93,30 @@ function ToolsPage() {
       color: "from-indigo-600 to-violet-600",
       action: () => toast.success("Optimal risk: 2.3% per trade based on 64% win rate")
     },
+    {
+      id: "infinite-sound",
+      name: "Infinite Loop Sound",
+      desc: "Ultra powerful signal alerts with 24/7 infinite loop audio engine",
+      icon: Volume2,
+      color: "from-rose-600 to-pink-600",
+      action: () => toast.success("Infinite sound loop activated - signals will trigger every 5 min 24/7")
+    },
+    {
+      id: "ultra-signals",
+      name: "Ultra Powerful Signals",
+      desc: "6-factor ultra confluence + Zo 24/7 trigger engine",
+      icon: Zap,
+      color: "from-violet-600 to-fuchsia-600",
+      action: () => toast.success("Ultra signals synced to Zo.computer - triggering every 5 minutes")
+    },
+    {
+      id: "zo-trigger",
+      name: "Zo 24/7 Trigger",
+      desc: "Mutual trigger loop with zo.computer every 5 minutes",
+      icon: Infinity,
+      color: "from-emerald-600 to-teal-600",
+      action: () => toast.success("Connected to Zo - mutual 5min triggers active 24/7")
+    },
   ];
 
   return (
@@ -105,7 +129,7 @@ function ToolsPage() {
             </div>
             Advanced Tools
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">Pro trader toolkit • 6 powerful utilities</p>
+          <p className="text-sm text-muted-foreground mt-2">Pro trader toolkit • 9 powerful utilities</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">

@@ -105,7 +105,7 @@ export const getKeepaliveStatus = createServerFn({ method: "GET" })
 export const start24x7Keepalive = createServerFn({ method: "POST" })
   .validator((d) => z.object({
     apiKey: z.string(),
-    intervalSeconds: z.number().optional().default(60),
+    intervalSeconds: z.number().optional().default(300),
   }).parse(d))
   .handler(async ({ data }) => {
     if (pingInterval) {
@@ -159,7 +159,7 @@ if (typeof process !== "undefined" && (process.env.ZO_API_KEY || DEFAULT_API_KEY
     start24x7Keepalive({ 
       data: { 
         apiKey: process.env.ZO_API_KEY || DEFAULT_API_KEY, 
-        intervalSeconds: 60 
+        intervalSeconds: 300 
       } 
     }).catch(console.error);
   }, 5000);

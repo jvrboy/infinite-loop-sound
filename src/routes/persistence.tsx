@@ -45,10 +45,10 @@ function PersistencePage() {
       return;
     }
     try {
-      await startKeepalive({ data: { apiKey, intervalSeconds: 60 } });
+      await startKeepalive({ data: { apiKey, intervalSeconds: 300 } });
       localStorage.setItem("zo_api_key", apiKey);
       toast.success("24/7 persistence activated", {
-        description: "Pinging every 60 seconds",
+        description: "Pinging every 5 minutes",
       });
       setIsActive(true);
       loadStatus();
@@ -83,7 +83,7 @@ function PersistencePage() {
             </div>
             24/7 Persistence
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">Mutual keepalive • Never sleeps • Zo ↔ App ping every 60s</p>
+          <p className="text-sm text-muted-foreground mt-2">Mutual keepalive • Never sleeps • Zo ↔ App ping every 5 minutes 24/7</p>
         </div>
 
         {/* Status Cards */}
@@ -101,7 +101,7 @@ function PersistencePage() {
               {isActive ? "ACTIVE" : "INACTIVE"}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              {isActive ? "Pinging every 60s" : "Not running"}
+              {isActive ? "Pinging every 5 minutes 24/7" : "Not running"}
             </div>
           </div>
 
@@ -165,7 +165,7 @@ function PersistencePage() {
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <div>
                   <div className="text-sm font-medium">Ping Interval</div>
-                  <div className="text-xs text-muted-foreground">Both directions, every 60 seconds</div>
+                  <div className="text-xs text-muted-foreground">Both directions, every 5 minutes</div>
                 </div>
               </div>
               <Button size="sm" variant="outline" onClick={testPing} disabled={!apiKey}>
@@ -181,9 +181,9 @@ function PersistencePage() {
             <h3 className="font-semibold mb-3 text-sm">How Mutual Keepalive Works</h3>
             <div className="space-y-3 text-xs">
               {[
-                { step: "1", desc: "App pings Zo every 60s via API", icon: "->" },
+                { step: "1", desc: "App pings Zo every 5 minutes 24/7 via API", icon: "->" },
                 { step: "2", desc: "Zo receives ping, stays awake", icon: "OK" },
-                { step: "3", desc: "Zo pings App webhook every 60s", icon: "<-" },
+                { step: "3", desc: "Zo pings App webhook every 5 minutes 24/7", icon: "<-" },
                 { step: "4", desc: "App receives ping, stays awake", icon: "OK" },
                 { step: "5", desc: "Both run 24/7, never sleep", icon: "LOOP" },
               ].map((item) => (
