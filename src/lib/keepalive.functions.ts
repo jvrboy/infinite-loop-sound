@@ -8,10 +8,10 @@ const DEFAULT_API_KEY = ZO_CONFIG.apiKey;
 // Store last ping times
 let lastZoPing = 0;
 let lastAppPing = 0;
-let pingInterval: NodeJS.Timeout | null = null;
+let pingInterval: ReturnType<typeof setInterval> | null = null;
 
 export const pingZoComputer = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     apiKey: z.string().optional(),
   }).parse(d))
   .handler(async ({ data }) => {
@@ -61,7 +61,7 @@ export const pingZoComputer = createServerFn({ method: "POST" })
   });
 
 export const receiveZoPing = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     source: z.string(),
     timestamp: z.number().optional(),
   }).parse(d))
@@ -103,7 +103,7 @@ export const getKeepaliveStatus = createServerFn({ method: "GET" })
   });
 
 export const start24x7Keepalive = createServerFn({ method: "POST" })
-  .validator((d) => z.object({
+  .inputValidator((d) => z.object({
     apiKey: z.string(),
     intervalSeconds: z.number().optional().default(300),
   }).parse(d))
@@ -151,16 +151,4 @@ async function performKeepaliveTasks() {
   } catch (e) {
     console.error("[KEEPALIVE] Task error:", e);
   }
-}
-
-// Auto-start on server init if API key exists
-if (typeof process !== "undefined" && (process.env.ZO_API_KEY || DEFAULT_API_KEY)) {
-  setTimeout(() => {
-    start24x7Keepalive({ 
-      data: { 
-        apiKey: process.env.ZO_API_KEY || DEFAULT_API_KEY, 
-        intervalSeconds: 300 
-      } 
-    }).catch(console.error);
-  }, 5000);
 }
