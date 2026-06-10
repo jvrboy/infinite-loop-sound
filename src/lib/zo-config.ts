@@ -1,9 +1,9 @@
 // Zo Computer Configuration
-// API Key: zo_sk_zHUFWqvRqwhRu2vmzLUvzKlyTVpkOD5hU5_x804VZj4
+// API Key: zo_sk_rhnWGFSCxKJgSU3BTEX-5O5B8lDNClcqT2pWqhBc75A
 // Configured: 2024
 
 export const ZO_CONFIG = {
-  apiKey: "zo_sk_zHUFWqvRqwhRu2vmzLUvzKlyTVpkOD5hU5_x804VZj4",
+  apiKey: "zo_sk_rhnWGFSCxKJgSU3BTEX-5O5B8lDNClcqT2pWqhBc75A",
   baseUrl: "https://api.zo.computer/v1",
   automations: {
     keepalive: {

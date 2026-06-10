@@ -99,7 +99,12 @@ TP3: ${fmt(tp3)}`;
             {rating}
           </Badge>
           <span className="text-xs font-mono text-muted-foreground">{timeframe}</span>
-          {timeAgo && <span className="text-[10px] font-mono text-muted-foreground/70">{timeAgo}</span>}
+          {signal.created_at && (
+            <span className="text-[10px] font-mono text-muted-foreground/80" title={new Date(signal.created_at).toString()}>
+              {new Date(signal.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+              {timeAgo ? ` · ${timeAgo}` : ""}
+            </span>
+          )}
           {signal.sent_telegram && <Badge variant="outline" className="text-[10px] border-bull/50 text-bull">SENT</Badge>}
         </div>
         <div className="flex gap-1 items-center">
