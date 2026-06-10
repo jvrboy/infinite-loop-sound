@@ -86,7 +86,11 @@ function RootComponent() {
     // Seed Gemini + NVIDIA keys so AI works out of the box.
     seedBuiltinKeys();
     // Browser-side keepalive: ping our server every minute while the tab is open.
-    const ping = () => { fetch("/api/public/hooks/keepalive?source=browser", { method: "POST" }).catch(() => {}); };
+    const ping = () => {
+      fetch("/api/public/hooks/keepalive?source=browser", { method: "POST" }).catch(() => {});
+      // Sweep expired signals each ping (cheap RPC, idempotent).
+      supabase.rpc("expire_stale_signals" as any).then(() => {}, () => {});
+    };
     ping();
     const id = setInterval(ping, 60_000);
 
@@ -96,44 +100,51 @@ function RootComponent() {
     }
 
     // Global background auto-scanner: runs every 5 minutes regardless of page
-    // Scans all assets and saves ELITE + STRONG signals silently
+    // Scans all assets and saves signals silently with dedup + same-day expiry
     let scanInProgress = false;
+    const recentKeys = new Map<string, number>(); // key -> ts
     const runGlobalScan = async () => {
       if (scanInProgress) return;
       scanInProgress = true;
       try {
         await deriv.connect();
-        const tfs: Array<"M15" | "M30" | "H1" | "H4"> = ["M15", "M30", "H1", "H4"];
+        const tfs: Array<"M5" | "M15" | "M30" | "H1" | "H4"> = ["M5", "M15", "M30", "H1", "H4"];
         const assets = ALL_ASSETS;
+        const endOfDay = new Date();
+        endOfDay.setUTCHours(23, 59, 59, 999);
+        const expiresAt = endOfDay.toISOString();
+        const now = Date.now();
+        // Prune dedup cache (keys older than 30 min are eligible to re-fire)
+        for (const [k, t] of recentKeys) if (now - t > 30 * 60_000) recentKeys.delete(k);
         for (const p of assets) {
           for (const tf of tfs) {
             try {
               const candles = await deriv.getCandles(p.symbol, tf, 120);
               if (candles.length < 50) continue;
               const a = analyze(p.symbol, tf, candles);
-              if (a.direction && a.scorePct >= 60 && a.trade) {
-                const key = `${p.symbol}-${tf}-${a.direction}-${Math.floor(candles[candles.length - 1].epoch / 3600)}`;
-                // Store in Supabase so signals appear on dashboard without manual scan
+              if (a.direction && a.scorePct >= 55 && a.trade) {
+                const lastEpoch = candles[candles.length - 1].epoch;
+                const key = `${p.symbol}-${tf}-${a.direction}-${lastEpoch}`;
+                if (recentKeys.has(key)) continue;
+                recentKeys.set(key, now);
                 await supabase.from("signals").insert({
                   pair: p.symbol, timeframe: tf, direction: a.direction,
                   entry: a.trade.entry, sl: a.trade.sl, tp1: a.trade.tp1, tp2: a.trade.tp2, tp3: a.trade.tp3,
                   score: a.scorePct, rating: a.rating, confluence: a.confluence as any,
-                  source: "auto_scan", status: "active",
-                } as any).select().single().then(({ error }) => {
-                  if (!error) {
-                    console.log("[AUTO-SCAN] Saved", key, a.rating, a.scorePct);
-                  }
+                  source: "auto_scan", status: "active", expires_at: expiresAt,
+                } as any).then(({ error }) => {
+                  if (error) recentKeys.delete(key);
                 });
               }
             } catch (e) { /* skip per-pair errors */ }
-            await new Promise(r => setTimeout(r, 40)); // gentle throttle
+            await new Promise(r => setTimeout(r, 25));
           }
         }
       } catch (e) { console.error("[AUTO-SCAN] error", e); }
       finally { scanInProgress = false; }
     };
-    runGlobalScan(); // run once on load
-    const scanId = setInterval(runGlobalScan, 5 * 60 * 1000); // every 5 minutes
+    runGlobalScan();
+    const scanId = setInterval(runGlobalScan, 90_000); // every 90s for fresh same-day signals
 
     return () => {
       clearInterval(id);
