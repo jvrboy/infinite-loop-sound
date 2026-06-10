@@ -64,6 +64,7 @@ import { Route as ApiPublicHooksReplayStatusRouteImport } from './routes/api/pub
 import { Route as ApiPublicHooksReplayDlqRouteImport } from './routes/api/public/hooks/replay-dlq'
 import { Route as ApiPublicHooksReconcileTradesRouteImport } from './routes/api/public/hooks/reconcile-trades'
 import { Route as ApiPublicHooksKeepaliveRouteImport } from './routes/api/public/hooks/keepalive'
+import { Route as ApiPublicHooksExpireSignalsRouteImport } from './routes/api/public/hooks/expire-signals'
 import { Route as ApiPublicV1WebhooksSubscribeRouteImport } from './routes/api/public/v1/webhooks/subscribe'
 import { Route as ApiPublicV1SignalsIncomingRouteImport } from './routes/api/public/v1/signals/incoming'
 
@@ -345,6 +346,12 @@ const ApiPublicHooksKeepaliveRoute = ApiPublicHooksKeepaliveRouteImport.update({
   path: '/api/public/hooks/keepalive',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksExpireSignalsRoute =
+  ApiPublicHooksExpireSignalsRouteImport.update({
+    id: '/api/public/hooks/expire-signals',
+    path: '/api/public/hooks/expire-signals',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicV1WebhooksSubscribeRoute =
   ApiPublicV1WebhooksSubscribeRouteImport.update({
     id: '/api/public/v1/webhooks/subscribe',
@@ -407,6 +414,7 @@ export interface FileRoutesByFullPath {
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
   '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
@@ -466,6 +474,7 @@ export interface FileRoutesByTo {
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
   '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
@@ -526,6 +535,7 @@ export interface FileRoutesById {
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
+  '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
   '/api/public/hooks/keepalive': typeof ApiPublicHooksKeepaliveRoute
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
   '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
@@ -587,6 +597,7 @@ export interface FileRouteTypes {
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
+    | '/api/public/hooks/expire-signals'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
     | '/api/public/hooks/replay-dlq'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
+    | '/api/public/hooks/expire-signals'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
     | '/api/public/hooks/replay-dlq'
@@ -705,6 +717,7 @@ export interface FileRouteTypes {
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
+    | '/api/public/hooks/expire-signals'
     | '/api/public/hooks/keepalive'
     | '/api/public/hooks/reconcile-trades'
     | '/api/public/hooks/replay-dlq'
@@ -765,6 +778,7 @@ export interface RootRouteChildren {
   ZoRoute: typeof ZoRoute
   ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
+  ApiPublicHooksExpireSignalsRoute: typeof ApiPublicHooksExpireSignalsRoute
   ApiPublicHooksKeepaliveRoute: typeof ApiPublicHooksKeepaliveRoute
   ApiPublicHooksReconcileTradesRoute: typeof ApiPublicHooksReconcileTradesRoute
   ApiPublicHooksReplayDlqRoute: typeof ApiPublicHooksReplayDlqRoute
@@ -1162,6 +1176,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksKeepaliveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/expire-signals': {
+      id: '/api/public/hooks/expire-signals'
+      path: '/api/public/hooks/expire-signals'
+      fullPath: '/api/public/hooks/expire-signals'
+      preLoaderRoute: typeof ApiPublicHooksExpireSignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/v1/webhooks/subscribe': {
       id: '/api/public/v1/webhooks/subscribe'
       path: '/api/public/v1/webhooks/subscribe'
@@ -1239,6 +1260,7 @@ const rootRouteChildren: RootRouteChildren = {
   ZoRoute: ZoRoute,
   ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
+  ApiPublicHooksExpireSignalsRoute: ApiPublicHooksExpireSignalsRoute,
   ApiPublicHooksKeepaliveRoute: ApiPublicHooksKeepaliveRoute,
   ApiPublicHooksReconcileTradesRoute: ApiPublicHooksReconcileTradesRoute,
   ApiPublicHooksReplayDlqRoute: ApiPublicHooksReplayDlqRoute,
