@@ -60,6 +60,7 @@ import { Route as ApiKeepaliveZoRouteImport } from './routes/api/keepalive/zo'
 import { Route as ApiPublicV1SignalsRouteImport } from './routes/api/public/v1/signals'
 import { Route as ApiPublicV1AnalysisRouteImport } from './routes/api/public/v1/analysis'
 import { Route as ApiPublicTelegramWebhookRouteImport } from './routes/api/public/telegram/webhook'
+import { Route as ApiPublicHooksScanRouteImport } from './routes/api/public/hooks/scan'
 import { Route as ApiPublicHooksReplayStatusRouteImport } from './routes/api/public/hooks/replay-status'
 import { Route as ApiPublicHooksReplayDlqRouteImport } from './routes/api/public/hooks/replay-dlq'
 import { Route as ApiPublicHooksReconcileTradesRouteImport } from './routes/api/public/hooks/reconcile-trades'
@@ -324,6 +325,11 @@ const ApiPublicTelegramWebhookRoute =
     path: '/api/public/telegram/webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksScanRoute = ApiPublicHooksScanRouteImport.update({
+  id: '/api/public/hooks/scan',
+  path: '/api/public/hooks/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksReplayStatusRoute =
   ApiPublicHooksReplayStatusRouteImport.update({
     id: '/api/public/hooks/replay-status',
@@ -419,6 +425,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
   '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
   '/api/public/hooks/replay-status': typeof ApiPublicHooksReplayStatusRoute
+  '/api/public/hooks/scan': typeof ApiPublicHooksScanRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/v1/analysis': typeof ApiPublicV1AnalysisRoute
   '/api/public/v1/signals': typeof ApiPublicV1SignalsRouteWithChildren
@@ -479,6 +486,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
   '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
   '/api/public/hooks/replay-status': typeof ApiPublicHooksReplayStatusRoute
+  '/api/public/hooks/scan': typeof ApiPublicHooksScanRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/v1/analysis': typeof ApiPublicV1AnalysisRoute
   '/api/public/v1/signals': typeof ApiPublicV1SignalsRouteWithChildren
@@ -540,6 +548,7 @@ export interface FileRoutesById {
   '/api/public/hooks/reconcile-trades': typeof ApiPublicHooksReconcileTradesRoute
   '/api/public/hooks/replay-dlq': typeof ApiPublicHooksReplayDlqRoute
   '/api/public/hooks/replay-status': typeof ApiPublicHooksReplayStatusRoute
+  '/api/public/hooks/scan': typeof ApiPublicHooksScanRoute
   '/api/public/telegram/webhook': typeof ApiPublicTelegramWebhookRoute
   '/api/public/v1/analysis': typeof ApiPublicV1AnalysisRoute
   '/api/public/v1/signals': typeof ApiPublicV1SignalsRouteWithChildren
@@ -602,6 +611,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/reconcile-trades'
     | '/api/public/hooks/replay-dlq'
     | '/api/public/hooks/replay-status'
+    | '/api/public/hooks/scan'
     | '/api/public/telegram/webhook'
     | '/api/public/v1/analysis'
     | '/api/public/v1/signals'
@@ -662,6 +672,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/reconcile-trades'
     | '/api/public/hooks/replay-dlq'
     | '/api/public/hooks/replay-status'
+    | '/api/public/hooks/scan'
     | '/api/public/telegram/webhook'
     | '/api/public/v1/analysis'
     | '/api/public/v1/signals'
@@ -722,6 +733,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/reconcile-trades'
     | '/api/public/hooks/replay-dlq'
     | '/api/public/hooks/replay-status'
+    | '/api/public/hooks/scan'
     | '/api/public/telegram/webhook'
     | '/api/public/v1/analysis'
     | '/api/public/v1/signals'
@@ -783,6 +795,7 @@ export interface RootRouteChildren {
   ApiPublicHooksReconcileTradesRoute: typeof ApiPublicHooksReconcileTradesRoute
   ApiPublicHooksReplayDlqRoute: typeof ApiPublicHooksReplayDlqRoute
   ApiPublicHooksReplayStatusRoute: typeof ApiPublicHooksReplayStatusRoute
+  ApiPublicHooksScanRoute: typeof ApiPublicHooksScanRoute
   ApiPublicTelegramWebhookRoute: typeof ApiPublicTelegramWebhookRoute
   ApiPublicV1AnalysisRoute: typeof ApiPublicV1AnalysisRoute
   ApiPublicV1SignalsRoute: typeof ApiPublicV1SignalsRouteWithChildren
@@ -1148,6 +1161,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicTelegramWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/scan': {
+      id: '/api/public/hooks/scan'
+      path: '/api/public/hooks/scan'
+      fullPath: '/api/public/hooks/scan'
+      preLoaderRoute: typeof ApiPublicHooksScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/replay-status': {
       id: '/api/public/hooks/replay-status'
       path: '/api/public/hooks/replay-status'
@@ -1265,6 +1285,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksReconcileTradesRoute: ApiPublicHooksReconcileTradesRoute,
   ApiPublicHooksReplayDlqRoute: ApiPublicHooksReplayDlqRoute,
   ApiPublicHooksReplayStatusRoute: ApiPublicHooksReplayStatusRoute,
+  ApiPublicHooksScanRoute: ApiPublicHooksScanRoute,
   ApiPublicTelegramWebhookRoute: ApiPublicTelegramWebhookRoute,
   ApiPublicV1AnalysisRoute: ApiPublicV1AnalysisRoute,
   ApiPublicV1SignalsRoute: ApiPublicV1SignalsRouteWithChildren,
@@ -1273,13 +1294,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
