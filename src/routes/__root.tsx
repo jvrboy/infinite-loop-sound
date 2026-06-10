@@ -89,7 +89,7 @@ function RootComponent() {
     const ping = () => {
       fetch("/api/public/hooks/keepalive?source=browser", { method: "POST" }).catch(() => {});
       // Sweep expired signals each ping (cheap RPC, idempotent).
-      supabase.rpc("expire_stale_signals" as any).then(() => {}, () => {});
+      (supabase.rpc as any)("expire_stale_signals").then(() => {}, () => {});
     };
     ping();
     const id = setInterval(ping, 60_000);
