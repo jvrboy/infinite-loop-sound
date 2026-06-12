@@ -91,10 +91,15 @@ async function runScan(request: Request): Promise<Response> {
 
   // Prefer service role; fall back to publishable/anon key — the create_auto_signal
   // RPC is SECURITY DEFINER so anon can insert signals safely.
-  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  // VITE_* values are inlined at build time so they work in the Worker even when
+  // process.env secrets aren't configured.
+  const supabaseUrl = process.env.SUPABASE_URL
+    || process.env.VITE_SUPABASE_URL
+    || (import.meta as any).env?.VITE_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
     || process.env.SUPABASE_PUBLISHABLE_KEY
-    || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    || process.env.VITE_SUPABASE_PUBLISHABLE_KEY
+    || (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY;
   if (!supabaseUrl || !key) {
     return Response.json({ ok: false, error: "backend env not configured" }, { status: 200 });
   }
