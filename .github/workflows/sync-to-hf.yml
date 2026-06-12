@@ -10,12 +10,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          lfs: true
 
-      - name: Push to Hugging Face Space
+      - name: Push snapshot to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          # Push a clean single-commit snapshot (old git history contains
+          # binary files that Hugging Face rejects over plain git).
+          rm -rf .git
+          git init -b main
+          git config user.email "actions@github.com"
+          git config user.name "github-actions"
+          git add -A
+          git commit -m "Sync from GitHub: ${GITHUB_SHA::7}"
           git push --force "https://Vietrin9:${HF_TOKEN}@huggingface.co/spaces/Vietrin9/infinite-loop-sound" main:main
