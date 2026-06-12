@@ -89,12 +89,16 @@ async function runScan(request: Request): Promise<Response> {
   const limit = Math.max(1, Math.min(50, Number(qp.get("limit") ?? DEFAULT_LIMIT)));
   const dedupeMin = Math.max(1, Math.min(720, Number(qp.get("dedupe_minutes") ?? DEFAULT_DEDUPE_MIN)));
 
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!supabaseUrl || !serviceKey) {
+  // Prefer service role; fall back to publishable/anon key — the create_auto_signal
+  // RPC is SECURITY DEFINER so anon can insert signals safely.
+  const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+    || process.env.SUPABASE_PUBLISHABLE_KEY
+    || process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  if (!supabaseUrl || !key) {
     return Response.json({ ok: false, error: "backend env not configured" }, { status: 200 });
   }
-  const sb = createClient(supabaseUrl, serviceKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  const sb = createClient(supabaseUrl, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
   // Build universe from selected classes.
   const pools: Record<string, Array<{ symbol: string }>> = {
@@ -155,8 +159,16 @@ async function runScan(request: Request): Promise<Response> {
           source: "auto_scan", status: "active",
           expires_at: expiresAt,
         };
-        const { error } = await sb.from("signals").insert(payload);
-        if (!error) { saved++; hits.push(payload); }
+        // Use RPC so anon key works (SECURITY DEFINER) and dedupe is enforced server-side too.
+        const { data: newId, error } = await sb.rpc("create_auto_signal" as any, {
+          p_pair: payload.pair, p_timeframe: payload.timeframe, p_direction: payload.direction,
+          p_entry: payload.entry, p_sl: payload.sl,
+          p_tp1: payload.tp1, p_tp2: payload.tp2, p_tp3: payload.tp3,
+          p_score: payload.score, p_rating: payload.rating,
+          p_confluence: payload.confluence as any,
+          p_dedupe_minutes: dedupeMin,
+        });
+        if (!error && newId) { saved++; hits.push(payload); }
       } catch { /* skip per-pair */ }
     }
   }
