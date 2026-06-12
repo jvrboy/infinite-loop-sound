@@ -101,19 +101,7 @@ async function runScan(request: Request): Promise<Response> {
     || process.env.VITE_SUPABASE_PUBLISHABLE_KEY
     || (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY;
   if (!supabaseUrl || !key) {
-    return Response.json({
-      ok: false,
-      error: "backend env not configured",
-      env_seen: {
-        SUPABASE_URL: !!process.env.SUPABASE_URL,
-        VITE_SUPABASE_URL: !!process.env.VITE_SUPABASE_URL,
-        IMPORT_META_VITE_SUPABASE_URL: !!(import.meta as any).env?.VITE_SUPABASE_URL,
-        SUPABASE_SERVICE_ROLE_KEY: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
-        SUPABASE_PUBLISHABLE_KEY: !!process.env.SUPABASE_PUBLISHABLE_KEY,
-        VITE_SUPABASE_PUBLISHABLE_KEY: !!process.env.VITE_SUPABASE_PUBLISHABLE_KEY,
-        IMPORT_META_VITE_SUPABASE_PUBLISHABLE_KEY: !!(import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY,
-      },
-    }, { status: 200 });
+    return Response.json({ ok: false, error: "backend env not configured" }, { status: 200 });
   }
   const sb = createClient(supabaseUrl, key, { auth: { autoRefreshToken: false, persistSession: false } });
 
