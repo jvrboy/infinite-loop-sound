@@ -36,6 +36,7 @@ import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as NeuralRouteImport } from './routes/neural'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
+import { Route as LocalAiRouteImport } from './routes/local-ai'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as FibonacciRouteImport } from './routes/fibonacci'
@@ -202,6 +203,11 @@ const MarketProfileRoute = MarketProfileRouteImport.update({
 const MarginRoute = MarginRouteImport.update({
   id: '/margin',
   path: '/margin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LocalAiRoute = LocalAiRouteImport.update({
+  id: '/local-ai',
+  path: '/local-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
 const JournalRoute = JournalRouteImport.update({
@@ -391,6 +397,7 @@ export interface FileRoutesByFullPath {
   '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
   '/journal': typeof JournalRoute
+  '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
@@ -452,6 +459,7 @@ export interface FileRoutesByTo {
   '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
   '/journal': typeof JournalRoute
+  '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
@@ -514,6 +522,7 @@ export interface FileRoutesById {
   '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
   '/journal': typeof JournalRoute
+  '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
@@ -577,6 +586,7 @@ export interface FileRouteTypes {
     | '/fibonacci'
     | '/heatmap'
     | '/journal'
+    | '/local-ai'
     | '/margin'
     | '/market-profile'
     | '/neural'
@@ -638,6 +648,7 @@ export interface FileRouteTypes {
     | '/fibonacci'
     | '/heatmap'
     | '/journal'
+    | '/local-ai'
     | '/margin'
     | '/market-profile'
     | '/neural'
@@ -699,6 +710,7 @@ export interface FileRouteTypes {
     | '/fibonacci'
     | '/heatmap'
     | '/journal'
+    | '/local-ai'
     | '/margin'
     | '/market-profile'
     | '/neural'
@@ -761,6 +773,7 @@ export interface RootRouteChildren {
   FibonacciRoute: typeof FibonacciRoute
   HeatmapRoute: typeof HeatmapRoute
   JournalRoute: typeof JournalRoute
+  LocalAiRoute: typeof LocalAiRoute
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
   NeuralRoute: typeof NeuralRoute
@@ -991,6 +1004,13 @@ declare module '@tanstack/react-router' {
       path: '/margin'
       fullPath: '/margin'
       preLoaderRoute: typeof MarginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/local-ai': {
+      id: '/local-ai'
+      path: '/local-ai'
+      fullPath: '/local-ai'
+      preLoaderRoute: typeof LocalAiRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/journal': {
@@ -1251,6 +1271,7 @@ const rootRouteChildren: RootRouteChildren = {
   FibonacciRoute: FibonacciRoute,
   HeatmapRoute: HeatmapRoute,
   JournalRoute: JournalRoute,
+  LocalAiRoute: LocalAiRoute,
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
   NeuralRoute: NeuralRoute,
@@ -1294,13 +1315,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

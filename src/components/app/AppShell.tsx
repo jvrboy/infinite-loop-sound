@@ -11,6 +11,7 @@ const NAV = [
   { to: "/persistence", label: "24/7",   icon: Infinity },
   { to: "/scanner",  label: "Scanner",   icon: Radio },
   { to: "/signals",  label: "Signals",   icon: Zap },
+  { to: "/local-ai", label: "Local AI",  icon: Brain },
   { to: "/options-flow", label: "Options", icon: DollarSign },
   { to: "/dark-pool", label: "Dark Pool", icon: Eye },
   { to: "/sentiment", label: "Sentiment", icon: Twitter },
