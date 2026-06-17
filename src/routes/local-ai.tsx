@@ -11,8 +11,8 @@ import { Slider } from "@/components/ui/slider";
 // Vite resolves these to real bundled URLs at build time. wllama v3.x needs both
 // per-flavor entries AND a top-level `default` key, otherwise it throws
 // "default is missing from pathConfig" when loading a local File.
-import wllamaSingleWasm from "@wllama/wllama/src/single-thread/wllama.wasm?url";
-import wllamaMultiWasm from "@wllama/wllama/src/multi-thread/wllama.wasm?url";
+import wllamaSingleWasm from "@wllama/wllama/src/wasm/wllama.wasm?url";
+const wllamaMultiWasm = wllamaSingleWasm;
 
 export const Route = createFileRoute("/local-ai")({
   head: () => ({
