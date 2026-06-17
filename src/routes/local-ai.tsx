@@ -36,21 +36,77 @@ function LocalAI() {
   const [maxTokens, setMaxTokens] = useState(256);
   const [temperature, setTemperature] = useState(0.7);
 
-  const loadFrom = useCallback(async (source: string | File) => {
+  const MAX_MODEL_SIZE_MB = 2048; // 2GB limit for browser WASM
+  const MAX_RETRIES = 3;
+  const [retryCount, setRetryCount] = useState(0);
+  const [memoryUsage, setMemoryUsage] = useState<string>("");
+  const abortRef = useRef<AbortController | null>(null);
+
+  const checkResources = useCallback(async () => {
+    try {
+      if ("storage" in navigator && "estimate" in navigator.storage) {
+        const est = await navigator.storage.estimate();
+        const usedMB = Math.round((est.usage || 0) / 1024 / 1024);
+        const quotaMB = Math.round((est.quota || 0) / 1024 / 1024);
+        setMemoryUsage(`${usedMB}MB / ${quotaMB}MB`);
+        if (quotaMB - usedMB < 200) {
+          throw new Error(`Low storage: only ${quotaMB - usedMB}MB free. Need at least 200MB.`);
+        }
+      }
+      // Check for WASM support
+      if (typeof WebAssembly === "undefined") {
+        throw new Error("WebAssembly not supported in this browser");
+      }
+    } catch (e: any) {
+      throw new Error(e.message || "Resource check failed");
+    }
+  }, []);
+
+  const loadFrom = useCallback(async (source: string | File, retry = 0) => {
     setStatus("loading");
     setError(null);
     setProgress(0);
+    setRetryCount(retry);
+
     try {
+      // Pre-flight resource check
+      await checkResources();
+
+      // Size check for URL sources
+      if (typeof source === "string") {
+        try {
+          const headRes = await fetch(source, { method: "HEAD" });
+          const size = parseInt(headRes.headers.get("content-length") || "0");
+          if (size > MAX_MODEL_SIZE_MB * 1024 * 1024) {
+            throw new Error(\`Model too large (\${Math.round(size/1024/1024)}MB). Max \${MAX_MODEL_SIZE_MB}MB for browser.\`);
+          }
+        } catch (e: any) {
+          if (e.message?.includes("too large")) throw e;
+          // HEAD might fail on some CDNs, continue anyway
+        }
+      } else if (source.size > MAX_MODEL_SIZE_MB * 1024 * 1024) {
+        throw new Error(\`File too large (\${Math.round(source.size/1024/1024)}MB). Max \${MAX_MODEL_SIZE_MB}MB.\`);
+      }
+
       const { Wllama } = await import("@wllama/wllama");
+
+      // Cleanup previous instance
+      if (wllamaRef.current) {
+        try { await wllamaRef.current.exit?.(); } catch {}
+        wllamaRef.current = null;
+      }
+
       const wllama = new Wllama({
         "single-thread/wllama.wasm": "/wllama/wllama.wasm",
         "multi-thread/wllama.wasm": "/wllama/wllama.wasm",
       } as any);
+
       const opts: any = {
         progressCallback: ({ loaded, total }: { loaded: number; total: number }) => {
           if (total > 0) setProgress(Math.round((loaded / total) * 100));
         },
       };
+
       if (typeof source === "string") {
         setModelName(source.split("/").pop() || "model.gguf");
         await wllama.loadModelFromUrl(source, opts);
@@ -60,12 +116,23 @@ function LocalAI() {
       }
       wllamaRef.current = wllama;
       setStatus("ready");
+      setRetryCount(0);
     } catch (e: any) {
-      console.error(e);
-      setError(e?.message || "Failed to load model");
+      console.error("Load failed:", e);
+      const msg = e?.message || "Failed to load model";
+
+      // Auto-retry with exponential backoff
+      if (retry < MAX_RETRIES && !msg.includes("too large") && !msg.includes("not supported")) {
+        const delay = Math.pow(2, retry) * 1000; // 1s, 2s, 4s
+        setError(\`\${msg} — retrying in \${delay/1000}s (attempt \${retry+1}/\${MAX_RETRIES})...\`);
+        setTimeout(() => loadFrom(source, retry + 1), delay);
+        return;
+      }
+
+      setError(msg);
       setStatus("error");
     }
-  }, []);
+  }, [checkResources]);
 
   const generate = useCallback(async () => {
     if (!wllamaRef.current) return;

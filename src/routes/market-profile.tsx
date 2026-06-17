@@ -172,7 +172,7 @@ function MarketProfilePage() {
   // Real-time candlestick chart with profile overlays (major upgrade: always synced)
   useEffect(() => {
     if (!chartContainerRef.current || !candles.length) return;
-    if (chartRef.current) { chartRef.current.chart.remove(); chartRef.current = null; }
+    try { if (chartRef.current) { chartRef.current.chart.remove(); chartRef.current = null; } } catch {}
     const chart = createChart(chartContainerRef.current, {
       layout: { background: { type: ColorType.Solid, color: "transparent" }, textColor: "#94a3b8", fontSize: 10 },
       grid: { vertLines: { color: "rgba(148,163,184,0.05)" }, horzLines: { color: "rgba(148,163,184,0.06)" } },
@@ -199,7 +199,7 @@ function MarketProfilePage() {
     chartRef.current = { chart, candle, pocLine, vahLine, valLine };
     const ro = new ResizeObserver(() => { chart.applyOptions({ width: chartContainerRef.current!.clientWidth }); });
     ro.observe(chartContainerRef.current);
-    return () => { ro.disconnect(); chart.remove(); };
+    try { return () => { ro.disconnect(); chart.remove(); }; } catch {}
   }, [candles, profile]);
 
   // Audio setup for infinite loop sound alerts

@@ -188,8 +188,8 @@ function ChartPage() {
     if (indicators.volume) cr.volSeries!.setData(a.candles.map((c, i) => ({ time: c.epoch as UTCTimestamp, value: c.volume || 0, color: c.close >= c.open ? "#10b98133" : "#ef444433" }))); else cr.volSeries!.setData([]);
 
     // Remove old price lines
-    (cr.candle as any).priceLines?.forEach((pl: any) => pl.remove());
-    (cr.candle as any).priceLines = [];
+    if (Array.isArray((cr.candle as any)._priceLines)) { (cr.candle as any)._priceLines.forEach((pl: any) => { try { pl.remove(); } catch {} }); }
+    (cr.candle as any)._priceLines = [];
     if (a.trade) {
       const lines = [
         cr.candle!.createPriceLine({ price: a.trade.entry, color: "#94a3b8", lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: "" }),
@@ -198,7 +198,7 @@ function ChartPage() {
         cr.candle!.createPriceLine({ price: a.trade.tp2, color: "#10b981", lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: "" }),
         cr.candle!.createPriceLine({ price: a.trade.tp3, color: "#10b981", lineWidth: 1, lineStyle: 2, axisLabelVisible: false, title: "" }),
       ];
-      (cr.candle as any).priceLines = lines;
+      (cr.candle as any)._priceLines = lines;
     }
     cr.price!.timeScale().fitContent();
   }, [a, indicators]);
