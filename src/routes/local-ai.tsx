@@ -8,6 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 
+// Vite resolves these to real bundled URLs at build time. wllama v3.x needs both
+// per-flavor entries AND a top-level `default` key, otherwise it throws
+// "default is missing from pathConfig" when loading a local File.
+import wllamaSingleWasm from "@wllama/wllama/src/single-thread/wllama.wasm?url";
+import wllamaMultiWasm from "@wllama/wllama/src/multi-thread/wllama.wasm?url";
+
 export const Route = createFileRoute("/local-ai")({
   head: () => ({
     meta: [
@@ -23,6 +29,35 @@ const SUGGESTED: Array<{ name: string; url: string; size: string }> = [
   { name: "SmolLM2 360M (Q8)", url: "https://huggingface.co/HuggingFaceTB/SmolLM2-360M-Instruct-GGUF/resolve/main/smollm2-360m-instruct-q8_0.gguf", size: "~380 MB" },
   { name: "Qwen2.5 0.5B (Q4_K_M)", url: "https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct-GGUF/resolve/main/qwen2.5-0.5b-instruct-q4_k_m.gguf", size: "~400 MB" },
 ];
+
+// wllama v3.x pathConfig — needs `default` (used when loading File handles)
+// plus the per-flavor wasm entries (used when loading from URL/IDB).
+const WLLAMA_PATHS = {
+  default: wllamaSingleWasm,
+  "single-thread/wllama.wasm": wllamaSingleWasm,
+  "multi-thread/wllama.wasm": wllamaMultiWasm,
+};
+
+// HuggingFace anonymous CDN sometimes returns 401 to plain browser fetches.
+// We route through our Supabase Edge Function which adds a real User-Agent
+// and forwards Range so wllama can chunk-download. Non-HF urls pass through.
+const SUPABASE_URL =
+  (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_SUPABASE_URL) || "";
+const HF_PROXY = SUPABASE_URL ? `${SUPABASE_URL}/functions/v1/hf-proxy` : "";
+
+function proxiedUrl(raw: string): string {
+  try {
+    const u = new URL(raw);
+    const isHF =
+      u.hostname === "huggingface.co" || u.hostname.endsWith(".huggingface.co");
+    if (isHF && HF_PROXY) {
+      return `${HF_PROXY}?u=${encodeURIComponent(raw)}`;
+    }
+  } catch {
+    /* not a url, fall through */
+  }
+  return raw;
+}
 
 function LocalAI() {
   const wllamaRef = useRef<any>(null);
@@ -72,20 +107,32 @@ function LocalAI() {
       // Pre-flight resource check
       await checkResources();
 
+      // Resolve actual URL (HF -> proxy)
+      const effectiveSource = typeof source === "string" ? proxiedUrl(source) : source;
+
       // Size check for URL sources
-      if (typeof source === "string") {
+      if (typeof effectiveSource === "string") {
         try {
-          const headRes = await fetch(source, { method: "HEAD" });
+          const headRes = await fetch(effectiveSource, { method: "HEAD" });
+          if (headRes.status === 401 || headRes.status === 403) {
+            throw new Error(
+              `HuggingFace returned ${headRes.status}. ${
+                HF_PROXY
+                  ? "Try setting HF_TOKEN on the Supabase project for gated repos."
+                  : "Set VITE_SUPABASE_URL so the request can be proxied."
+              }`,
+            );
+          }
           const size = parseInt(headRes.headers.get("content-length") || "0");
           if (size > MAX_MODEL_SIZE_MB * 1024 * 1024) {
-            throw new Error(\`Model too large (\${Math.round(size/1024/1024)}MB). Max \${MAX_MODEL_SIZE_MB}MB for browser.\`);
+            throw new Error(`Model too large (${Math.round(size / 1024 / 1024)}MB). Max ${MAX_MODEL_SIZE_MB}MB for browser.`);
           }
         } catch (e: any) {
-          if (e.message?.includes("too large")) throw e;
+          if (e.message?.includes("too large") || e.message?.includes("HuggingFace returned")) throw e;
           // HEAD might fail on some CDNs, continue anyway
         }
-      } else if (source.size > MAX_MODEL_SIZE_MB * 1024 * 1024) {
-        throw new Error(\`File too large (\${Math.round(source.size/1024/1024)}MB). Max \${MAX_MODEL_SIZE_MB}MB.\`);
+      } else if (source instanceof File && source.size > MAX_MODEL_SIZE_MB * 1024 * 1024) {
+        throw new Error(`File too large (${Math.round(source.size / 1024 / 1024)}MB). Max ${MAX_MODEL_SIZE_MB}MB.`);
       }
 
       const { Wllama } = await import("@wllama/wllama");
@@ -96,10 +143,8 @@ function LocalAI() {
         wllamaRef.current = null;
       }
 
-      const wllama = new Wllama({
-        "single-thread/wllama.wasm": "/wllama/wllama.wasm",
-        "multi-thread/wllama.wasm": "/wllama/wllama.wasm",
-      } as any);
+      // wllama v3 path config — see WLLAMA_PATHS notes above.
+      const wllama = new Wllama(WLLAMA_PATHS as any);
 
       const opts: any = {
         progressCallback: ({ loaded, total }: { loaded: number; total: number }) => {
@@ -107,12 +152,12 @@ function LocalAI() {
         },
       };
 
-      if (typeof source === "string") {
-        setModelName(source.split("/").pop() || "model.gguf");
-        await wllama.loadModelFromUrl(source, opts);
+      if (typeof effectiveSource === "string") {
+        setModelName((typeof source === "string" ? source : "model.gguf").split("/").pop() || "model.gguf");
+        await wllama.loadModelFromUrl(effectiveSource, opts);
       } else {
-        setModelName(source.name);
-        await wllama.loadModel([source], opts);
+        setModelName((source as File).name);
+        await wllama.loadModel([source as File], opts);
       }
       wllamaRef.current = wllama;
       setStatus("ready");
@@ -121,10 +166,16 @@ function LocalAI() {
       console.error("Load failed:", e);
       const msg = e?.message || "Failed to load model";
 
-      // Auto-retry with exponential backoff
-      if (retry < MAX_RETRIES && !msg.includes("too large") && !msg.includes("not supported")) {
+      // Auto-retry with exponential backoff (skip non-retryable errors)
+      const nonRetryable =
+        msg.includes("too large") ||
+        msg.includes("not supported") ||
+        msg.includes("HuggingFace returned 401") ||
+        msg.includes("HuggingFace returned 403") ||
+        msg.includes("default") && msg.includes("pathConfig"); // schema bug — retry won't help
+      if (retry < MAX_RETRIES && !nonRetryable) {
         const delay = Math.pow(2, retry) * 1000; // 1s, 2s, 4s
-        setError(\`\${msg} — retrying in \${delay/1000}s (attempt \${retry+1}/\${MAX_RETRIES})...\`);
+        setError(`${msg} — retrying in ${delay / 1000}s (attempt ${retry + 1}/${MAX_RETRIES})...`);
         setTimeout(() => loadFrom(source, retry + 1), delay);
         return;
       }
@@ -203,6 +254,11 @@ function LocalAI() {
             <div className="space-y-2">
               <Label className="text-xs">Or paste a Hugging Face .gguf URL</Label>
               <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://huggingface.co/.../model.gguf" className="font-mono text-xs" />
+              {!HF_PROXY && (
+                <p className="text-[10px] text-amber-400/80 font-mono">
+                  ⚠ VITE_SUPABASE_URL not set — HF requests will go direct and may 401.
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -231,6 +287,9 @@ function LocalAI() {
               </div>
             )}
             {error && <p className="text-xs text-red-400 font-mono">{error}</p>}
+            {memoryUsage && status !== "idle" && (
+              <p className="text-[10px] text-muted-foreground font-mono">storage: {memoryUsage}</p>
+            )}
           </CardContent>
         </Card>
 
