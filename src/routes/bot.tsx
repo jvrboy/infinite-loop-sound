@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bot, Play, Square, AlertTriangle, Activity, Brain, Zap } from "lucide-react";
+import { Bot, Play, Square, AlertTriangle, Activity, Brain, RefreshCw, Search } from "lucide-react";
 import { toast } from "sonner";
 import { loadBot, saveBot, DEFAULT_BOT, type BotSettings } from "@/lib/bot/store";
 import { botRunner } from "@/lib/bot/runner";
@@ -14,23 +14,105 @@ import { useRealtimeTraining } from "@/hooks/use-realtime-training";
 export const Route = createFileRoute("/bot")({
   head: () => ({ meta: [
     { title: "Auto-Trader Bot — DivergenceIQ" },
-    { name: "description", content: "Perpetual scalper bot with risk controls, demo/real toggle, max open trades, cooldown, and fixed lot sizing." },
+    { name: "description", content: "Self-scanning Deriv bot with risk controls, dry-run, and real-money modes." },
   ]}),
   component: BotPage,
 });
+
+// ----------------------------------------------------------------------------
+// NumberField — controlled but text-buffered. Fixes the bug where users could
+// not type "0.01" because the legacy `value={n}` + `onChange={+e.target.value}`
+// pattern re-renders intermediate strings as "0", clobbering the input.
+//
+// Behaviour:
+//   - shows the user's *exact* typed string while focused (allows ".", trailing
+//     zeros, empty),
+//   - parses on blur (and after a 250ms idle debounce) into a number via the
+//     onCommit callback,
+//   - rejects characters that can't be part of a decimal number,
+//   - respects optional min/max but never blocks intermediate typing.
+// ----------------------------------------------------------------------------
+function NumberField({
+  value,
+  onCommit,
+  min,
+  max,
+  step = "0.01",
+  placeholder,
+}: {
+  value: number;
+  onCommit: (n: number) => void;
+  min?: number;
+  max?: number;
+  step?: string;
+  placeholder?: string;
+}) {
+  const [buf, setBuf] = useState<string>(value === 0 ? "0" : String(value));
+  const focused = useRef(false);
+
+  useEffect(() => {
+    // sync external value -> buffer only when not focused, so we don't
+    // overwrite the user's in-progress typing.
+    if (!focused.current) setBuf(value === 0 ? "0" : String(value));
+  }, [value]);
+
+  const commit = (raw: string) => {
+    const trimmed = raw.trim();
+    if (trimmed === "" || trimmed === "-" || trimmed === ".") {
+      // treat empty / partial as "no change"
+      return;
+    }
+    let n = Number(trimmed);
+    if (!Number.isFinite(n)) return;
+    if (typeof min === "number") n = Math.max(min, n);
+    if (typeof max === "number") n = Math.min(max, n);
+    onCommit(n);
+  };
+
+  return (
+    <Input
+      type="text"
+      inputMode="decimal"
+      step={step}
+      placeholder={placeholder}
+      value={buf}
+      onFocus={() => {
+        focused.current = true;
+      }}
+      onChange={(e) => {
+        const v = e.target.value;
+        // allow only a decimal-number-ish string
+        if (/^-?\d*\.?\d*$/.test(v)) setBuf(v);
+      }}
+      onBlur={(e) => {
+        focused.current = false;
+        commit(e.target.value);
+        // normalise buffer after blur so display is clean
+        const parsed = Number(e.target.value);
+        if (Number.isFinite(parsed)) {
+          setBuf(String(parsed));
+        }
+      }}
+    />
+  );
+}
 
 function BotPage() {
   const [s, setS] = useState<BotSettings>(DEFAULT_BOT);
   const [logs, setLogs] = useState<string[]>([]);
   const [trades, setTrades] = useState<any[]>([]);
   const [status, setStatus] = useState(botRunner.getStatus());
+  const [lastScanAt, setLastScanAt] = useState<number>(0);
   const [neuralEnabled, setNeuralEnabled] = useState(true);
-  const { trainingStats, predict } = useRealtimeTraining();
+  const { trainingStats } = useRealtimeTraining();
 
   useEffect(() => { setS(loadBot()); }, []);
   useEffect(() => {
-    const off = botRunner.on((l) => setLogs(prev => [`${new Date().toLocaleTimeString()} · ${l}`, ...prev].slice(0, 60)));
-    const i = setInterval(() => setStatus(botRunner.getStatus()), 1000);
+    const off = botRunner.on((l) => setLogs(prev => [`${new Date().toLocaleTimeString()} · ${l}`, ...prev].slice(0, 80)));
+    const i = setInterval(() => {
+      setStatus(botRunner.getStatus());
+      setLastScanAt(botRunner.getLastScanAt?.() ?? 0);
+    }, 1000);
     return () => { off(); clearInterval(i); };
   }, []);
   useEffect(() => {
@@ -52,18 +134,31 @@ function BotPage() {
     update("instruments", Array.from(set));
   };
   const start = async () => {
+    if (s.lotSize < 0.01) {
+      toast.error("Lot size must be at least 0.01");
+      return;
+    }
+    if (s.instruments.length === 0) {
+      toast.error("Pick at least one instrument");
+      return;
+    }
     if (s.accountType === "real" && !confirm("Start REAL-money trading? Trades will execute on your live Deriv account.")) return;
-    await botRunner.start(s);
-    toast.success(`Bot running · ${s.accountType.toUpperCase()}`);
+    try {
+      await botRunner.start(s);
+      toast.success(`Bot running · ${s.accountType.toUpperCase()}${s.selfScan ? " · self-scan ON" : ""}`);
+    } catch (e: any) {
+      toast.error(e?.message || "Bot failed to start");
+    }
   };
   const stop = async () => { await botRunner.stop(); toast.message("Bot stopped"); };
+  const scanAgo = lastScanAt ? Math.round((Date.now() - lastScanAt) / 1000) : null;
 
   return (
     <AppShell>
       <div className="p-4 md:p-6 max-w-5xl mx-auto space-y-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2"><Bot className="w-6 h-6 text-primary"/> Auto-Trader Bot</h1>
-          <p className="text-sm text-muted-foreground">Perpetual scalper. Trades only when a fresh signal meets your risk thresholds.</p>
+          <p className="text-sm text-muted-foreground">Self-scanning scalper. Reads live Deriv candles, calls analyze(), trades on score ≥ threshold.</p>
         </div>
 
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
@@ -71,7 +166,12 @@ function BotPage() {
             <div>
               <div className="text-xs text-muted-foreground uppercase">Status</div>
               <div className={`text-lg font-bold ${status==="running"?"text-bull":status==="halted"?"text-bear":"text-muted-foreground"}`}>{status.toUpperCase()}</div>
-              <div className="text-[11px] text-muted-foreground">Open: {botRunner.getOpenCount()} · Daily PnL: {botRunner.getDailyPnl().toFixed(2)}</div>
+              <div className="text-[11px] text-muted-foreground">
+                Open: {botRunner.getOpenCount()} · Daily PnL: {botRunner.getDailyPnl().toFixed(2)}
+                {status === "running" && s.selfScan && (
+                  <> · <Search className="inline w-3 h-3" /> {scanAgo !== null ? `${scanAgo}s ago` : "scanning…"}</>
+                )}
+              </div>
             </div>
             <div className="flex gap-2">
               {status !== "running" ? (
@@ -122,12 +222,71 @@ function BotPage() {
               <label className="text-xs text-muted-foreground">Deriv API token ({s.accountType})</label>
               <Input type="password" value={s.token} onChange={e=>update("token", e.target.value)} placeholder="paste token (leave empty for dry-run)" />
             </div>
-            <div><label className="text-xs text-muted-foreground">Min score</label><Input type="number" value={s.minScore} onChange={e=>update("minScore", +e.target.value)} /></div>
-            <div><label className="text-xs text-muted-foreground">Lot / stake</label><Input type="number" step="0.1" value={s.lotSize} onChange={e=>update("lotSize", +e.target.value)} /></div>
-            <div><label className="text-xs text-muted-foreground">Max open</label><Input type="number" value={s.maxOpen} onChange={e=>update("maxOpen", +e.target.value)} /></div>
-            <div><label className="text-xs text-muted-foreground">Cooldown (s)</label><Input type="number" value={s.cooldownSec} onChange={e=>update("cooldownSec", +e.target.value)} /></div>
-            <div><label className="text-xs text-muted-foreground">Duration (s)</label><Input type="number" value={s.durationSec} onChange={e=>update("durationSec", +e.target.value)} /></div>
-            <div><label className="text-xs text-muted-foreground">Daily loss cap</label><Input type="number" value={s.dailyLossCap} onChange={e=>update("dailyLossCap", +e.target.value)} /></div>
+
+            <div>
+              <label className="text-xs text-muted-foreground">Min score</label>
+              <NumberField value={s.minScore} min={0} max={100} step="1" onCommit={(v) => update("minScore", v)} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Lot / stake (min 0.01)</label>
+              <NumberField value={s.lotSize} min={0.01} max={1000} step="0.01" onCommit={(v) => update("lotSize", v)} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Max open</label>
+              <NumberField value={s.maxOpen} min={1} max={20} step="1" onCommit={(v) => update("maxOpen", Math.round(v))} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Cooldown (s)</label>
+              <NumberField value={s.cooldownSec} min={5} max={3600} step="1" onCommit={(v) => update("cooldownSec", Math.round(v))} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Duration (s)</label>
+              <NumberField value={s.durationSec} min={15} max={3600} step="5" onCommit={(v) => update("durationSec", Math.round(v))} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Daily loss cap</label>
+              <NumberField value={s.dailyLossCap} min={1} max={100000} step="1" onCommit={(v) => update("dailyLossCap", v)} />
+            </div>
+          </div>
+
+          {/* Self-scan controls */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2 border-t border-border">
+            <div className="md:col-span-2">
+              <div className="flex items-center justify-between">
+                <label className="text-xs text-muted-foreground flex items-center gap-1.5">
+                  <RefreshCw className="w-3 h-3" /> Self-scan
+                </label>
+                <button
+                  type="button"
+                  onClick={() => update("selfScan", !s.selfScan)}
+                  className={`relative w-10 h-5 rounded-full transition-colors ${s.selfScan ? "bg-primary" : "bg-muted"}`}
+                >
+                  <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.selfScan ? "translate-x-5" : "translate-x-0.5"}`} />
+                </button>
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1">
+                Bot polls analyze() on each instrument and triggers trades when score ≥ Min score.
+                Required if you don't have an external signals producer.
+              </p>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Scan interval (s)</label>
+              <NumberField value={s.scanIntervalSec} min={5} max={600} step="5" onCommit={(v) => update("scanIntervalSec", Math.round(v))} />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground">Scan timeframe</label>
+              <select
+                value={s.scanTimeframe}
+                onChange={(e) => update("scanTimeframe", e.target.value as BotSettings["scanTimeframe"])}
+                className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="M1">M1</option>
+                <option value="M5">M5</option>
+                <option value="M15">M15</option>
+                <option value="M30">M30</option>
+                <option value="H1">H1</option>
+              </select>
+            </div>
           </div>
 
           {s.accountType === "real" && (
