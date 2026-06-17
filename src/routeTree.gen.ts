@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZoRouteImport } from './routes/zo'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
 import { Route as UptimeRouteImport } from './routes/uptime'
 import { Route as UltraRouteImport } from './routes/ultra'
@@ -51,6 +52,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ChartRouteImport } from './routes/chart'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BotRouteImport } from './routes/bot'
+import { Route as BoomCrashRouteImport } from './routes/boom-crash'
 import { Route as BacktestRouteImport } from './routes/backtest'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnalysisRouteImport } from './routes/analysis'
@@ -73,6 +75,11 @@ import { Route as ApiPublicV1SignalsIncomingRouteImport } from './routes/api/pub
 const ZoRoute = ZoRouteImport.update({
   id: '/zo',
   path: '/zo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WebhookEventsRoute = WebhookEventsRouteImport.update({
@@ -280,6 +287,11 @@ const BotRoute = BotRouteImport.update({
   path: '/bot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BoomCrashRoute = BoomCrashRouteImport.update({
+  id: '/boom-crash',
+  path: '/boom-crash',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BacktestRoute = BacktestRouteImport.update({
   id: '/backtest',
   path: '/backtest',
@@ -383,6 +395,7 @@ export interface FileRoutesByFullPath {
   '/analysis': typeof AnalysisRoute
   '/api-keys': typeof ApiKeysRoute
   '/backtest': typeof BacktestRoute
+  '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
@@ -424,6 +437,7 @@ export interface FileRoutesByFullPath {
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
+  '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -445,6 +459,7 @@ export interface FileRoutesByTo {
   '/analysis': typeof AnalysisRoute
   '/api-keys': typeof ApiKeysRoute
   '/backtest': typeof BacktestRoute
+  '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
@@ -486,6 +501,7 @@ export interface FileRoutesByTo {
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
+  '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -508,6 +524,7 @@ export interface FileRoutesById {
   '/analysis': typeof AnalysisRoute
   '/api-keys': typeof ApiKeysRoute
   '/backtest': typeof BacktestRoute
+  '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
@@ -549,6 +566,7 @@ export interface FileRoutesById {
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/webhook-events': typeof WebhookEventsRoute
+  '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -572,6 +590,7 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/api-keys'
     | '/backtest'
+    | '/boom-crash'
     | '/bot'
     | '/calendar'
     | '/chart'
@@ -613,6 +632,7 @@ export interface FileRouteTypes {
     | '/ultra'
     | '/uptime'
     | '/webhook-events'
+    | '/welcome'
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
@@ -634,6 +654,7 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/api-keys'
     | '/backtest'
+    | '/boom-crash'
     | '/bot'
     | '/calendar'
     | '/chart'
@@ -675,6 +696,7 @@ export interface FileRouteTypes {
     | '/ultra'
     | '/uptime'
     | '/webhook-events'
+    | '/welcome'
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
@@ -696,6 +718,7 @@ export interface FileRouteTypes {
     | '/analysis'
     | '/api-keys'
     | '/backtest'
+    | '/boom-crash'
     | '/bot'
     | '/calendar'
     | '/chart'
@@ -737,6 +760,7 @@ export interface FileRouteTypes {
     | '/ultra'
     | '/uptime'
     | '/webhook-events'
+    | '/welcome'
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
@@ -759,6 +783,7 @@ export interface RootRouteChildren {
   AnalysisRoute: typeof AnalysisRoute
   ApiKeysRoute: typeof ApiKeysRoute
   BacktestRoute: typeof BacktestRoute
+  BoomCrashRoute: typeof BoomCrashRoute
   BotRoute: typeof BotRoute
   CalendarRoute: typeof CalendarRoute
   ChartRoute: typeof ChartRoute
@@ -800,6 +825,7 @@ export interface RootRouteChildren {
   UltraRoute: typeof UltraRoute
   UptimeRoute: typeof UptimeRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
+  WelcomeRoute: typeof WelcomeRoute
   ZoRoute: typeof ZoRoute
   ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -822,6 +848,13 @@ declare module '@tanstack/react-router' {
       path: '/zo'
       fullPath: '/zo'
       preLoaderRoute: typeof ZoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/webhook-events': {
@@ -1111,6 +1144,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/boom-crash': {
+      id: '/boom-crash'
+      path: '/boom-crash'
+      fullPath: '/boom-crash'
+      preLoaderRoute: typeof BoomCrashRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/backtest': {
       id: '/backtest'
       path: '/backtest'
@@ -1257,6 +1297,7 @@ const rootRouteChildren: RootRouteChildren = {
   AnalysisRoute: AnalysisRoute,
   ApiKeysRoute: ApiKeysRoute,
   BacktestRoute: BacktestRoute,
+  BoomCrashRoute: BoomCrashRoute,
   BotRoute: BotRoute,
   CalendarRoute: CalendarRoute,
   ChartRoute: ChartRoute,
@@ -1298,6 +1339,7 @@ const rootRouteChildren: RootRouteChildren = {
   UltraRoute: UltraRoute,
   UptimeRoute: UptimeRoute,
   WebhookEventsRoute: WebhookEventsRoute,
+  WelcomeRoute: WelcomeRoute,
   ZoRoute: ZoRoute,
   ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
@@ -1315,3 +1357,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
