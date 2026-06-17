@@ -1,6 +1,8 @@
-# Engineering Roadmap
+# Engineering Roadmap  ✅ Complete
 
 This document tracks the multi-phase upgrade landing across the **confluence-divergence-engine** and **infinite-loop-sound** repos (kept byte-identical).
+
+> **Status:** All 8 phases shipped. See `CHANGES.md` for the consolidated report.
 
 All real-time data uses the **public Deriv WebSocket API** (`wss://ws.derivws.com/websockets/v3?app_id=1089`) already wired in `src/lib/engine/deriv.ts`. No external paid providers required.
 
