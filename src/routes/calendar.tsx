@@ -9,6 +9,7 @@ import {
   Activity,
   Target,
   History as HistoryIcon,
+  RefreshCw,
 } from "lucide-react";
 import {
   forecastImpact,
@@ -20,49 +21,66 @@ import {
   type EventForecast,
   type ForecastHistoryEntry,
 } from "@/lib/calendar/forecast";
+import { useForexCalendar, type FFEvent } from "@/hooks/use-forex-calendar";
 
 export const Route = createFileRoute("/calendar")({
   head: () => ({ meta: [{ title: "Economic Calendar — DivergenceIQ" }] }),
   component: CalendarPage,
 });
 
-// Event source is still a static seed list (no public free macro feed). The
-// rest of the page — forecast bands, realised impact, accuracy history — is
-// computed live from the Deriv pair the currency primarily moves.
-//
-// Wire FMP/Finnhub/TradingEconomics here to replace this with live releases.
-const TODAY_EVENTS: CalendarEvent[] = [
-  { id: 1, time: "14:30", currency: "USD", impact: "High",   event: "Core CPI m/m",                forecast: "0.3%",  previous: "0.2%"  },
-  { id: 2, time: "14:30", currency: "USD", impact: "High",   event: "CPI y/y",                     forecast: "3.4%",  previous: "3.2%"  },
-  { id: 3, time: "15:00", currency: "EUR", impact: "Medium", event: "ECB President Lagarde Speaks", forecast: "-",     previous: "-"      },
-  { id: 4, time: "16:00", currency: "USD", impact: "Medium", event: "CB Leading Index m/m",        forecast: "-0.1%", previous: "-0.3%" },
-  { id: 5, time: "20:00", currency: "USD", impact: "High",   event: "FOMC Economic Projections",    forecast: "-",     previous: "-"      },
-  { id: 6, time: "20:00", currency: "USD", impact: "High",   event: "FOMC Statement",               forecast: "-",     previous: "-"      },
-  { id: 7, time: "20:00", currency: "USD", impact: "High",   event: "Federal Funds Rate",           forecast: "5.50%", previous: "5.50%" },
-  { id: 8, time: "20:30", currency: "USD", impact: "High",   event: "FOMC Press Conference",        forecast: "-",     previous: "-"      },
-];
+// Convert a ForexFactory event into the shape the forecast lib expects.
+function ffToCalendar(e: FFEvent): CalendarEvent {
+  return {
+    id: e.id,
+    // sast is "YYYY/MM/DD, HH:MM" — pull out the HH:MM for display
+    time: (e.sast.split(",")[1] || "").trim() || e.date.slice(11, 16) || "—",
+    currency: e.currency || "USD",
+    impact: (e.impact === "Holiday" ? "Low" : e.impact) as CalendarEvent["impact"],
+    event: e.title,
+    forecast: e.forecast || "-",
+    previous: e.previous || "-",
+  };
+}
 
 type Row = {
   ev: CalendarEvent;
+  raw: FFEvent;
   forecast: EventForecast | null;
   realised: { pair: string; pct: number } | null;
 };
 
 function CalendarPage() {
-  const [rows, setRows] = useState<Row[]>(() =>
-    TODAY_EVENTS.map((ev) => ({ ev, forecast: null, realised: null })),
-  );
+  const { events, loading, error, fetchedAt } = useForexCalendar(60_000);
+  const [rows, setRows] = useState<Row[]>([]);
   const [history, setHistory] = useState<ForecastHistoryEntry[]>([]);
-  const today = new Date().toISOString().split("T")[0];
+  const [computing, setComputing] = useState(false);
 
+  // recompute forecast/realised whenever events change
   useEffect(() => {
     let cancelled = false;
+    if (events.length === 0) {
+      setRows([]);
+      return;
+    }
+    setComputing(true);
     (async () => {
+      // limit forecast computation to today's events to keep WS load light
+      const todayPrefix = new Date()
+        .toLocaleDateString("en-ZA", { timeZone: "Africa/Johannesburg" }) // "yyyy/mm/dd"
+        .replace(/\//g, "/");
+      const todayEvents = events.filter((e) => e.sast.startsWith(todayPrefix));
+      const target = todayEvents.length > 0 ? todayEvents : events.slice(0, 12);
+
       const computed: Row[] = [];
-      for (const ev of TODAY_EVENTS) {
+      for (const raw of target) {
+        const ev = ffToCalendar(raw);
         const [f, r] = await Promise.all([forecastImpact(ev), realisedImpact(ev)]);
-        computed.push({ ev, forecast: f, realised: r });
-        if (f && r) {
+        computed.push({ ev, raw, forecast: f, realised: r });
+
+        // record into history only for events that have already happened
+        const epoch = Date.parse(raw.date);
+        const isPast = !isNaN(epoch) && epoch < Date.now();
+        if (isPast && f && r) {
           const acc =
             1 -
             Math.abs(Math.abs(f.expectedMovePct) - Math.abs(r.pct)) /
@@ -71,22 +89,27 @@ function CalendarPage() {
             eventId: String(ev.id),
             currency: ev.currency,
             event: ev.event,
-            ts: Date.now(),
+            ts: epoch,
             forecastPct: f.expectedMovePct,
             realisedPct: r.pct,
             accuracy: Math.max(0, Math.min(1, acc)),
           });
         }
       }
-      if (!cancelled) setRows(computed);
+      if (cancelled) return;
+      setRows(computed);
       setHistory(loadHistory());
+      setComputing(false);
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [events]);
 
   const stats = useMemo(() => accuracyStats(history), [history]);
+  const todaySAST = new Date().toLocaleDateString("en-ZA", {
+    timeZone: "Africa/Johannesburg",
+  });
 
   return (
     <AppShell>
@@ -98,14 +121,26 @@ function CalendarPage() {
               Economic Calendar
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              High-impact macros with live forecasted impact bands (Deriv-derived).
+              Live ForexFactory feed · times in SAST (Africa/Johannesburg) · forecast bands derived from Deriv.
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30">
-            <Activity className="w-3.5 h-3.5 text-primary animate-pulse" />
-            <span className="text-xs font-mono text-primary">LIVE FORECASTS</span>
+            {loading || computing ? (
+              <RefreshCw className="w-3.5 h-3.5 text-primary animate-spin" />
+            ) : (
+              <Activity className="w-3.5 h-3.5 text-primary animate-pulse" />
+            )}
+            <span className="text-xs font-mono text-primary">
+              {loading ? "LOADING" : error ? "ERROR" : `LIVE · ${events.length}`}
+            </span>
           </div>
         </div>
+
+        {error && (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300 font-mono">
+            {error}
+          </div>
+        )}
 
         <div className="grid md:grid-cols-3 gap-3">
           <div className="rounded-lg border border-border bg-card p-3">
@@ -119,32 +154,41 @@ function CalendarPage() {
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <Clock className="w-3 h-3" /> Today
+              <Clock className="w-3 h-3" /> Today (SAST)
             </div>
-            <div className="text-xl font-bold font-mono mt-1">{today}</div>
-            <div className="text-[11px] text-muted-foreground">{TODAY_EVENTS.length} events</div>
+            <div className="text-xl font-bold font-mono mt-1">{todaySAST}</div>
+            <div className="text-[11px] text-muted-foreground">
+              {rows.length} event{rows.length === 1 ? "" : "s"}
+            </div>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-muted-foreground">
-              <HistoryIcon className="w-3 h-3" /> Tracked
+              <HistoryIcon className="w-3 h-3" /> Last update
             </div>
-            <div className="text-xl font-bold font-mono mt-1">{history.length}</div>
-            <div className="text-[11px] text-muted-foreground">forecast/realised pairs</div>
+            <div className="text-xl font-bold font-mono mt-1">
+              {fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-ZA", { timeZone: "Africa/Johannesburg", hour12: false }) : "—"}
+            </div>
+            <div className="text-[11px] text-muted-foreground">Polled every 60s</div>
           </div>
         </div>
 
         <div className="bg-card border border-border rounded-lg overflow-hidden">
           <div className="grid grid-cols-12 gap-2 p-3 border-b border-border bg-muted/50 text-[10px] font-semibold uppercase text-muted-foreground tracking-wider">
-            <div className="col-span-2 md:col-span-1">Time</div>
+            <div className="col-span-2 md:col-span-1">SAST</div>
             <div className="col-span-2 md:col-span-1">Cur</div>
             <div className="col-span-1 hidden md:block">Impact</div>
             <div className="col-span-8 md:col-span-4">Event</div>
             <div className="col-span-12 md:col-span-2 text-right">Forecast band</div>
             <div className="col-span-12 md:col-span-2 text-right">Realised</div>
-            <div className="col-span-12 md:col-span-1 text-right">Accuracy</div>
+            <div className="col-span-12 md:col-span-1 text-right">Acc</div>
           </div>
-          <div className="divide-y divide-border">
-            {rows.map(({ ev, forecast, realised }) => {
+          <div className="divide-y divide-border max-h-[60dvh] overflow-y-auto">
+            {rows.length === 0 && !loading && (
+              <div className="p-6 text-center text-xs text-muted-foreground italic">
+                {error ? "Calendar offline." : "No events to display."}
+              </div>
+            )}
+            {rows.map(({ ev, raw, forecast, realised }) => {
               const acc =
                 forecast && realised
                   ? Math.max(
@@ -162,19 +206,27 @@ function CalendarPage() {
                   key={ev.id}
                   className="grid grid-cols-12 gap-2 p-3 items-center hover:bg-accent/40 transition text-sm"
                 >
-                  <div className="col-span-2 md:col-span-1 font-mono">{ev.time}</div>
+                  <div className="col-span-2 md:col-span-1 font-mono text-xs">{ev.time}</div>
                   <div className="col-span-2 md:col-span-1 font-bold">{ev.currency}</div>
                   <div className="col-span-1 hidden md:flex justify-center">
                     {ev.impact === "High" ? (
                       <AlertTriangle className="w-4 h-4 text-red-500" />
-                    ) : (
+                    ) : ev.impact === "Medium" ? (
                       <TrendingUp className="w-4 h-4 text-yellow-500" />
+                    ) : (
+                      <TrendingUp className="w-4 h-4 text-green-500 opacity-50" />
                     )}
                   </div>
                   <div className="col-span-8 md:col-span-4 font-medium">
-                    {ev.event}
+                    {raw.url ? (
+                      <a href={raw.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                        {ev.event}
+                      </a>
+                    ) : (
+                      ev.event
+                    )}
                     <div className="text-[10px] text-muted-foreground font-mono">
-                      f: {ev.forecast} · p: {ev.previous}
+                      f: {ev.forecast} · p: {ev.previous} · a: {raw.actual || "—"}
                     </div>
                   </div>
                   <div className="col-span-6 md:col-span-2 text-right font-mono text-xs">
@@ -206,7 +258,6 @@ function CalendarPage() {
           </div>
         </div>
 
-        {/* Per-currency accuracy */}
         <div className="rounded-xl border border-border bg-card p-4">
           <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
             <Target className="w-4 h-4 text-primary" /> Accuracy by currency
@@ -225,7 +276,7 @@ function CalendarPage() {
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center">
-          Event list is a static seed (no free macro feed). Forecast bands & realised impact are derived live from the primary Deriv pair for each currency. History stored in localStorage.
+          Source: ForexFactory (via faireconomy.media mirror) · polled every 60s · forecast bands &amp; realised moves derived from Deriv pairs · history in localStorage.
         </p>
       </div>
     </AppShell>

@@ -67,7 +67,7 @@ function UltraConfluencePage() {
           ai,
           optionsFlow,
           darkPool,
-          prediction: pair.includes("XAU") ? \`$\${sign}\${Math.round(pipMove * 0.3)}\` : \`\${sign}\${pipMove} pips\`,
+          prediction: pair.includes("XAU") ? `$${sign}${Math.round(pipMove * 0.3)}` : `${sign}${pipMove} pips`,
           confidence,
         });
       }
@@ -93,7 +93,7 @@ function UltraConfluencePage() {
   const refresh = () => {
     toast.info("Scanning ultra confluence across all factors...");
     generateUltraSignals().then(() => {
-      toast.success(\`Found \${signals.length} ultra signals\`);
+      toast.success(`Found ${signals.length} ultra signals`);
     });
   };
 
