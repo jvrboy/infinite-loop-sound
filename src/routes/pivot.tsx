@@ -1,124 +1,188 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { ArrowUpFromLine } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { Activity, GitFork, Target } from "lucide-react";
+import { deriv, ALL_ASSETS } from "@/lib/engine/deriv";
 
 export const Route = createFileRoute("/pivot")({
   head: () => ({ meta: [{ title: "Pivot Points — DivergenceIQ" }] }),
   component: PivotPage,
 });
 
-function PivotPage() {
-  const [high, setHigh] = useState<number>();
-  const [low, setLow] = useState<number>();
-  const [close, setClose] = useState<number>();
-  const [open, setOpen] = useState<number>();
+// Classic floor-trader pivot calculation from yesterday's H, L, C.
+interface PivotSet {
+  pp: number;
+  r1: number; r2: number; r3: number;
+  s1: number; s2: number; s3: number;
+}
 
-  const h = high || 0;
-  const l = low || 0;
-  const c = close || 0;
-  const o = open || 0;
-
-  // Standard (Floor)
+function classicPivots(h: number, l: number, c: number): PivotSet {
   const pp = (h + l + c) / 3;
-  const r1 = (2 * pp) - l;
-  const s1 = (2 * pp) - h;
-  const r2 = pp + (h - l);
-  const s2 = pp - (h - l);
-  const r3 = h + 2 * (pp - l);
-  const s3 = l - 2 * (h - pp);
+  return {
+    pp,
+    r1: 2 * pp - l,
+    s1: 2 * pp - h,
+    r2: pp + (h - l),
+    s2: pp - (h - l),
+    r3: h + 2 * (pp - l),
+    s3: l - 2 * (h - pp),
+  };
+}
 
-  // Woodie
-  const w_pp = (h + l + 2 * c) / 4;
-  const w_r1 = (2 * w_pp) - l;
-  const w_s1 = (2 * w_pp) - h;
-  const w_r2 = w_pp + (h - l);
-  const w_s2 = w_pp - (h - l);
+interface Row {
+  symbol: string;
+  display: string;
+  prevH: number;
+  prevL: number;
+  prevC: number;
+  last: number;
+  pivots: PivotSet;
+  distancePct: number; // (last - pp) / pp
+  nearest: { label: string; level: number; distPct: number };
+}
 
-  // Camarilla
-  const range = h - l;
-  const c_r4 = c + (range * 1.1) / 2;
-  const c_r3 = c + (range * 1.1) / 4;
-  const c_r2 = c + (range * 1.1) / 6;
-  const c_r1 = c + (range * 1.1) / 12;
-  const c_s1 = c - (range * 1.1) / 12;
-  const c_s2 = c - (range * 1.1) / 6;
-  const c_s3 = c - (range * 1.1) / 4;
-  const c_s4 = c - (range * 1.1) / 2;
+const TOP_SYMBOLS = ALL_ASSETS.slice(0, 18); // keep load reasonable
 
-  const fmt = (n: number) => n ? n.toFixed(5) : "—";
+function PivotPage() {
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [lastAt, setLastAt] = useState<number | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const refresh = async () => {
+      setLoading(true);
+      const out: Row[] = [];
+      for (const a of TOP_SYMBOLS) {
+        try {
+          // Use D1 candles — pivots are conventionally daily.
+          const candles = await deriv.getCandles(a.symbol, "D1", 5);
+          if (candles.length < 2) continue;
+          const yesterday = candles[candles.length - 2];
+          const today = candles[candles.length - 1];
+          const piv = classicPivots(yesterday.high, yesterday.low, yesterday.close);
+          const last = today.close;
+
+          // find nearest pivot level
+          const levels: Array<[string, number]> = [
+            ["S3", piv.s3], ["S2", piv.s2], ["S1", piv.s1],
+            ["PP", piv.pp],
+            ["R1", piv.r1], ["R2", piv.r2], ["R3", piv.r3],
+          ];
+          let best = { label: "PP", level: piv.pp, distPct: Math.abs(last - piv.pp) / piv.pp };
+          for (const [lbl, lvl] of levels) {
+            const d = Math.abs(last - lvl) / lvl;
+            if (d < best.distPct) best = { label: lbl, level: lvl, distPct: d };
+          }
+
+          out.push({
+            symbol: a.symbol,
+            display: a.display,
+            prevH: yesterday.high,
+            prevL: yesterday.low,
+            prevC: yesterday.close,
+            last,
+            pivots: piv,
+            distancePct: piv.pp > 0 ? ((last - piv.pp) / piv.pp) * 100 : 0,
+            nearest: { ...best, distPct: best.distPct * 100 },
+          });
+        } catch {
+          /* skip */
+        }
+      }
+      if (cancelled) return;
+      // sort by proximity to nearest pivot
+      out.sort((a, b) => a.nearest.distPct - b.nearest.distPct);
+      setRows(out);
+      setLastAt(Date.now());
+      setLoading(false);
+    };
+    refresh();
+    const id = setInterval(refresh, 5 * 60_000); // 5 min refresh — pivots are stable intraday
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  const ago = lastAt ? Math.round((Date.now() - lastAt) / 1000) : null;
+
+  const decimalsFor = (v: number) => (v > 100 ? 2 : 5);
 
   return (
     <AppShell>
       <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <ArrowUpFromLine className="w-6 h-6 text-primary" /> Pivot Points Calculator
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">Calculate daily support and resistance levels using multiple methods.</p>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-card border border-border p-6 rounded-lg space-y-4 h-fit">
-            <h3 className="font-semibold uppercase tracking-wider text-sm mb-2 text-muted-foreground">Previous Period</h3>
-            <div>
-              <label className="text-sm font-medium mb-1 block">High</label>
-              <input type="number" value={high || ''} onChange={e => setHigh(Number(e.target.value))} className="w-full p-2 border border-input rounded bg-background font-mono" />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Low</label>
-              <input type="number" value={low || ''} onChange={e => setLow(Number(e.target.value))} className="w-full p-2 border border-input rounded bg-background font-mono" />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Close</label>
-              <input type="number" value={close || ''} onChange={e => setClose(Number(e.target.value))} className="w-full p-2 border border-input rounded bg-background font-mono" />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1 block">Open (Optional)</label>
-              <input type="number" value={open || ''} onChange={e => setOpen(Number(e.target.value))} className="w-full p-2 border border-input rounded bg-background font-mono" />
-            </div>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
+              <GitFork className="w-6 h-6 text-primary" /> Pivot Points
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              Classic floor-trader pivots from yesterday's D1 candle · {TOP_SYMBOLS.length} symbols
+            </p>
           </div>
-
-          <div className="md:col-span-2 space-y-6">
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="bg-muted/50 p-3 border-b border-border font-semibold text-sm">Standard (Floor) Pivots</div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border">
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R3</div><div className="font-mono">{fmt(r3)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R2</div><div className="font-mono">{fmt(r2)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R1</div><div className="font-mono">{fmt(r1)}</div></div>
-                <div className="bg-card p-3 border-b-2 border-primary"><div className="text-[10px] text-primary">Pivot</div><div className="font-mono font-bold">{fmt(pp)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S1</div><div className="font-mono">{fmt(s1)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S2</div><div className="font-mono">{fmt(s2)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S3</div><div className="font-mono">{fmt(s3)}</div></div>
-              </div>
-            </div>
-
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="bg-muted/50 p-3 border-b border-border font-semibold text-sm">Camarilla Pivots</div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border">
-                <div className="bg-card p-3"><div className="text-[10px] text-bear font-bold">R4 (Breakout)</div><div className="font-mono">{fmt(c_r4)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R3 (Sell Zone)</div><div className="font-mono">{fmt(c_r3)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R2</div><div className="font-mono">{fmt(c_r2)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R1</div><div className="font-mono">{fmt(c_r1)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S1</div><div className="font-mono">{fmt(c_s1)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S2</div><div className="font-mono">{fmt(c_s2)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S3 (Buy Zone)</div><div className="font-mono">{fmt(c_s3)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull font-bold">S4 (Breakout)</div><div className="font-mono">{fmt(c_s4)}</div></div>
-              </div>
-            </div>
-            
-            <div className="bg-card border border-border rounded-lg overflow-hidden">
-              <div className="bg-muted/50 p-3 border-b border-border font-semibold text-sm">Woodie Pivots</div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border">
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R2</div><div className="font-mono">{fmt(w_r2)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bear">R1</div><div className="font-mono">{fmt(w_r1)}</div></div>
-                <div className="bg-card p-3 border-b-2 border-primary"><div className="text-[10px] text-primary">Pivot</div><div className="font-mono font-bold">{fmt(w_pp)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S1</div><div className="font-mono">{fmt(w_s1)}</div></div>
-                <div className="bg-card p-3"><div className="text-[10px] text-bull">S2</div><div className="font-mono">{fmt(w_s2)}</div></div>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-card">
+            <Activity className={`w-3.5 h-3.5 text-primary ${loading ? "animate-spin" : "animate-pulse"}`} />
+            <span className="text-xs font-mono text-primary">
+              {loading ? "COMPUTING" : ago !== null ? `LIVE · ${ago}s ago` : "READY"}
+            </span>
           </div>
         </div>
+
+        <div className="glass-card rounded-xl overflow-hidden">
+          <div className="grid grid-cols-12 gap-2 px-3 py-2 border-b border-border bg-muted/30 text-[10px] uppercase tracking-wider text-muted-foreground">
+            <div className="col-span-2">Symbol</div>
+            <div className="col-span-1 text-right">Last</div>
+            <div className="col-span-1 text-right">PP</div>
+            <div className="col-span-1 text-right">S1</div>
+            <div className="col-span-1 text-right">S2</div>
+            <div className="col-span-1 text-right">R1</div>
+            <div className="col-span-1 text-right">R2</div>
+            <div className="col-span-2 text-right">Δ from PP</div>
+            <div className="col-span-2 text-right">Nearest</div>
+          </div>
+          <div className="divide-y divide-border max-h-[60dvh] overflow-y-auto">
+            {loading && rows.length === 0 && (
+              <div className="p-8 text-center text-xs text-muted-foreground italic">
+                Fetching D1 candles…
+              </div>
+            )}
+            {rows.map((r) => {
+              const d = decimalsFor(r.last);
+              return (
+                <div
+                  key={r.symbol}
+                  className="grid grid-cols-12 gap-2 px-3 py-2 items-center hover:bg-accent/30 transition diq-press text-xs font-mono"
+                >
+                  <div className="col-span-2 font-medium font-sans">{r.display}</div>
+                  <div className="col-span-1 text-right">{r.last.toFixed(d)}</div>
+                  <div className="col-span-1 text-right text-primary">{r.pivots.pp.toFixed(d)}</div>
+                  <div className="col-span-1 text-right text-bear/80">{r.pivots.s1.toFixed(d)}</div>
+                  <div className="col-span-1 text-right text-bear/60">{r.pivots.s2.toFixed(d)}</div>
+                  <div className="col-span-1 text-right text-bull/80">{r.pivots.r1.toFixed(d)}</div>
+                  <div className="col-span-1 text-right text-bull/60">{r.pivots.r2.toFixed(d)}</div>
+                  <div
+                    className={`col-span-2 text-right ${
+                      r.distancePct >= 0 ? "text-bull" : "text-bear"
+                    }`}
+                  >
+                    {r.distancePct >= 0 ? "+" : ""}
+                    {r.distancePct.toFixed(2)}%
+                  </div>
+                  <div className="col-span-2 text-right flex items-center justify-end gap-1.5">
+                    <Target className="w-3 h-3 text-amber-400" />
+                    <span className="font-mono text-amber-400">{r.nearest.label}</span>
+                    <span className="text-muted-foreground">{r.nearest.distPct.toFixed(2)}%</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        <p className="text-[10px] text-muted-foreground text-center">
+          Classic pivots · PP=(H+L+C)/3 · R/S derived from prior D1 from Deriv · refresh every 5min.
+        </p>
       </div>
     </AppShell>
   );

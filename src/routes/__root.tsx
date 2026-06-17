@@ -3,6 +3,7 @@ import { Outlet, createRootRouteWithContext, useRouter, HeadContent, Scripts, Li
 import { Toaster } from "@/components/ui/sonner";
 import appCss from "../styles.css?url";
 import { PasswordGate } from "@/components/app/PasswordGate";
+import { LiquidGlassFX } from "@/components/app/LiquidGlassFX";
 import { useEffect } from "react";
 import { seedBuiltinKeys } from "@/lib/ai/client";
 import { deriv, ALL_ASSETS } from "@/lib/engine/deriv";
@@ -154,7 +155,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <PasswordGate>
-        <Outlet />
+        <div className="diq-page-enter">
+          <Outlet />
+        </div>
+        <LiquidGlassFX />
         <Toaster theme="dark" position="top-right" />
       </PasswordGate>
     </QueryClientProvider>
