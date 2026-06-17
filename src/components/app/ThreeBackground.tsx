@@ -1,133 +1,282 @@
 import { useEffect, useRef } from "react";
 
+interface Blob {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  color1: string;
+  color2: string;
+  noiseOffset: number;
+  pulseSpeed: number;
+}
+
 export function ThreeBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     if (!canvasRef.current) return;
     const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
     let animationId: number;
     let time = 0;
+    let scrollY = 0;
+    let scrollVelocity = 0;
+    let lastScrollY = window.scrollY;
+    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
 
     const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
     resize();
-    window.addEventListener('resize', resize);
+    window.addEventListener("resize", resize);
 
-    // Realistic market grid with depth
-    const cols = 40;
-    const rows = 24;
-    const gridPoints: Array<{x: number; y: number; z: number; baseX: number; baseY: number}> = [];
-    for (let r = 0; r <= rows; r++) {
-      for (let c = 0; c <= cols; c++) {
-        gridPoints.push({
-          x: c / cols,
-          y: r / rows,
-          z: 0,
-          baseX: c / cols,
-          baseY: r / rows,
-        });
+    // Track scroll events for liquid deformation on finger scroll
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const diff = currentScrollY - lastScrollY;
+      scrollY = currentScrollY;
+      lastScrollY = currentScrollY;
+
+      // Push high-viscosity momentum into the liquid
+      scrollVelocity += diff * 0.05;
+      if (Math.abs(scrollVelocity) > 15) {
+        scrollVelocity = Math.sign(scrollVelocity) * 15;
       }
-    }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
 
-    // Candlestick-like bars moving across the background
-    interface Bar {
-      x: number;
-      y: number;
-      w: number;
-      h: number;
-      color: string;
-      speed: number;
-      opacity: number;
-    }
-    const bars: Bar[] = [];
-    for (let i = 0; i < 30; i++) {
-      bars.push({
-        x: Math.random(),
-        y: 0.3 + Math.random() * 0.4,
-        w: 0.002 + Math.random() * 0.004,
-        h: 0.05 + Math.random() * 0.15,
-        color: Math.random() > 0.5 ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)",
-        speed: 0.0002 + Math.random() * 0.0005,
-        opacity: 0.02 + Math.random() * 0.06,
-      });
-    }
+    // Track mouse / finger moves
+    const handleMouseMove = (e: MouseEvent) => {
+      mouse.targetX = e.clientX;
+      mouse.targetY = e.clientY;
+      mouse.active = true;
+    };
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        mouse.targetX = e.touches[0].clientX;
+        mouse.targetY = e.touches[0].clientY;
+        mouse.active = true;
+      }
+    };
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
+
+    // Generate liquid glass blobs with rich, frosted colors (Teal, Cyan, Purple, Emerald)
+    const blobs: Blob[] = [
+      {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: (Math.random() - 0.5) * 0.3,
+        radius: 180 + Math.random() * 80,
+        color1: "rgba(20, 184, 166, 0.12)", // Teal
+        color2: "rgba(13, 148, 136, 0.0)",
+        noiseOffset: Math.random() * 100,
+        pulseSpeed: 0.002 + Math.random() * 0.003
+      },
+      {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        radius: 220 + Math.random() * 100,
+        color1: "rgba(56, 189, 248, 0.1)", // Cyan / Sky Blue
+        color2: "rgba(14, 165, 233, 0.0)",
+        noiseOffset: Math.random() * 100,
+        pulseSpeed: 0.001 + Math.random() * 0.002
+      },
+      {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: (Math.random() - 0.5) * 0.2,
+        radius: 260 + Math.random() * 120,
+        color1: "rgba(139, 92, 246, 0.08)", // Purple
+        color2: "rgba(109, 40, 217, 0.0)",
+        noiseOffset: Math.random() * 100,
+        pulseSpeed: 0.001 + Math.random() * 0.0015
+      },
+      {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        radius: 140 + Math.random() * 60,
+        color1: "rgba(16, 185, 129, 0.1)", // Bull Emerald Green
+        color2: "rgba(4, 120, 87, 0.0)",
+        noiseOffset: Math.random() * 100,
+        pulseSpeed: 0.003 + Math.random() * 0.004
+      },
+      {
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        vx: (Math.random() - 0.5) * 0.4,
+        vy: (Math.random() - 0.5) * 0.4,
+        radius: 130 + Math.random() * 50,
+        color1: "rgba(239, 68, 68, 0.07)", // Bear Crimson Red
+        color2: "rgba(185, 28, 28, 0.0)",
+        noiseOffset: Math.random() * 100,
+        pulseSpeed: 0.003 + Math.random() * 0.003
+      }
+    ];
 
     const animate = () => {
-      time += 0.005;
+      time += 0.003;
       const w = canvas.width;
       const h = canvas.height;
+
+      // Decelerate scroll velocity (viscous friction)
+      scrollVelocity *= 0.94;
+      if (Math.abs(scrollVelocity) < 0.01) scrollVelocity = 0;
+
+      // Ease mouse coordinates for smooth lag effect (simulates high viscosity fluid)
+      mouse.x += (mouse.targetX - mouse.x) * 0.08;
+      mouse.y += (mouse.targetY - mouse.y) * 0.08;
+
       ctx.clearRect(0, 0, w, h);
 
-      // Deep dark blue background gradient
-      const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, w * 0.8);
-      bgGrad.addColorStop(0, "rgba(11, 16, 32, 1)");
-      bgGrad.addColorStop(1, "rgba(6, 10, 22, 1)");
+      // Deep dark futuristic trade room background
+      const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h));
+      bgGrad.addColorStop(0, "#080b16");
+      bgGrad.addColorStop(0.5, "#05070e");
+      bgGrad.addColorStop(1, "#020306");
       ctx.fillStyle = bgGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // Draw subtle grid with perspective
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.03)";
-      ctx.lineWidth = 0.5;
-      for (let i = 0; i <= cols; i++) {
-        const x = (i / cols) * w;
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, h);
-        ctx.stroke();
-      }
-      for (let i = 0; i <= rows; i++) {
-        const y = (i / rows) * h;
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(w, y);
-        ctx.stroke();
-      }
+      // Render organic liquid glass blobs
+      ctx.globalCompositeOperation = "screen";
+      blobs.forEach((blob) => {
+        // Move blobs organically
+        blob.x += blob.vx;
+        blob.y += blob.vy;
 
-      // Animated bars (candlestick-like)
-      bars.forEach(bar => {
-        bar.x += bar.speed;
-        if (bar.x > 1.05) bar.x = -0.05;
-        const bx = bar.x * w;
-        const by = bar.y * h;
-        const bw = bar.w * w;
-        const bh = bar.h * h * (0.8 + 0.2 * Math.sin(time + bar.x * 10));
+        // Apply scroll force: drag blobs upwards or downwards
+        blob.y -= scrollVelocity * 0.5;
 
-        ctx.fillStyle = bar.color.replace("0.08", String(bar.opacity * (0.5 + 0.5 * Math.sin(time * 2 + bar.x * 5))));
-        ctx.fillRect(bx, by - bh / 2, bw, bh);
+        // Keep inside screen with soft bouncing
+        if (blob.x < -blob.radius) blob.x = w + blob.radius;
+        if (blob.x > w + blob.radius) blob.x = -blob.radius;
+        if (blob.y < -blob.radius) blob.y = h + blob.radius;
+        if (blob.y > h + blob.radius) blob.y = -blob.radius;
 
-        // Wick
-        ctx.strokeStyle = bar.color.replace("0.08", String(bar.opacity * 0.5));
-        ctx.lineWidth = 0.5;
+        // Interactive mouse force: push blobs slightly away from mouse
+        if (mouse.active) {
+          const dx = blob.x - mouse.x;
+          const dy = blob.y - mouse.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 400 && dist > 1) {
+            const force = (400 - dist) * 0.02;
+            blob.x += (dx / dist) * force;
+            blob.y += (dy / dist) * force;
+          }
+        }
+
+        // Pulse the size organically
+        const pulse = Math.sin(time * 3 + blob.noiseOffset) * 15;
+        const currentRadius = blob.radius + pulse;
+
+        // Draw radial glass glow blob
+        const g = ctx.createRadialGradient(blob.x, blob.y, 0, blob.x, blob.y, currentRadius);
+        g.addColorStop(0, blob.color1);
+        g.addColorStop(0.4, blob.color1.replace(/\d\.?\d*\)/, "0.04)"));
+        g.addColorStop(1, blob.color2);
+
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.moveTo(bx + bw / 2, by - bh / 2 - bh * 0.3);
-        ctx.lineTo(bx + bw / 2, by + bh / 2 + bh * 0.3);
-        ctx.stroke();
+        ctx.arc(blob.x, blob.y, currentRadius, 0, Math.PI * 2);
+        ctx.fill();
       });
 
-      // Subtle horizontal flow lines (like a price ticker trail)
-      ctx.strokeStyle = "rgba(56, 189, 248, 0.02)";
-      ctx.lineWidth = 1;
-      for (let i = 0; i < 5; i++) {
-        const y = h * (0.2 + i * 0.15);
+      // Render interactive Liquid Refraction Grid (deforms on mouse / scroll)
+      ctx.globalCompositeOperation = "source-over";
+      ctx.strokeStyle = "rgba(20, 184, 166, 0.018)"; // Super subtle cyan grid
+      ctx.lineWidth = 0.5;
+
+      const gridSpacing = 50;
+      const cols = Math.ceil(w / gridSpacing) + 1;
+      const rows = Math.ceil(h / gridSpacing) + 1;
+
+      for (let r = 0; r < rows; r++) {
         ctx.beginPath();
-        for (let x = 0; x < w; x += 2) {
-          const yy = y + Math.sin(x * 0.01 + time + i) * 10 + Math.sin(x * 0.003 + time * 0.5 + i * 2) * 20;
-          if (x === 0) ctx.moveTo(x, yy);
-          else ctx.lineTo(x, yy);
+        for (let c = 0; c < cols; c++) {
+          const baseX = c * gridSpacing;
+          const baseY = r * gridSpacing;
+
+          let displayX = baseX;
+          let displayY = baseY;
+
+          // Mouse warp distortion (Liquid refraction lens)
+          if (mouse.active) {
+            const dx = baseX - mouse.x;
+            const dy = baseY - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 300) {
+              const refract = Math.sin((dist / 300) * Math.PI - Math.PI / 2); // glass refraction formula
+              const factor = refract * 15; 
+              displayX += (dx / (dist || 1)) * factor;
+              displayY += (dy / (dist || 1)) * factor;
+            }
+          }
+
+          // Scroll wave ripple
+          const wave = Math.sin(baseX * 0.004 + time * 1.5) * scrollVelocity * 3;
+          displayY += wave;
+
+          if (c === 0) ctx.moveTo(displayX, displayY);
+          else ctx.lineTo(displayX, displayY);
         }
         ctx.stroke();
       }
 
-      // Corner vignette
-      const vig = ctx.createRadialGradient(w * 0.5, h * 0.5, w * 0.3, w * 0.5, h * 0.5, w * 0.9);
-      vig.addColorStop(0, "rgba(0,0,0,0)");
-      vig.addColorStop(1, "rgba(0,0,0,0.6)");
+      for (let c = 0; c < cols; c++) {
+        ctx.beginPath();
+        for (let r = 0; r < rows; r++) {
+          const baseX = c * gridSpacing;
+          const baseY = r * gridSpacing;
+
+          let displayX = baseX;
+          let displayY = baseY;
+
+          if (mouse.active) {
+            const dx = baseX - mouse.x;
+            const dy = baseY - mouse.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 300) {
+              const refract = Math.sin((dist / 300) * Math.PI - Math.PI / 2);
+              const factor = refract * 15;
+              displayX += (dx / (dist || 1)) * factor;
+              displayY += (dy / (dist || 1)) * factor;
+            }
+          }
+
+          const wave = Math.sin(baseX * 0.004 + time * 1.5) * scrollVelocity * 3;
+          displayY += wave;
+
+          if (r === 0) ctx.moveTo(displayX, displayY);
+          else ctx.lineTo(displayX, displayY);
+        }
+        ctx.stroke();
+      }
+
+      // Draw elegant digital overlay lines
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.015)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(w * 0.25, 0);
+      ctx.lineTo(w * 0.25, h);
+      ctx.moveTo(w * 0.75, 0);
+      ctx.lineTo(w * 0.75, h);
+      ctx.stroke();
+
+      // Subtle frosted vignettes
+      const vig = ctx.createRadialGradient(w * 0.5, h * 0.5, Math.min(w, h) * 0.4, w * 0.5, h * 0.5, Math.max(w, h));
+      vig.addColorStop(0, "rgba(0, 0, 0, 0)");
+      vig.addColorStop(1, "rgba(2, 4, 10, 0.55)");
       ctx.fillStyle = vig;
       ctx.fillRect(0, 0, w, h);
 
@@ -137,7 +286,10 @@ export function ThreeBackground() {
     animate();
 
     return () => {
-      window.removeEventListener('resize', resize);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("touchmove", handleTouchMove);
       cancelAnimationFrame(animationId);
     };
   }, []);
@@ -146,7 +298,7 @@ export function ThreeBackground() {
     <canvas
       ref={canvasRef}
       className="fixed inset-0 w-full h-full pointer-events-none"
-      style={{ zIndex: 0, opacity: 0.7 }}
+      style={{ zIndex: 0, opacity: 0.85 }}
     />
   );
 }

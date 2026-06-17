@@ -4,10 +4,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* Global: hide all lucide icons app-wide (user request). */
+/* Global: lucide icons are restored and professionally sized/styled. */
 .lucide,
 svg.lucide,
-[class*="lucide-"] { display: none !important; }
+[class*="lucide-"] {
+  display: inline-block;
+  vertical-align: middle;
+}
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -209,4 +212,82 @@ svg.lucide,
     0% { box-shadow: 0 0 0 0 oklch(0.78 0.19 152 / 0.6); }
     100% { box-shadow: 0 0 0 10px oklch(0.78 0.19 152 / 0); }
   }
+}
+
+
+/* ===== GLASSMORPHISM PREMIUM UTILITIES ===== */
+.glass-card {
+  background: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(16px) saturate(120%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(120%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 1px 1px rgba(255, 255, 255, 0.05) !important;
+}
+
+.glass-card-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.glass-card-hover:hover {
+  background: rgba(15, 23, 42, 0.55) !important;
+  border-color: rgba(20, 184, 166, 0.3) !important;
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.55), 
+              inset 0 0 12px rgba(255, 255, 255, 0.02),
+              0 0 15px -3px rgba(20, 184, 166, 0.15) !important;
+  transform: translateY(-2px);
+}
+
+.glass-sidebar {
+  background: rgba(11, 16, 32, 0.55) !important;
+  backdrop-filter: blur(24px) saturate(110%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(110%) !important;
+  border-right: 1px solid rgba(255, 255, 255, 0.04) !important;
+  box-shadow: 4px 0 32px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+.glass-navbar {
+  background: rgba(11, 16, 32, 0.45) !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+
+.glass-input {
+  background: rgba(15, 23, 42, 0.3) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  transition: all 0.2s ease-in-out;
+}
+
+.glass-input:focus {
+  background: rgba(15, 23, 42, 0.45) !important;
+  border-color: rgba(20, 184, 166, 0.5) !important;
+  box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.15) !important;
+  outline: none;
+}
+
+.glass-button-active {
+  background: linear-gradient(135deg, rgba(20, 184, 166, 0.25) 0%, rgba(13, 148, 136, 0.1) 100%) !important;
+  border: 1px solid rgba(20, 184, 166, 0.4) !important;
+  box-shadow: 0 0 15px -3px rgba(20, 184, 166, 0.2) !important;
+}
+
+/* Scrollbar styling for high-end feel */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
