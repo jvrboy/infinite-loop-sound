@@ -71,14 +71,13 @@ export async function generate(prompt: string, language: Language): Promise<stri
   if (loadKeys().length === 0 || !prompt.trim()) return FALLBACK[language];
   const label = LANGUAGE_LABELS[language] || language;
   try {
-    const result = await aiChat([
+    const { content } = await aiChat([
       { role: "system", content: GEN_SYSTEM },
       {
         role: "user",
         content: `Language: ${label}\n\nRequest:\n${prompt}\n\nReturn only the source code.`,
       },
     ]);
-    const content = result?.text || "";
     // strip fences if the model wrapped its output
     const fenceMatch = content.match(/```[\w-]*\n([\s\S]*?)```/);
     return (fenceMatch ? fenceMatch[1] : content).trim() || FALLBACK[language];

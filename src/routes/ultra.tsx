@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Sparkles, TrendingUp, TrendingDown, Activity, Brain, Globe, DollarSign, Users, Zap, Target, BarChart3, Twitter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
