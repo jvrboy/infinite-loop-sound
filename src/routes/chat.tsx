@@ -146,7 +146,9 @@ function ChatPage() {
     const messages = [{ role: "system" as const, content: SYSTEM_PROMPT }, ...history];
 
     try {
-      const { content: reply, provider } = await aiChat(messages);
+      const result = await aiChat(messages);
+      const reply = result?.text ?? "";
+      const provider = result?.provider ?? undefined;
       const assistant: Msg = {
         role: "assistant",
         content: reply,

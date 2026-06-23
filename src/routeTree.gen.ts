@@ -17,6 +17,7 @@ import { Route as UltraRouteImport } from './routes/ultra'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as SystemRouteImport } from './routes/system'
+import { Route as StrategyLabRouteImport } from './routes/strategy-lab'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SessionsRouteImport } from './routes/sessions'
@@ -31,10 +32,12 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PivotRouteImport } from './routes/pivot'
 import { Route as PipValueRouteImport } from './routes/pip-value'
 import { Route as PersistenceRouteImport } from './routes/persistence'
+import { Route as PatternsRouteImport } from './routes/patterns'
 import { Route as OptionsFlowRouteImport } from './routes/options-flow'
 import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as MarketStructureRouteImport } from './routes/market-structure'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
 import { Route as LocalAiRouteImport } from './routes/local-ai'
@@ -112,6 +115,11 @@ const SystemRoute = SystemRouteImport.update({
   path: '/system',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StrategyLabRoute = StrategyLabRouteImport.update({
+  id: '/strategy-lab',
+  path: '/strategy-lab',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
@@ -182,6 +190,11 @@ const PersistenceRoute = PersistenceRouteImport.update({
   path: '/persistence',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PatternsRoute = PatternsRouteImport.update({
+  id: '/patterns',
+  path: '/patterns',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OptionsFlowRoute = OptionsFlowRouteImport.update({
   id: '/options-flow',
   path: '/options-flow',
@@ -200,6 +213,11 @@ const OptimizerRoute = OptimizerRouteImport.update({
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketStructureRoute = MarketStructureRouteImport.update({
+  id: '/market-structure',
+  path: '/market-structure',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketProfileRoute = MarketProfileRouteImport.update({
@@ -413,10 +431,12 @@ export interface FileRoutesByFullPath {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/market-structure': typeof MarketStructureRoute
   '/neural': typeof NeuralRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/patterns': typeof PatternsRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
@@ -431,6 +451,7 @@ export interface FileRoutesByFullPath {
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/strategy-lab': typeof StrategyLabRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
@@ -477,10 +498,12 @@ export interface FileRoutesByTo {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/market-structure': typeof MarketStructureRoute
   '/neural': typeof NeuralRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/patterns': typeof PatternsRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
@@ -495,6 +518,7 @@ export interface FileRoutesByTo {
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/strategy-lab': typeof StrategyLabRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
@@ -542,10 +566,12 @@ export interface FileRoutesById {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/market-structure': typeof MarketStructureRoute
   '/neural': typeof NeuralRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/patterns': typeof PatternsRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
@@ -560,6 +586,7 @@ export interface FileRoutesById {
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/strategy-lab': typeof StrategyLabRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
@@ -608,10 +635,12 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/market-structure'
     | '/neural'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/patterns'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
@@ -626,6 +655,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/strategy-lab'
     | '/system'
     | '/telegram'
     | '/tools'
@@ -672,10 +702,12 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/market-structure'
     | '/neural'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/patterns'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
@@ -690,6 +722,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/strategy-lab'
     | '/system'
     | '/telegram'
     | '/tools'
@@ -736,10 +769,12 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/market-structure'
     | '/neural'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/patterns'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
@@ -754,6 +789,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/strategy-lab'
     | '/system'
     | '/telegram'
     | '/tools'
@@ -801,10 +837,12 @@ export interface RootRouteChildren {
   LocalAiRoute: typeof LocalAiRoute
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
+  MarketStructureRoute: typeof MarketStructureRoute
   NeuralRoute: typeof NeuralRoute
   OptimizerRoute: typeof OptimizerRoute
   OptionsCalcRoute: typeof OptionsCalcRoute
   OptionsFlowRoute: typeof OptionsFlowRoute
+  PatternsRoute: typeof PatternsRoute
   PersistenceRoute: typeof PersistenceRoute
   PipValueRoute: typeof PipValueRoute
   PivotRoute: typeof PivotRoute
@@ -819,6 +857,7 @@ export interface RootRouteChildren {
   SessionsRoute: typeof SessionsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
+  StrategyLabRoute: typeof StrategyLabRoute
   SystemRoute: typeof SystemRoute
   TelegramRoute: typeof TelegramRoute
   ToolsRoute: typeof ToolsRoute
@@ -897,6 +936,13 @@ declare module '@tanstack/react-router' {
       path: '/system'
       fullPath: '/system'
       preLoaderRoute: typeof SystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strategy-lab': {
+      id: '/strategy-lab'
+      path: '/strategy-lab'
+      fullPath: '/strategy-lab'
+      preLoaderRoute: typeof StrategyLabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simulator': {
@@ -997,6 +1043,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PersistenceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/patterns': {
+      id: '/patterns'
+      path: '/patterns'
+      fullPath: '/patterns'
+      preLoaderRoute: typeof PatternsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/options-flow': {
       id: '/options-flow'
       path: '/options-flow'
@@ -1023,6 +1076,13 @@ declare module '@tanstack/react-router' {
       path: '/neural'
       fullPath: '/neural'
       preLoaderRoute: typeof NeuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-structure': {
+      id: '/market-structure'
+      path: '/market-structure'
+      fullPath: '/market-structure'
+      preLoaderRoute: typeof MarketStructureRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market-profile': {
@@ -1315,10 +1375,12 @@ const rootRouteChildren: RootRouteChildren = {
   LocalAiRoute: LocalAiRoute,
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
+  MarketStructureRoute: MarketStructureRoute,
   NeuralRoute: NeuralRoute,
   OptimizerRoute: OptimizerRoute,
   OptionsCalcRoute: OptionsCalcRoute,
   OptionsFlowRoute: OptionsFlowRoute,
+  PatternsRoute: PatternsRoute,
   PersistenceRoute: PersistenceRoute,
   PipValueRoute: PipValueRoute,
   PivotRoute: PivotRoute,
@@ -1333,6 +1395,7 @@ const rootRouteChildren: RootRouteChildren = {
   SessionsRoute: SessionsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
+  StrategyLabRoute: StrategyLabRoute,
   SystemRoute: SystemRoute,
   TelegramRoute: TelegramRoute,
   ToolsRoute: ToolsRoute,
@@ -1357,3 +1420,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

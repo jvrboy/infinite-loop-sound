@@ -51,11 +51,12 @@ export async function autoCorrect(input: CorrectInput): Promise<string> {
   // the executor's MAX_ATTEMPTS quickly exhausts and surfaces the real error.
   if (loadKeys().length === 0) return input.code;
   try {
-    const { content } = await aiChat([
+    const result = await aiChat([
       { role: "system", content: CORRECTION_SYSTEM },
       { role: "user", content: buildPrompt(input) },
     ]);
-    const cleaned = stripFences(content);
+    if (!result) return input.code;
+    const cleaned = stripFences(result.text);
     if (!cleaned || cleaned.length < 4) return input.code;
     return cleaned;
   } catch {

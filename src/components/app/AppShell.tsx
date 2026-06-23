@@ -1,11 +1,12 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { 
-  Activity, BarChart3, Bot, Gauge, History, LineChart, Palette, Radio, Wallet, Zap, 
-  MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, 
-  Flame, Inbox, Cpu, Wrench, Brain, Sparkles, Infinity, DollarSign, Eye, Twitter, 
-  Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, 
-  SplitSquareHorizontal, AlignJustify, ArrowUpFromLine, Landmark, ListChecks, 
-  Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings
+import {
+  Activity, BarChart3, Bot, Gauge, History, LineChart, Palette, Radio, Wallet, Zap,
+  MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell,
+  Flame, Inbox, Cpu, Wrench, Brain, Sparkles, Infinity, DollarSign, Eye, Twitter,
+  Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy,
+  SplitSquareHorizontal, AlignJustify, ArrowUpFromLine, Landmark, ListChecks,
+  Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings,
+  Layers, Hexagon, FlaskConical
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
@@ -90,6 +91,8 @@ const SECTIONS = [
     icon: Globe,
     items: [
       { to: "/market-profile", label: "Market Profile", icon: BarChart3 },
+      { to: "/market-structure", label: "Structure", icon: Layers },
+      { to: "/patterns", label: "Patterns", icon: Hexagon },
       { to: "/dark-pool", label: "Dark Pool", icon: Eye },
       { to: "/options-flow", label: "Options", icon: DollarSign },
       { to: "/sentiment", label: "Sentiment", icon: Twitter },
@@ -117,6 +120,7 @@ const SECTIONS = [
     title: "Strategy & Journal",
     icon: BookOpen,
     items: [
+      { to: "/strategy-lab", label: "Strategy Lab", icon: FlaskConical },
       { to: "/plan",     label: "Trading Plan", icon: ListChecks },
       { to: "/journal",  label: "Journal",   icon: BookOpen },
       { to: "/pnl",      label: "PnL Tracker", icon: TrendingUp },
