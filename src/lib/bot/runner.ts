@@ -310,6 +310,38 @@ class BotRunner {
   }
 
   // ── SIGNAL mode ─────────────────────────────────────────────────
+  /**
+   * Public entry point for external systems (e.g. the automation engine)
+   * to push a signal into the bot. Honors all guardrails via handleSignal.
+   * Accepts BUY/SELL or CALL/PUT direction strings.
+   */
+  async executeSignal(input: {
+    pair: string;
+    direction: string;
+    scorePct?: number;
+    entry?: number;
+    rating?: string;
+    source?: string;
+    tpPips?: number;
+    slPips?: number;
+  }): Promise<{ accepted: boolean; reason?: string }> {
+    if (this.status !== "running") return { accepted: false, reason: "Bot not running" };
+    if (this.getMode() !== "signal") return { accepted: false, reason: "Bot not in SIGNAL mode" };
+    const raw = String(input.direction || "").toUpperCase();
+    const dir = raw === "BUY" || raw === "CALL" ? "BUY" : raw === "SELL" || raw === "PUT" ? "SELL" : null;
+    if (!dir) return { accepted: false, reason: `Invalid direction: ${input.direction}` };
+    await this.handleSignal({
+      pair: input.pair,
+      direction: dir,
+      entry: Number(input.entry ?? 0),
+      score: Number(input.scorePct ?? 100),
+      source: "automation",
+      tpPips: input.tpPips,
+      slPips: input.slPips,
+    });
+    return { accepted: true };
+  }
+
   private subscribeSignals() {
     try {
       this.channel = supabase
