@@ -6,13 +6,13 @@ import type {
 import type { Candle } from "../engine/indicators";
 import type { Tick } from "../engine/heatmap-analytics";
 import { evaluateStrategies } from "../engine/strategies";
-import { evaluateStrategiesV2, type NewsEvent } from "../engine/strategies-v2";
-import { STRATEGY_CATALOG } from "../engine/strategies-v2";
+import { evaluateStrategiesV2, STRATEGY_CATALOG, type NewsEvent } from "../engine/strategies-v2";
+import { evaluateStrategiesV3, STRATEGY_CATALOG_V3 } from "../engine/strategies-v3";
 
 const STRATEGY_AGENT_CONFIG: AgentConfig = {
   id: "strategy-agent",
   name: "Strategy Agent",
-  description: "Multi-strategy confluence engine that evaluates all 14 strategies (6 legacy + 8 new) and selects the highest-probability setups with session-aware scoring.",
+  description: "Multi-strategy confluence engine that evaluates all 24 strategies (6 legacy + 8 V2 + 10 V3) and selects the highest-probability setups with session-aware scoring.",
   enabled: true,
   priority: "critical",
   intervalSec: 30,
@@ -73,10 +73,27 @@ export function runStrategyAgent(
       content: `V2 strategies: ${v2Hits.length} hits from 8 new detectors`,
     });
 
+    // Run V3 strategies (advanced: Ichimoku, SMC, Harmonics, etc.)
+    let v3Hits: any[] = [];
+    try {
+      const v3Module = await import("../engine/strategies-v3");
+      v3Hits = v3Module.evaluateStrategiesV3(candles);
+      messages.push({
+        id: crypto.randomUUID(),
+        agentId: STRATEGY_AGENT_CONFIG.id,
+        type: "info",
+        timestamp: Date.now(),
+        content: `V3 strategies: ${v3Hits.length} hits from 10 advanced detectors`,
+      });
+    } catch {
+      // V3 module may not be available in all environments
+    }
+
     // Combine and score all hits
     const allHits = [
       ...v1Hits.map(h => ({ ...h, confidence: h.weight / 20, source: "v1" as const })),
       ...v2Hits.map(h => ({ ...h, source: "v2" as const })),
+      ...v3Hits.map((h: any) => ({ ...h, source: "v3" as const })),
     ];
 
     // Confluence scoring — when multiple strategies agree
@@ -93,8 +110,8 @@ export function runStrategyAgent(
       .sort((a, b) => b.weight - a.weight)
       .slice(0, 5)
       .map(h => {
-        const catalogEntry = STRATEGY_CATALOG.find(c => 
-          c.id.toLowerCase().replace(/[_\s]/g, "-") === h.name.toLowerCase().replace(/[_\s]/g, "-")
+        const catalogEntry = [...STRATEGY_CATALOG, ...STRATEGY_CATALOG_V3].find(c => 
+          c.id.toLowerCase().replace(/[\s]/g, "-") === h.name.toLowerCase().replace(/[\s_]/g, "-")
         );
         return {
           strategyId: h.name,

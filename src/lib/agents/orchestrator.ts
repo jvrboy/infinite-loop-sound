@@ -4,6 +4,9 @@ import { runStrategyAgent } from "./strategy-agent";
 import { runRiskAgent } from "./risk-agent";
 import { runNewsAgent } from "./news-agent";
 import { runBacktestAgent, type BacktestConfig } from "./backtest-agent";
+import { runConfluenceAgent } from "./confluence-agent";
+import { runOptimizationAgent } from "./optimization-agent";
+import { runAutomationAgent } from "./automation-agent";
 import type { Candle } from "../engine/indicators";
 import type { Tick } from "../engine/heatmap-analytics";
 import type { NewsEvent } from "../engine/strategies-v2";
@@ -21,7 +24,7 @@ const initialState: OrchestratorState = {
   lastRun: 0,
   results: {},
   messageLog: [],
-  activeAgents: ["strategy-agent", "risk-agent", "news-agent"],
+  activeAgents: ["strategy-agent", "risk-agent", "news-agent", "confluence-agent", "optimization-agent", "automation-agent"],
 };
 
 let state: OrchestratorState = { ...initialState };
@@ -86,6 +89,43 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
   // 3. News Agent
   const newsResult = runNewsAgent(currentEpoch ?? Date.now() / 1000, pair);
   state.results["news-agent"] = newsResult;
+  newMessages.push({
+    id: crypto.randomUUID(),
+    agentId: "orchestrator",
+    type: "info",
+    timestamp: Date.now(),
+    content: `News Agent: ${newsResult.insights?.length ?? 0} insights`,
+  });
+
+  // 4. Confluence Agent — evaluates V1+V2+V3 strategy confluence
+  const confluenceResult = runConfluenceAgent(
+    pair, timeframe, candles, ticks,
+    { pair, timeframe, candles: [], ind: {} as any, divergences: [], direction: null, score: 0, scorePct: 0, maxScore: 0, rating: "WEAK", confluence: [], trade: null, trendBias: "NEUTRAL" },
+    newsEvents
+  );
+  state.results["confluence-agent"] = confluenceResult;
+  newMessages.push({
+    id: crypto.randomUUID(),
+    agentId: "orchestrator",
+    type: "info",
+    timestamp: Date.now(),
+    content: `Confluence Agent: ${confluenceResult.signals?.length ?? 0} confluence signals, ${(confluenceResult.output?.agreementScore as number ?? 0).toFixed(0)}% agreement`,
+  });
+
+  // 5. Optimization Agent — analyzes past SL hits and suggests improvements
+  const optimizationResult = runOptimizationAgent(null);
+  state.results["optimization-agent"] = optimizationResult;
+  newMessages.push({
+    id: crypto.randomUUID(),
+    agentId: "orchestrator",
+    type: "info",
+    timestamp: Date.now(),
+    content: `Optimization Agent: ${optimizationResult.insights?.length ?? 0} recommendations`,
+  });
+
+  // 6. Automation Agent — monitors automation engine health
+  const automationResult = runAutomationAgent();
+  state.results["automation-agent"] = automationResult;
 
   // Combine messages
   state.messageLog = [...newMessages, ...state.messageLog].slice(0, 200);
@@ -147,5 +187,35 @@ export const ALL_AGENT_CONFIGS: AgentConfig[] = [
     intervalSec: 0,
     instruments: ["all"],
     timeframes: ["H1"],
+  },
+  {
+    id: "confluence-agent",
+    name: "Confluence Agent",
+    description: "Evaluates V1+V2+V3 strategy confluence (24 strategies), detects meta-confluence patterns (multi-session, harmonic, SMC, Ichimoku alignment)",
+    enabled: true,
+    priority: "critical",
+    intervalSec: 30,
+    instruments: ["all"],
+    timeframes: ["M5", "M15", "M30", "H1", "H4"],
+  },
+  {
+    id: "optimization-agent",
+    name: "Optimization Agent",
+    description: "Analyzes SL-hit patterns, detects root causes (tight SL, session mismatch, fake breakouts), auto-applies parameter fixes",
+    enabled: true,
+    priority: "high",
+    intervalSec: 60,
+    instruments: ["all"],
+    timeframes: ["all"],
+  },
+  {
+    id: "automation-agent",
+    name: "Automation Agent",
+    description: "Manages time-based strategy automation, suggests optimal scan schedules, monitors dispatch success rates",
+    enabled: true,
+    priority: "high",
+    intervalSec: 30,
+    instruments: ["all"],
+    timeframes: ["all"],
   },
 ];

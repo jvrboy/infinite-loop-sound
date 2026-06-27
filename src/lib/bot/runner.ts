@@ -21,7 +21,9 @@ type TradeSignal = {
   direction: "BUY" | "SELL";
   entry: number;
   score: number;
-  source: "scan" | "supabase";
+  source: "scan" | "supabase" | "automation";
+  confluenceCount?: number;
+  neuralBoost?: number;
 };
 
 class BotRunner {

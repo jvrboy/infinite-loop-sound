@@ -75,7 +75,7 @@ export function squeezeBreakout(c: Candle[]): StrategyHitV2 | null {
     weight: 16,
     note: `Squeeze: 3 doji-like candles (avg BR=${((bodyRatio(c1)+bodyRatio(c2)+bodyRatio(c3))/3*100).toFixed(0)}%) → ${side} breakout. Session: ${session}. WR: ${(winRate*100).toFixed(1)}%, PF: ${profitFactor}x`,
     confidence: winRate,
-    metadata: { session, winRate, profitFactor, bodyRatios: [bodyRatio(c1), bodyRatio(c2), bodyRatio(c3)], tp, sl, hitTP, hitSL }
+    metadata: { session, winRate, profitFactor, bodyRatios: [bodyRatio(c1), bodyRatio(c2), bodyRatio(c3)], tp, sl }
   };
 }
 

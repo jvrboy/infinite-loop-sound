@@ -5,7 +5,8 @@ import {
   Flame, Inbox, Cpu, Wrench, Brain, Sparkles, Infinity, DollarSign, Eye, Twitter, 
   Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, 
   SplitSquareHorizontal, AlignJustify, ArrowUpFromLine, Landmark, ListChecks, 
-  Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings
+  Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings,
+  Timer, Layers, Target, Crosshair
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
@@ -46,6 +47,8 @@ const NAV = [
   { to: "/heatmap",  label: "Heatmap",   icon: Flame },
   { to: "/backtest", label: "Backtest",  icon: History },
   { to: "/optimizer", label: "Optimizer", icon: Wrench },
+  { to: "/confluence", label: "Confluence", icon: Crosshair },
+  { to: "/automation", label: "Automation", icon: Timer },
   { to: "/bot",      label: "Auto-Bot",  icon: Rocket },
   { to: "/zo",       label: "Zo Cloud",  icon: Cpu },
   { to: "/pnl",      label: "PnL",       icon: TrendingUp },
@@ -82,6 +85,8 @@ const SECTIONS = [
       { to: "/ultra",    label: "Ultra",     icon: Sparkles },
       { to: "/scanner",  label: "Scanner",   icon: Radio },
       { to: "/persistence", label: "24/7 Scan", icon: Infinity },
+      { to: "/confluence", label: "Confluence", icon: Crosshair },
+      { to: "/automation", label: "Automation", icon: Timer },
       { to: "/bot",      label: "Auto-Bot",  icon: Rocket },
     ]
   },
@@ -122,6 +127,8 @@ const SECTIONS = [
       { to: "/pnl",      label: "PnL Tracker", icon: TrendingUp },
       { to: "/backtest", label: "Backtester",  icon: History },
       { to: "/optimizer", label: "Optimizer", icon: Wrench },
+      { to: "/confluence", label: "Confluence", icon: Crosshair },
+      { to: "/automation", label: "Automation", icon: Timer },
       { to: "/simulator",label: "Simulator", icon: Dices },
     ]
   },
