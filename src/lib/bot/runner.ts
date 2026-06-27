@@ -1,88 +1,192 @@
 // Auto-trader runner.
 //
-// CHANGES vs v1:
-//   - Self-scan mode (default ON): periodically calls analyze() on each
-//     subscribed instrument and synthesises a TradeSignal whenever score
-//     exceeds minScore. This makes the bot actually trade without an
-//     external "signals" producer.
-//   - Supabase realtime listener is OPTIONAL: still subscribed when token
-//     present, but no longer the only trigger.
-//   - Fixed: open-ticket tracking now uses unique ids so concurrent opens
-//     on the same pair don't pop each other off the queue.
+// Modes (mutually exclusive, set via settings.mode):
+//   off      → fully inactive. No trades, no monitoring, no scanning.
+//   signal   → reacts to every NEW signal (Supabase `signals` INSERT or the
+//              built-in self-scanner). One trade per signal. Honours
+//              maxOpen; queues signals when the slot limit is reached.
+//   scalper  → perpetual scalper. Continuously opens trades up to maxOpen and,
+//              whenever a trade closes, immediately opens a replacement.
+//
+// Position sizing supports FIXED lot and MARTINGALE (multiply lot after a loss,
+// reset to base after a win, capped at martingaleMaxLot).
+//
+// Because Deriv's trade API used here is duration-based binary (CALL/PUT), the
+// runner layers a tick-driven monitor over each open position to detect TP/SL
+// hits, compute realised P&L, drive the martingale ladder, and update stats.
 
 import { supabase } from "@/integrations/supabase/client";
 import { deriv, type TF } from "@/lib/engine/deriv";
 import { analyze } from "@/lib/engine/signal";
-import type { BotSettings } from "./store";
+import { pipSize, type BotSettings } from "./store";
 
-type OpenTicket = { id: string; pair: string; ts: number };
-type TradeSignal = {
+export type RunStatus = "stopped" | "running" | "halted";
+export type TradeResult = "WIN" | "LOSS" | "PENDING";
+
+export interface OpenPosition {
+  id: string;
+  dbId: string | null;
+  contractId: string | null;
+  pair: string;
+  direction: "BUY" | "SELL";
+  lot: number;
+  entry: number;
+  tpPrice: number;
+  slPrice: number;
+  tpPips: number;
+  slPips: number;
+  openedAt: number;
+  source: "scan" | "supabase" | "scalper";
+  unsubTicks?: () => void;
+  timeout?: number;
+}
+
+export interface ClosedTrade {
+  id: string;
+  pair: string;
+  direction: "BUY" | "SELL";
+  lot: number;
+  entry: number;
+  exit: number;
+  tpPips: number;
+  slPips: number;
+  pnl: number;
+  result: "WIN" | "LOSS";
+  openedAt: number;
+  closedAt: number;
+  source: string;
+}
+
+interface QueuedSignal {
   pair: string;
   direction: "BUY" | "SELL";
   entry: number;
   score: number;
-  source: "scan" | "supabase" | "automation";
-  confluenceCount?: number;
-  neuralBoost?: number;
-};
+  source: "scan" | "supabase";
+  tpPips?: number;
+  slPips?: number;
+}
+
+type IncomingSignal = QueuedSignal;
 
 class BotRunner {
   private channel: ReturnType<typeof supabase.channel> | null = null;
   private settings: BotSettings | null = null;
-  private open: OpenTicket[] = [];
-  private lastTradeAt: Record<string, number> = {};
+  private open: OpenPosition[] = [];
+  private queue: QueuedSignal[] = [];
+  private closed: ClosedTrade[] = [];
+  private lastTradeAt = 0;
+  private lastTradePerPair: Record<string, number> = {};
+  private sessionPnl = 0;
   private dailyPnl = 0;
   private day = new Date().toDateString();
+  private wins = 0;
+  private losses = 0;
+  private lastResult: TradeResult = "PENDING";
+  private lastActionAt = 0;
+  private martingaleLot = 0;
+
   private listeners = new Set<(s: string) => void>();
-  private status: "stopped" | "running" | "halted" = "stopped";
+  private changeListeners = new Set<() => void>();
+  private status: RunStatus = "stopped";
   private scanTimer: number | null = null;
+  private scalperTimer: number | null = null;
   private scanning = false;
   private lastScanAt = 0;
 
+  // ── subscriptions ──────────────────────────────────────────────
   on(cb: (s: string) => void) {
     this.listeners.add(cb);
     return () => this.listeners.delete(cb);
   }
+  onChange(cb: () => void) {
+    this.changeListeners.add(cb);
+    return () => this.changeListeners.delete(cb);
+  }
   private log(s: string) {
     console.log("[bot]", s);
+    this.lastActionAt = Date.now();
     this.listeners.forEach((c) => c(s));
+    this.emitChange();
   }
-  getStatus() {
+  private emitChange() {
+    this.changeListeners.forEach((c) => c());
+  }
+
+  // ── getters for the UI ─────────────────────────────────────────
+  getStatus(): RunStatus {
     return this.status;
+  }
+  getMode(): BotSettings["mode"] {
+    return this.settings?.mode ?? "off";
   }
   getOpenCount() {
     return this.open.length;
   }
+  getOpenPositions(): OpenPosition[] {
+    return this.open.slice();
+  }
+  getQueueLength() {
+    return this.queue.length;
+  }
+  getSessionPnl() {
+    return this.sessionPnl;
+  }
   getDailyPnl() {
     return this.dailyPnl;
+  }
+  getWinLoss() {
+    return { wins: this.wins, losses: this.losses };
+  }
+  getLastResult() {
+    return this.lastResult;
+  }
+  getLastActionAt() {
+    return this.lastActionAt;
   }
   getLastScanAt() {
     return this.lastScanAt;
   }
+  getRecentClosed(limit = 30): ClosedTrade[] {
+    return this.closed.slice(0, limit);
+  }
+  getNextLot(): number {
+    if (!this.settings) return 0;
+    return this.settings.positionSizing === "martingale" ? this.martingaleLot : this.settings.lotSize;
+  }
 
+  resetSession() {
+    this.sessionPnl = 0;
+    this.dailyPnl = 0;
+    this.wins = 0;
+    this.losses = 0;
+    this.closed = [];
+    this.lastResult = "PENDING";
+    this.emitChange();
+  }
+
+  // ── lifecycle ───────────────────────────────────────────────────
   async start(s: BotSettings) {
-    if (this.status === "running") await this.stop();
+    if (this.status === "running") await this.stop(true);
     this.settings = s;
+    this.martingaleLot = s.martingaleBase;
 
-    // Validate lot up-front so we don't silently lose every trade later.
-    if (!Number.isFinite(s.lotSize) || s.lotSize < 0.01) {
-      this.log(`ERR lot size ${s.lotSize} is below the 0.01 minimum`);
-      throw new Error("Lot size must be at least 0.01");
-    }
-    if (s.instruments.length === 0) {
-      this.log(`ERR no instruments selected`);
-      throw new Error("Pick at least one instrument");
+    if (s.mode === "off") {
+      this.status = "stopped";
+      this.log("Mode is OFF — nothing to run");
+      return;
     }
 
     if (!s.token) {
-      this.log("No token — bot runs in DRY mode (logs only, no real trades)");
+      this.log("No token — bot runs in DRY mode (simulated fills, no real orders)");
     } else {
       try {
-        await (deriv as any).assertTradeScope?.(s.token);
+        await deriv.assertTradeScope(s.token);
         this.log("Trade scope verified");
-      } catch (e: any) {
+      } catch (e: unknown) {
         this.status = "stopped";
-        this.log("HALT — " + (e?.message || "scope check failed"));
+        const msg = e instanceof Error ? e.message : "scope check failed";
+        this.log("HALT — " + msg);
         try {
           const mod = await import("@/lib/alerts.functions");
           await mod.raiseAlertFn({
@@ -90,7 +194,7 @@ class BotRunner {
               severity: "error",
               kind: "deriv.scope_blocked",
               message: "Bot halted — Deriv token lacks trade scope",
-              context: { error: e?.message },
+              context: { error: msg },
             },
           });
         } catch {
@@ -101,50 +205,41 @@ class BotRunner {
     }
 
     this.status = "running";
+    this.day = new Date().toDateString();
     this.log(
-      `Bot started · ${s.accountType.toUpperCase()} · lot=${s.lotSize} · maxOpen=${s.maxOpen} · scan=${
-        s.selfScan ? "ON" : "OFF"
-      } · pairs=${s.instruments.join(",")}`,
+      `Bot started · ${s.mode.toUpperCase()} · ${s.accountType.toUpperCase()} · sizing=${s.positionSizing} · maxOpen=${s.maxOpen} · pairs=${s.instruments.join(",")}`,
     );
 
-    // Supabase realtime subscription (still useful if an upstream pipeline IS
-    // producing signals; harmless if it isn't).
-    try {
-      this.channel = supabase
-        .channel("bot-signals")
-        .on(
-          "postgres_changes",
-          { event: "INSERT", schema: "public", table: "signals" },
-          (p) =>
-            this.handleSignal({
-              ...(p.new as any),
-              source: "supabase" as const,
-            }),
-        )
-        .subscribe();
-    } catch (e: any) {
-      this.log("supabase channel failed: " + (e?.message || e));
-    }
-
-    // Self-scan loop
-    if (s.selfScan) {
+    if (s.mode === "signal") {
+      this.subscribeSignals();
       this.scheduleScan();
+    } else if (s.mode === "scalper") {
+      this.scheduleScalper(500);
     }
+    this.emitChange();
   }
 
-  async stop() {
+  async stop(silent = false) {
     if (this.channel) {
       try {
         await supabase.removeChannel(this.channel);
-      } catch {}
+      } catch {
+        /* ignore */
+      }
       this.channel = null;
     }
     if (this.scanTimer !== null) {
       window.clearTimeout(this.scanTimer);
       this.scanTimer = null;
     }
+    if (this.scalperTimer !== null) {
+      window.clearTimeout(this.scalperTimer);
+      this.scalperTimer = null;
+    }
+    this.queue = [];
     this.status = "stopped";
-    this.log("Bot stopped");
+    if (!silent) this.log("Bot stopped");
+    this.emitChange();
   }
 
   halt(reason: string) {
@@ -156,68 +251,43 @@ class BotRunner {
       window.clearTimeout(this.scanTimer);
       this.scanTimer = null;
     }
-  }
-
-  // ------------------------------------------------------------------
-  // Self-scan loop
-  // ------------------------------------------------------------------
-  private scheduleScan() {
-    if (!this.settings || this.status !== "running") return;
-    const intervalMs = Math.max(5, this.settings.scanIntervalSec) * 1000;
-    this.scanTimer = window.setTimeout(() => this.runScan(), intervalMs);
-  }
-
-  private async runScan() {
-    if (!this.settings || this.status !== "running") return;
-    if (this.scanning) {
-      this.scheduleScan();
-      return;
+    if (this.scalperTimer !== null) {
+      window.clearTimeout(this.scalperTimer);
+      this.scalperTimer = null;
     }
-    this.scanning = true;
-    const s = this.settings;
-    const tf: TF = (s.scanTimeframe || "M5") as TF;
-    this.lastScanAt = Date.now();
+    this.queue = [];
+    this.emitChange();
+  }
 
-    try {
-      for (const pair of s.instruments) {
-        if (this.status !== "running") break;
-        try {
-          const candles = await deriv.getCandles(pair, tf, 200);
-          if (candles.length < 50) {
-            this.log(`scan ${pair}: insufficient candles (${candles.length})`);
-            continue;
-          }
-          const a = analyze(pair, tf, candles, {});
-          if (!a.direction) {
-            // no setup — keep moving
-            continue;
-          }
-          this.log(
-            `scan ${pair} ${tf}: ${a.rating} ${a.scorePct.toFixed(0)}% ${a.direction}`,
-          );
-          if (a.scorePct >= s.minScore) {
-            const lastClose = candles[candles.length - 1].close;
-            await this.handleSignal({
-              pair,
-              direction: a.direction,
-              entry: lastClose,
-              score: a.scorePct,
-              source: "scan",
-            });
-          }
-        } catch (e: any) {
-          this.log(`scan ${pair} error: ${e?.message || e}`);
-        }
+  // Emergency stop — force-close every open position immediately and stop.
+  async emergencyStop() {
+    this.log(`EMERGENCY STOP — closing ${this.open.length} open position(s)`);
+    const positions = this.open.slice();
+    for (const p of positions) {
+      try {
+        await this.closePosition(p, p.entry, "manual");
+      } catch {
+        /* ignore */
       }
-    } finally {
-      this.scanning = false;
-      this.scheduleScan();
     }
+    this.open = [];
+    this.queue = [];
+    await this.stop(true);
+    if (this.settings) this.settings = { ...this.settings, mode: "off" };
+    this.status = "stopped";
+    this.log("All positions closed. Bot is OFF.");
+    this.emitChange();
   }
 
-  // ------------------------------------------------------------------
-  // Trade entry
-  // ------------------------------------------------------------------
+  // ── guardrails ──────────────────────────────────────────────────
+  private isWeekendBlocked(pair: string): boolean {
+    if (!this.settings || this.settings.allowWeekends) return false;
+    // Synthetics trade 24/7 — never block them.
+    if (/^R_|HZ|BOOM|CRASH|JD/i.test(pair)) return false;
+    const day = new Date().getUTCDay(); // 0 = Sun, 6 = Sat
+    return day === 0 || day === 6;
+  }
+
   private rollDay() {
     const today = new Date().toDateString();
     if (today !== this.day) {
@@ -226,99 +296,381 @@ class BotRunner {
     }
   }
 
-  private async handleSignal(sig: TradeSignal) {
-    if (!this.settings || this.status !== "running") return;
-    this.rollDay();
-    const s = this.settings;
-    if (!s.instruments.includes(sig.pair)) return;
-    if ((sig.score ?? 0) < s.minScore) return;
-    if (this.open.length >= s.maxOpen) {
-      this.log(`Skip ${sig.pair}: max open reached`);
+  private canOpenMore(): boolean {
+    return !!this.settings && this.status === "running" && this.open.length < this.settings.maxOpen;
+  }
+
+  private cooldownOk(pair: string): boolean {
+    if (!this.settings) return false;
+    const cd = this.settings.cooldownSec * 1000;
+    if (Date.now() - this.lastTradeAt < cd) return false;
+    const lastPair = this.lastTradePerPair[pair] ?? 0;
+    if (Date.now() - lastPair < cd) return false;
+    return true;
+  }
+
+  // ── SIGNAL mode ─────────────────────────────────────────────────
+  private subscribeSignals() {
+    try {
+      this.channel = supabase
+        .channel("bot-signals")
+        .on("postgres_changes", { event: "INSERT", schema: "public", table: "signals" }, (p) => {
+          const row = p.new as Record<string, unknown>;
+          const dir = String(row.direction || "").toUpperCase();
+          if (dir !== "BUY" && dir !== "SELL") return;
+          this.handleSignal({
+            pair: String(row.pair ?? row.symbol ?? ""),
+            direction: dir as "BUY" | "SELL",
+            entry: Number(row.entry ?? row.price ?? 0),
+            score: Number(row.score ?? 100),
+            source: "supabase",
+            tpPips: row.tp != null ? Number(row.tp) : undefined,
+            slPips: row.sl != null ? Number(row.sl) : undefined,
+          });
+        })
+        .subscribe();
+    } catch (e: unknown) {
+      this.log("supabase channel failed: " + (e instanceof Error ? e.message : String(e)));
+    }
+  }
+
+  private scheduleScan() {
+    if (!this.settings || this.status !== "running" || this.settings.mode !== "signal") return;
+    if (this.scanTimer !== null) window.clearTimeout(this.scanTimer);
+    const intervalMs = Math.max(5, this.settings.scanIntervalSec) * 1000;
+    this.scanTimer = window.setTimeout(() => this.runScan(), intervalMs);
+  }
+
+  private async runScan() {
+    if (!this.settings || this.status !== "running" || this.settings.mode !== "signal") return;
+    if (this.scanning) {
+      this.scheduleScan();
       return;
     }
-    const last = this.lastTradeAt[sig.pair] ?? 0;
-    if (Date.now() - last < s.cooldownSec * 1000) {
+    this.scanning = true;
+    const s = this.settings;
+    const tf: TF = (s.scanTimeframe || "M5") as TF;
+    this.lastScanAt = Date.now();
+    this.emitChange();
+
+    try {
+      for (const pair of s.instruments) {
+        if (this.status !== "running") break;
+        try {
+          const candles = await deriv.getCandles(pair, tf, 200);
+          if (candles.length < 50) continue;
+          const a = analyze(pair, tf, candles, {});
+          if (!a.direction) continue;
+          if (a.scorePct >= s.minScore) {
+            const lastClose = candles[candles.length - 1].close;
+            // System-based TP/SL from the analysis engine (in pips).
+            let tpPips: number | undefined;
+            let slPips: number | undefined;
+            if (s.tpSource === "system" && a.trade) {
+              const ps = pipSize(pair);
+              tpPips = Math.abs(a.trade.tp1 - a.trade.entry) / ps;
+              slPips = Math.abs(a.trade.entry - a.trade.sl) / ps;
+            }
+            this.log(`scan ${pair} ${tf}: ${a.rating} ${a.scorePct.toFixed(0)}% ${a.direction}`);
+            await this.handleSignal({ pair, direction: a.direction, entry: lastClose, score: a.scorePct, source: "scan", tpPips, slPips });
+          }
+        } catch (e: unknown) {
+          this.log(`scan ${pair} error: ${e instanceof Error ? e.message : String(e)}`);
+        }
+      }
+    } finally {
+      this.scanning = false;
+      this.scheduleScan();
+    }
+  }
+
+  private async handleSignal(sig: IncomingSignal) {
+    if (!this.settings || this.status !== "running" || this.settings.mode !== "signal") return;
+    this.rollDay();
+    const s = this.settings;
+    if (!sig.pair || !s.instruments.includes(sig.pair)) return;
+    if ((sig.score ?? 0) < s.minScore) return;
+
+    if (this.dailyPnl <= -Math.abs(s.dailyLossCap)) {
+      this.halt(`Daily loss cap hit (${this.dailyPnl.toFixed(2)})`);
+      return;
+    }
+    if (this.isWeekendBlocked(sig.pair)) {
+      this.log(`Skip ${sig.pair}: weekend trading disabled`);
+      return;
+    }
+    // Don't open a second trade for the same pair while one is still open
+    // (spec: wait for the previous trade to close before another signal).
+    if (this.open.some((o) => o.pair === sig.pair)) return;
+
+    if (!this.canOpenMore()) {
+      this.queue.push({ pair: sig.pair, direction: sig.direction, entry: sig.entry, score: sig.score, source: sig.source, tpPips: sig.tpPips, slPips: sig.slPips });
+      this.log(`Max trades reached — queued ${sig.pair} (${this.queue.length} queued)`);
+      return;
+    }
+    if (!this.cooldownOk(sig.pair)) {
       this.log(`Skip ${sig.pair}: cooldown`);
       return;
     }
+    await this.openPosition(sig.pair, sig.direction, sig.entry, sig.source, sig.tpPips, sig.slPips);
+  }
+
+  private processQueue() {
+    if (!this.settings || this.settings.mode !== "signal") return;
+    while (this.queue.length > 0 && this.canOpenMore()) {
+      const next = this.queue.shift()!;
+      if (this.open.some((o) => o.pair === next.pair)) continue;
+      this.log(`Opening queued signal ${next.pair} (${this.queue.length} left)`);
+      void this.openPosition(next.pair, next.direction, next.entry, next.source, next.tpPips, next.slPips);
+    }
+  }
+
+  // ── SCALPER mode ────────────────────────────────────────────────
+  private scheduleScalper(delayMs?: number) {
+    if (!this.settings || this.status !== "running" || this.settings.mode !== "scalper") return;
+    if (this.scalperTimer !== null) window.clearTimeout(this.scalperTimer);
+    const ms = delayMs ?? Math.max(250, this.settings.cooldownSec * 1000);
+    this.scalperTimer = window.setTimeout(() => this.runScalper(), ms);
+  }
+
+  private async runScalper() {
+    if (!this.settings || this.status !== "running" || this.settings.mode !== "scalper") return;
+    this.rollDay();
+    const s = this.settings;
+
     if (this.dailyPnl <= -Math.abs(s.dailyLossCap)) {
-      this.halt(`Daily loss cap hit (${this.dailyPnl})`);
+      this.halt(`Daily loss cap hit (${this.dailyPnl.toFixed(2)})`);
       return;
     }
 
-    this.lastTradeAt[sig.pair] = Date.now();
-    const ticket: OpenTicket = {
-      id: `${sig.pair}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
-      pair: sig.pair,
-      ts: Date.now(),
-    };
-    this.open.push(ticket);
-    window.setTimeout(
-      () => {
-        this.open = this.open.filter((o) => o.id !== ticket.id);
-      },
-      s.durationSec * 1000 + 5000,
-    );
+    try {
+      if (this.canOpenMore() && this.cooldownOk("*")) {
+        const candidates = s.instruments.filter((p) => !this.isWeekendBlocked(p));
+        if (candidates.length === 0) {
+          this.log("Scalper idle — all instruments blocked (weekend)");
+        } else {
+          const pair = candidates[Math.floor(Math.random() * candidates.length)];
+          const direction: "BUY" | "SELL" = Math.random() > 0.5 ? "BUY" : "SELL";
+          let entry = 0;
+          try {
+            const candles = await deriv.getCandles(pair, "M1", 1);
+            entry = candles[candles.length - 1]?.close ?? 0;
+          } catch {
+            /* leave entry 0 — openPosition will resolve via tick */
+          }
+          await this.openPosition(pair, direction, entry, "scalper");
+        }
+      }
+    } finally {
+      this.scheduleScalper();
+    }
+  }
 
-    const direction = sig.direction === "BUY" ? "CALL" : "PUT";
-    const row = {
-      pair: sig.pair,
-      direction: sig.direction,
-      lot: s.lotSize,
-      entry: sig.entry,
-      account_type: s.accountType,
-      status: "pending",
-      source: sig.source,
-    };
+  // ── shared open/close ───────────────────────────────────────────
+  private resolveTpSl(pair: string, source: OpenPosition["source"], sigTp?: number, sigSl?: number): { tpPips: number; slPips: number } {
+    const s = this.settings!;
+    if (source === "scalper") {
+      const tp = s.tpSource === "system" ? s.scalperTpPips : s.fixedTpPips || s.scalperTpPips;
+      return { tpPips: tp, slPips: s.scalperSlPips };
+    }
+    // signal mode
+    if (s.tpSource === "system" && sigTp && sigTp > 0) {
+      return { tpPips: sigTp, slPips: sigSl && sigSl > 0 ? sigSl : sigTp };
+    }
+    return { tpPips: s.fixedTpPips, slPips: s.fixedTpPips };
+  }
 
-    let trade: any = null;
+  private nextLot(): number {
+    const s = this.settings!;
+    if (s.positionSizing === "fixed") return s.lotSize;
+    // martingale current rung, clamped to the configured ceiling
+    return Math.min(s.martingaleMaxLot, Math.max(s.martingaleBase, this.martingaleLot));
+  }
+
+  private async openPosition(pair: string, direction: "BUY" | "SELL", entryHint: number, source: OpenPosition["source"], sigTp?: number, sigSl?: number) {
+    if (!this.settings || this.status !== "running") return;
+    const s = this.settings;
+
+    let entry = entryHint;
+    if (!entry || !Number.isFinite(entry)) {
+      try {
+        const candles = await deriv.getCandles(pair, "M1", 1);
+        entry = candles[candles.length - 1]?.close ?? 0;
+      } catch {
+        this.log(`ERR ${pair}: could not resolve entry price`);
+        return;
+      }
+    }
+    if (!entry) {
+      this.log(`ERR ${pair}: entry price unavailable`);
+      return;
+    }
+
+    const lot = this.nextLot();
+    const { tpPips, slPips } = this.resolveTpSl(pair, source, sigTp, sigSl);
+    const ps = pipSize(pair);
+    const tpPrice = direction === "BUY" ? entry + tpPips * ps : entry - tpPips * ps;
+    const slPrice = direction === "BUY" ? entry - slPips * ps : entry + slPips * ps;
+
+    this.lastTradeAt = Date.now();
+    this.lastTradePerPair[pair] = Date.now();
+
+    const pos: OpenPosition = {
+      id: `${pair}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      dbId: null,
+      contractId: null,
+      pair,
+      direction,
+      lot,
+      entry,
+      tpPrice,
+      slPrice,
+      tpPips,
+      slPips,
+      openedAt: Date.now(),
+      source,
+    };
+    this.open.push(pos);
+    this.emitChange();
+
+    // Persist to Supabase (best-effort).
     try {
       const ins = await supabase
         .from("bot_trades")
-        .insert(row)
+        .insert({ pair, direction, lot, entry, account_type: s.accountType, status: "pending" })
         .select()
         .single();
-      trade = ins.data;
-    } catch (e: any) {
-      this.log(`db insert failed: ${e?.message || e}`);
+      pos.dbId = ins.data?.id ?? null;
+    } catch (e: unknown) {
+      this.log(`db insert failed: ${e instanceof Error ? e.message : String(e)}`);
     }
 
-    if (!s.token) {
-      if (trade?.id) {
-        try {
-          await supabase
-            .from("bot_trades")
-            .update({ status: "dry-run" })
-            .eq("id", trade.id);
-        } catch {}
+    // Place the live order if we have a token; otherwise dry-run.
+    if (s.token) {
+      try {
+        const r = await deriv.buyContract({
+          token: s.token,
+          symbol: pair,
+          direction: direction === "BUY" ? "CALL" : "PUT",
+          amount: lot,
+          duration: s.durationSec,
+        });
+        pos.contractId = String(r.contract_id ?? "");
+        if (pos.dbId) await supabase.from("bot_trades").update({ status: "open", contract_id: pos.contractId }).eq("id", pos.dbId);
+        this.log(`LIVE ${pair} ${direction} ${lot} #${pos.contractId} · TP ${tpPips}p / SL ${slPips}p`);
+      } catch (e: unknown) {
+        const msg = e instanceof Error ? e.message : String(e);
+        if (pos.dbId) await supabase.from("bot_trades").update({ status: "error", error: msg }).eq("id", pos.dbId);
+        this.log(`ERR ${pair}: ${msg}`);
+        this.open = this.open.filter((o) => o.id !== pos.id);
+        this.emitChange();
+        return;
       }
-      this.log(`DRY ${sig.pair} ${sig.direction} @ ${sig.entry} (${sig.score.toFixed(0)}%)`);
-      return;
+    } else {
+      if (pos.dbId) await supabase.from("bot_trades").update({ status: "open" }).eq("id", pos.dbId).then(() => {}, () => {});
+      this.log(`DRY ${pair} ${direction} ${lot} @ ${entry.toFixed(5)} · TP ${tpPips}p / SL ${slPips}p`);
     }
 
+    // Monitor ticks to detect TP/SL hit.
+    this.monitorPosition(pos);
+  }
+
+  private monitorPosition(pos: OpenPosition) {
+    const s = this.settings!;
+    const onTick = (t: { quote: number }) => {
+      if (!this.open.some((o) => o.id === pos.id)) return;
+      const price = t.quote;
+      const hitTp = pos.direction === "BUY" ? price >= pos.tpPrice : price <= pos.tpPrice;
+      const hitSl = pos.direction === "BUY" ? price <= pos.slPrice : price >= pos.slPrice;
+      if (hitTp) void this.closePosition(pos, pos.tpPrice, "tp");
+      else if (hitSl) void this.closePosition(pos, pos.slPrice, "sl");
+    };
     try {
-      const r = await (deriv as any).buyContract({
-        token: s.token,
-        symbol: sig.pair,
-        direction,
-        amount: s.lotSize,
-        duration: s.durationSec,
-      });
-      if (trade?.id) {
+      pos.unsubTicks = deriv.subscribeTicks(pos.pair, onTick);
+    } catch {
+      /* ignore — duration timeout still closes it */
+    }
+    // Safety timeout — force-close at duration if neither level is hit.
+    pos.timeout = window.setTimeout(() => {
+      if (this.open.some((o) => o.id === pos.id)) {
+        void this.closePosition(pos, pos.entry, "timeout");
+      }
+    }, Math.max(15, s.durationSec) * 1000);
+  }
+
+  private async closePosition(pos: OpenPosition, exitPrice: number, reason: "tp" | "sl" | "timeout" | "manual") {
+    if (!this.open.some((o) => o.id === pos.id)) return;
+    this.open = this.open.filter((o) => o.id !== pos.id);
+    if (pos.unsubTicks) {
+      try {
+        pos.unsubTicks();
+      } catch {
+        /* ignore */
+      }
+    }
+    if (pos.timeout) window.clearTimeout(pos.timeout);
+
+    const ps = pipSize(pos.pair);
+    const pips = ((exitPrice - pos.entry) / ps) * (pos.direction === "BUY" ? 1 : -1);
+    const pnl = pips * pos.lot;
+    const isWin = reason === "tp" || (reason !== "sl" && pips >= 0);
+
+    this.sessionPnl += pnl;
+    this.dailyPnl += pnl;
+    if (reason !== "manual") {
+      if (isWin) {
+        this.wins++;
+        this.lastResult = "WIN";
+      } else {
+        this.losses++;
+        this.lastResult = "LOSS";
+      }
+      // Martingale ladder: grow on loss, reset on win.
+      if (this.settings?.positionSizing === "martingale") {
+        if (isWin) {
+          this.martingaleLot = this.settings.martingaleBase;
+        } else {
+          this.martingaleLot = Math.min(this.settings.martingaleMaxLot, this.martingaleLot * this.settings.martingaleMultiplier);
+        }
+      }
+    }
+
+    const closed: ClosedTrade = {
+      id: pos.id,
+      pair: pos.pair,
+      direction: pos.direction,
+      lot: pos.lot,
+      entry: pos.entry,
+      exit: exitPrice,
+      tpPips: pos.tpPips,
+      slPips: pos.slPips,
+      pnl,
+      result: isWin ? "WIN" : "LOSS",
+      openedAt: pos.openedAt,
+      closedAt: Date.now(),
+      source: pos.source,
+    };
+    this.closed.unshift(closed);
+    this.closed = this.closed.slice(0, 200);
+
+    if (pos.dbId) {
+      try {
         await supabase
           .from("bot_trades")
-          .update({ status: "open", contract_id: String(r.contract_id ?? "") })
-          .eq("id", trade.id);
+          .update({ status: "closed", profit: pnl, closed_at: new Date().toISOString() })
+          .eq("id", pos.dbId);
+      } catch {
+        /* ignore */
       }
-      this.log(`LIVE ${sig.pair} ${sig.direction} #${r.contract_id}`);
-    } catch (e: any) {
-      if (trade?.id) {
-        await supabase
-          .from("bot_trades")
-          .update({ status: "error", error: e?.message })
-          .eq("id", trade.id);
-      }
-      this.log(`ERR ${sig.pair}: ${e?.message || e}`);
+    }
+
+    const tag = reason === "manual" ? "CLOSE" : reason.toUpperCase();
+    this.log(`${tag} ${pos.pair} ${pos.direction} ${pos.lot} → ${closed.result} ${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} (${pips.toFixed(1)}p)`);
+    this.emitChange();
+
+    if (this.status === "running") {
+      if (this.settings?.mode === "signal") this.processQueue();
+      else if (this.settings?.mode === "scalper") this.scheduleScalper(Math.max(250, (this.settings?.cooldownSec ?? 1) * 1000));
     }
   }
 }
