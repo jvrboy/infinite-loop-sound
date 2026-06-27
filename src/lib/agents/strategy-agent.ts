@@ -76,8 +76,7 @@ export function runStrategyAgent(
     // Run V3 strategies (advanced: Ichimoku, SMC, Harmonics, etc.)
     let v3Hits: any[] = [];
     try {
-      const v3Module = await import("../engine/strategies-v3");
-      v3Hits = v3Module.evaluateStrategiesV3(candles);
+      v3Hits = evaluateStrategiesV3(candles);
       messages.push({
         id: crypto.randomUUID(),
         agentId: STRATEGY_AGENT_CONFIG.id,

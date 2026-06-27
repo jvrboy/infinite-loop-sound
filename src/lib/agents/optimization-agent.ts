@@ -225,7 +225,7 @@ export function runOptimizationAgent(
       const recent = improvementHistory.slice(-5);
       for (const imp of recent) {
         insights.push(
-          `IMPROVEMENT: ${imp.metric} changed from ${imp.before.toFixed(2)} → ${imp.after.toFixed(2)} (${new Date(imp.timestamp).toLocaleUTCString()}).`,
+          `IMPROVEMENT: ${imp.metric} changed from ${imp.before.toFixed(2)} → ${imp.after.toFixed(2)} (${new Date(imp.timestamp).toUTCString()}).`,
         );
       }
     }

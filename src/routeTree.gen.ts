@@ -34,6 +34,7 @@ import { Route as PersistenceRouteImport } from './routes/persistence'
 import { Route as OptionsFlowRouteImport } from './routes/options-flow'
 import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
+import { Route as OptimizationRouteImport } from './routes/optimization'
 import { Route as NeuralRouteImport } from './routes/neural'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
@@ -47,6 +48,7 @@ import { Route as DerivRouteImport } from './routes/deriv'
 import { Route as DarkPoolRouteImport } from './routes/dark-pool'
 import { Route as CurrencyStrengthRouteImport } from './routes/currency-strength'
 import { Route as CorrelationRouteImport } from './routes/correlation'
+import { Route as ConfluenceRouteImport } from './routes/confluence'
 import { Route as CompoundRouteImport } from './routes/compound'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ChartRouteImport } from './routes/chart'
@@ -54,6 +56,7 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BotRouteImport } from './routes/bot'
 import { Route as BoomCrashRouteImport } from './routes/boom-crash'
 import { Route as BacktestRouteImport } from './routes/backtest'
+import { Route as AutomationRouteImport } from './routes/automation'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
@@ -197,6 +200,11 @@ const OptimizerRoute = OptimizerRouteImport.update({
   path: '/optimizer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OptimizationRoute = OptimizationRouteImport.update({
+  id: '/optimization',
+  path: '/optimization',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
@@ -262,6 +270,11 @@ const CorrelationRoute = CorrelationRouteImport.update({
   path: '/correlation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ConfluenceRoute = ConfluenceRouteImport.update({
+  id: '/confluence',
+  path: '/confluence',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CompoundRoute = CompoundRouteImport.update({
   id: '/compound',
   path: '/compound',
@@ -295,6 +308,11 @@ const BoomCrashRoute = BoomCrashRouteImport.update({
 const BacktestRoute = BacktestRouteImport.update({
   id: '/backtest',
   path: '/backtest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutomationRoute = AutomationRouteImport.update({
+  id: '/automation',
+  path: '/automation',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiKeysRoute = ApiKeysRouteImport.update({
@@ -394,6 +412,7 @@ export interface FileRoutesByFullPath {
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/api-keys': typeof ApiKeysRoute
+  '/automation': typeof AutomationRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
@@ -401,6 +420,7 @@ export interface FileRoutesByFullPath {
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/compound': typeof CompoundRoute
+  '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
@@ -414,6 +434,7 @@ export interface FileRoutesByFullPath {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
+  '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
@@ -458,6 +479,7 @@ export interface FileRoutesByTo {
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/api-keys': typeof ApiKeysRoute
+  '/automation': typeof AutomationRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
@@ -465,6 +487,7 @@ export interface FileRoutesByTo {
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/compound': typeof CompoundRoute
+  '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
@@ -478,6 +501,7 @@ export interface FileRoutesByTo {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
+  '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
@@ -523,6 +547,7 @@ export interface FileRoutesById {
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/api-keys': typeof ApiKeysRoute
+  '/automation': typeof AutomationRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
@@ -530,6 +555,7 @@ export interface FileRoutesById {
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/compound': typeof CompoundRoute
+  '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
@@ -543,6 +569,7 @@ export interface FileRoutesById {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/neural': typeof NeuralRoute
+  '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
@@ -589,6 +616,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/analysis'
     | '/api-keys'
+    | '/automation'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
@@ -596,6 +624,7 @@ export interface FileRouteTypes {
     | '/chart'
     | '/chat'
     | '/compound'
+    | '/confluence'
     | '/correlation'
     | '/currency-strength'
     | '/dark-pool'
@@ -609,6 +638,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/neural'
+    | '/optimization'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
@@ -653,6 +683,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/analysis'
     | '/api-keys'
+    | '/automation'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
@@ -660,6 +691,7 @@ export interface FileRouteTypes {
     | '/chart'
     | '/chat'
     | '/compound'
+    | '/confluence'
     | '/correlation'
     | '/currency-strength'
     | '/dark-pool'
@@ -673,6 +705,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/neural'
+    | '/optimization'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
@@ -717,6 +750,7 @@ export interface FileRouteTypes {
     | '/alerts'
     | '/analysis'
     | '/api-keys'
+    | '/automation'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
@@ -724,6 +758,7 @@ export interface FileRouteTypes {
     | '/chart'
     | '/chat'
     | '/compound'
+    | '/confluence'
     | '/correlation'
     | '/currency-strength'
     | '/dark-pool'
@@ -737,6 +772,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/neural'
+    | '/optimization'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
@@ -782,6 +818,7 @@ export interface RootRouteChildren {
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
   ApiKeysRoute: typeof ApiKeysRoute
+  AutomationRoute: typeof AutomationRoute
   BacktestRoute: typeof BacktestRoute
   BoomCrashRoute: typeof BoomCrashRoute
   BotRoute: typeof BotRoute
@@ -789,6 +826,7 @@ export interface RootRouteChildren {
   ChartRoute: typeof ChartRoute
   ChatRoute: typeof ChatRoute
   CompoundRoute: typeof CompoundRoute
+  ConfluenceRoute: typeof ConfluenceRoute
   CorrelationRoute: typeof CorrelationRoute
   CurrencyStrengthRoute: typeof CurrencyStrengthRoute
   DarkPoolRoute: typeof DarkPoolRoute
@@ -802,6 +840,7 @@ export interface RootRouteChildren {
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
   NeuralRoute: typeof NeuralRoute
+  OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
   OptionsCalcRoute: typeof OptionsCalcRoute
   OptionsFlowRoute: typeof OptionsFlowRoute
@@ -1018,6 +1057,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OptimizerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/optimization': {
+      id: '/optimization'
+      path: '/optimization'
+      fullPath: '/optimization'
+      preLoaderRoute: typeof OptimizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/neural': {
       id: '/neural'
       path: '/neural'
@@ -1109,6 +1155,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CorrelationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/confluence': {
+      id: '/confluence'
+      path: '/confluence'
+      fullPath: '/confluence'
+      preLoaderRoute: typeof ConfluenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/compound': {
       id: '/compound'
       path: '/compound'
@@ -1156,6 +1209,13 @@ declare module '@tanstack/react-router' {
       path: '/backtest'
       fullPath: '/backtest'
       preLoaderRoute: typeof BacktestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/automation': {
+      id: '/automation'
+      path: '/automation'
+      fullPath: '/automation'
+      preLoaderRoute: typeof AutomationRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-keys': {
@@ -1296,6 +1356,7 @@ const rootRouteChildren: RootRouteChildren = {
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
   ApiKeysRoute: ApiKeysRoute,
+  AutomationRoute: AutomationRoute,
   BacktestRoute: BacktestRoute,
   BoomCrashRoute: BoomCrashRoute,
   BotRoute: BotRoute,
@@ -1303,6 +1364,7 @@ const rootRouteChildren: RootRouteChildren = {
   ChartRoute: ChartRoute,
   ChatRoute: ChatRoute,
   CompoundRoute: CompoundRoute,
+  ConfluenceRoute: ConfluenceRoute,
   CorrelationRoute: CorrelationRoute,
   CurrencyStrengthRoute: CurrencyStrengthRoute,
   DarkPoolRoute: DarkPoolRoute,
@@ -1316,6 +1378,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
   NeuralRoute: NeuralRoute,
+  OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
   OptionsCalcRoute: OptionsCalcRoute,
   OptionsFlowRoute: OptionsFlowRoute,
@@ -1357,3 +1420,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

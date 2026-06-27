@@ -167,7 +167,7 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
                     <div className="text-[10px] text-muted-foreground">Position Size</div>
                   </div>
                   <div>
-                    <div className="text-lg font-mono ${(riskResult.output.assessment as { currentDailyPnL: number }).currentDailyPnL >= 0 ? "text-emerald-400" : "text-red-400"}">
+                    <div className={`text-lg font-mono ${(riskResult.output.assessment as { currentDailyPnL: number }).currentDailyPnL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                       ${(riskResult.output.assessment as { currentDailyPnL: number }).currentDailyPnL.toFixed(2)}
                     </div>
                     <div className="text-[10px] text-muted-foreground">Daily P&L</div>

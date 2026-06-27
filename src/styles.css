@@ -570,3 +570,89 @@ nav[class*="flex-col"] {
     transition: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------- */
+/* Phase 4 — GLOBAL liquid-glass press + 3D motion (applies app-wide)      */
+/* ---------------------------------------------------------------------- */
+
+/* Every interactive element gets a smooth, organic transition by default. */
+button,
+a,
+[role="button"],
+[role="tab"],
+[role="menuitem"],
+summary,
+label[for],
+.cursor-pointer {
+  transition:
+    transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1),
+    border-radius 260ms cubic-bezier(0.22, 1, 0.36, 1),
+    filter 200ms ease,
+    box-shadow 240ms ease,
+    background-color 200ms ease,
+    color 200ms ease;
+  transform-origin: center;
+}
+
+/* LIQUID GLASS PRESS — the element "liquifies": squashes, brightens, and its
+   corners morph organically, then springs back. */
+@keyframes diq-liquid-press {
+  0%   { transform: scale(1) skew(0deg, 0deg);            border-radius: var(--diq-press-radius, 0.5rem); }
+  35%  { transform: scale(0.94, 0.9) skew(-1.5deg, 0.5deg); border-radius: 40% 60% 58% 42% / 55% 45% 60% 40%; filter: brightness(1.12) saturate(135%); }
+  70%  { transform: scale(1.02, 1.04) skew(0.6deg, -0.2deg); border-radius: 55% 45% 42% 58% / 42% 58% 45% 55%; }
+  100% { transform: scale(1) skew(0deg, 0deg);            border-radius: var(--diq-press-radius, 0.5rem); }
+}
+
+button:active,
+a:active,
+[role="button"]:active,
+[role="tab"]:active,
+[role="menuitem"]:active {
+  animation: diq-liquid-press 420ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: brightness(1.08) saturate(120%);
+}
+
+/* Explicit opt-in for the strongest liquid morph (cards, primary CTAs). */
+.diq-liquid:active {
+  animation: diq-liquid-press 460ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 3D MOTION — glass cards tilt toward the viewer and lift on hover. */
+.glass-card,
+[data-slot="card"] {
+  transform-style: preserve-3d;
+  transition:
+    transform 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 380ms cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 380ms ease;
+  will-change: transform;
+}
+@media (hover: hover) and (pointer: fine) {
+  .glass-card:hover,
+  [data-slot="card"]:hover {
+    transform: perspective(1200px) translateZ(0) rotateX(2deg) translateY(-3px);
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.45),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 0 28px -8px rgba(20, 184, 166, 0.18);
+  }
+  /* Opt-in deeper tilt for hero/feature panels */
+  .diq-tilt-3d:hover {
+    transform: perspective(1000px) rotateX(4deg) rotateY(-3deg) translateY(-4px) scale(1.01);
+  }
+}
+.diq-tilt-3d {
+  transform-style: preserve-3d;
+  transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button:active, a:active, [role="button"]:active,
+  [role="tab"]:active, [role="menuitem"]:active,
+  .diq-liquid:active {
+    animation: none !important;
+  }
+  .glass-card:hover, [data-slot="card"]:hover, .diq-tilt-3d:hover {
+    transform: none !important;
+  }
+}
