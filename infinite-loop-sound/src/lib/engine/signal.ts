@@ -1,5 +1,5 @@
 import type { Candle } from "./indicators";
-import { ema, rsi, macd, stoch, rvi, atr, obv, bbands, adx, engulfing, pinBar, williamsR, cci, mfi, supertrend, psar, ichimoku, threeBars } from "./indicators";
+import { ema, rsi, macd, stoch, rvi, atr, obv, bbands, adx, engulfing, pinBar, williamsR, cci, mfi, supertrend, psar, ichimoku, threeBars, squeezeDetector, compressionScore, momentumScore, currentSession, bodyRatio } from "./indicators";
 import { detectDivergence, divDirection, divLabel, type DivergenceResult } from "./divergence";
 
 export type Direction = "BUY" | "SELL";
@@ -237,6 +237,19 @@ export const analyze = (pair: string, timeframe: string, candles: Candle[], opts
     { label: "Supertrend Aligned",    passed: supertrendAligned, pts: 7 },
     { label: "Parabolic SAR Aligned", passed: sarAligned, pts: 5 },
     { label: "Ichimoku T/K Aligned",  passed: ichAligned, pts: 6 },
+    // ── NEW: V2 Strategy Confluence Items ────────────────────────
+    // Squeeze detection (from SqueezeBreakout PDF)
+    { label: "Squeeze Detected (3-bar)", passed: squeezeDetector(candles, 0.35, 3).isSqueezing, pts: 8 },
+    // Compression score > 60% (high compression = breakout imminent)
+    { label: "High Compression (>60%)", passed: compressionScore(candles, 5) > 60, pts: 7 },
+    // Tight squeeze (2-bar, from SmallBodyBreakout)
+    { label: "Tight Squeeze (2-bar <25%)", passed: squeezeDetector(candles, 0.25, 2).isSqueezing, pts: 6 },
+    // Session alignment (night session has proven edge on all forex majors)
+    { label: "SAST Night Session Active", passed: currentSession(candles[last]?.epoch) === "night", pts: 5 },
+    // Momentum score confirmation
+    { label: "Momentum Score Aligned", passed: direction ? (direction === "BUY" ? momentumScore(candles) > 15 : momentumScore(candles) < -15) : false, pts: 6 },
+    // Doji-like last candle (indecision → breakout likely)
+    { label: "Last Candle Indecisive (BR<20%)", passed: bodyRatio(candles[last]) < 0.20, pts: 4 },
   ];
   const score = confluence.reduce((s, c) => s + (c.passed ? c.pts : 0), 0);
   const maxScore = confluence.reduce((s, c) => s + c.pts, 0);

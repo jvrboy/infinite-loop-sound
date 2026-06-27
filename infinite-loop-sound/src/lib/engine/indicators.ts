@@ -373,3 +373,125 @@ export const threeBars = (candles: Candle[]): "bull" | "bear" | null => {
   const allDn = a.close < a.open && b.close < b.open && c.close < c.open && c.close < b.close && b.close < a.close;
   return allUp ? "bull" : allDn ? "bear" : null;
 };
+
+// ═══════════════════════════════════════════════════════════════════
+// NEW INDICATORS — Added from PDF strategy backtest reports
+// ═══════════════════════════════════════════════════════════════════
+
+// Body Ratio — candle body / total range. < 0.35 = squeeze/doji-like.
+// Core metric for SqueezeBreakout and SmallBodyBreakout strategies.
+export const bodyRatio = (c: Candle): number => {
+  const range = c.high - c.low;
+  if (range === 0) return 1;
+  return Math.abs(c.close - c.open) / range;
+};
+
+// Body Ratio Series — returns ratio for each candle
+export const bodyRatioSeries = (candles: Candle[]): number[] =>
+  candles.map(c => bodyRatio(c));
+
+// Squeeze Detector — counts consecutive candles with body/range below threshold.
+// Returns { count, isSqueezing, startIndex } for the most recent squeeze.
+export const squeezeDetector = (candles: Candle[], threshold = 0.35, minConsecutive = 3): {
+  count: number; isSqueezing: boolean; startIndex: number;
+} => {
+  let count = 0;
+  let startIndex = -1;
+  for (let i = candles.length - 1; i >= 0; i--) {
+    if (bodyRatio(candles[i]) < threshold) {
+      if (count === 0) startIndex = i;
+      count++;
+    } else {
+      break;
+    }
+  }
+  return { count, isSqueezing: count >= minConsecutive, startIndex };
+};
+
+// ZigZag — detects price pivots using a deviation threshold.
+// Returns array of { index, type, price } pivot points.
+export const zigzag = (candles: Candle[], deviationPct = 0.5): {
+  index: number; type: "high" | "low"; price: number;
+}[] => {
+  if (candles.length < 5) return [];
+  const pivots: { index: number; type: "high" | "low"; price: number }[] = [];
+  let lastPivotPrice = candles[0].close;
+  let lastPivotType: "high" | "low" = "low";
+  let lastPivotIdx = 0;
+
+  for (let i = 1; i < candles.length; i++) {
+    const c = candles[i];
+    const deviation = (deviationPct / 100) * lastPivotPrice;
+    if (lastPivotType === "low") {
+      if (c.high >= lastPivotPrice + deviation) {
+        pivots.push({ index: i, type: "high", price: c.high });
+        lastPivotPrice = c.high;
+        lastPivotType = "high";
+        lastPivotIdx = i;
+      }
+    } else {
+      if (c.low <= lastPivotPrice - deviation) {
+        pivots.push({ index: i, type: "low", price: c.low });
+        lastPivotPrice = c.low;
+        lastPivotType = "low";
+        lastPivotIdx = i;
+      }
+    }
+  }
+  return pivots;
+};
+
+// Session Filter — filters candles by SAST session.
+// Night: 22:00-03:00 UTC (00:00-05:00 SAST)
+// Day: 06:00-20:00 UTC (08:00-22:00 SAST)
+export type SASTSession = "night" | "day" | "all";
+
+export const filterBySession = (candles: Candle[], session: SASTSession): Candle[] => {
+  if (session === "all") return candles;
+  return candles.filter(c => {
+    const h = new Date(c.epoch * 1000).getUTCHours();
+    if (session === "night") return h >= 22 || h < 3;
+    return h >= 6 && h < 20;
+  });
+};
+
+// Current SAST session
+export const currentSession = (epoch?: number): SASTSession => {
+  const h = new Date((epoch ?? Date.now() / 1000) * 1000).getUTCHours();
+  if (h >= 22 || h < 3) return "night";
+  if (h >= 6 && h < 20) return "day";
+  return "night"; // default to night between sessions
+};
+
+// Average True Range multiplier — returns ATR as percentage of price
+export const atrPercent = (candles: Candle[], len = 14): (number | null)[] => {
+  const atrVals = atr(candles, len);
+  return atrVals.map((v, i) => v != null ? (v / candles[i].close) * 100 : null);
+};
+
+// Compression Score — measures how compressed recent price action is.
+// 0 = no compression, 100 = maximum compression (all candles are dojis).
+// Used by SqueezeBreakout and SmallBodyBreakout strategies.
+export const compressionScore = (candles: Candle[], lookback = 5): number => {
+  if (candles.length < lookback) return 0;
+  const recent = candles.slice(-lookback);
+  const avgBR = recent.reduce((s, c) => s + bodyRatio(c), 0) / lookback;
+  return Math.max(0, Math.min(100, (1 - avgBR) * 100));
+};
+
+// Momentum Score — combines RSI, MACD, and price momentum into
+// a single -100 to +100 score. Used for confluence scoring.
+export const momentumScore = (candles: Candle[]): number => {
+  if (candles.length < 30) return 0;
+  const close = candles.map(c => c.close);
+  const rsiVals = rsi(close, 14);
+  const macdVals = macd(close);
+  const last = close.length - 1;
+  const r = rsiVals[last] ?? 50;
+  const m = macdVals.hist[last] ?? 0;
+  const priceMomentum = ((close[last] - close[last - 10]) / close[last - 10]) * 1000;
+  const rsiComponent = (r - 50) * 1.5; // -75 to +75
+  const macdComponent = Math.tanh(m * 100) * 15; // -15 to +15
+  const priceComponent = Math.tanh(priceMomentum) * 10; // -10 to +10
+  return Math.max(-100, Math.min(100, rsiComponent + macdComponent + priceComponent));
+};
