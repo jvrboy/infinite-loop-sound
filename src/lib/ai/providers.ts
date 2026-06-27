@@ -1,7 +1,12 @@
 /**
  * AI Provider Registry — Unlimited keys per provider
- * Supports: Gemini, Groq, NVIDIA NIM, Cerebras, Mistral, OpenRouter, OpenAI + custom
+ * Supports 25+ providers (Gemini, Groq, NVIDIA, Cerebras, Mistral, Cohere,
+ * DeepInfra, Hugging Face, SambaNova, Cloudflare, GitHub Models, OVHcloud,
+ * Ollama Cloud, Z AI, ModelScope, Anthropic, Fireworks, AI21, OpenRouter, …).
+ * All calls are routed through the server proxy to avoid browser CORS errors.
  */
+
+import { aiProxy } from "./proxy.functions";
 
 export interface AIProviderKey {
   id: string;
@@ -173,6 +178,218 @@ export const AI_PROVIDERS: AIProvider[] = [
     chatEndpoint: "/chat/completions",
     requestFormat: "openai",
   },
+  // ── Permanent free-tier providers ──
+  {
+    id: "cohere",
+    name: "Cohere",
+    icon: "⌘",
+    color: "#39594D",
+    defaultBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    models: ["command-r-plus", "command-r", "command-r7b-12-2024", "command-a-03-2025"],
+    description: "Enterprise RAG & command models with a generous free trial",
+    docsUrl: "https://docs.cohere.com",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "deepinfra",
+    name: "DeepInfra",
+    icon: "∞",
+    color: "#5B3FD6",
+    defaultBaseUrl: "https://api.deepinfra.com/v1/openai",
+    models: ["meta-llama/Llama-3.3-70B-Instruct", "deepseek-ai/DeepSeek-R1", "Qwen/Qwen2.5-72B-Instruct", "mistralai/Mixtral-8x7B-Instruct-v0.1"],
+    description: "Affordable serverless inference for 100+ open models",
+    docsUrl: "https://deepinfra.com/docs",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "huggingface",
+    name: "Hugging Face",
+    icon: "🤗",
+    color: "#FFD21E",
+    defaultBaseUrl: "https://router.huggingface.co/v1",
+    models: ["meta-llama/Llama-3.3-70B-Instruct", "Qwen/Qwen2.5-72B-Instruct", "deepseek-ai/DeepSeek-R1", "mistralai/Mistral-7B-Instruct-v0.3"],
+    description: "Unified router across all Inference Providers",
+    docsUrl: "https://huggingface.co/docs/inference-providers",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "siliconflow",
+    name: "SiliconFlow",
+    icon: "◈",
+    color: "#6E56CF",
+    defaultBaseUrl: "https://api.siliconflow.com/v1",
+    models: ["deepseek-ai/DeepSeek-V3", "Qwen/Qwen2.5-72B-Instruct", "meta-llama/Llama-3.3-70B-Instruct"],
+    description: "Fast, low-cost access to leading open models",
+    docsUrl: "https://docs.siliconflow.com",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "cloudflare",
+    name: "Cloudflare Workers AI",
+    icon: "☁",
+    color: "#F38020",
+    defaultBaseUrl: "https://api.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/ai/v1",
+    models: ["@cf/meta/llama-3.3-70b-instruct-fp8-fast", "@cf/meta/llama-3.1-8b-instruct", "@cf/qwen/qwen2.5-coder-32b-instruct"],
+    description: "Serverless GPU inference on Cloudflare's edge — set your account Base URL",
+    docsUrl: "https://developers.cloudflare.com/workers-ai",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "github",
+    name: "GitHub Models",
+    icon: "",
+    color: "#8957E5",
+    defaultBaseUrl: "https://models.github.ai/inference",
+    models: ["openai/gpt-4o", "openai/gpt-4o-mini", "meta/Llama-3.3-70B-Instruct", "mistral-ai/Mistral-Large-2411"],
+    description: "Free model playground using a GitHub personal access token",
+    docsUrl: "https://docs.github.com/en/github-models",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "ovhcloud",
+    name: "OVHcloud AI",
+    icon: "◇",
+    color: "#000E9C",
+    defaultBaseUrl: "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
+    models: ["Meta-Llama-3_3-70B-Instruct", "Mixtral-8x7B-Instruct-v0.1", "DeepSeek-R1-Distill-Llama-70B"],
+    description: "EU-hosted AI endpoints with a free tier",
+    docsUrl: "https://endpoints.ai.cloud.ovh.net",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "llm7",
+    name: "LLM7.io",
+    icon: "✷",
+    color: "#22C55E",
+    defaultBaseUrl: "https://api.llm7.io/v1",
+    models: ["gpt-4o-mini", "gpt-4o", "deepseek-r1", "llama-3.3-70b"],
+    description: "Free OpenAI-compatible gateway, no key required",
+    docsUrl: "https://llm7.io",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "ollama",
+    name: "Ollama Cloud",
+    icon: "🦙",
+    color: "#0EA5E9",
+    defaultBaseUrl: "https://ollama.com/v1",
+    models: ["gpt-oss:120b", "deepseek-v3.1:671b", "qwen3-coder:480b", "llama3.3:70b"],
+    description: "Run large open models in Ollama's hosted cloud",
+    docsUrl: "https://docs.ollama.com/cloud",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "aionlabs",
+    name: "Aion Labs",
+    icon: "◉",
+    color: "#EC4899",
+    defaultBaseUrl: "https://api.aionlabs.ai/v1",
+    models: ["aion-1.0", "aion-1.0-mini", "aion-rp-llama-3.1-8b"],
+    description: "Reasoning & roleplay models with a free tier",
+    docsUrl: "https://www.aionlabs.ai",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "zai",
+    name: "Z AI (Zhipu)",
+    icon: "智",
+    color: "#3B82F6",
+    defaultBaseUrl: "https://api.z.ai/api/paas/v4",
+    models: ["glm-4.6", "glm-4.5", "glm-4.5-air", "glm-4-flash"],
+    description: "Zhipu AI's GLM family with a free flash tier",
+    docsUrl: "https://docs.z.ai",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "modelscope",
+    name: "ModelScope",
+    icon: "魔",
+    color: "#624AFF",
+    defaultBaseUrl: "https://api-inference.modelscope.cn/v1",
+    models: ["Qwen/Qwen2.5-72B-Instruct", "deepseek-ai/DeepSeek-R1", "LLM-Research/Meta-Llama-3.3-70B-Instruct"],
+    description: "Alibaba's model hub with free daily inference",
+    docsUrl: "https://www.modelscope.cn/docs",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  // ── One-time free-credit providers ──
+  {
+    id: "anthropic",
+    name: "Anthropic Claude",
+    icon: "✶",
+    color: "#D97757",
+    defaultBaseUrl: "https://api.anthropic.com/v1",
+    models: ["claude-sonnet-4-20250514", "claude-3-7-sonnet-latest", "claude-3-5-haiku-latest"],
+    description: "Claude models with strong reasoning & long context",
+    docsUrl: "https://docs.anthropic.com",
+    headerKey: "x-api-key",
+    headerPrefix: "",
+    chatEndpoint: "/messages",
+    requestFormat: "custom",
+  },
+  {
+    id: "ai21",
+    name: "AI21 Labs",
+    icon: "◆",
+    color: "#E11D48",
+    defaultBaseUrl: "https://api.ai21.com/studio/v1",
+    models: ["jamba-large-1.6", "jamba-mini-1.6"],
+    description: "Jamba hybrid SSM-Transformer models with free credits",
+    docsUrl: "https://docs.ai21.com",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
+  {
+    id: "fireworks",
+    name: "Fireworks AI",
+    icon: "🎆",
+    color: "#7C3AED",
+    defaultBaseUrl: "https://api.fireworks.ai/inference/v1",
+    models: ["accounts/fireworks/models/llama-v3p3-70b-instruct", "accounts/fireworks/models/deepseek-r1", "accounts/fireworks/models/qwen2p5-72b-instruct"],
+    description: "Fast production inference with free starter credits",
+    docsUrl: "https://docs.fireworks.ai",
+    headerKey: "Authorization",
+    headerPrefix: "Bearer ",
+    chatEndpoint: "/chat/completions",
+    requestFormat: "openai",
+  },
 ];
 
 // ── Storage helpers ──
@@ -239,10 +456,19 @@ export function recordKeyUsage(id: string, latencyMs: number, isError: boolean) 
   saveProviderKeys(keys);
 }
 
+// Maps a registry requestFormat to the proxy's generic `format` hint.
+function proxyFormat(p: AIProvider): "openai" | "gemini" | "anthropic" {
+  if (p.requestFormat === "gemini") return "gemini";
+  if (p.id === "anthropic") return "anthropic";
+  return "openai";
+}
+
 // ── Unified chat call across any provider ──
+// Routes through the server proxy (proxy.functions.ts) so calls never hit
+// browser CORS restrictions — this is why direct fetches failed before.
 export async function chatWithProvider(
   provider: string,
-  messages: Array<{ role: string; content: string }>,
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>,
   opts?: { model?: string; temperature?: number; maxTokens?: number }
 ): Promise<{ text: string; provider: string; model: string; latencyMs: number }> {
   const providerDef = AI_PROVIDERS.find(p => p.id === provider);
@@ -256,47 +482,29 @@ export async function chatWithProvider(
   const start = performance.now();
 
   try {
-    let text: string;
-
-    if (providerDef.requestFormat === "gemini") {
-      const url = `${baseUrl}/models/${model}:generateContent`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", [providerDef.headerKey]: key.key },
-        body: JSON.stringify({
-          contents: messages.map(m => ({
-            role: m.role === "assistant" ? "model" : "user",
-            parts: [{ text: m.content }],
-          })),
-          generationConfig: { temperature: opts?.temperature ?? 0.7, maxOutputTokens: opts?.maxTokens ?? 2048 },
-        }),
-      });
-      if (!res.ok) throw new Error(`Gemini ${res.status}: ${await res.text()}`);
-      const data = await res.json();
-      text = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-    } else {
-      const url = `${baseUrl}${providerDef.chatEndpoint}`;
-      const res = await fetch(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          [providerDef.headerKey]: `${providerDef.headerPrefix}${key.key}`,
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          temperature: opts?.temperature ?? 0.7,
-          max_tokens: opts?.maxTokens ?? 2048,
-        }),
-      });
-      if (!res.ok) throw new Error(`${providerDef.name} ${res.status}: ${await res.text()}`);
-      const data = await res.json();
-      text = data.choices?.[0]?.message?.content || "";
-    }
+    const res = await aiProxy({
+      data: {
+        provider,
+        apiKey: key.key,
+        model,
+        baseUrl,
+        messages,
+        temperature: opts?.temperature ?? 0.7,
+        maxTokens: opts?.maxTokens ?? 2048,
+        format: proxyFormat(providerDef),
+        chatEndpoint: providerDef.chatEndpoint,
+        headerKey: providerDef.headerKey,
+        headerPrefix: providerDef.headerPrefix,
+      },
+    });
 
     const latency = Math.round(performance.now() - start);
+    if (!res.ok) {
+      recordKeyUsage(key.id, latency, true);
+      throw new Error(res.error);
+    }
     recordKeyUsage(key.id, latency, false);
-    return { text, provider, model, latencyMs: latency };
+    return { text: res.text, provider, model, latencyMs: latency };
   } catch (err) {
     const latency = Math.round(performance.now() - start);
     recordKeyUsage(key.id, latency, true);

@@ -11,6 +11,14 @@ const Input = z.object({
   baseUrl: z.string().optional(),
   messages: z.array(Msg).min(1),
   temperature: z.number().optional(),
+  maxTokens: z.number().optional(),
+  // Generic routing hints (used by the AI Providers registry). When `format`
+  // is provided the proxy uses `baseUrl` + these header settings directly,
+  // which lets any OpenAI-compatible provider work without hardcoding a URL.
+  format: z.enum(["openai", "gemini", "anthropic", "cohere"]).optional(),
+  chatEndpoint: z.string().optional(),
+  headerKey: z.string().optional(),
+  headerPrefix: z.string().optional(),
 });
 
 type ProxyResult = { ok: true; text: string } | { ok: false; error: string };
@@ -19,7 +27,53 @@ export const aiProxy = createServerFn({ method: "POST" })
   .inputValidator((d: unknown) => Input.parse(d))
   .handler(async ({ data }): Promise<ProxyResult> => {
     const { provider, apiKey, model, messages, baseUrl } = data;
+    const temperature = data.temperature ?? 0.4;
+    const maxTokens = data.maxTokens ?? 1024;
     try {
+      // ── Generic registry-driven routing (AI Providers registry) ──
+      // Triggered when the caller supplies an explicit `format` + `baseUrl`.
+      if (data.format && baseUrl) {
+        const root = baseUrl.replace(/\/$/, "");
+
+        if (data.format === "gemini") {
+          const sys = messages.filter(m => m.role === "system").map(m => m.content).join("\n");
+          const contents = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
+          const r = await fetch(`${root}/models/${model}:generateContent`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-goog-api-key": apiKey },
+            body: JSON.stringify({ systemInstruction: sys ? { parts: [{ text: sys }] } : undefined, contents, generationConfig: { temperature, maxOutputTokens: maxTokens } }),
+          });
+          const j: any = await r.json();
+          if (!r.ok) return { ok: false, error: j?.error?.message || `Gemini ${r.status}` };
+          return { ok: true, text: j.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("") ?? "" };
+        }
+
+        if (data.format === "anthropic") {
+          const sys = messages.filter(m => m.role === "system").map(m => m.content).join("\n");
+          const rest = messages.filter(m => m.role !== "system");
+          const r = await fetch(`${root}${data.chatEndpoint || "/messages"}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+            body: JSON.stringify({ model, max_tokens: maxTokens, temperature, system: sys, messages: rest }),
+          });
+          const j: any = await r.json();
+          if (!r.ok) return { ok: false, error: j?.error?.message || `Anthropic ${r.status}` };
+          return { ok: true, text: j.content?.[0]?.text ?? "" };
+        }
+
+        // openai-compatible (covers `cohere` compatibility endpoint too)
+        const headerKey = data.headerKey || "Authorization";
+        const headerVal = `${data.headerPrefix ?? "Bearer "}${apiKey}`;
+        const r = await fetch(`${root}${data.chatEndpoint || "/chat/completions"}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(apiKey ? { [headerKey]: headerVal } : {}) },
+          body: JSON.stringify({ model, messages, temperature, max_tokens: maxTokens }),
+        });
+        const j: any = await r.json();
+        if (!r.ok) return { ok: false, error: j?.error?.message || j?.message || j?.error || `${provider} ${r.status}` };
+        return { ok: true, text: j.choices?.[0]?.message?.content ?? "" };
+      }
+
       // Lovable AI Gateway (built-in, uses LOVABLE_API_KEY)
       if (provider === "lovable") {
         const key = process.env.LOVABLE_API_KEY;

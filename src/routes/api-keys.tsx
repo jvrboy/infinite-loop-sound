@@ -42,6 +42,7 @@ function ApiKeysPage() {
   const [newKeyLabel, setNewKeyLabel] = useState("");
   const [newKeyValue, setNewKeyValue] = useState("");
   const [newKeyModel, setNewKeyModel] = useState("");
+  const [newKeyBaseUrl, setNewKeyBaseUrl] = useState("");
   const [showKeyValues, setShowKeyValues] = useState<Set<string>>(new Set());
   const [activeTab, setActiveTab] = useState<"providers" | "api" | "webhooks">("providers");
 
@@ -91,8 +92,8 @@ function ApiKeysPage() {
 
   const handleAddProviderKey = () => {
     if (!newKeyProvider || !newKeyValue.trim()) { toast.error("Select provider and enter API key"); return; }
-    addProviderKey(newKeyProvider, newKeyLabel, newKeyValue.trim(), newKeyModel || undefined);
-    setNewKeyProvider(""); setNewKeyLabel(""); setNewKeyValue(""); setNewKeyModel("");
+    addProviderKey(newKeyProvider, newKeyLabel, newKeyValue.trim(), newKeyModel || undefined, newKeyBaseUrl.trim() || undefined);
+    setNewKeyProvider(""); setNewKeyLabel(""); setNewKeyValue(""); setNewKeyModel(""); setNewKeyBaseUrl("");
     refreshProviderKeys();
     toast.success("API key added");
   };
@@ -189,6 +190,20 @@ function ApiKeysPage() {
                   <Plus className="w-3.5 h-3.5 mr-1" />Add
                 </Button>
               </div>
+              {newKeyProvider && (
+                <div className="flex items-center gap-2">
+                  <Globe className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
+                  <Input
+                    value={newKeyBaseUrl}
+                    onChange={e => setNewKeyBaseUrl(e.target.value)}
+                    placeholder={`Base URL override (optional) — default: ${AI_PROVIDERS.find(p => p.id === newKeyProvider)?.defaultBaseUrl ?? ""}`}
+                    className="glass-input flex-1 text-xs"
+                  />
+                </div>
+              )}
+              <p className="text-[10px] text-muted-foreground">
+                Tip: providers like Cloudflare Workers AI or Ollama Cloud need a custom Base URL (replace the account placeholder). All calls are proxied server-side, so there are no CORS errors.
+              </p>
             </section>
 
             {/* Provider Grid */}
@@ -289,7 +304,7 @@ function ApiKeysPage() {
           </div>
         )}
 
-        {/* ═══ WEBHOOKS TAB ═══ */}
+        {/* ═���═ WEBHOOKS TAB ═══ */}
         {activeTab === "webhooks" && (
           <div className="space-y-4">
             <section className="glass-card rounded-xl p-4 space-y-3">
