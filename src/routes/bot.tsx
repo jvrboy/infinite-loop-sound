@@ -16,6 +16,7 @@ import {
   Gauge,
   Pause,
   Play,
+  Save,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -121,6 +122,8 @@ function BotPage() {
   const [s, setS] = useState<BotSettings>(DEFAULT_BOT);
   const [logs, setLogs] = useState<string[]>([]);
   const [status, setStatus] = useState<RunStatus>(botRunner.getStatus());
+  // dirty: true when settings changed but not yet applied to a live bot.
+  const [dirty, setDirty] = useState(false);
   // tick: forces re-render whenever the runner emits a change.
   const [, setTick] = useState(0);
 
@@ -146,6 +149,10 @@ function BotPage() {
     const next = { ...s, [k]: v };
     setS(next);
     saveBot(next);
+    // While the bot is live, config edits persist to storage but don't take
+    // effect until the user clicks Save & Apply.
+    const st = botRunner.getStatus();
+    if (st === "running" || st === "paused") setDirty(true);
   };
 
   const toggleInstrument = (sym: string) => {
@@ -207,6 +214,23 @@ function BotPage() {
     toast.success("Bot resumed");
   };
 
+  const applySettings = () => {
+    const errors = validateSettings(s);
+    if (errors.length) {
+      toast.error(errors[0]);
+      return;
+    }
+    saveBot(s);
+    const st = botRunner.getStatus();
+    if (st === "running" || st === "paused") {
+      botRunner.updateSettings(s);
+      toast.success("Settings applied to the running bot");
+    } else {
+      toast.success("Settings saved");
+    }
+    setDirty(false);
+  };
+
   const openCount = botRunner.getOpenCount();
   const queueLen = botRunner.getQueueLength();
   const sessionPnl = botRunner.getSessionPnl();
@@ -222,6 +246,7 @@ function BotPage() {
   const isRunning = status === "running";
   const isPaused = status === "paused";
   const isActive = isRunning || isPaused;
+  const validationErrors = validateSettings(s);
 
   return (
     <AppShell>
@@ -527,6 +552,28 @@ function BotPage() {
               <div>REAL mode places real-money trades on Deriv. Always confirm sizing, max open, and daily cap before starting.</div>
             </div>
           )}
+
+          {/* Save / Apply */}
+          <div className="pt-3 border-t border-border flex items-center justify-between gap-3 flex-wrap">
+            <div className="text-[11px]">
+              {validationErrors.length > 0 ? (
+                <span className="text-bear">{validationErrors[0]}</span>
+              ) : isActive && dirty ? (
+                <span className="text-primary">Unapplied changes — click Save &amp; Apply to update the running bot.</span>
+              ) : (
+                <span className="text-muted-foreground">
+                  Settings save automatically.{isActive ? " Use Save & Apply to push changes to the running bot." : ""}
+                </span>
+              )}
+            </div>
+            <Button
+              onClick={applySettings}
+              disabled={validationErrors.length > 0 || (isActive && !dirty)}
+              className="gap-1.5 transition-all duration-300"
+            >
+              <Save className="w-4 h-4" /> {isActive ? "Save & Apply" : "Save settings"}
+            </Button>
+          </div>
         </div>
 
         {/* ── Instruments ────────────────────────────────────────── */}

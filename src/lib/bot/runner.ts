@@ -219,6 +219,25 @@ class BotRunner {
     this.emitChange();
   }
 
+  // Live-apply configuration changes to a RUNNING or PAUSED bot without a
+  // restart. Mode is governed separately by start/stop, so it is preserved
+  // here. Session stats, open positions, queue, and the martingale ladder are
+  // all kept intact; the martingale lot is re-clamped to the new base/cap.
+  updateSettings(s: BotSettings) {
+    if (!this.settings) {
+      this.settings = s;
+      return;
+    }
+    const runningMode = this.settings.mode;
+    this.settings = { ...s, mode: runningMode };
+    // Keep the current martingale lot within the new base/cap bounds.
+    this.martingaleLot = Math.min(Math.max(this.martingaleLot, s.martingaleBase), s.martingaleMaxLot);
+    this.log(
+      `Settings applied live · sizing=${s.positionSizing} · maxOpen=${s.maxOpen} · TP=${s.tpSource}${s.tpSource === "fixed" ? `(${s.fixedTpPips}p)` : ""}`,
+    );
+    this.emitChange();
+  }
+
   async stop(silent = false) {
     if (this.channel) {
       try {
