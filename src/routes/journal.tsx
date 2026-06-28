@@ -11,11 +11,14 @@ import {
   Tag,
   Filter,
   RefreshCw,
+  Brain,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { PsychologyTracker } from "@/components/app/PsychologyTracker";
+import { SessionsHeatmap } from "@/components/app/SessionsHeatmap";
 
 export const Route = createFileRoute("/journal")({
   head: () => ({ meta: [{ title: "Trading Journal — DivergenceIQ" }] }),
@@ -367,6 +370,12 @@ function JournalPage() {
         <p className="text-[10px] text-muted-foreground text-center">
           Storage: <code className="px-1 rounded bg-muted/40">public.trade_journal</code> with RLS · falls back to localStorage when signed out.
         </p>
+
+        {/* Psychology & Sessions Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+          <PsychologyTracker />
+          <SessionsHeatmap />
+        </div>
       </div>
     </AppShell>
   );

@@ -60,6 +60,9 @@ const NAV = [
   { to: "/api-keys", label: "API Keys",  icon: Key },
   { to: "/webhook-events", label: "Webhooks", icon: Shield },
   { to: "/docs",     label: "API Docs",  icon: BookOpen },
+  { to: "/monte-carlo", label: "Monte Carlo", icon: Dices },
+  { to: "/correlation", label: "Correlation", icon: Activity },
+  { to: "/volatility", label: "Vol Regime", icon: Flame },
 ] as const;
 
 // Desktop grouped sections
@@ -130,6 +133,9 @@ const SECTIONS = [
       { to: "/confluence", label: "Confluence", icon: Crosshair },
       { to: "/automation", label: "Automation", icon: Timer },
       { to: "/simulator",label: "Simulator", icon: Dices },
+      { to: "/monte-carlo", label: "Monte Carlo", icon: Dices },
+      { to: "/correlation", label: "Correlation", icon: Activity },
+      { to: "/volatility", label: "Vol Regime", icon: Flame },
     ]
   },
   {

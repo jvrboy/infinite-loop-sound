@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { GitCompare, Activity } from "lucide-react";
+import { GitCompare, Activity, AlertTriangle, Shield, TrendingUp } from "lucide-react";
 import { useMemo } from "react";
 import { useDerivFeed } from "@/hooks/use-deriv-feed";
+import { Badge } from "@/components/ui/badge";
 
 export const Route = createFileRoute("/correlation")({
   head: () => ({ meta: [{ title: "Correlation Matrix — DivergenceIQ" }] }),
@@ -155,6 +156,77 @@ function CorrelationPage() {
               </div>
             </div>
           ))}
+        </div>
+
+        {/* Risk Insights Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Correlated Pairs Warning */}
+          <div className="glass-card rounded-xl p-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-bear">
+              <AlertTriangle className="w-4 h-4" /> High Correlation Risk
+            </h3>
+            <div className="space-y-2">
+              {matrix.flatMap(({ row, cells }) =>
+                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
+              ).filter(({ row, col, r }) => r !== null && r > 0.7 && row.symbol < col.symbol)
+              .slice(0, 5)
+              .map(({ row, col, r }, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 rounded bg-bear/5 border border-bear/20">
+                  <span className="text-[11px] font-mono">{row.display} ↔ {col.display}</span>
+                  <Badge className="bg-bear/10 text-bear border-bear/30 text-[9px]">r = {r!.toFixed(2)}</Badge>
+                </div>
+              ))}
+              {matrix.flatMap(({ row, cells }) =>
+                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
+              ).filter(({ row, col, r }) => r !== null && r > 0.7 && row.symbol < col.symbol).length === 0 && (
+                <p className="text-[11px] text-muted-foreground">No strongly correlated pairs detected.</p>
+              )}
+              <p className="text-[10px] text-muted-foreground mt-2">⚠️ Avoid same-direction trades on highly correlated pairs — it doubles effective risk.</p>
+            </div>
+          </div>
+
+          {/* Hedging Opportunities */}
+          <div className="glass-card rounded-xl p-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-bull">
+              <Shield className="w-4 h-4" /> Hedging Opportunities
+            </h3>
+            <div className="space-y-2">
+              {matrix.flatMap(({ row, cells }) =>
+                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
+              ).filter(({ row, col, r }) => r !== null && r < -0.5 && row.symbol < col.symbol)
+              .slice(0, 5)
+              .map(({ row, col, r }, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 rounded bg-bull/5 border border-bull/20">
+                  <span className="text-[11px] font-mono">{row.display} ↔ {col.display}</span>
+                  <Badge className="bg-bull/10 text-bull border-bull/30 text-[9px]">r = {r!.toFixed(2)}</Badge>
+                </div>
+              ))}
+              {matrix.flatMap(({ row, cells }) =>
+                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
+              ).filter(({ row, col, r }) => r !== null && r < -0.5 && row.symbol < col.symbol).length === 0 && (
+                <p className="text-[11px] text-muted-foreground">No strong inverse correlations detected yet. Wait for more data.</p>
+              )}
+              <p className="text-[10px] text-muted-foreground mt-2">✅ Inversely correlated pairs can serve as natural hedges to reduce portfolio risk.</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Portfolio Diversification Tips */}
+        <div className="glass-card rounded-xl p-4">
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-2">
+            <TrendingUp className="w-4 h-4 text-primary" /> Portfolio Diversification Tips
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] text-muted-foreground">
+            <div className="p-2 rounded bg-muted/20">
+              <strong className="text-foreground">Risk Stacking:</strong> Trading EUR/USD and GBP/USD in the same direction is essentially doubling your USD exposure.
+            </div>
+            <div className="p-2 rounded bg-muted/20">
+              <strong className="text-foreground">Natural Hedge:</strong> If long EUR/USD, a long USD/CAD position acts as a partial hedge due to negative correlation.
+            </div>
+            <div className="p-2 rounded bg-muted/20">
+              <strong className="text-foreground">Regime Shifts:</strong> Correlations change during news events and risk-off periods. Review weekly.
+            </div>
+          </div>
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center">

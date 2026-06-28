@@ -47,6 +47,8 @@ import { Route as DlqRouteImport } from './routes/dlq'
 import { Route as DerivRouteImport } from './routes/deriv'
 import { Route as DarkPoolRouteImport } from './routes/dark-pool'
 import { Route as CurrencyStrengthRouteImport } from './routes/currency-strength'
+import { Route as VolatilityRouteImport } from './routes/volatility'
+import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
 import { Route as CorrelationRouteImport } from './routes/correlation'
 import { Route as ConfluenceRouteImport } from './routes/confluence'
 import { Route as CompoundRouteImport } from './routes/compound'
@@ -263,6 +265,16 @@ const DarkPoolRoute = DarkPoolRouteImport.update({
 const CurrencyStrengthRoute = CurrencyStrengthRouteImport.update({
   id: '/currency-strength',
   path: '/currency-strength',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolatilityRoute = VolatilityRouteImport.update({
+  id: '/volatility',
+  path: '/volatility',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MonteCarloRoute = MonteCarloRouteImport.update({
+  id: '/monte-carlo',
+  path: '/monte-carlo',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CorrelationRoute = CorrelationRouteImport.update({
@@ -1366,6 +1378,8 @@ const rootRouteChildren: RootRouteChildren = {
   CompoundRoute: CompoundRoute,
   ConfluenceRoute: ConfluenceRoute,
   CorrelationRoute: CorrelationRoute,
+  MonteCarloRoute: MonteCarloRoute,
+  VolatilityRoute: VolatilityRoute,
   CurrencyStrengthRoute: CurrencyStrengthRoute,
   DarkPoolRoute: DarkPoolRoute,
   DerivRoute: DerivRoute,
