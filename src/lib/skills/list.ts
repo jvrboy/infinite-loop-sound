@@ -503,10 +503,176 @@ const extended_exec_skills: Skill[] = [
 ];
 
 // ============================================================================
+// Detector skills — wire the new detector engines into the chat agent.
+// ============================================================================
+import {
+  detectSpikes,
+  detectVolumeAnomalies,
+  detectLiquiditySweeps,
+  detectGaps,
+  detectRangeBreaks,
+  detectRegimeShift,
+  runAllDetectors,
+} from "@/lib/engine/detectors";
+
+const detector_skills: Skill[] = [
+  {
+    id: "spike-scan",
+    name: "Spike scan",
+    category: "Signal Engine",
+    description: "Detect price / volatility spikes using rolling z-score (adapts per symbol).",
+    trigger: "keyword",
+    keywords: ["spike", "spike detector", "flash move", "sudden move"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M5";
+      const z = Number(args?.z ?? 2.5);
+      const candles = await deriv.getCandles(symbol, tf, 200);
+      const scan = detectSpikes(candles, 50, z);
+      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no spikes detected at z≥${z}` };
+      const e = scan.latest;
+      return {
+        ok: true,
+        output: `${symbol} ${tf} latest spike: ${e.kind} · ${e.severity} · z=${e.zScore.toFixed(2)} · ${e.returnPct >= 0 ? "+" : ""}${e.returnPct.toFixed(3)}% · total=${scan.events.length}`,
+      };
+    },
+  },
+  {
+    id: "volume-anomaly",
+    name: "Volume anomaly",
+    category: "Market Data",
+    description: "Climactic / churn / stealth volume events relative to rolling average.",
+    trigger: "keyword",
+    keywords: ["volume spike", "volume anomaly", "climactic", "churn"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M15";
+      const candles = await deriv.getCandles(symbol, tf, 200);
+      const scan = detectVolumeAnomalies(candles);
+      if (!scan.hasVolume) return { ok: false, error: `${symbol} has no volume data` };
+      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: volume normal` };
+      const e = scan.latest;
+      return {
+        ok: true,
+        output: `${symbol} ${tf} ${e.kind} · vol=${e.volumeRatio.toFixed(2)}× · range=${e.rangeRatio.toFixed(2)}× · ${e.direction}`,
+      };
+    },
+  },
+  {
+    id: "liquidity-sweep",
+    name: "Liquidity sweep",
+    category: "Signal Engine",
+    description: "SMC-style stop-hunt detection: wick through prior swing then close back inside.",
+    trigger: "keyword",
+    keywords: ["sweep", "stop hunt", "liquidity grab", "stop run"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M15";
+      const candles = await deriv.getCandles(symbol, tf, 200);
+      const scan = detectLiquiditySweeps(candles);
+      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no sweeps in last 200 bars` };
+      const e = scan.latest;
+      return {
+        ok: true,
+        output: `${symbol} ${tf} ${e.side}-side sweep · swept ${e.sweptLevel.toFixed(5)} · penetration ${e.wickPenetrationPct.toFixed(1)}% · follow-through ${e.followThroughBars} bars`,
+      };
+    },
+  },
+  {
+    id: "gap-scan",
+    name: "Gap scan",
+    category: "Market Data",
+    description: "Open gaps measured in ATR multiples, with fill status.",
+    trigger: "keyword",
+    keywords: ["gap", "open gap", "unfilled gap", "weekend gap"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "H1";
+      const candles = await deriv.getCandles(symbol, tf, 300);
+      const scan = detectGaps(candles);
+      const unfilled = scan.unfilledGaps.length;
+      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no recent gaps · ${unfilled} unfilled overall` };
+      const e = scan.latest;
+      return {
+        ok: true,
+        output: `${symbol} ${tf} latest gap: ${e.kind} · ${e.gapAtrMult.toFixed(2)}× ATR · ${e.filled ? "filled" : "OPEN"} · ${unfilled} unfilled total`,
+      };
+    },
+  },
+  {
+    id: "range-break",
+    name: "Range break",
+    category: "Signal Engine",
+    description: "Detect consolidation breakouts confirmed by ATR expansion.",
+    trigger: "keyword",
+    keywords: ["range break", "breakout", "consolidation", "breaking out"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M15";
+      const candles = await deriv.getCandles(symbol, tf, 200);
+      const scan = detectRangeBreaks(candles);
+      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no breakouts; ${scan.consolidations.length} consolidations on file` };
+      const e = scan.latest;
+      return {
+        ok: true,
+        output: `${symbol} ${tf} ${e.direction} break · from [${e.range.low.toFixed(5)}, ${e.range.high.toFixed(5)}] · expansion ${e.expansionAtrMult.toFixed(2)}× ATR`,
+      };
+    },
+  },
+  {
+    id: "regime-shift",
+    name: "Regime shift",
+    category: "Market Data",
+    description: "Detect volatility expansion or contraction by comparing two windows.",
+    trigger: "keyword",
+    keywords: ["regime shift", "vol expansion", "vol contraction", "changing regime"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "H1";
+      const candles = await deriv.getCandles(symbol, tf, 300);
+      const ev = detectRegimeShift(candles);
+      return {
+        ok: true,
+        output: `${symbol} ${tf}: ${ev.shift} · ratio=${ev.ratio.toFixed(2)} · recentVol=${(ev.recentVol * 100).toFixed(3)}% · priorVol=${(ev.priorVol * 100).toFixed(3)}% · confidence=${(ev.confidence * 100).toFixed(0)}%`,
+      };
+    },
+  },
+  {
+    id: "detector-dashboard",
+    name: "Detector dashboard",
+    category: "Signal Engine",
+    description: "Run every detector in one pass and report a heat count.",
+    trigger: "keyword",
+    keywords: ["all detectors", "detector dashboard", "scan everything", "market scan"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M15";
+      const candles = await deriv.getCandles(symbol, tf, 300);
+      const r = runAllDetectors(candles);
+      const lines = [
+        `${symbol} ${tf} · ${r.hotCount} hot signals on last bar`,
+        `  spike:           ${r.spike.latest ? `${r.spike.latest.kind} (z=${r.spike.latest.zScore.toFixed(2)})` : "quiet"}`,
+        `  volume:          ${r.volume.hasVolume ? (r.volume.latest?.kind ?? "normal") : "no data"}`,
+        `  liquidity sweep: ${r.liquiditySweeps.latest?.side ?? "none"}`,
+        `  gap:             ${r.gaps.latest?.kind ?? `none (${r.gaps.unfilledGaps.length} unfilled)`}`,
+        `  range break:     ${r.rangeBreaks.latest?.direction ?? "compressed"}`,
+        `  regime shift:    ${r.regimeShift.shift}`,
+      ].join("\n");
+      return { ok: true, output: lines };
+    },
+  },
+];
+
+// ============================================================================
 // Final registry — keep this as the single export site so the rest of the app
 // imports SKILLS and nothing else.
 // ============================================================================
-export const SKILLS: Skill[] = [...exec_skills, ...extended_exec_skills, ...declarative_skills];
+export const SKILLS: Skill[] = [
+  ...exec_skills,
+  ...extended_exec_skills,
+  ...detector_skills,
+  ...declarative_skills,
+];
 
 // Sanity log so you can verify count in dev:
 //   import { SKILLS } from "@/lib/skills/list"; console.log(SKILLS.length);
