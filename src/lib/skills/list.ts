@@ -664,6 +664,130 @@ const detector_skills: Skill[] = [
 ];
 
 // ============================================================================
+// Power tools — trade-idea generator, risk-of-ruin, heat scanner, currency
+// strength, alert dispatcher. Each is a self-contained engine surfaced as a
+// chat skill.
+// ============================================================================
+import { generateTradeIdea, formatTradeIdea } from "@/lib/engine/trade-idea";
+import { riskOfRuin } from "@/lib/engine/risk-of-ruin";
+import { scanHeat } from "@/lib/engine/heat-scanner";
+import { currencyStrength, topPairs } from "@/lib/engine/currency-strength";
+import { dispatchAlert } from "@/lib/engine/alert-dispatcher";
+import { latestVwap } from "@/lib/engine/vwap";
+
+const power_skills: Skill[] = [
+  {
+    id: "trade-idea",
+    name: "Trade idea",
+    category: "Signal Engine",
+    description: "Generate a full trade card (entry / stop / target / confluence) for a symbol.",
+    trigger: "keyword",
+    keywords: ["trade idea", "setup", "give me a trade", "actionable"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "H1";
+      const candles = await deriv.getCandles(symbol, tf, 300);
+      const idea = generateTradeIdea(symbol, tf, candles);
+      return { ok: true, output: formatTradeIdea(idea) };
+    },
+  },
+  {
+    id: "risk-of-ruin",
+    name: "Risk of ruin",
+    category: "Trading Research",
+    description: "Closed-form risk of ruin + Kelly fraction from win rate / payoff / risk %.",
+    trigger: "keyword",
+    keywords: ["risk of ruin", "ror", "kelly", "bankroll"],
+    exec: async ({ args }) => {
+      const r = riskOfRuin({
+        winRate: Number(args?.winRate ?? 0.55),
+        payoffRatio: Number(args?.payoff ?? 1.5),
+        riskPerTradePct: Number(args?.risk ?? 1),
+      });
+      return {
+        ok: true,
+        output: `RoR=${(r.ror * 100).toFixed(2)}%  edge=${r.edge.toFixed(3)}R  kelly=${(r.kellyFraction * 100).toFixed(2)}%  half-kelly=${r.recommendedRiskPct.toFixed(2)}%  profitable=${r.isProfitable}`,
+      };
+    },
+  },
+  {
+    id: "scan-heat",
+    name: "Market heat scan",
+    category: "Signal Engine",
+    description: "Run all detectors across the watchlist and rank by heat count.",
+    trigger: "keyword",
+    keywords: ["heat scan", "market heat", "hottest pairs", "watchlist scan"],
+    exec: async ({ args }) => {
+      const tf = (args?.tf as TF) || "M15";
+      const limit = Number(args?.limit ?? 10);
+      const rows = await scanHeat({ tf });
+      const top = rows.slice(0, limit)
+        .map((r) => `  ${r.heat}· ${r.symbol.padEnd(12)} ${r.lastPrice.toFixed(5).padStart(10)}  ${r.changePct >= 0 ? "+" : ""}${r.changePct.toFixed(2)}%`)
+        .join("\n");
+      return { ok: true, output: `Heat scan ${tf}\n${top || "  (no hot symbols)"}` };
+    },
+  },
+  {
+    id: "currency-strength",
+    name: "Currency strength",
+    category: "Market Data",
+    description: "Rank G8 currencies by aggregate strength + suggest long/short pairings.",
+    trigger: "keyword",
+    keywords: ["currency strength", "strongest currency", "weakest currency", "strength meter"],
+    exec: async ({ args }) => {
+      const tf = (args?.tf as TF) || "H1";
+      const fxSymbols = ALL_ASSETS.filter((s) => /^frx[A-Z]{6}$/.test(s));
+      const candlesBySymbol: Record<string, any> = {};
+      for (const sym of fxSymbols.slice(0, 28)) {
+        try { candlesBySymbol[sym] = await deriv.getCandles(sym, tf, 50); } catch { /* skip */ }
+      }
+      const strengths = currencyStrength(candlesBySymbol);
+      const top = topPairs(strengths, 3);
+      const rank = strengths.map((s) => `  ${s.rank}. ${s.currency.padEnd(4)} ${s.score >= 0 ? "+" : ""}${s.score.toFixed(2)}`).join("\n");
+      const sugg = top.slice(0, 5).map((p) => `  long ${p.long} / short ${p.short}  (Δ${p.spread.toFixed(2)})`).join("\n");
+      return { ok: true, output: `Strength ${tf}\n${rank}\nTop pairings:\n${sugg}` };
+    },
+  },
+  {
+    id: "vwap",
+    name: "VWAP",
+    category: "Market Data",
+    description: "Latest session VWAP + 1σ / 2σ bands.",
+    trigger: "keyword",
+    keywords: ["vwap", "volume weighted"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M15";
+      const candles = await deriv.getCandles(symbol, tf, 200);
+      const v = latestVwap(candles);
+      if (!v) return { ok: false, error: "insufficient data" };
+      const last = candles[candles.length - 1].close;
+      const side = last > v.vwap ? "above" : "below";
+      return {
+        ok: true,
+        output: `${symbol} ${tf}  price=${last.toFixed(5)} ${side} VWAP=${v.vwap.toFixed(5)}  bands ±1σ [${v.lower1.toFixed(5)}, ${v.upper1.toFixed(5)}]`,
+      };
+    },
+  },
+  {
+    id: "send-alert",
+    name: "Send alert",
+    category: "Automation",
+    description: "Dispatch a manual alert to configured destinations (telegram / webhook / in-app).",
+    trigger: "on-demand",
+    keywords: ["send alert", "notify me", "dispatch alert"],
+    exec: async ({ args }) => {
+      const title = String(args?.title || "Manual alert");
+      const body = String(args?.body || "");
+      const targets = (args?.targets as any[]) || [{ channel: "in-app" }];
+      const results = await dispatchAlert(targets, { title, body, level: "info" });
+      const summary = results.map((r) => `${r.channel}:${r.ok ? "ok" : `err(${r.error || r.status})`}`).join("  ");
+      return { ok: results.every((r) => r.ok), output: summary };
+    },
+  },
+];
+
+// ============================================================================
 // Final registry — keep this as the single export site so the rest of the app
 // imports SKILLS and nothing else.
 // ============================================================================
@@ -671,6 +795,7 @@ export const SKILLS: Skill[] = [
   ...exec_skills,
   ...extended_exec_skills,
   ...detector_skills,
+  ...power_skills,
   ...declarative_skills,
 ];
 
