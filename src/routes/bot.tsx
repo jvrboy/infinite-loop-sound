@@ -14,6 +14,8 @@ import {
   Layers,
   Target,
   Gauge,
+  Pause,
+  Play,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -153,7 +155,8 @@ function BotPage() {
   };
 
   const applyMode = async (mode: BotMode) => {
-    if (mode === s.mode && status === "running") return;
+    // Already on this mode and active — no-op. Use Pause/Resume to control it.
+    if (mode === s.mode && (status === "running" || status === "paused")) return;
     const next = { ...s, mode };
 
     if (mode === "off") {
@@ -194,6 +197,16 @@ function BotPage() {
     toast.error("Emergency stop executed — all positions closed");
   };
 
+  const pause = () => {
+    botRunner.pause();
+    toast.message("Bot paused — positions still monitored");
+  };
+
+  const resume = () => {
+    botRunner.resume();
+    toast.success("Bot resumed");
+  };
+
   const openCount = botRunner.getOpenCount();
   const queueLen = botRunner.getQueueLength();
   const sessionPnl = botRunner.getSessionPnl();
@@ -207,6 +220,8 @@ function BotPage() {
   const winRate = wins + losses > 0 ? (wins / (wins + losses)) * 100 : 0;
 
   const isRunning = status === "running";
+  const isPaused = status === "paused";
+  const isActive = isRunning || isPaused;
 
   return (
     <AppShell>
@@ -220,12 +235,31 @@ function BotPage() {
               Automated Deriv trading with Signal and Perpetual Scalper modes, martingale sizing, and built-in risk controls.
             </p>
           </div>
-          <Button onClick={emergency} variant="destructive" className="gap-1.5">
-            <ShieldAlert className="w-4 h-4" /> Emergency Stop
-          </Button>
+          <div className="flex items-center gap-2">
+            {isActive && (
+              <Button
+                onClick={isPaused ? resume : pause}
+                variant="outline"
+                className="gap-1.5 transition-all duration-300"
+              >
+                {isPaused ? (
+                  <>
+                    <Play className="w-4 h-4 text-bull" /> Resume
+                  </>
+                ) : (
+                  <>
+                    <Pause className="w-4 h-4" /> Pause
+                  </>
+                )}
+              </Button>
+            )}
+            <Button onClick={emergency} variant="destructive" className="gap-1.5">
+              <ShieldAlert className="w-4 h-4" /> Emergency Stop
+            </Button>
+          </div>
         </div>
 
-        {/* ── Mode control panel ─────────────────────────────────── */}
+        {/* ── Mode control panel ──────────────────��──────────────── */}
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
           <div className="text-sm font-bold uppercase tracking-wider">Bot Mode</div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -233,28 +267,31 @@ function BotPage() {
               const meta = MODE_META[m];
               const Icon = meta.icon;
               const active = s.mode === m;
-              const activeRunning = active && (m === "off" || isRunning);
+              const activeRunning = active && (m === "off" || isActive);
               return (
                 <button
                   key={m}
                   onClick={() => applyMode(m)}
-                  className={`text-left rounded-lg border p-3 transition-colors ${
+                  className={`text-left rounded-lg border p-3 transition-all duration-300 ease-out ${
                     activeRunning
                       ? m === "scalper"
-                        ? "border-bull bg-bull/10"
+                        ? "border-bull bg-bull/10 scale-[1.02] shadow-lg shadow-bull/10"
                         : m === "signal"
-                          ? "border-primary bg-primary/10"
-                          : "border-border bg-muted"
-                      : "border-border bg-background hover:bg-muted/50"
+                          ? "border-primary bg-primary/10 scale-[1.02] shadow-lg shadow-primary/10"
+                          : "border-border bg-muted scale-[1.02]"
+                      : "border-border bg-background hover:bg-muted/50 hover:scale-[1.01]"
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="flex items-center gap-2 font-bold">
-                      <Icon className={`w-4 h-4 ${activeRunning && m !== "off" ? (m === "scalper" ? "text-bull" : "text-primary") : "text-muted-foreground"}`} />
+                      <Icon className={`w-4 h-4 transition-colors duration-300 ${activeRunning && m !== "off" ? (m === "scalper" ? "text-bull" : "text-primary") : "text-muted-foreground"}`} />
                       {meta.label}
                     </span>
-                    {activeRunning && m !== "off" && (
+                    {active && m !== "off" && isRunning && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-bull/20 text-bull animate-pulse">LIVE</span>
+                    )}
+                    {active && m !== "off" && isPaused && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">PAUSED</span>
                     )}
                   </div>
                   <p className="text-[11px] text-muted-foreground mt-1.5">{meta.desc}</p>
@@ -264,12 +301,19 @@ function BotPage() {
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <span
-              className={`inline-block w-2 h-2 rounded-full ${
-                status === "running" ? "bg-bull animate-pulse" : status === "halted" ? "bg-bear" : "bg-muted-foreground"
+              className={`inline-block w-2 h-2 rounded-full transition-colors duration-300 ${
+                status === "running"
+                  ? "bg-bull animate-pulse"
+                  : status === "paused"
+                    ? "bg-primary"
+                    : status === "halted"
+                      ? "bg-bear"
+                      : "bg-muted-foreground"
               }`}
             />
             Status: <span className="font-bold uppercase text-foreground">{status}</span>
             {status === "running" && actionAgo !== null && <span>· last action {actionAgo}s ago</span>}
+            {status === "paused" && <span>· {openCount} position(s) monitored</span>}
             {queueLen > 0 && <span>· {queueLen} queued</span>}
           </div>
         </div>

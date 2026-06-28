@@ -20,7 +20,7 @@ import { deriv, type TF } from "@/lib/engine/deriv";
 import { analyze } from "@/lib/engine/signal";
 import { pipSize, type BotSettings } from "./store";
 
-export type RunStatus = "stopped" | "running" | "halted";
+export type RunStatus = "stopped" | "running" | "paused" | "halted";
 export type TradeResult = "WIN" | "LOSS" | "PENDING";
 
 export interface OpenPosition {
@@ -36,7 +36,7 @@ export interface OpenPosition {
   tpPips: number;
   slPips: number;
   openedAt: number;
-  source: "scan" | "supabase" | "scalper";
+  source: "scan" | "supabase" | "scalper" | "automation";
   unsubTicks?: () => void;
   timeout?: number;
 }
@@ -62,7 +62,7 @@ interface QueuedSignal {
   direction: "BUY" | "SELL";
   entry: number;
   score: number;
-  source: "scan" | "supabase";
+  source: "scan" | "supabase" | "automation";
   tpPips?: number;
   slPips?: number;
 }
@@ -239,6 +239,39 @@ class BotRunner {
     this.queue = [];
     this.status = "stopped";
     if (!silent) this.log("Bot stopped");
+    this.emitChange();
+  }
+
+  // Pause — stop opening NEW trades but keep open positions monitored so they
+  // can still hit TP/SL. Preserves session stats, queue, and martingale ladder.
+  // Primarily for PERPETUAL SCALPER (resume without data loss) but works in
+  // SIGNAL mode too.
+  pause() {
+    if (this.status !== "running") return;
+    this.status = "paused";
+    if (this.scanTimer !== null) {
+      window.clearTimeout(this.scanTimer);
+      this.scanTimer = null;
+    }
+    if (this.scalperTimer !== null) {
+      window.clearTimeout(this.scalperTimer);
+      this.scalperTimer = null;
+    }
+    this.log(`Bot paused — ${this.open.length} open position(s) still monitored; no new trades will open`);
+    this.emitChange();
+  }
+
+  // Resume — pick the engine back up exactly where it left off.
+  resume() {
+    if (this.status !== "paused" || !this.settings) return;
+    this.status = "running";
+    this.log("Bot resumed");
+    if (this.settings.mode === "signal") {
+      this.scheduleScan();
+      this.processQueue();
+    } else if (this.settings.mode === "scalper") {
+      this.scheduleScalper(500);
+    }
     this.emitChange();
   }
 
