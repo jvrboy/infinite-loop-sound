@@ -656,3 +656,71 @@ a:active,
     transform: none !important;
   }
 }
+
+/* ---------------------------------------------------------------------- */
+/* Phase 5 — staggered entrance, active-tab indicator & parallax           */
+/* ---------------------------------------------------------------------- */
+
+/* Staggered entrance — children fade/slide up in sequence on mount.
+   Apply `.diq-stagger` to a container; each direct child animates with a
+   50ms incremental delay (capped) for a premium cascading reveal. */
+@keyframes diq-rise-in {
+  from { opacity: 0; transform: translateY(10px) scale(0.985); filter: blur(3px); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);     filter: blur(0); }
+}
+.diq-stagger > * {
+  animation: diq-rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.diq-stagger > *:nth-child(1)  { animation-delay: 40ms; }
+.diq-stagger > *:nth-child(2)  { animation-delay: 90ms; }
+.diq-stagger > *:nth-child(3)  { animation-delay: 140ms; }
+.diq-stagger > *:nth-child(4)  { animation-delay: 190ms; }
+.diq-stagger > *:nth-child(5)  { animation-delay: 240ms; }
+.diq-stagger > *:nth-child(6)  { animation-delay: 290ms; }
+.diq-stagger > *:nth-child(7)  { animation-delay: 340ms; }
+.diq-stagger > *:nth-child(8)  { animation-delay: 390ms; }
+.diq-stagger > *:nth-child(9)  { animation-delay: 440ms; }
+.diq-stagger > *:nth-child(n+10) { animation-delay: 480ms; }
+
+/* Standalone rise-in helper (single element). */
+.diq-rise-in { animation: diq-rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* Active tab/nav indicator — a glowing liquid-glass accent bar that sits on
+   the leading edge of the active item. Add `.diq-nav-indicator` alongside the
+   active state class on a position:relative nav link. */
+.diq-nav-indicator { position: relative; }
+.diq-nav-indicator::before {
+  content: "";
+  position: absolute;
+  left: -2px;
+  top: 50%;
+  height: 0;
+  width: 3px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, var(--bull), var(--primary));
+  box-shadow: 0 0 12px -1px var(--primary);
+  transform: translateY(-50%);
+  transition: height 280ms cubic-bezier(0.34, 1.56, 0.64, 1), opacity 220ms ease;
+  opacity: 0;
+}
+.diq-nav-indicator.diq-nav-active::before {
+  height: 64%;
+  opacity: 1;
+}
+
+/* Parallax — translate a layer on scroll via a CSS var set from JS.
+   `.diq-parallax` reads `--diq-parallax-y` (px) and applies it smoothly. */
+.diq-parallax {
+  will-change: transform;
+  transform: translate3d(0, var(--diq-parallax-y, 0px), 0);
+  transition: transform 120ms linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diq-stagger > *,
+  .diq-rise-in {
+    animation: none !important;
+  }
+  .diq-parallax { transform: none !important; }
+  .diq-nav-indicator::before { transition: none !important; }
+}

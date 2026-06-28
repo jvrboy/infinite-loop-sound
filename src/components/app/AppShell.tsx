@@ -329,7 +329,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
           {/* Grouped Sidebar Navigation */}
           {!collapsed && (
-          <nav className="flex-1 p-3 space-y-2.5 overflow-y-auto scrollbar-thin">
+          <nav className="flex-1 p-3 space-y-2.5 overflow-y-auto scrollbar-thin diq-stagger">
             {SECTIONS.map((section) => {
               const isExpanded = expanded[section.title];
               const SectionIcon = section.icon;
@@ -358,9 +358,9 @@ export function AppShell({ children }: { children: ReactNode }) {
                           <Link
                             key={item.to}
                             to={item.to}
-                            className={`flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs transition-all duration-150 ${
+                            className={`diq-nav-indicator flex items-center gap-2.5 px-3 py-1.5 rounded-md text-xs transition-all duration-150 ${
                               active
-                                ? "glass-button-active text-primary font-semibold"
+                                ? "glass-button-active diq-nav-active text-primary font-semibold"
                                 : "text-muted-foreground/80 hover:bg-white/5 hover:text-foreground"
                             }`}
                           >
