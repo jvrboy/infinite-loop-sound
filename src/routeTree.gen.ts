@@ -10,6 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZoRouteImport } from './routes/zo'
+import { Route as StreakRouteImport } from './routes/streak'
+import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
+import { Route as DrawdownShieldRouteImport } from './routes/drawdown-shield'
+import { Route as ChecklistRouteImport } from './routes/checklist'
+import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
 import { Route as UptimeRouteImport } from './routes/uptime'
@@ -80,6 +85,31 @@ import { Route as ApiPublicV1SignalsIncomingRouteImport } from './routes/api/pub
 const ZoRoute = ZoRouteImport.update({
   id: '/zo',
   path: '/zo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StreakRoute = StreakRouteImport.update({
+  id: '/streak',
+  path: '/streak',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionOverlapRoute = SessionOverlapRouteImport.update({
+  id: '/session-overlap',
+  path: '/session-overlap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DrawdownShieldRoute = DrawdownShieldRouteImport.update({
+  id: '/drawdown-shield',
+  path: '/drawdown-shield',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChecklistRoute = ChecklistRouteImport.update({
+  id: '/checklist',
+  path: '/checklist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReplayRoute = ReplayRouteImport.update({
+  id: '/replay',
+  path: '/replay',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WelcomeRoute = WelcomeRouteImport.update({
@@ -472,6 +502,11 @@ export interface FileRoutesByFullPath {
   '/webhook-events': typeof WebhookEventsRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
+  '/streak': typeof StreakRoute
+  '/session-overlap': typeof SessionOverlapRoute
+  '/drawdown-shield': typeof DrawdownShieldRoute
+  '/checklist': typeof ChecklistRoute
+  '/replay': typeof ReplayRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
@@ -539,6 +574,11 @@ export interface FileRoutesByTo {
   '/webhook-events': typeof WebhookEventsRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
+  '/streak': typeof StreakRoute
+  '/session-overlap': typeof SessionOverlapRoute
+  '/drawdown-shield': typeof DrawdownShieldRoute
+  '/checklist': typeof ChecklistRoute
+  '/replay': typeof ReplayRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
@@ -607,6 +647,11 @@ export interface FileRoutesById {
   '/webhook-events': typeof WebhookEventsRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
+  '/streak': typeof StreakRoute
+  '/session-overlap': typeof SessionOverlapRoute
+  '/drawdown-shield': typeof DrawdownShieldRoute
+  '/checklist': typeof ChecklistRoute
+  '/replay': typeof ReplayRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
@@ -676,6 +721,11 @@ export interface FileRouteTypes {
     | '/webhook-events'
     | '/welcome'
     | '/zo'
+    | '/streak'
+    | '/session-overlap'
+    | '/drawdown-shield'
+    | '/checklist'
+    | '/replay'
     | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/expire-signals'
@@ -743,6 +793,11 @@ export interface FileRouteTypes {
     | '/webhook-events'
     | '/welcome'
     | '/zo'
+    | '/streak'
+    | '/session-overlap'
+    | '/drawdown-shield'
+    | '/checklist'
+    | '/replay'
     | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/expire-signals'
@@ -810,6 +865,11 @@ export interface FileRouteTypes {
     | '/webhook-events'
     | '/welcome'
     | '/zo'
+    | '/streak'
+    | '/session-overlap'
+    | '/drawdown-shield'
+    | '/checklist'
+    | '/replay'
     | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/expire-signals'
@@ -878,6 +938,11 @@ export interface RootRouteChildren {
   WebhookEventsRoute: typeof WebhookEventsRoute
   WelcomeRoute: typeof WelcomeRoute
   ZoRoute: typeof ZoRoute
+  StreakRoute: typeof StreakRoute
+  SessionOverlapRoute: typeof SessionOverlapRoute
+  DrawdownShieldRoute: typeof DrawdownShieldRoute
+  ChecklistRoute: typeof ChecklistRoute
+  ReplayRoute: typeof ReplayRoute
   ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicHooksExpireSignalsRoute: typeof ApiPublicHooksExpireSignalsRoute
@@ -899,6 +964,41 @@ declare module '@tanstack/react-router' {
       path: '/zo'
       fullPath: '/zo'
       preLoaderRoute: typeof ZoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/streak': {
+      id: '/streak'
+      path: '/streak'
+      fullPath: '/streak'
+      preLoaderRoute: typeof StreakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/session-overlap': {
+      id: '/session-overlap'
+      path: '/session-overlap'
+      fullPath: '/session-overlap'
+      preLoaderRoute: typeof SessionOverlapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/drawdown-shield': {
+      id: '/drawdown-shield'
+      path: '/drawdown-shield'
+      fullPath: '/drawdown-shield'
+      preLoaderRoute: typeof DrawdownShieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checklist': {
+      id: '/checklist'
+      path: '/checklist'
+      fullPath: '/checklist'
+      preLoaderRoute: typeof ChecklistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/replay': {
+      id: '/replay'
+      path: '/replay'
+      fullPath: '/replay'
+      preLoaderRoute: typeof ReplayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/welcome': {
@@ -1418,6 +1518,11 @@ const rootRouteChildren: RootRouteChildren = {
   WebhookEventsRoute: WebhookEventsRoute,
   WelcomeRoute: WelcomeRoute,
   ZoRoute: ZoRoute,
+  StreakRoute: StreakRoute,
+  SessionOverlapRoute: SessionOverlapRoute,
+  DrawdownShieldRoute: DrawdownShieldRoute,
+  ChecklistRoute: ChecklistRoute,
+  ReplayRoute: ReplayRoute,
   ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicHooksExpireSignalsRoute: ApiPublicHooksExpireSignalsRoute,

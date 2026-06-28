@@ -6,7 +6,8 @@ import {
   Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, 
   SplitSquareHorizontal, AlignJustify, ArrowUpFromLine, Landmark, ListChecks, 
   Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings,
-  Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X
+  Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X,
+  Play, CheckSquare, TrendingDown
 } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
@@ -63,6 +64,11 @@ const NAV = [
   { to: "/monte-carlo", label: "Monte Carlo", icon: Dices },
   { to: "/correlation", label: "Correlation", icon: Activity },
   { to: "/volatility", label: "Vol Regime", icon: Flame },
+  { to: "/streak",   label: "Streak Tracker", icon: Flame },
+  { to: "/session-overlap", label: "Session Overlap", icon: Globe },
+  { to: "/drawdown-shield", label: "Drawdown Shield", icon: Shield },
+  { to: "/checklist", label: "Pre-Trade Checklist", icon: CheckSquare },
+  { to: "/replay",   label: "Scenario Tester", icon: Play },
 ] as const;
 
 // Desktop grouped sections
@@ -136,6 +142,17 @@ const SECTIONS = [
       { to: "/monte-carlo", label: "Monte Carlo", icon: Dices },
       { to: "/correlation", label: "Correlation", icon: Activity },
       { to: "/volatility", label: "Vol Regime", icon: Flame },
+    ]
+  },
+  {
+    title: "Risk & Psychology",
+    icon: Shield,
+    items: [
+      { to: "/drawdown-shield", label: "Drawdown Shield", icon: Shield },
+      { to: "/streak",   label: "Streak Tracker", icon: Flame },
+      { to: "/checklist", label: "Pre-Trade Checklist", icon: CheckSquare },
+      { to: "/session-overlap", label: "Session Overlap", icon: Globe },
+      { to: "/replay",   label: "Scenario Tester", icon: Play },
     ]
   },
   {
