@@ -8,6 +8,7 @@ import { SpikeDetector } from "@/components/app/SpikeDetector";
 import { MarketHeatScanner } from "@/components/app/MarketHeatScanner";
 import { TradeIdeaCard } from "@/components/app/TradeIdeaCard";
 import { FibonacciLevels } from "@/components/app/FibonacciLevels";
+import { ErrorBoundary } from "@/components/app/ErrorBoundary";
 import type { TF } from "@/lib/engine/deriv";
 
 export const Route = createFileRoute("/detectors")({ component: DetectorsPage });
@@ -45,14 +46,25 @@ function DetectorsPage() {
         </div>
       </div>
 
+      {/* Each widget is independently wrapped so one crash doesn't blank the page. */}
       <div className="grid gap-4 md:grid-cols-2">
-        <DetectorDashboard symbol={symbol} tf={tf} />
-        <SpikeDetector symbol={symbol} tf={tf} />
-        <TradeIdeaCard symbol={symbol} tf={tf} />
-        <FibonacciLevels symbol={symbol} tf={tf} />
+        <ErrorBoundary label="Detector Dashboard">
+          <DetectorDashboard symbol={symbol} tf={tf} />
+        </ErrorBoundary>
+        <ErrorBoundary label="Spike Detector">
+          <SpikeDetector symbol={symbol} tf={tf} />
+        </ErrorBoundary>
+        <ErrorBoundary label="Trade Idea">
+          <TradeIdeaCard symbol={symbol} tf={tf} />
+        </ErrorBoundary>
+        <ErrorBoundary label="Fibonacci Levels">
+          <FibonacciLevels symbol={symbol} tf={tf} />
+        </ErrorBoundary>
       </div>
 
-      <MarketHeatScanner tf={tf} />
+      <ErrorBoundary label="Heat Scanner">
+        <MarketHeatScanner tf={tf} />
+      </ErrorBoundary>
     </div>
   );
 }

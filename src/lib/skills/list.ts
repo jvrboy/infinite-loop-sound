@@ -13,6 +13,40 @@ import { analyze } from "@/lib/engine/signal";
 import { runWithAutoCorrect, type Language } from "@/lib/executor";
 import { generate } from "@/lib/executor/generators";
 
+// Extended engines (fib / pivots / OFI / pip / equity)
+import { fibLevels, nearestFib } from "@/lib/engine/fibonacci";
+import { classicPivots, fibonacciPivots, camarillaPivots } from "@/lib/engine/pivots";
+import { orderFlowImbalance, cvdDivergence } from "@/lib/engine/order-flow";
+import { pipValue, distanceToPips } from "@/lib/engine/pip-calc";
+import { buildEquityCurve, type TradeRecord } from "@/lib/engine/equity-curve";
+
+// Detector engines
+import {
+  detectSpikes,
+  detectVolumeAnomalies,
+  detectLiquiditySweeps,
+  detectGaps,
+  detectRangeBreaks,
+  detectRegimeShift,
+  runAllDetectors,
+} from "@/lib/engine/detectors";
+
+// Power tools — trade-idea / RoR / heat-scanner / strength / dispatcher / VWAP
+import { generateTradeIdea, formatTradeIdea } from "@/lib/engine/trade-idea";
+import { riskOfRuin } from "@/lib/engine/risk-of-ruin";
+import { scanHeat } from "@/lib/engine/heat-scanner";
+import { currencyStrength, topPairs } from "@/lib/engine/currency-strength";
+import { dispatchAlert } from "@/lib/engine/alert-dispatcher";
+import { latestVwap } from "@/lib/engine/vwap";
+
+// New tools (this commit) — market profile / portfolio heat / walk-forward / slippage
+import { marketProfile } from "@/lib/engine/market-profile";
+import { portfolioHeat } from "@/lib/engine/portfolio-heat";
+import { walkForward } from "@/lib/engine/walk-forward";
+import { simulateSlippage } from "@/lib/engine/slippage";
+import { clusterAnomalies } from "@/lib/engine/anomaly-cluster";
+import type { Candle } from "@/lib/engine/indicators";
+
 export type SkillCategory =
   | "Market Data"
   | "Trading Research"
@@ -65,9 +99,10 @@ const exec_skills: Skill[] = [
       const candles = await deriv.getCandles(symbol, "M1", 1);
       const last = candles[candles.length - 1];
       if (!last) return { ok: false, error: `no data for ${symbol}` };
+      // Candle.epoch is the canonical timestamp field (not .ts).
       return {
         ok: true,
-        output: `${symbol}  ${last.close}  @ epoch ${last.ts}`,
+        output: `${symbol}  ${last.close}  @ epoch ${last.epoch}`,
       };
     },
   },
@@ -100,17 +135,22 @@ const exec_skills: Skill[] = [
       const tf = (args?.tf as TF) || "M15";
       const limit = Number(args?.limit || 8);
       const rows: { symbol: string; rating: string; score: number; dir: string }[] = [];
-      for (const a of ALL_ASSETS.slice(0, 25)) {
-        try {
+      // Run pair scans concurrently with bounded parallelism to avoid serial WS waits.
+      const slice = ALL_ASSETS.slice(0, 25);
+      const batchSize = 4;
+      for (let i = 0; i < slice.length; i += batchSize) {
+        const batch = slice.slice(i, i + batchSize);
+        const results = await Promise.allSettled(batch.map(async (a) => {
           const candles = await deriv.getCandles(a.symbol, tf, 200);
           const r = analyze(a.symbol, tf, candles, {});
-          rows.push({
+          return {
             symbol: a.display,
             rating: r.rating,
             score: r.scorePct,
             dir: r.direction || "—",
-          });
-        } catch {}
+          };
+        }));
+        for (const res of results) if (res.status === "fulfilled") rows.push(res.value);
       }
       rows.sort((a, b) => b.score - a.score);
       return {
@@ -392,12 +432,6 @@ const declarative_skills: Skill[] = [
 // Extended executable skills — wire new engines (fib / pivots / OFI / pip / equity)
 // into the chat agent loop.
 // ============================================================================
-import { fibLevels, nearestFib } from "@/lib/engine/fibonacci";
-import { classicPivots, fibonacciPivots, camarillaPivots } from "@/lib/engine/pivots";
-import { orderFlowImbalance, cvdDivergence } from "@/lib/engine/order-flow";
-import { pipValue, distanceToPips } from "@/lib/engine/pip-calc";
-import { buildEquityCurve, type TradeRecord } from "@/lib/engine/equity-curve";
-
 const extended_exec_skills: Skill[] = [
   {
     id: "fib-levels",
@@ -505,16 +539,6 @@ const extended_exec_skills: Skill[] = [
 // ============================================================================
 // Detector skills — wire the new detector engines into the chat agent.
 // ============================================================================
-import {
-  detectSpikes,
-  detectVolumeAnomalies,
-  detectLiquiditySweeps,
-  detectGaps,
-  detectRangeBreaks,
-  detectRegimeShift,
-  runAllDetectors,
-} from "@/lib/engine/detectors";
-
 const detector_skills: Skill[] = [
   {
     id: "spike-scan",
@@ -668,13 +692,6 @@ const detector_skills: Skill[] = [
 // strength, alert dispatcher. Each is a self-contained engine surfaced as a
 // chat skill.
 // ============================================================================
-import { generateTradeIdea, formatTradeIdea } from "@/lib/engine/trade-idea";
-import { riskOfRuin } from "@/lib/engine/risk-of-ruin";
-import { scanHeat } from "@/lib/engine/heat-scanner";
-import { currencyStrength, topPairs } from "@/lib/engine/currency-strength";
-import { dispatchAlert } from "@/lib/engine/alert-dispatcher";
-import { latestVwap } from "@/lib/engine/vwap";
-
 const power_skills: Skill[] = [
   {
     id: "trade-idea",
@@ -736,10 +753,17 @@ const power_skills: Skill[] = [
     keywords: ["currency strength", "strongest currency", "weakest currency", "strength meter"],
     exec: async ({ args }) => {
       const tf = (args?.tf as TF) || "H1";
-      const fxSymbols = ALL_ASSETS.filter((s) => /^frx[A-Z]{6}$/.test(s));
-      const candlesBySymbol: Record<string, any> = {};
-      for (const sym of fxSymbols.slice(0, 28)) {
-        try { candlesBySymbol[sym] = await deriv.getCandles(sym, tf, 50); } catch { /* skip */ }
+      // ALL_ASSETS is AssetSymbol[] (objects), so filter by `.symbol`.
+      const fxAssets = ALL_ASSETS.filter((a) => /^frx[A-Z]{6}$/.test(a.symbol));
+      const candlesBySymbol: Record<string, Candle[]> = {};
+      // Fetch in parallel batches for speed; tolerate per-pair failures.
+      const slice = fxAssets.slice(0, 28);
+      for (let i = 0; i < slice.length; i += 4) {
+        const batch = slice.slice(i, i + 4);
+        const results = await Promise.allSettled(
+          batch.map(async (a) => ({ sym: a.symbol, candles: await deriv.getCandles(a.symbol, tf, 50) })),
+        );
+        for (const r of results) if (r.status === "fulfilled") candlesBySymbol[r.value.sym] = r.value.candles;
       }
       const strengths = currencyStrength(candlesBySymbol);
       const top = topPairs(strengths, 3);
@@ -788,6 +812,111 @@ const power_skills: Skill[] = [
 ];
 
 // ============================================================================
+// NEW tools (this commit) — market profile, portfolio heat, walk-forward,
+// slippage, anomaly clustering.
+// ============================================================================
+const new_tool_skills: Skill[] = [
+  {
+    id: "market-profile",
+    name: "Market profile / TPO",
+    category: "Market Data",
+    description: "Compute volume-at-price profile, POC, value-area-high / low.",
+    trigger: "keyword",
+    keywords: ["market profile", "tpo", "poc", "value area", "volume profile"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M15";
+      const candles = await deriv.getCandles(symbol, tf, 300);
+      const mp = marketProfile(candles, 30);
+      if (!mp) return { ok: false, error: "insufficient candles" };
+      return {
+        ok: true,
+        output: `${symbol} ${tf}  POC=${mp.poc.toFixed(5)}  VAH=${mp.vah.toFixed(5)}  VAL=${mp.val.toFixed(5)}  bins=${mp.bins.length}`,
+      };
+    },
+  },
+  {
+    id: "portfolio-heat",
+    name: "Portfolio heat",
+    category: "Trading Research",
+    description: "Total open-risk exposure across positions vs account.",
+    trigger: "keyword",
+    keywords: ["portfolio heat", "total risk", "open exposure"],
+    exec: async ({ args }) => {
+      const positions = (args?.positions as any[]) || [];
+      const balance = Number(args?.balance ?? 10_000);
+      if (!positions.length) return { ok: false, error: "no positions in args.positions" };
+      const h = portfolioHeat(positions, balance);
+      return {
+        ok: true,
+        output: `Heat=${h.heatPct.toFixed(2)}%  open=${h.openCount}  risk=$${h.totalRiskUsd.toFixed(2)}  status=${h.status}  warnings=${h.warnings.length}`,
+      };
+    },
+  },
+  {
+    id: "walk-forward",
+    name: "Walk-forward analysis",
+    category: "Self-Improvement",
+    description: "Rolling in-sample / out-of-sample split to validate strategy robustness.",
+    trigger: "keyword",
+    keywords: ["walk forward", "wfo", "in sample", "out of sample", "validation"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "H1";
+      const candles = await deriv.getCandles(symbol, tf, 500);
+      const r = walkForward(candles, (cs) => {
+        const a = analyze(symbol, tf, cs, {});
+        return a.scorePct >= 60 && a.direction ? a.direction : null;
+      });
+      return {
+        ok: true,
+        output: `${symbol} ${tf} WFO  folds=${r.folds.length}  IS-acc=${(r.avgInSampleAcc * 100).toFixed(1)}%  OOS-acc=${(r.avgOutOfSampleAcc * 100).toFixed(1)}%  decay=${(r.decay * 100).toFixed(1)}%  robust=${r.robust}`,
+      };
+    },
+  },
+  {
+    id: "slippage-sim",
+    name: "Slippage simulator",
+    category: "Trading Research",
+    description: "Model expected slippage cost based on volatility, spread, and size.",
+    trigger: "keyword",
+    keywords: ["slippage", "execution cost", "slipped"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M1";
+      const candles = await deriv.getCandles(symbol, tf, 100);
+      const lotSize = Number(args?.lotSize ?? 1);
+      const spread = Number(args?.spread ?? 1);
+      const r = simulateSlippage(symbol, candles, lotSize, spread);
+      return {
+        ok: true,
+        output: `${symbol}  expected slippage=${r.expectedPips.toFixed(2)} pips  cost=$${r.expectedCostUsd.toFixed(2)}  regime=${r.regime}`,
+      };
+    },
+  },
+  {
+    id: "anomaly-cluster",
+    name: "Anomaly cluster",
+    category: "Signal Engine",
+    description: "Group recent detector events into clusters (storm vs isolated).",
+    trigger: "keyword",
+    keywords: ["anomaly", "cluster", "storm", "event cluster"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M5";
+      const candles = await deriv.getCandles(symbol, tf, 300);
+      const det = runAllDetectors(candles);
+      const clusters = clusterAnomalies(det, candles);
+      const top = clusters.slice(0, 3).map((c) => `  cluster idx ${c.startIdx}–${c.endIdx}  size=${c.size}  intensity=${c.intensity.toFixed(2)}`).join("\n");
+      return {
+        ok: true,
+        output: `${symbol} ${tf}  ${clusters.length} clusters\n${top || "  (no clusters)"}`,
+      };
+    },
+  },
+];
+
+// ============================================================================
 // Final registry — keep this as the single export site so the rest of the app
 // imports SKILLS and nothing else.
 // ============================================================================
@@ -796,6 +925,7 @@ export const SKILLS: Skill[] = [
   ...extended_exec_skills,
   ...detector_skills,
   ...power_skills,
+  ...new_tool_skills,
   ...declarative_skills,
 ];
 
