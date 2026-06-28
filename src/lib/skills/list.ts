@@ -389,10 +389,124 @@ const declarative_skills: Skill[] = [
 ];
 
 // ============================================================================
+// Extended executable skills — wire new engines (fib / pivots / OFI / pip / equity)
+// into the chat agent loop.
+// ============================================================================
+import { fibLevels, nearestFib } from "@/lib/engine/fibonacci";
+import { classicPivots, fibonacciPivots, camarillaPivots } from "@/lib/engine/pivots";
+import { orderFlowImbalance, cvdDivergence } from "@/lib/engine/order-flow";
+import { pipValue, distanceToPips } from "@/lib/engine/pip-calc";
+import { buildEquityCurve, type TradeRecord } from "@/lib/engine/equity-curve";
+
+const extended_exec_skills: Skill[] = [
+  {
+    id: "fib-levels",
+    name: "Fibonacci levels",
+    category: "Signal Engine",
+    description: "Compute retracement + extension levels for the dominant swing.",
+    trigger: "keyword",
+    keywords: ["fib", "fibonacci", "retracement", "extension"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "H1";
+      const candles = await deriv.getCandles(symbol, tf, 200);
+      const res = fibLevels(candles);
+      if (!res) return { ok: false, error: "insufficient candles" };
+      const price = candles[candles.length - 1].close;
+      const near = nearestFib(price, res);
+      const lines = res.levels
+        .map((l) => `  ${l.kind === "retracement" ? "R" : "E"} ${l.label.padStart(7)}  ${l.price.toFixed(5)}`)
+        .join("\n");
+      return {
+        ok: true,
+        output: `${symbol} ${tf} swing ${res.direction}\n${lines}\nnearest: ${near?.level.label} (${near?.distancePct.toFixed(3)}%)`,
+      };
+    },
+  },
+  {
+    id: "pivot-levels",
+    name: "Pivot points",
+    category: "Signal Engine",
+    description: "Daily classic / fibonacci / camarilla pivot levels from yesterday's HLC.",
+    trigger: "keyword",
+    keywords: ["pivot", "pivots", "r1", "s1", "daily levels"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const kind = (args?.kind as "classic" | "fibonacci" | "camarilla") || "classic";
+      const candles = await deriv.getCandles(symbol, "D1", 2);
+      if (candles.length < 2) return { ok: false, error: "need 2 daily candles" };
+      const prev = candles[candles.length - 2];
+      const calc = kind === "fibonacci" ? fibonacciPivots : kind === "camarilla" ? camarillaPivots : classicPivots;
+      const p = calc(prev.high, prev.low, prev.close);
+      return {
+        ok: true,
+        output: `${symbol} ${kind} pivots\nR3 ${p.r3.toFixed(5)}\nR2 ${p.r2.toFixed(5)}\nR1 ${p.r1.toFixed(5)}\nPP ${p.pp.toFixed(5)}\nS1 ${p.s1.toFixed(5)}\nS2 ${p.s2.toFixed(5)}\nS3 ${p.s3.toFixed(5)}`,
+      };
+    },
+  },
+  {
+    id: "order-flow",
+    name: "Order flow imbalance",
+    category: "Market Data",
+    description: "Buy/sell pressure + CVD divergence approximated from tick microstructure.",
+    trigger: "keyword",
+    keywords: ["order flow", "ofi", "cvd", "delta", "pressure"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const tf = (args?.tf as TF) || "M5";
+      const candles = await deriv.getCandles(symbol, tf, 100);
+      const ofi = orderFlowImbalance(candles);
+      const div = cvdDivergence(candles);
+      return {
+        ok: true,
+        output: `${symbol} ${tf} OFI ${(ofi.imbalance * 100).toFixed(1)}%  regime=${ofi.regime}  divergence=${div}`,
+      };
+    },
+  },
+  {
+    id: "pip-calc",
+    name: "Pip / spread cost",
+    category: "Trading Research",
+    description: "Pip value, spread cost, and SL distance in pips for any symbol.",
+    trigger: "keyword",
+    keywords: ["pip value", "spread cost", "how many pips"],
+    exec: async ({ args }) => {
+      const symbol = String(args?.symbol || "frxEURUSD");
+      const lot = Number(args?.lot ?? 1);
+      const sl = Number(args?.sl ?? 0);
+      const info = pipValue(symbol, lot);
+      const pips = sl > 0 ? distanceToPips(symbol, sl) : null;
+      return {
+        ok: true,
+        output: `${symbol}  pipSize=${info.pipSize}  $${info.pipValuePerLot.toFixed(2)}/pip/std-lot  spread=$${info.spreadCostUsd.toFixed(2)}${pips !== null ? `  sl=${pips.toFixed(1)} pips` : ""}`,
+      };
+    },
+  },
+  {
+    id: "equity-summary",
+    name: "Equity summary",
+    category: "Self-Improvement",
+    description: "Summarise a trade log: ending balance, max drawdown, win rate, PnL%.",
+    trigger: "keyword",
+    keywords: ["equity", "drawdown", "performance summary", "win rate"],
+    exec: async ({ args }) => {
+      const trades = (args?.trades as TradeRecord[]) || [];
+      const start = Number(args?.startingBalance ?? 10_000);
+      if (!trades.length) return { ok: false, error: "no trades provided in args.trades" };
+      const s = buildEquityCurve(trades, start);
+      return {
+        ok: true,
+        output: `trades=${s.totalTrades}  pnl=$${s.pnl.toFixed(2)} (${s.pnlPct.toFixed(2)}%)  maxDD=${s.maxDrawdownPct.toFixed(2)}%  winRate=${s.winRate.toFixed(1)}%`,
+      };
+    },
+  },
+];
+
+// ============================================================================
 // Final registry — keep this as the single export site so the rest of the app
 // imports SKILLS and nothing else.
 // ============================================================================
-export const SKILLS: Skill[] = [...exec_skills, ...declarative_skills];
+export const SKILLS: Skill[] = [...exec_skills, ...extended_exec_skills, ...declarative_skills];
 
 // Sanity log so you can verify count in dev:
 //   import { SKILLS } from "@/lib/skills/list"; console.log(SKILLS.length);
