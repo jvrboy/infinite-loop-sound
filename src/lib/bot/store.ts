@@ -41,14 +41,18 @@ export interface BotSettings {
 
   // ── Guardrails ───────────────────────────────────────────────
   allowWeekends: boolean; // when false, block opening trades on Sat/Sun (synthetics exempt)
+  avoidLowLiquidity: boolean; // when true, block forex/indices during the low-liquidity window below
+  lowLiqStartUtc: number; // UTC hour (0-23) the low-liquidity window starts
+  lowLiqEndUtc: number; // UTC hour (0-23) the low-liquidity window ends (may wrap past midnight)
+  minBalance: number; // stop opening new trades if account balance falls at/below this (real mode)
 
   // legacy flag kept for migration (no longer surfaced in UI)
   enabled?: boolean;
   selfScan?: boolean;
 }
 
-const KEY = "div-iq/bot-settings/v3";
-const LEGACY_KEYS = ["div-iq/bot-settings/v2", "div-iq/bot-settings/v1"];
+const KEY = "div-iq/bot-settings/v4";
+const LEGACY_KEYS = ["div-iq/bot-settings/v3", "div-iq/bot-settings/v2", "div-iq/bot-settings/v1"];
 
 export const MAX_CONCURRENT_TRADES = 500;
 
@@ -81,6 +85,10 @@ export const DEFAULT_BOT: BotSettings = {
   scanTimeframe: "M5",
 
   allowWeekends: false,
+  avoidLowLiquidity: false,
+  lowLiqStartUtc: 21, // 21:00 UTC (NY close) …
+  lowLiqEndUtc: 23, //  … to 23:00 UTC — thin, wide-spread hours
+  minBalance: 0,
 };
 
 function migrate(raw: Partial<BotSettings> & Record<string, unknown>): BotSettings {
@@ -144,7 +152,23 @@ export function validateSettings(s: BotSettings): string[] {
   }
   if (!Number.isFinite(s.dailyLossCap) || s.dailyLossCap <= 0) errors.push("Daily loss cap must be greater than 0.");
   if (!Number.isFinite(s.cooldownSec) || s.cooldownSec < 0) errors.push("Cooldown must be 0 or greater.");
+  if (!Number.isFinite(s.minBalance) || s.minBalance < 0) errors.push("Minimum balance must be 0 or greater.");
+  if (s.avoidLowLiquidity) {
+    const okHour = (h: number) => Number.isInteger(h) && h >= 0 && h <= 23;
+    if (!okHour(s.lowLiqStartUtc) || !okHour(s.lowLiqEndUtc)) errors.push("Low-liquidity hours must be whole numbers between 0 and 23.");
+    if (s.lowLiqStartUtc === s.lowLiqEndUtc) errors.push("Low-liquidity start and end hours must differ.");
+  }
   return errors;
+}
+
+// True when `now` falls inside the configured low-liquidity UTC window.
+// The window may wrap past midnight (e.g. 21 → 2).
+export function isLowLiquidityHour(s: BotSettings, now: Date = new Date()): boolean {
+  if (!s.avoidLowLiquidity) return false;
+  const h = now.getUTCHours();
+  const { lowLiqStartUtc: start, lowLiqEndUtc: end } = s;
+  if (start === end) return false;
+  return start < end ? h >= start && h < end : h >= start || h < end;
 }
 
 // ── Pip helpers ────────────────────────────────────────────────

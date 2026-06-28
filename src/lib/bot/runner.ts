@@ -18,7 +18,22 @@
 import { supabase } from "@/integrations/supabase/client";
 import { deriv, type TF } from "@/lib/engine/deriv";
 import { analyze } from "@/lib/engine/signal";
-import { pipSize, type BotSettings } from "./store";
+import { isLowLiquidityHour, pipSize, type BotSettings } from "./store";
+
+// Persisted session snapshot so cumulative stats and trade history survive an
+// app restart / page reload (the spec requires history not be lost).
+const SESSION_KEY = "div-iq/bot-session/v1";
+
+interface SessionSnapshot {
+  day: string;
+  sessionPnl: number;
+  dailyPnl: number;
+  wins: number;
+  losses: number;
+  lastResult: TradeResult;
+  martingaleLot: number;
+  closed: ClosedTrade[];
+}
 
 export type RunStatus = "stopped" | "running" | "paused" | "halted";
 export type TradeResult = "WIN" | "LOSS" | "PENDING";
@@ -91,8 +106,56 @@ class BotRunner {
   private status: RunStatus = "stopped";
   private scanTimer: number | null = null;
   private scalperTimer: number | null = null;
+  private balanceTimer: number | null = null;
   private scanning = false;
   private lastScanAt = 0;
+  private balanceBlocked = false;
+  private lastBalance: number | null = null;
+
+  constructor() {
+    this.restoreSession();
+  }
+
+  // ── session persistence ─────────────────────────────────────────
+  private persistSession() {
+    if (typeof window === "undefined") return;
+    try {
+      const snap: SessionSnapshot = {
+        day: this.day,
+        sessionPnl: this.sessionPnl,
+        dailyPnl: this.dailyPnl,
+        wins: this.wins,
+        losses: this.losses,
+        lastResult: this.lastResult,
+        martingaleLot: this.martingaleLot,
+        closed: this.closed.slice(0, 200),
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(snap));
+    } catch {
+      /* ignore quota / serialization errors */
+    }
+  }
+
+  private restoreSession() {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = localStorage.getItem(SESSION_KEY);
+      if (!raw) return;
+      const snap = JSON.parse(raw) as Partial<SessionSnapshot>;
+      const today = new Date().toDateString();
+      this.day = snap.day ?? today;
+      this.sessionPnl = Number(snap.sessionPnl ?? 0);
+      // Daily P&L only carries over within the same calendar day.
+      this.dailyPnl = snap.day === today ? Number(snap.dailyPnl ?? 0) : 0;
+      this.wins = Number(snap.wins ?? 0);
+      this.losses = Number(snap.losses ?? 0);
+      this.lastResult = (snap.lastResult as TradeResult) ?? "PENDING";
+      this.martingaleLot = Number(snap.martingaleLot ?? 0);
+      this.closed = Array.isArray(snap.closed) ? snap.closed.slice(0, 200) : [];
+    } catch {
+      /* corrupt snapshot — start fresh */
+    }
+  }
 
   // ── subscriptions ──────────────────────────────────────────────
   on(cb: (s: string) => void) {
@@ -154,6 +217,12 @@ class BotRunner {
     if (!this.settings) return 0;
     return this.settings.positionSizing === "martingale" ? this.martingaleLot : this.settings.lotSize;
   }
+  getBalance(): number | null {
+    return this.lastBalance;
+  }
+  isBalanceBlocked(): boolean {
+    return this.balanceBlocked;
+  }
 
   resetSession() {
     this.sessionPnl = 0;
@@ -162,7 +231,18 @@ class BotRunner {
     this.losses = 0;
     this.closed = [];
     this.lastResult = "PENDING";
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem(SESSION_KEY);
+      } catch {
+        /* ignore */
+      }
+    }
     this.emitChange();
+  }
+
+  getLastClosed(): ClosedTrade | null {
+    return this.closed[0] ?? null;
   }
 
   // ── lifecycle ───────────────────────────────────────────────────
@@ -210,6 +290,9 @@ class BotRunner {
       `Bot started · ${s.mode.toUpperCase()} · ${s.accountType.toUpperCase()} · sizing=${s.positionSizing} · maxOpen=${s.maxOpen} · pairs=${s.instruments.join(",")}`,
     );
 
+    this.balanceBlocked = false;
+    if (s.token && s.minBalance > 0) void this.checkBalance();
+
     if (s.mode === "signal") {
       this.subscribeSignals();
       this.scheduleScan();
@@ -255,6 +338,10 @@ class BotRunner {
       window.clearTimeout(this.scalperTimer);
       this.scalperTimer = null;
     }
+    if (this.balanceTimer !== null) {
+      window.clearTimeout(this.balanceTimer);
+      this.balanceTimer = null;
+    }
     this.queue = [];
     this.status = "stopped";
     if (!silent) this.log("Bot stopped");
@@ -285,6 +372,7 @@ class BotRunner {
     if (this.status !== "paused" || !this.settings) return;
     this.status = "running";
     this.log("Bot resumed");
+    if (this.settings.token && this.settings.minBalance > 0) void this.checkBalance();
     if (this.settings.mode === "signal") {
       this.scheduleScan();
       this.processQueue();
@@ -307,7 +395,30 @@ class BotRunner {
       window.clearTimeout(this.scalperTimer);
       this.scalperTimer = null;
     }
+    if (this.balanceTimer !== null) {
+      window.clearTimeout(this.balanceTimer);
+      this.balanceTimer = null;
+    }
     this.queue = [];
+    this.emitChange();
+  }
+
+  // Mass-close — force-close every open position immediately but keep the bot
+  // in its current mode/status (unlike emergency stop, which also turns it OFF).
+  async massClose() {
+    const positions = this.open.slice();
+    if (positions.length === 0) {
+      this.log("Mass close — no open positions");
+      return;
+    }
+    this.log(`Mass close — closing ${positions.length} open position(s)`);
+    for (const p of positions) {
+      try {
+        await this.closePosition(p, p.entry, "manual");
+      } catch {
+        /* ignore */
+      }
+    }
     this.emitChange();
   }
 
@@ -332,12 +443,27 @@ class BotRunner {
   }
 
   // ── guardrails ──────────────────────────────────────────────────
+  // Synthetics (R_*, 1HZ*, BOOM, CRASH, JD) trade 24/7 and ignore session windows.
+  private isSynthetic(pair: string): boolean {
+    return /^R_|HZ|BOOM|CRASH|JD/i.test(pair);
+  }
+
   private isWeekendBlocked(pair: string): boolean {
     if (!this.settings || this.settings.allowWeekends) return false;
-    // Synthetics trade 24/7 — never block them.
-    if (/^R_|HZ|BOOM|CRASH|JD/i.test(pair)) return false;
+    if (this.isSynthetic(pair)) return false;
     const day = new Date().getUTCDay(); // 0 = Sun, 6 = Sat
     return day === 0 || day === 6;
+  }
+
+  // Combined session guardrail: weekend block + configurable low-liquidity hours.
+  // Returns a human-readable reason when blocked, otherwise null.
+  private timeBlockReason(pair: string): string | null {
+    if (!this.settings) return null;
+    if (this.isWeekendBlocked(pair)) return "weekend trading disabled";
+    if (!this.isSynthetic(pair) && isLowLiquidityHour(this.settings)) {
+      return `low-liquidity hours (${this.settings.lowLiqStartUtc}:00–${this.settings.lowLiqEndUtc}:00 UTC)`;
+    }
+    return null;
   }
 
   private rollDay() {
@@ -345,6 +471,54 @@ class BotRunner {
     if (today !== this.day) {
       this.day = today;
       this.dailyPnl = 0;
+    }
+  }
+
+  // ── balance guardrail ───────────────────────────────────────────
+  // Polls the live Deriv balance and halts NEW trade openings (existing
+  // positions keep being monitored) when it falls at/below minBalance.
+  private scheduleBalanceCheck() {
+    if (this.balanceTimer !== null) window.clearTimeout(this.balanceTimer);
+    if (!this.settings || !this.settings.token || this.settings.minBalance <= 0) return;
+    this.balanceTimer = window.setTimeout(() => void this.checkBalance(), 30_000);
+  }
+
+  private async checkBalance() {
+    if (!this.settings || !this.settings.token) return;
+    try {
+      const b = await deriv.balance(this.settings.token);
+      const amount = Number(b?.balance ?? b?.amount ?? NaN);
+      if (Number.isFinite(amount)) {
+        this.lastBalance = amount;
+        const min = this.settings.minBalance;
+        if (min > 0 && amount <= min) {
+          if (!this.balanceBlocked) {
+            this.balanceBlocked = true;
+            this.log(`Balance ${amount.toFixed(2)} ≤ minimum ${min.toFixed(2)} — halting new trades`);
+            void this.raiseAlert("deriv.balance_low", `Bot halted new trades — balance ${amount.toFixed(2)} ≤ minimum ${min.toFixed(2)}`, {
+              balance: amount,
+              minBalance: min,
+            });
+          }
+        } else if (this.balanceBlocked) {
+          this.balanceBlocked = false;
+          this.log(`Balance recovered (${amount.toFixed(2)}) — resuming new trades`);
+        }
+        this.emitChange();
+      }
+    } catch (e: unknown) {
+      this.log(`balance check failed: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      if (this.status === "running" || this.status === "paused") this.scheduleBalanceCheck();
+    }
+  }
+
+  private async raiseAlert(kind: string, message: string, context: Record<string, unknown>) {
+    try {
+      const mod = await import("@/lib/alerts.functions");
+      await mod.raiseAlertFn({ data: { severity: "error", kind, message, context } });
+    } catch {
+      /* alerts are best-effort */
     }
   }
 
@@ -479,8 +653,13 @@ class BotRunner {
       this.halt(`Daily loss cap hit (${this.dailyPnl.toFixed(2)})`);
       return;
     }
-    if (this.isWeekendBlocked(sig.pair)) {
-      this.log(`Skip ${sig.pair}: weekend trading disabled`);
+    const block = this.timeBlockReason(sig.pair);
+    if (block) {
+      this.log(`Skip ${sig.pair}: ${block}`);
+      return;
+    }
+    if (this.balanceBlocked) {
+      this.log(`Skip ${sig.pair}: balance below minimum — new trades halted`);
       return;
     }
     // Don't open a second trade for the same pair while one is still open
@@ -528,10 +707,12 @@ class BotRunner {
     }
 
     try {
-      if (this.canOpenMore() && this.cooldownOk("*")) {
-        const candidates = s.instruments.filter((p) => !this.isWeekendBlocked(p));
+      if (this.balanceBlocked) {
+        this.log("Scalper idle — balance below minimum; no new trades");
+      } else if (this.canOpenMore() && this.cooldownOk("*")) {
+        const candidates = s.instruments.filter((p) => !this.timeBlockReason(p));
         if (candidates.length === 0) {
-          this.log("Scalper idle — all instruments blocked (weekend)");
+          this.log("Scalper idle — all instruments blocked (weekend / low-liquidity)");
         } else {
           const pair = candidates[Math.floor(Math.random() * candidates.length)];
           const direction: "BUY" | "SELL" = Math.random() > 0.5 ? "BUY" : "SELL";
@@ -646,6 +827,12 @@ class BotRunner {
         const msg = e instanceof Error ? e.message : String(e);
         if (pos.dbId) await supabase.from("bot_trades").update({ status: "error", error: msg }).eq("id", pos.dbId);
         this.log(`ERR ${pair}: ${msg}`);
+        // Insufficient balance — stop opening further trades and alert the user.
+        if (/insufficient|balance|not enough/i.test(msg)) {
+          this.balanceBlocked = true;
+          this.log("Insufficient balance — new trades halted");
+          void this.raiseAlert("deriv.insufficient_balance", `Bot halted new trades — order rejected: ${msg}`, { pair, error: msg });
+        }
         this.open = this.open.filter((o) => o.id !== pos.id);
         this.emitChange();
         return;
@@ -736,6 +923,7 @@ class BotRunner {
     };
     this.closed.unshift(closed);
     this.closed = this.closed.slice(0, 200);
+    this.persistSession();
 
     if (pos.dbId) {
       try {

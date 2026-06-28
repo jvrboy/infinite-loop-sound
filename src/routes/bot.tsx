@@ -17,6 +17,9 @@ import {
   Pause,
   Play,
   Save,
+  Ban,
+  Wallet,
+  CalendarClock,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -126,6 +129,10 @@ function BotPage() {
   const [dirty, setDirty] = useState(false);
   // tick: forces re-render whenever the runner emits a change.
   const [, setTick] = useState(0);
+  // Trade-history filters / sort.
+  const [histSymbol, setHistSymbol] = useState<string>("all");
+  const [histResult, setHistResult] = useState<"all" | "WIN" | "LOSS">("all");
+  const [histSort, setHistSort] = useState<"time" | "pnl">("time");
 
   useEffect(() => {
     setS(loadBot());
@@ -204,6 +211,16 @@ function BotPage() {
     toast.error("Emergency stop executed — all positions closed");
   };
 
+  const massClose = async () => {
+    if (botRunner.getOpenCount() === 0) {
+      toast.message("No open positions to close");
+      return;
+    }
+    if (!confirm(`Close all ${botRunner.getOpenCount()} open position(s) now? The bot stays in its current mode.`)) return;
+    await botRunner.massClose();
+    toast.message("All open positions closed");
+  };
+
   const pause = () => {
     botRunner.pause();
     toast.message("Bot paused — positions still monitored");
@@ -234,14 +251,24 @@ function BotPage() {
   const openCount = botRunner.getOpenCount();
   const queueLen = botRunner.getQueueLength();
   const sessionPnl = botRunner.getSessionPnl();
+  const dailyPnl = botRunner.getDailyPnl();
   const { wins, losses } = botRunner.getWinLoss();
   const lastResult: TradeResult = botRunner.getLastResult();
   const nextLot = botRunner.getNextLot();
   const openPositions: OpenPosition[] = botRunner.getOpenPositions();
-  const closed: ClosedTrade[] = botRunner.getRecentClosed(40);
+  const closed: ClosedTrade[] = botRunner.getRecentClosed(200);
+  const lastClosed = botRunner.getLastClosed();
   const lastActionAt = botRunner.getLastActionAt();
   const actionAgo = lastActionAt ? Math.round((Date.now() - lastActionAt) / 1000) : null;
   const winRate = wins + losses > 0 ? (wins / (wins + losses)) * 100 : 0;
+  const balance = botRunner.getBalance();
+  const balanceBlocked = botRunner.isBalanceBlocked();
+
+  const histSymbols = Array.from(new Set(closed.map((t) => t.pair)));
+  const visibleClosed = closed
+    .filter((t) => (histSymbol === "all" || t.pair === histSymbol) && (histResult === "all" || t.result === histResult))
+    .slice()
+    .sort((a, b) => (histSort === "pnl" ? b.pnl - a.pnl : b.closedAt - a.closedAt));
 
   const isRunning = status === "running";
   const isPaused = status === "paused";
@@ -278,11 +305,24 @@ function BotPage() {
                 )}
               </Button>
             )}
+            <Button onClick={massClose} variant="outline" disabled={openCount === 0} className="gap-1.5">
+              <Ban className="w-4 h-4" /> Close All ({openCount})
+            </Button>
             <Button onClick={emergency} variant="destructive" className="gap-1.5">
               <ShieldAlert className="w-4 h-4" /> Emergency Stop
             </Button>
           </div>
         </div>
+
+        {balanceBlocked && (
+          <div className="flex items-start gap-2 p-3 rounded-lg bg-bear/10 border border-bear/30 text-xs">
+            <AlertTriangle className="w-4 h-4 text-bear shrink-0 mt-0.5" />
+            <div>
+              <span className="font-bold text-bear">New trades halted — insufficient balance.</span> The bot will keep monitoring open
+              positions and resume opening trades once the balance recovers above your minimum.
+            </div>
+          </div>
+        )}
 
         {/* ── Mode control panel ──────────────────��──────────────── */}
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
@@ -356,17 +396,20 @@ function BotPage() {
           </div>
           <div className="rounded-lg border border-border bg-card p-4">
             <div className="text-xs text-muted-foreground uppercase flex items-center gap-1.5">
-              <Gauge className="w-3.5 h-3.5" /> Session P&amp;L
+              <Gauge className="w-3.5 h-3.5" /> Today&apos;s P&amp;L
             </div>
-            <div className={`text-2xl font-bold mt-1 ${sessionPnl > 0 ? "text-bull" : sessionPnl < 0 ? "text-bear" : ""}`}>
-              {sessionPnl >= 0 ? "+" : ""}
-              {sessionPnl.toFixed(2)}
+            <div className={`text-2xl font-bold mt-1 ${dailyPnl > 0 ? "text-bull" : dailyPnl < 0 ? "text-bear" : ""}`}>
+              {dailyPnl >= 0 ? "+" : ""}
+              {dailyPnl.toFixed(2)}
             </div>
-            <div className="text-[11px] text-muted-foreground">{wins}W / {losses}L · {winRate.toFixed(0)}%</div>
+            <div className="text-[11px] text-muted-foreground">
+              session {sessionPnl >= 0 ? "+" : ""}
+              {sessionPnl.toFixed(2)} · {wins}W / {losses}L · {winRate.toFixed(0)}%
+            </div>
           </div>
           <div className="rounded-lg border border-border bg-card p-4">
             <div className="text-xs text-muted-foreground uppercase flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5" /> Last Result
+              <Activity className="w-3.5 h-3.5" /> Last Trade
             </div>
             <div
               className={`text-2xl font-bold mt-1 ${
@@ -375,7 +418,16 @@ function BotPage() {
             >
               {lastResult}
             </div>
-            <div className="text-[11px] text-muted-foreground">{closed[0] ? displayPair(closed[0].pair) : "—"}</div>
+            <div className="text-[11px] text-muted-foreground">
+              {lastClosed ? (
+                <>
+                  <span className={lastClosed.direction === "BUY" ? "text-bull" : "text-bear"}>{lastClosed.direction}</span>{" "}
+                  {displayPair(lastClosed.pair)} · {new Date(lastClosed.closedAt).toLocaleTimeString()}
+                </>
+              ) : (
+                "—"
+              )}
+            </div>
           </div>
           <div className="rounded-lg border border-border bg-card p-4">
             <div className="text-xs text-muted-foreground uppercase flex items-center gap-1.5">
@@ -531,19 +583,64 @@ function BotPage() {
           )}
 
           {/* Guardrails */}
-          <div className="pt-3 border-t border-border flex items-center justify-between">
-            <div>
-              <div className="text-xs font-medium">Allow weekend trading</div>
-              <p className="text-[11px] text-muted-foreground">When off, forex/indices are blocked Sat–Sun. Synthetics always trade 24/7.</p>
+          <div className="pt-3 border-t border-border space-y-3">
+            <div className="text-xs font-bold uppercase text-muted-foreground flex items-center gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5" /> Safety Guardrails
             </div>
-            <button
-              type="button"
-              onClick={() => update("allowWeekends", !s.allowWeekends)}
-              className={`relative w-10 h-5 rounded-full transition-colors ${s.allowWeekends ? "bg-primary" : "bg-muted"}`}
-              aria-label="Toggle weekend trading"
-            >
-              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.allowWeekends ? "translate-x-5" : "translate-x-0.5"}`} />
-            </button>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs font-medium">Allow weekend trading</div>
+                <p className="text-[11px] text-muted-foreground">When off, forex/indices are blocked Sat–Sun. Synthetics always trade 24/7.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => update("allowWeekends", !s.allowWeekends)}
+                className={`relative w-10 h-5 rounded-full transition-colors ${s.allowWeekends ? "bg-primary" : "bg-muted"}`}
+                aria-label="Toggle weekend trading"
+              >
+                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.allowWeekends ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-xs font-medium flex items-center gap-1.5">
+                  <CalendarClock className="w-3.5 h-3.5" /> Avoid low-liquidity hours
+                </div>
+                <p className="text-[11px] text-muted-foreground">When on, forex/indices are blocked during the UTC window below. Synthetics exempt.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => update("avoidLowLiquidity", !s.avoidLowLiquidity)}
+                className={`relative w-10 h-5 rounded-full transition-colors ${s.avoidLowLiquidity ? "bg-primary" : "bg-muted"}`}
+                aria-label="Toggle low-liquidity guardrail"
+              >
+                <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${s.avoidLowLiquidity ? "translate-x-5" : "translate-x-0.5"}`} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {s.avoidLowLiquidity && (
+                <>
+                  <Field label="Low-liq start (UTC h)">
+                    <NumberField value={s.lowLiqStartUtc} min={0} max={23} step="1" onCommit={(v) => update("lowLiqStartUtc", Math.round(v))} />
+                  </Field>
+                  <Field label="Low-liq end (UTC h)">
+                    <NumberField value={s.lowLiqEndUtc} min={0} max={23} step="1" onCommit={(v) => update("lowLiqEndUtc", Math.round(v))} />
+                  </Field>
+                </>
+              )}
+              <Field label="Min balance (0 = off)">
+                <NumberField value={s.minBalance} min={0} max={1000000} step="1" onCommit={(v) => update("minBalance", v)} />
+              </Field>
+            </div>
+            {s.minBalance > 0 && balance !== null && (
+              <p className="text-[11px] text-muted-foreground flex items-center gap-1.5">
+                <Wallet className="w-3.5 h-3.5" /> Live balance: <span className="font-mono text-foreground">{balance.toFixed(2)}</span>
+                {balanceBlocked && <span className="text-bear font-medium">· below minimum — trades halted</span>}
+              </p>
+            )}
           </div>
 
           {s.accountType === "real" && (
@@ -627,11 +724,47 @@ function BotPage() {
 
         {/* ── Trade history ──────────────────────────────────────── */}
         <div className="rounded-lg border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-2">
-            <div className="text-sm font-bold uppercase tracking-wider">Trade history (session)</div>
-            <Button size="sm" variant="outline" onClick={() => botRunner.resetSession()}>
-              Reset session
-            </Button>
+          <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
+            <div className="text-sm font-bold uppercase tracking-wider">
+              Trade history <span className="text-muted-foreground font-normal">({visibleClosed.length})</span>
+            </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <select
+                value={histSymbol}
+                onChange={(e) => setHistSymbol(e.target.value)}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                aria-label="Filter by symbol"
+              >
+                <option value="all">All symbols</option>
+                {histSymbols.map((sym) => (
+                  <option key={sym} value={sym}>
+                    {displayPair(sym)}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={histResult}
+                onChange={(e) => setHistResult(e.target.value as "all" | "WIN" | "LOSS")}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                aria-label="Filter by result"
+              >
+                <option value="all">All results</option>
+                <option value="WIN">Wins</option>
+                <option value="LOSS">Losses</option>
+              </select>
+              <select
+                value={histSort}
+                onChange={(e) => setHistSort(e.target.value as "time" | "pnl")}
+                className="h-8 rounded-md border border-input bg-background px-2 text-xs"
+                aria-label="Sort trades"
+              >
+                <option value="time">Newest first</option>
+                <option value="pnl">Highest P&amp;L</option>
+              </select>
+              <Button size="sm" variant="outline" onClick={() => botRunner.resetSession()}>
+                Reset session
+              </Button>
+            </div>
           </div>
           <div className="overflow-auto max-h-80">
             <table className="w-full text-xs">
@@ -649,14 +782,14 @@ function BotPage() {
                 </tr>
               </thead>
               <tbody>
-                {closed.length === 0 ? (
+                {visibleClosed.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="py-4 text-center text-muted-foreground">
-                      no closed trades yet
+                      {closed.length === 0 ? "no closed trades yet" : "no trades match the current filters"}
                     </td>
                   </tr>
                 ) : (
-                  closed.map((t) => (
+                  visibleClosed.map((t) => (
                     <tr key={t.id} className="border-b border-border/50">
                       <td className="py-1.5 pr-2 font-mono text-muted-foreground">{new Date(t.openedAt).toLocaleTimeString()}</td>
                       <td className="py-1.5 pr-2 font-mono">{displayPair(t.pair)}</td>

@@ -111,6 +111,8 @@ class DerivClient {
   private pending = new Map<number, PendingResolver>();
   private connectPromise: Promise<void> | null = null;
   private tickListeners = new Map<string, Set<(t: { quote: number; epoch: number }) => void>>();
+  private reconnectAttempts = 0;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 
   connect(): Promise<void> {
     if (this.ws && this.ws.readyState === WebSocket.OPEN) return Promise.resolve();
@@ -119,9 +121,22 @@ class DerivClient {
       try {
         const ws = new WebSocket(DERIV_WS_URL);
         this.ws = ws;
-        ws.onopen = () => resolve();
+        ws.onopen = () => {
+          this.reconnectAttempts = 0;
+          resolve();
+        };
         ws.onerror = (e) => reject(e);
-        ws.onclose = () => { this.ws = null; this.connectPromise = null; };
+        ws.onclose = () => {
+          this.ws = null;
+          this.connectPromise = null;
+          // Fail any in-flight requests so callers can retry/​degrade gracefully.
+          this.pending.forEach((r) => {
+            try { r({ error: { message: "Deriv connection closed" } }); } catch { /* ignore */ }
+          });
+          this.pending.clear();
+          // If we still have active tick subscriptions, reconnect with backoff.
+          if (this.tickListeners.size > 0) this.scheduleReconnect();
+        };
         ws.onmessage = (ev) => {
           try {
             const msg = JSON.parse(ev.data as string);
@@ -139,6 +154,25 @@ class DerivClient {
       } catch (e) { reject(e); }
     });
     return this.connectPromise;
+  }
+
+  // Reconnect with exponential backoff (capped at 30s), then re-subscribe to
+  // every active tick stream so live data resumes automatically after a drop.
+  private scheduleReconnect() {
+    if (this.reconnectTimer) return;
+    const delay = Math.min(30000, 1000 * 2 ** this.reconnectAttempts);
+    this.reconnectAttempts++;
+    this.reconnectTimer = setTimeout(() => {
+      this.reconnectTimer = null;
+      if (this.tickListeners.size === 0) return;
+      this.connect()
+        .then(() => {
+          for (const sym of this.tickListeners.keys()) {
+            this.send({ ticks: sym, subscribe: 1 }).catch(() => {});
+          }
+        })
+        .catch(() => this.scheduleReconnect());
+    }, delay);
   }
 
   private send<T = any>(req: object): Promise<T> {
