@@ -43,7 +43,7 @@ const avgVolume = (candles: Candle[], n: number): number => {
 // ─── Helper: Detect swing highs/lows over a window ───────────────
 const findSwingPoints = (
   candles: Candle[],
-  window: number
+  window: number,
 ): { idx: number; type: "high" | "low"; price: number }[] => {
   const points: { idx: number; type: "high" | "low"; price: number }[] = [];
   const half = Math.floor(window / 2);
@@ -64,7 +64,7 @@ const findSwingPoints = (
 // ─── Helper: Zigzag pivots using 5-bar window (same as v2) ──────
 const zigzagPivots = (
   candles: Candle[],
-  window = 5
+  window = 5,
 ): { idx: number; type: "high" | "low"; price: number }[] => {
   return findSwingPoints(candles, window * 2);
 };
@@ -90,7 +90,7 @@ function computeIchimokuCloud(
   candles: Candle[],
   conv = 9,
   base = 26,
-  spanB = 52
+  spanB = 52,
 ): {
   tenkan: (number | null)[];
   kijun: (number | null)[];
@@ -136,10 +136,14 @@ export function ichimokuCloudStrategy(candles: Candle[]): StrategyHitV2 | null {
 
   // Check for valid data at last two bars
   if (
-    tenkan[last] == null || kijun[last] == null ||
-    tenkan[prev] == null || kijun[prev] == null ||
-    senkouA[last] == null || senkouB[last] == null
-  ) return null;
+    tenkan[last] == null ||
+    kijun[last] == null ||
+    tenkan[prev] == null ||
+    kijun[prev] == null ||
+    senkouA[last] == null ||
+    senkouB[last] == null
+  )
+    return null;
 
   const tkCurrent = tenkan[last] as number;
   const kjCurrent = kijun[last] as number;
@@ -160,21 +164,45 @@ export function ichimokuCloudStrategy(candles: Candle[]): StrategyHitV2 | null {
   const notes: string[] = [];
 
   // TK cross contributes heavily
-  if (tkCrossUp) { bullishScore += 2; notes.push("TK cross UP"); }
-  if (tkCrossDown) { bearishScore += 2; notes.push("TK cross DOWN"); }
+  if (tkCrossUp) {
+    bullishScore += 2;
+    notes.push("TK cross UP");
+  }
+  if (tkCrossDown) {
+    bearishScore += 2;
+    notes.push("TK cross DOWN");
+  }
 
   // TK positioning (even without fresh cross)
-  if (tkCurrent > kjCurrent) { bullishScore += 1; notes.push("Tenkan > Kijun"); }
-  if (tkCurrent < kjCurrent) { bearishScore += 1; notes.push("Tenkan < Kijun"); }
+  if (tkCurrent > kjCurrent) {
+    bullishScore += 1;
+    notes.push("Tenkan > Kijun");
+  }
+  if (tkCurrent < kjCurrent) {
+    bearishScore += 1;
+    notes.push("Tenkan < Kijun");
+  }
 
   // Price vs cloud
-  if (price > cloudTop) { bullishScore += 2; notes.push("Price above cloud"); }
-  else if (price < cloudBottom) { bearishScore += 2; notes.push("Price below cloud"); }
-  else { notes.push("Price inside cloud"); return null; } // inside cloud = no signal
+  if (price > cloudTop) {
+    bullishScore += 2;
+    notes.push("Price above cloud");
+  } else if (price < cloudBottom) {
+    bearishScore += 2;
+    notes.push("Price below cloud");
+  } else {
+    notes.push("Price inside cloud");
+    return null;
+  } // inside cloud = no signal
 
   // Cloud color
-  if (cloudGreen) { bullishScore += 1; notes.push("Cloud green"); }
-  else { bearishScore += 1; notes.push("Cloud red"); }
+  if (cloudGreen) {
+    bullishScore += 1;
+    notes.push("Cloud green");
+  } else {
+    bearishScore += 1;
+    notes.push("Cloud red");
+  }
 
   // Require minimum score of 4 for a signal
   if (bullishScore < 4 && bearishScore < 4) return null;
@@ -252,7 +280,7 @@ function detectFVG(candles: Candle[]): {
 // Detect Order Block: last strong opposing candle before an impulse move
 function detectOrderBlock(
   candles: Candle[],
-  lookback = 10
+  lookback = 10,
 ): {
   type: "bullish" | "bearish";
   high: number;
@@ -390,14 +418,14 @@ export function smcStructureDetection(candles: Candle[]): StrategyHitV2 | null {
 
   const side = bullishScore > bearishScore ? "BUY" : "SELL";
   const score = Math.max(bullishScore, bearishScore);
-  const confidence = Math.min(0.85, 0.50 + score * 0.06);
+  const confidence = Math.min(0.85, 0.5 + score * 0.06);
 
   return {
     name: "SMC_Structure",
     side,
     weight: 18,
     note: `SMC: [${features.join("; ")}]. Score: ${score}/${bullishScore + bearishScore}. WR: ~70%, PF: ~2.8x`,
-    confidence: 0.70,
+    confidence: 0.7,
     metadata: {
       features,
       bullishScore,
@@ -424,7 +452,13 @@ interface HarmonicPoint {
 interface HarmonicPattern {
   name: string;
   type: "bullish" | "bearish";
-  points: { X: HarmonicPoint; A: HarmonicPoint; B: HarmonicPoint; C: HarmonicPoint; D: HarmonicPoint };
+  points: {
+    X: HarmonicPoint;
+    A: HarmonicPoint;
+    B: HarmonicPoint;
+    C: HarmonicPoint;
+    D: HarmonicPoint;
+  };
   pricelineD: number; // projected reversal zone
   confidence: number;
 }
@@ -432,43 +466,40 @@ interface HarmonicPattern {
 // Harmonic pattern ratio definitions
 const HARMONIC_RATIOS = {
   Gartley: {
-    AB_XA: [0.618, 0.618],      // AB = 0.618 of XA
-    BC_AB: [0.382, 0.886],      // BC = 0.382-0.886 of AB
-    CD_BC: [1.272, 1.618],      // CD = 1.272-1.618 of BC
-    AD_XA: [0.786, 0.786],      // AD ≈ 0.786 of XA
+    AB_XA: [0.618, 0.618], // AB = 0.618 of XA
+    BC_AB: [0.382, 0.886], // BC = 0.382-0.886 of AB
+    CD_BC: [1.272, 1.618], // CD = 1.272-1.618 of BC
+    AD_XA: [0.786, 0.786], // AD ≈ 0.786 of XA
   },
   Butterfly: {
-    AB_XA: [0.786, 0.786],      // AB = 0.786 of XA
-    BC_AB: [0.382, 0.886],      // BC = 0.382-0.886 of AB
-    CD_BC: [1.618, 2.618],      // CD = 1.618-2.618 of BC
-    AD_XA: [1.27, 1.27],        // AD ≈ 1.27 of XA
+    AB_XA: [0.786, 0.786], // AB = 0.786 of XA
+    BC_AB: [0.382, 0.886], // BC = 0.382-0.886 of AB
+    CD_BC: [1.618, 2.618], // CD = 1.618-2.618 of BC
+    AD_XA: [1.27, 1.27], // AD ≈ 1.27 of XA
   },
   Bat: {
-    AB_XA: [0.382, 0.50],       // AB = 0.382-0.50 of XA
-    BC_AB: [0.382, 0.886],      // BC = 0.382-0.886 of AB
-    CD_BC: [1.618, 2.618],      // CD = 1.618-2.618 of BC
-    AD_XA: [0.886, 0.886],      // AD ≈ 0.886 of XA
+    AB_XA: [0.382, 0.5], // AB = 0.382-0.50 of XA
+    BC_AB: [0.382, 0.886], // BC = 0.382-0.886 of AB
+    CD_BC: [1.618, 2.618], // CD = 1.618-2.618 of BC
+    AD_XA: [0.886, 0.886], // AD ≈ 0.886 of XA
   },
   Crab: {
-    AB_XA: [0.382, 0.618],      // AB = 0.382-0.618 of XA
-    BC_AB: [0.382, 0.886],      // BC = 0.382-0.886 of AB
-    CD_BC: [2.618, 3.618],      // CD = 2.618-3.618 of BC
-    AD_XA: [1.618, 1.618],      // AD ≈ 1.618 of XA
+    AB_XA: [0.382, 0.618], // AB = 0.382-0.618 of XA
+    BC_AB: [0.382, 0.886], // BC = 0.382-0.886 of AB
+    CD_BC: [2.618, 3.618], // CD = 2.618-3.618 of BC
+    AD_XA: [1.618, 1.618], // AD ≈ 1.618 of XA
   },
   Shark: {
-    AB_XA: [0.446, 0.618],      // AB = 0.446-0.618 of XA
-    BC_AB: [1.13, 1.618],       // BC = 1.13-1.618 of AB
-    CD_BC: [1.618, 2.24],       // CD = 1.618-2.24 of BC
-    AD_XA: [0.886, 1.13],       // AD ≈ 0.886-1.13 of XA
+    AB_XA: [0.446, 0.618], // AB = 0.446-0.618 of XA
+    BC_AB: [1.13, 1.618], // BC = 1.13-1.618 of AB
+    CD_BC: [1.618, 2.24], // CD = 1.618-2.24 of BC
+    AD_XA: [0.886, 1.13], // AD ≈ 0.886-1.13 of XA
   },
 } as const;
 
 type HarmonicName = keyof typeof HARMONIC_RATIOS;
 
-function checkHarmonicPattern(
-  pivots: HarmonicPoint[],
-  tolerance = 0.08
-): HarmonicPattern | null {
+function checkHarmonicPattern(pivots: HarmonicPoint[], tolerance = 0.08): HarmonicPattern | null {
   // We need at least 5 alternating pivots: X, A, B, C, D
   if (pivots.length < 5) return null;
 
@@ -526,7 +557,7 @@ function checkHarmonicPattern(
     const type = isBullishSetup ? "bullish" : "bearish";
 
     // Higher confidence for more matching ratios
-    const confBase = matchCount === 4 ? 0.72 : 0.60;
+    const confBase = matchCount === 4 ? 0.72 : 0.6;
 
     return {
       name: patternName,
@@ -548,7 +579,7 @@ export function harmonicPatternDetector(candles: Candle[]): StrategyHitV2 | null
   if (rawPivots.length < 5) return null;
 
   // Convert to HarmonicPoint format
-  const hPivots: HarmonicPoint[] = rawPivots.map(p => ({
+  const hPivots: HarmonicPoint[] = rawPivots.map((p) => ({
     idx: p.idx,
     price: p.price,
     type: p.type,
@@ -596,7 +627,7 @@ export function harmonicPatternDetector(candles: Candle[]): StrategyHitV2 | null
 export function emaCrossoverStrategy(candles: Candle[]): StrategyHitV2 | null {
   if (candles.length < 55) return null; // need enough for EMA50
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const ema8 = ema(close, 8);
   const ema21 = ema(close, 21);
   const ema50 = ema(close, 50);
@@ -606,9 +637,13 @@ export function emaCrossoverStrategy(candles: Candle[]): StrategyHitV2 | null {
 
   // Validate we have data
   if (
-    ema8[last] == null || ema21[last] == null || ema50[last] == null ||
-    ema8[prev] == null || ema21[prev] == null
-  ) return null;
+    ema8[last] == null ||
+    ema21[last] == null ||
+    ema50[last] == null ||
+    ema8[prev] == null ||
+    ema21[prev] == null
+  )
+    return null;
 
   const e8Now = ema8[last] as number;
   const e21Now = ema21[last] as number;
@@ -631,9 +666,8 @@ export function emaCrossoverStrategy(candles: Candle[]): StrategyHitV2 | null {
 
   if (!side) return null;
 
-  const distFromEMA50 = side === "BUY"
-    ? ((price - e50Now) / e50Now) * 100
-    : ((e50Now - price) / e50Now) * 100;
+  const distFromEMA50 =
+    side === "BUY" ? ((price - e50Now) / e50Now) * 100 : ((e50Now - price) / e50Now) * 100;
 
   return {
     name: "EMACrossover",
@@ -661,7 +695,7 @@ export function emaCrossoverStrategy(candles: Candle[]): StrategyHitV2 | null {
 export function macdAdxStrategy(candles: Candle[]): StrategyHitV2 | null {
   if (candles.length < 40) return null;
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const macdResult = macd(close);
   const adxResult = adx(candles);
 
@@ -669,10 +703,8 @@ export function macdAdxStrategy(candles: Candle[]): StrategyHitV2 | null {
   const prev = last - 1;
 
   // Validate data
-  if (
-    macdResult.hist[last] == null || macdResult.hist[prev] == null ||
-    adxResult.adx[last] == null
-  ) return null;
+  if (macdResult.hist[last] == null || macdResult.hist[prev] == null || adxResult.adx[last] == null)
+    return null;
 
   const histNow = macdResult.hist[last] as number;
   const histPrev = macdResult.hist[prev] as number;
@@ -721,7 +753,7 @@ export function macdAdxStrategy(candles: Candle[]): StrategyHitV2 | null {
 export function tripleEmaAlignment(candles: Candle[]): StrategyHitV2 | null {
   if (candles.length < 55) return null;
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const ema8 = ema(close, 8);
   const ema21 = ema(close, 21);
   const ema50 = ema(close, 50);
@@ -746,8 +778,8 @@ export function tripleEmaAlignment(candles: Candle[]): StrategyHitV2 | null {
   const side: "BUY" | "SELL" = bullAlign ? "BUY" : "SELL";
 
   // Measure alignment strength (spread between EMAs as % of price)
-  const spread8_21 = Math.abs(e8 - e21) / price * 100;
-  const spread21_50 = Math.abs(e21 - e50) / price * 100;
+  const spread8_21 = (Math.abs(e8 - e21) / price) * 100;
+  const spread21_50 = (Math.abs(e21 - e50) / price) * 100;
   const totalSpread = spread8_21 + spread21_50;
 
   // Wider spread = stronger trend = higher confidence
@@ -758,7 +790,7 @@ export function tripleEmaAlignment(candles: Candle[]): StrategyHitV2 | null {
     side,
     weight: 15,
     note: `Triple EMA ${side === "BUY" ? "bullish" : "bearish"}: EMA8(${e8.toFixed(2)}) ${side === "BUY" ? ">" : "<"} EMA21(${e21.toFixed(2)}) ${side === "BUY" ? ">" : "<"} EMA50(${e50.toFixed(2)}). Spread: ${totalSpread.toFixed(3)}%. WR: ~60%, PF: ~1.8x`,
-    confidence: 0.60 + confBoost,
+    confidence: 0.6 + confBoost,
     metadata: {
       ema8: e8,
       ema21: e21,
@@ -786,11 +818,11 @@ export function srBreakoutStrategy(candles: Candle[]): StrategyHitV2 | null {
 
   // Need at least one recent swing high and one recent swing low
   const recentSwingHighs = swings
-    .filter(s => s.type === "high" && s.idx >= candles.length - 30)
+    .filter((s) => s.type === "high" && s.idx >= candles.length - 30)
     .sort((a, b) => b.price - a.price);
 
   const recentSwingLows = swings
-    .filter(s => s.type === "low" && s.idx >= candles.length - 30)
+    .filter((s) => s.type === "low" && s.idx >= candles.length - 30)
     .sort((a, b) => a.price - b.price);
 
   if (recentSwingHighs.length === 0 && recentSwingLows.length === 0) return null;
@@ -838,7 +870,7 @@ export function srBreakoutStrategy(candles: Candle[]): StrategyHitV2 | null {
           side: "BUY",
           weight: 16,
           note: `Resistance breakout at ${resistance.toFixed(2)} → ${price.toFixed(2)} (+${breakoutStrength.toFixed(3)}%). Low vol: ${volumeRatio.toFixed(1)}x avg. WR: ~63%, PF: ~2.0x`,
-          confidence: 0.50,
+          confidence: 0.5,
           metadata: {
             breakoutType: "resistance",
             level: resistance,
@@ -886,7 +918,7 @@ export function srBreakoutStrategy(candles: Candle[]): StrategyHitV2 | null {
           side: "SELL",
           weight: 16,
           note: `Support breakdown at ${support.toFixed(2)} → ${price.toFixed(2)} (-${breakdownStrength.toFixed(3)}%). Low vol: ${volumeRatio.toFixed(1)}x avg. WR: ~63%, PF: ~2.0x`,
-          confidence: 0.50,
+          confidence: 0.5,
           metadata: {
             breakoutType: "support",
             level: support,
@@ -968,7 +1000,7 @@ export function psarTrendContinuation(candles: Candle[]): StrategyHitV2 | null {
 export function stochBBCrossover(candles: Candle[]): StrategyHitV2 | null {
   if (candles.length < 25) return null;
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const stochResult = stoch(candles);
   const bbResult = bbands(close);
 
@@ -977,11 +1009,15 @@ export function stochBBCrossover(candles: Candle[]): StrategyHitV2 | null {
 
   // Validate data
   if (
-    stochResult.k[last] == null || stochResult.d[last] == null ||
-    stochResult.k[prev] == null || stochResult.d[prev] == null ||
-    bbResult.upper[last] == null || bbResult.lower[last] == null ||
+    stochResult.k[last] == null ||
+    stochResult.d[last] == null ||
+    stochResult.k[prev] == null ||
+    stochResult.d[prev] == null ||
+    bbResult.upper[last] == null ||
+    bbResult.lower[last] == null ||
     bbResult.mid[last] == null
-  ) return null;
+  )
+    return null;
 
   const kNow = stochResult.k[last] as number;
   const dNow = stochResult.d[last] as number;
@@ -1077,8 +1113,8 @@ export function confluenceMaster(candles: Candle[]): StrategyHitV2 | null {
   const hits = runIndividualV3Strategies(candles);
 
   // Count agreement
-  const buyHits = hits.filter(h => h.side === "BUY");
-  const sellHits = hits.filter(h => h.side === "SELL");
+  const buyHits = hits.filter((h) => h.side === "BUY");
+  const sellHits = hits.filter((h) => h.side === "SELL");
 
   const buyCount = buyHits.length;
   const sellCount = sellHits.length;
@@ -1098,10 +1134,10 @@ export function confluenceMaster(candles: Candle[]): StrategyHitV2 | null {
   // Confidence scales with number of agreeing strategies and their combined weight
   const baseConf = 0.75;
   const countBoost = Math.min(0.15, count * 0.03);
-  const weightBoost = Math.min(0.10, weightRatio * 0.15);
+  const weightBoost = Math.min(0.1, weightRatio * 0.15);
   const confidence = Math.min(0.95, baseConf + countBoost + weightBoost);
 
-  const strategyNames = agreeingHits.map(h => h.name).join(", ");
+  const strategyNames = agreeingHits.map((h) => h.name).join(", ");
 
   return {
     name: "ConfluenceMaster",
@@ -1110,7 +1146,11 @@ export function confluenceMaster(candles: Candle[]): StrategyHitV2 | null {
     note: `MASSIVE CONFLUENCE: ${count} strategies agree → ${side}. [${strategyNames}]. Combined weight: ${totalWeight}. WR: ~85%, PF: ~5.0x`,
     confidence,
     metadata: {
-      agreeingStrategies: agreeingHits.map(h => ({ name: h.name, weight: h.weight, confidence: h.confidence })),
+      agreeingStrategies: agreeingHits.map((h) => ({
+        name: h.name,
+        weight: h.weight,
+        confidence: h.confidence,
+      })),
       buyCount,
       sellCount,
       totalWeight,
@@ -1119,7 +1159,6 @@ export function confluenceMaster(candles: Candle[]): StrategyHitV2 | null {
     },
   };
 }
-
 
 // ═══════════════════════════════════════════════════════════════════
 // MASTER EVALUATOR — Runs all V3 strategies
@@ -1135,7 +1174,7 @@ export function evaluateStrategiesV3(candles: Candle[]): StrategyHitV2[] {
     srBreakoutStrategy(candles),
     psarTrendContinuation(candles),
     stochBBCrossover(candles),
-    confluenceMaster(candles),          // highest weight, fires last
+    confluenceMaster(candles), // highest weight, fires last
   ];
   return out.filter((x): x is StrategyHitV2 => x !== null);
 }
@@ -1149,7 +1188,8 @@ export const STRATEGY_CATALOG_V3 = [
     id: "ichimoku-cloud",
     name: "Ichimoku Cloud",
     source: "Advanced Confluence Strategies V3",
-    description: "Full TK cross + price vs cloud + cloud color. Combines three Ichimoku signals for high-probability trend continuation entries.",
+    description:
+      "Full TK cross + price vs cloud + cloud color. Combines three Ichimoku signals for high-probability trend continuation entries.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4, D1",
     winRate: { night: 67, day: 67 },
@@ -1158,14 +1198,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Tenkan-sen crosses above/below Kijun-sen",
       "Price must be above (bullish) or below (bearish) the Kumo cloud",
       "Cloud color confirms: green for bullish, red for bearish",
-      "Minimum 4/6 confluence points required from the three checks"
-    ]
+      "Minimum 4/6 confluence points required from the three checks",
+    ],
   },
   {
     id: "smc-structure",
     name: "SMC Structure Detection",
     source: "Advanced Confluence Strategies V3",
-    description: "Smart Money Concepts: detects Break of Structure (BOS), Change of Character (CHoCH), Fair Value Gaps (FVG), and Order Blocks.",
+    description:
+      "Smart Money Concepts: detects Break of Structure (BOS), Change of Character (CHoCH), Fair Value Gaps (FVG), and Order Blocks.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 70, day: 70 },
@@ -1176,14 +1217,15 @@ export const STRATEGY_CATALOG_V3 = [
       "CHoCH: first break against established trend (+3 pts)",
       "FVG: 3-candle gap pattern (candle[0].high < candle[2].low or inverse) (+2 pts)",
       "Order Block: last strong opposing candle before impulse move (+1 pt)",
-      "Minimum 3 points in one direction required"
-    ]
+      "Minimum 3 points in one direction required",
+    ],
   },
   {
     id: "harmonic-pattern",
     name: "Harmonic Pattern Detector",
     source: "Advanced Confluence Strategies V3",
-    description: "Detects Gartley, Butterfly, Bat, Crab, and Shark patterns using Fibonacci ratios between zigzag pivot points.",
+    description:
+      "Detects Gartley, Butterfly, Bat, Crab, and Shark patterns using Fibonacci ratios between zigzag pivot points.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4, D1",
     winRate: { night: 65, day: 65 },
@@ -1196,14 +1238,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Bat: AB=0.382-0.50 XA, BC=0.382-0.886 AB, CD=1.618-2.618 BC, AD=0.886 XA",
       "Crab: AB=0.382-0.618 XA, BC=0.382-0.886 AB, CD=2.618-3.618 BC, AD=1.618 XA",
       "Shark: AB=0.446-0.618 XA, BC=1.13-1.618 AB, CD=1.618-2.24 BC",
-      "At least 3/4 Fibonacci ratios must match (8% tolerance)"
-    ]
+      "At least 3/4 Fibonacci ratios must match (8% tolerance)",
+    ],
   },
   {
     id: "ema-crossover",
     name: "EMA Crossover",
     source: "Advanced Confluence Strategies V3",
-    description: "8/21 EMA crossover with 50 EMA trend filter. Classic moving average strategy with trend confirmation.",
+    description:
+      "8/21 EMA crossover with 50 EMA trend filter. Classic moving average strategy with trend confirmation.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 58, day: 58 },
@@ -1212,14 +1255,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Compute EMA(8), EMA(21), EMA(50) on close prices",
       "Bullish: EMA8 crosses above EMA21 AND price > EMA50",
       "Bearish: EMA8 crosses below EMA21 AND price < EMA50",
-      "Crossover must occur on the current bar"
-    ]
+      "Crossover must occur on the current bar",
+    ],
   },
   {
     id: "macd-adx",
     name: "MACD+ADX",
     source: "Advanced Confluence Strategies V3",
-    description: "MACD histogram zero-line cross confirmed by ADX > 20. Ensures we only trade momentum shifts in trending markets.",
+    description:
+      "MACD histogram zero-line cross confirmed by ADX > 20. Ensures we only trade momentum shifts in trending markets.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 62, day: 62 },
@@ -1229,14 +1273,15 @@ export const STRATEGY_CATALOG_V3 = [
       "ADX must be > 20 (trending market filter)",
       "Bullish: MACD histogram crosses above zero",
       "Bearish: MACD histogram crosses below zero",
-      "Higher ADX increases confidence proportionally"
-    ]
+      "Higher ADX increases confidence proportionally",
+    ],
   },
   {
     id: "triple-ema",
     name: "Triple EMA Alignment",
     source: "Advanced Confluence Strategies V3",
-    description: "All three EMAs (8, 21, 50) perfectly aligned in order with price. Maximum trend alignment signal.",
+    description:
+      "All three EMAs (8, 21, 50) perfectly aligned in order with price. Maximum trend alignment signal.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4, D1",
     winRate: { night: 60, day: 60 },
@@ -1245,14 +1290,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Bullish: Price > EMA8 > EMA21 > EMA50 (perfect alignment)",
       "Bearish: Price < EMA8 < EMA21 < EMA50 (perfect alignment)",
       "Wider EMA spread = stronger trend = higher confidence",
-      "No crossover required — pure alignment check"
-    ]
+      "No crossover required — pure alignment check",
+    ],
   },
   {
     id: "sr-breakout",
     name: "S/R Breakout",
     source: "Advanced Confluence Strategies V3",
-    description: "Detects swing highs/lows over 30-bar window. Breakout above resistance or below support with volume confirmation.",
+    description:
+      "Detects swing highs/lows over 30-bar window. Breakout above resistance or below support with volume confirmation.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 63, day: 63 },
@@ -1262,14 +1308,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Bullish: previous close ≤ resistance, current close > resistance",
       "Bearish: previous close ≥ support, current close < support",
       "Volume ≥ 1.2x 20-bar average = full confidence (0.58+)",
-      "Volume < 1.2x but breakout > 0.1% = reduced confidence (0.50)"
-    ]
+      "Volume < 1.2x but breakout > 0.1% = reduced confidence (0.50)",
+    ],
   },
   {
     id: "psar-trend",
     name: "PSAR Trend Continuation",
     source: "Advanced Confluence Strategies V3",
-    description: "Parabolic SAR flip confirms trend change. Enter in direction of the new trend immediately after the flip.",
+    description:
+      "Parabolic SAR flip confirms trend change. Enter in direction of the new trend immediately after the flip.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 59, day: 59 },
@@ -1279,14 +1326,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Bullish flip: PSAR was above price, now below price",
       "Bearish flip: PSAR was below price, now above price",
       "Enter immediately on the flip candle",
-      "ATR multiple measures flip magnitude"
-    ]
+      "ATR multiple measures flip magnitude",
+    ],
   },
   {
     id: "stoch-bb-cross",
     name: "Stochastic BB Crossover",
     source: "Advanced Confluence Strategies V3",
-    description: "Stochastic K/D crossover combined with Bollinger Band position. Combines oscillator reversal with volatility extreme.",
+    description:
+      "Stochastic K/D crossover combined with Bollinger Band position. Combines oscillator reversal with volatility extreme.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 61, day: 61 },
@@ -1297,14 +1345,15 @@ export const STRATEGY_CATALOG_V3 = [
       "Price position within BB: < 25% = near lower, > 75% = near upper",
       "Bullish: K crosses above D near lower BB (or lower half)",
       "Bearish: K crosses below D near upper BB (or upper half)",
-      "Bonus: Stochastic in oversold (< 30) or overbought (> 70) zone"
-    ]
+      "Bonus: Stochastic in oversold (< 30) or overbought (> 70) zone",
+    ],
   },
   {
     id: "confluence-master",
     name: "Confluence Master",
     source: "Advanced Confluence Strategies V3",
-    description: "Meta-strategy that fires when 3+ individual V3 strategies agree on the same direction. Highest weight — massive confluence required.",
+    description:
+      "Meta-strategy that fires when 3+ individual V3 strategies agree on the same direction. Highest weight — massive confluence required.",
     instruments: ["All Instruments"],
     timeframe: "H1, H4",
     winRate: { night: 85, day: 85 },
@@ -1314,9 +1363,9 @@ export const STRATEGY_CATALOG_V3 = [
       "Count how many agree on BUY vs SELL",
       "Require ≥ 3 strategies agreeing on the same direction",
       "Confidence = 0.75 base + count bonus (3%/strategy) + weight bonus",
-      "Lists all agreeing strategy names in the signal note"
-    ]
-  }
+      "Lists all agreeing strategy names in the signal note",
+    ],
+  },
 ] as const;
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1325,7 +1374,7 @@ export const STRATEGY_CATALOG_V3 = [
 // lightweight check function that returns passed/note/side/points.
 // ═══════════════════════════════════════════════════════════════════
 export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
-  "V3_IchimokuCloud": {
+  V3_IchimokuCloud: {
     label: "Ichimoku Cloud Confluence",
     points: 16,
     check: (candles: Candle[]) => {
@@ -1339,7 +1388,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_SMC_Structure": {
+  V3_SMC_Structure: {
     label: "SMC Structure Confluence",
     points: 18,
     check: (candles: Candle[]) => {
@@ -1354,7 +1403,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_HarmonicPattern": {
+  V3_HarmonicPattern: {
     label: "Harmonic Pattern Confluence",
     points: 20,
     check: (candles: Candle[]) => {
@@ -1369,7 +1418,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_EMACrossover": {
+  V3_EMACrossover: {
     label: "EMA Crossover Confluence",
     points: 12,
     check: (candles: Candle[]) => {
@@ -1383,7 +1432,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_MACD_ADX": {
+  V3_MACD_ADX: {
     label: "MACD+ADX Confluence",
     points: 14,
     check: (candles: Candle[]) => {
@@ -1398,7 +1447,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_TripleEMA": {
+  V3_TripleEMA: {
     label: "Triple EMA Alignment Confluence",
     points: 15,
     check: (candles: Candle[]) => {
@@ -1412,13 +1461,17 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_SR_Breakout": {
+  V3_SR_Breakout: {
     label: "S/R Breakout Confluence",
     points: 16,
     check: (candles: Candle[]) => {
       const hit = srBreakoutStrategy(candles);
       if (!hit) return { passed: false, note: "No S/R breakout signal" };
-      const meta = hit.metadata as { breakoutType?: string; level?: number; volumeConfirmed?: boolean };
+      const meta = hit.metadata as {
+        breakoutType?: string;
+        level?: number;
+        volumeConfirmed?: boolean;
+      };
       return {
         passed: true,
         note: `${meta.breakoutType === "resistance" ? "Resistance" : "Support"} breakout at ${meta.level?.toFixed(2)}, vol confirmed: ${meta.volumeConfirmed}`,
@@ -1427,7 +1480,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_PSAR_Trend": {
+  V3_PSAR_Trend: {
     label: "PSAR Trend Confluence",
     points: 13,
     check: (candles: Candle[]) => {
@@ -1441,7 +1494,7 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_StochBB_Cross": {
+  V3_StochBB_Cross: {
     label: "Stochastic BB Crossover Confluence",
     points: 14,
     check: (candles: Candle[]) => {
@@ -1456,14 +1509,14 @@ export const CONFLUENCE_STRATEGIES: Record<string, ConfluenceContribution> = {
     },
   },
 
-  "V3_ConfluenceMaster": {
+  V3_ConfluenceMaster: {
     label: "Confluence Master (Meta)",
     points: 22,
     check: (candles: Candle[]) => {
       const hit = confluenceMaster(candles);
       if (!hit) return { passed: false, note: "Insufficient confluence (< 3 strategies agreeing)" };
       const meta = hit.metadata as { count?: number; agreeingStrategies?: { name: string }[] };
-      const names = meta.agreeingStrategies?.map(s => s.name).join(", ") ?? "";
+      const names = meta.agreeingStrategies?.map((s) => s.name).join(", ") ?? "";
       return {
         passed: true,
         note: `${meta.count} strategies agree: ${names}`,

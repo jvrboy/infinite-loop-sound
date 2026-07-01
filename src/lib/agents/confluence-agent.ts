@@ -5,8 +5,18 @@ import type { AgentResult, AgentSignal, StrategyRecommendation, AgentConfig } fr
 import type { Candle } from "../engine/indicators";
 import type { Tick } from "../engine/heatmap-analytics";
 import { evaluateStrategies, type StrategyHit } from "../engine/strategies";
-import { evaluateStrategiesV2, STRATEGY_CATALOG, type StrategyHitV2, type NewsEvent } from "../engine/strategies-v2";
-import { evaluateStrategiesV3, STRATEGY_CATALOG_V3, CONFLUENCE_STRATEGIES, type ConfluenceContribution } from "../engine/strategies-v3";
+import {
+  evaluateStrategiesV2,
+  STRATEGY_CATALOG,
+  type StrategyHitV2,
+  type NewsEvent,
+} from "../engine/strategies-v2";
+import {
+  evaluateStrategiesV3,
+  STRATEGY_CATALOG_V3,
+  CONFLUENCE_STRATEGIES,
+  type ConfluenceContribution,
+} from "../engine/strategies-v3";
 import { analyze, type AnalysisResult, type ConfluenceItem } from "../engine/signal";
 
 // ═══════════════════════════════════════════════════════════════════
@@ -16,7 +26,8 @@ import { analyze, type AnalysisResult, type ConfluenceItem } from "../engine/sig
 const CONFLUENCE_AGENT_CONFIG: AgentConfig = {
   id: "confluence-agent",
   name: "Confluence Agent",
-  description: "Evaluates V1/V2/V3 strategy hits for overall signal confluence, agreement scoring, and meta-confluence detection across sessions, harmonics, SMC, and Ichimoku.",
+  description:
+    "Evaluates V1/V2/V3 strategy hits for overall signal confluence, agreement scoring, and meta-confluence detection across sessions, harmonics, SMC, and Ichimoku.",
   enabled: true,
   priority: "critical",
   intervalSec: 30,
@@ -74,10 +85,7 @@ interface CombinedHit extends StrategyHitV2 {
  *   - If only one direction has hits → score = min(100, hitCount * 20)
  *   - If both directions have hits → score = |buyWeight - sellWeight| / maxWeight * 100
  */
-function computeAgreementScore(
-  buyHits: CombinedHit[],
-  sellHits: CombinedHit[],
-): number {
+function computeAgreementScore(buyHits: CombinedHit[], sellHits: CombinedHit[]): number {
   const total = buyHits.length + sellHits.length;
   if (total === 0) return 0;
 
@@ -132,29 +140,23 @@ function detectMetaConfluence(
   }
 
   // 2. Harmonic pattern detection from V3
-  const harmonicCheck = v3ConfluenceChecks.find(
-    (c) => c.label.includes("Harmonic"),
-  );
+  const harmonicCheck = v3ConfluenceChecks.find((c) => c.label.includes("Harmonic"));
   meta.harmonicPattern = harmonicCheck?.passed ?? false;
 
   // 3. SMC structure detection from V3
-  const smcCheck = v3ConfluenceChecks.find(
-    (c) => c.label.includes("SMC"),
-  );
+  const smcCheck = v3ConfluenceChecks.find((c) => c.label.includes("SMC"));
   meta.smcStructure = smcCheck?.passed ?? false;
 
   // 4. Ichimoku alignment from V3
-  const ichimokuCheck = v3ConfluenceChecks.find(
-    (c) => c.label.includes("Ichimoku"),
-  );
+  const ichimokuCheck = v3ConfluenceChecks.find((c) => c.label.includes("Ichimoku"));
   meta.ichimokuAligned = ichimokuCheck?.passed ?? false;
 
   // 5. Neural boost from analysis result if available
   // (would be populated by neural-networks module if active)
   if (analysisResult) {
     // If the analysis result has a confluence item with neural data
-    const neuralItem = analysisResult.confluence.find(
-      (c) => c.label.toLowerCase().includes("neural"),
+    const neuralItem = analysisResult.confluence.find((c) =>
+      c.label.toLowerCase().includes("neural"),
     );
     if (neuralItem) {
       meta.neuralBoost = neuralItem.pts;
@@ -190,8 +192,7 @@ function buildTopStrategies(
     .map((h) => {
       const catalogEntry = allCatalog.find(
         (c) =>
-          c.id.toLowerCase().replace(/[_\s]/g, "-") ===
-          h.name.toLowerCase().replace(/[_\s]/g, "-"),
+          c.id.toLowerCase().replace(/[_\s]/g, "-") === h.name.toLowerCase().replace(/[_\s]/g, "-"),
       );
 
       const session = (h.metadata?.session as "night" | "day" | "any") ?? "any";
@@ -343,11 +344,7 @@ export function runConfluenceAgent(
       });
 
     // ── 9. Detect meta-confluence ──────────────────────────────
-    const metaConfluence = detectMetaConfluence(
-      allHits,
-      v3ConfluenceChecks,
-      analysisResult,
-    );
+    const metaConfluence = detectMetaConfluence(allHits, v3ConfluenceChecks, analysisResult);
 
     // ── 10. Generate top-5 strategy recommendations ────────────
     const topStrategies = dominantSide
@@ -401,7 +398,9 @@ export function runConfluenceAgent(
 
     // ── 13. Generate insights ──────────────────────────────────
     if (totalHits === 0) {
-      insights.push("NO SIGNALS: All 3 strategy generations (V1, V2, V3) returned zero hits — market is indecisive or data insufficient.");
+      insights.push(
+        "NO SIGNALS: All 3 strategy generations (V1, V2, V3) returned zero hits — market is indecisive or data insufficient.",
+      );
     } else {
       // Agreement-level insight
       if (agreementScore >= 80) {
@@ -429,12 +428,18 @@ export function runConfluenceAgent(
       // Source diversity insight
       const sources = new Set(allHits.map((h) => h.source));
       if (sources.size === 3) {
-        insights.push("All 3 strategy generations (V1, V2, V3) contributed hits — maximum generational diversity.");
+        insights.push(
+          "All 3 strategy generations (V1, V2, V3) contributed hits — maximum generational diversity.",
+        );
       } else if (sources.size === 2) {
         const missing = (["V1", "V2", "V3"] as const).find((s) => !sources.has(s));
-        insights.push(`Hits from ${sources.size}/3 generations (${[...sources].join(", ")}). ${missing} strategies did not fire.`);
+        insights.push(
+          `Hits from ${sources.size}/3 generations (${[...sources].join(", ")}). ${missing} strategies did not fire.`,
+        );
       } else {
-        insights.push(`Hits from only 1 generation (${[...sources][0]}). Cross-generational validation is weak.`);
+        insights.push(
+          `Hits from only 1 generation (${[...sources][0]}). Cross-generational validation is weak.`,
+        );
       }
 
       // V3 confluence insight
@@ -453,7 +458,9 @@ export function runConfluenceAgent(
       if (metaConfluence.smcStructure) metaActive.push("SMC Structure");
       if (metaConfluence.ichimokuAligned) metaActive.push("Ichimoku Aligned");
       if (metaActive.length >= 2) {
-        insights.push(`META-CONFLUENCE: ${metaActive.length} higher-order patterns active — ${metaActive.join(" + ")}. This significantly strengthens the signal.`);
+        insights.push(
+          `META-CONFLUENCE: ${metaActive.length} higher-order patterns active — ${metaActive.join(" + ")}. This significantly strengthens the signal.`,
+        );
       }
     }
 
@@ -462,7 +469,9 @@ export function runConfluenceAgent(
       const lastCandle = candles[candles.length - 1];
       const hour = new Date(lastCandle.epoch * 1000).getUTCHours();
       if (hour >= 22 || hour < 3) {
-        insights.push("Context: SAST Night Session — night strategies weighted higher (97.8% avg TP/SL hit rate).");
+        insights.push(
+          "Context: SAST Night Session — night strategies weighted higher (97.8% avg TP/SL hit rate).",
+        );
       } else if (hour >= 6 && hour < 20) {
         insights.push("Context: SAST Day Session — day strategies apply with wider TP/SL targets.");
       }
@@ -472,7 +481,14 @@ export function runConfluenceAgent(
       agentId: CONFLUENCE_AGENT_CONFIG.id,
       status: "completed",
       timestamp: Date.now(),
-      output: { report, dominantSide, totalHits, v1Count: v1Hits.length, v2Count: v2Hits.length, v3Count: v3Hits.length } as Record<string, unknown>,
+      output: {
+        report,
+        dominantSide,
+        totalHits,
+        v1Count: v1Hits.length,
+        v2Count: v2Hits.length,
+        v3Count: v3Hits.length,
+      } as Record<string, unknown>,
       signals,
       insights,
       errors: errors.length > 0 ? errors : undefined,

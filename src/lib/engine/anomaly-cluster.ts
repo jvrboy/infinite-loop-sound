@@ -8,22 +8,27 @@ import type { DetectorReport } from "./detectors";
 export interface AnomalyCluster {
   startIdx: number;
   endIdx: number;
-  size: number;        // number of events in the cluster
-  intensity: number;   // events per bar
-  kinds: string[];     // unique event types
+  size: number; // number of events in the cluster
+  intensity: number; // events per bar
+  kinds: string[]; // unique event types
   startEpoch: number;
   endEpoch: number;
 }
 
-interface RawEvent { index: number; kind: string }
+interface RawEvent {
+  index: number;
+  kind: string;
+}
 
 function collectEvents(report: DetectorReport): RawEvent[] {
   const out: RawEvent[] = [];
   for (const e of report.spike.events) out.push({ index: e.index, kind: `spike-${e.kind}` });
   for (const e of report.volume.events) out.push({ index: e.index, kind: `vol-${e.kind}` });
-  for (const e of report.liquiditySweeps.events) out.push({ index: e.index, kind: `sweep-${e.side}` });
+  for (const e of report.liquiditySweeps.events)
+    out.push({ index: e.index, kind: `sweep-${e.side}` });
   for (const e of report.gaps.events) out.push({ index: e.index, kind: `gap-${e.kind}` });
-  for (const e of report.rangeBreaks.events) out.push({ index: e.index, kind: `break-${e.direction}` });
+  for (const e of report.rangeBreaks.events)
+    out.push({ index: e.index, kind: `break-${e.direction}` });
   out.sort((a, b) => a.index - b.index);
   return out;
 }

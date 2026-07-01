@@ -3,18 +3,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import {
-  Brain, Heart, Shield, AlertTriangle, TrendingUp,
-  Coffee, Moon, Sun, Flame, Snowflake, Eye,
+  Brain,
+  Heart,
+  Shield,
+  AlertTriangle,
+  TrendingUp,
+  Coffee,
+  Moon,
+  Sun,
+  Flame,
+  Snowflake,
+  Eye,
 } from "lucide-react";
 
 export interface PsychState {
-  discipline: number;      // 0-100
-  patience: number;        // 0-100
-  confidence: number;      // 0-100
-  focus: number;           // 0-100
+  discipline: number; // 0-100
+  patience: number; // 0-100
+  confidence: number; // 0-100
+  focus: number; // 0-100
   emotionalControl: number; // 0-100
-  overallScore: number;    // 0-100
-  streak: number;          // positive = wins, negative = losses
+  overallScore: number; // 0-100
+  streak: number; // positive = wins, negative = losses
   tradesToday: number;
   maxDailyTrades: number;
   lastTradeResult: "WIN" | "LOSS" | "BE" | null;
@@ -70,7 +79,9 @@ function getRecommendations(state: PsychState): string[] {
     recs.push("📊 Daily trade limit reached. Review your trades and stop for today.");
   }
   if (state.emotionalControl < 50) {
-    recs.push("🧘 Your emotional control is low. Do a 5-minute breathing exercise before your next trade.");
+    recs.push(
+      "🧘 Your emotional control is low. Do a 5-minute breathing exercise before your next trade.",
+    );
   }
   if (state.confidence > 85) {
     recs.push("⚠️ Overconfidence detected. Stick to your plan — don't increase position sizes.");
@@ -105,12 +116,17 @@ export function PsychologyTracker() {
   const recommendations = useMemo(() => getRecommendations(state), [state]);
 
   const updateMetric = (key: keyof PsychState, delta: number) => {
-    setState(s => {
+    setState((s) => {
       const val = (s[key] as number) + delta;
       const clamped = Math.max(0, Math.min(100, val));
       const updated = { ...s, [key]: clamped };
       updated.overallScore = Math.round(
-        (updated.discipline + updated.patience + updated.confidence + updated.focus + updated.emotionalControl) / 5
+        (updated.discipline +
+          updated.patience +
+          updated.confidence +
+          updated.focus +
+          updated.emotionalControl) /
+          5,
       );
       updated.tiltRisk = computeTiltRisk(updated);
       return updated;
@@ -118,7 +134,7 @@ export function PsychologyTracker() {
   };
 
   const recordTrade = (result: "WIN" | "LOSS" | "BE") => {
-    setState(s => {
+    setState((s) => {
       const updated = { ...s };
       updated.lastTradeResult = result;
       updated.tradesToday++;
@@ -135,7 +151,12 @@ export function PsychologyTracker() {
       }
 
       updated.overallScore = Math.round(
-        (updated.discipline + updated.patience + updated.confidence + updated.focus + updated.emotionalControl) / 5
+        (updated.discipline +
+          updated.patience +
+          updated.confidence +
+          updated.focus +
+          updated.emotionalControl) /
+          5,
       );
       updated.tiltRisk = computeTiltRisk(updated);
       return updated;
@@ -143,7 +164,7 @@ export function PsychologyTracker() {
   };
 
   const resetDay = () => {
-    setState(s => ({
+    setState((s) => ({
       ...s,
       tradesToday: 0,
       streak: 0,
@@ -167,7 +188,12 @@ export function PsychologyTracker() {
     { key: "patience" as const, label: "Patience", icon: Coffee, value: state.patience },
     { key: "confidence" as const, label: "Confidence", icon: TrendingUp, value: state.confidence },
     { key: "focus" as const, label: "Focus", icon: Eye, value: state.focus },
-    { key: "emotionalControl" as const, label: "Emotional Control", icon: Heart, value: state.emotionalControl },
+    {
+      key: "emotionalControl" as const,
+      label: "Emotional Control",
+      icon: Heart,
+      value: state.emotionalControl,
+    },
   ];
 
   return (
@@ -188,10 +214,29 @@ export function PsychologyTracker() {
         <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
           <div className="relative w-14 h-14">
             <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
-              <circle cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted/50" />
               <circle
-                cx="18" cy="18" r="15.5" fill="none" stroke="currentColor" strokeWidth="2.5"
-                className={state.overallScore >= 70 ? "text-bull" : state.overallScore >= 40 ? "text-medium" : "text-bear"}
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                className="text-muted/50"
+              />
+              <circle
+                cx="18"
+                cy="18"
+                r="15.5"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className={
+                  state.overallScore >= 70
+                    ? "text-bull"
+                    : state.overallScore >= 40
+                      ? "text-medium"
+                      : "text-bear"
+                }
                 strokeDasharray={`${state.overallScore * 0.97} 100`}
                 strokeLinecap="round"
               />
@@ -203,14 +248,15 @@ export function PsychologyTracker() {
           <div className="flex-1">
             <div className="text-xs font-semibold">Mental State Score</div>
             <div className="text-[10px] text-muted-foreground">
-              Trades today: {state.tradesToday}/{state.maxDailyTrades} | Streak: {state.streak > 0 ? `+${state.streak}W` : state.streak < 0 ? `${state.streak}L` : "0"}
+              Trades today: {state.tradesToday}/{state.maxDailyTrades} | Streak:{" "}
+              {state.streak > 0 ? `+${state.streak}W` : state.streak < 0 ? `${state.streak}L` : "0"}
             </div>
           </div>
         </div>
 
         {/* Metrics */}
         <div className="space-y-2">
-          {metrics.map(m => {
+          {metrics.map((m) => {
             const Icon = m.icon;
             const color = m.value >= 70 ? "bg-bull" : m.value >= 40 ? "bg-medium" : "bg-bear";
             return (
@@ -218,18 +264,25 @@ export function PsychologyTracker() {
                 <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                 <span className="text-[10px] w-24 text-muted-foreground">{m.label}</span>
                 <div className="flex-1 h-2 bg-muted/50 rounded-full overflow-hidden">
-                  <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${m.value}%` }} />
+                  <div
+                    className={`h-full ${color} rounded-full transition-all`}
+                    style={{ width: `${m.value}%` }}
+                  />
                 </div>
                 <span className="text-[10px] font-mono w-8 text-right">{m.value}%</span>
                 <div className="flex gap-0.5">
                   <button
                     onClick={() => updateMetric(m.key, -5)}
                     className="w-4 h-4 rounded bg-bear/20 text-bear text-[10px] hover:bg-bear/30"
-                  >-</button>
+                  >
+                    -
+                  </button>
                   <button
                     onClick={() => updateMetric(m.key, 5)}
                     className="w-4 h-4 rounded bg-bull/20 text-bull text-[10px] hover:bg-bull/30"
-                  >+</button>
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             );

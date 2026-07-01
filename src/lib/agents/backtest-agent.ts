@@ -5,7 +5,8 @@ import type { Candle } from "../engine/indicators";
 const BACKTEST_AGENT_CONFIG: AgentConfig = {
   id: "backtest-agent",
   name: "Backtest Agent",
-  description: "Walk-forward backtester that validates strategies across night/day sessions with configurable parameters.",
+  description:
+    "Walk-forward backtester that validates strategies across night/day sessions with configurable parameters.",
   enabled: true,
   priority: "medium",
   intervalSec: 0, // On-demand only
@@ -25,7 +26,7 @@ interface BacktestConfig {
 
 function filterBySession(candles: Candle[], session: "night" | "day" | "all"): Candle[] {
   if (session === "all") return candles;
-  return candles.filter(c => {
+  return candles.filter((c) => {
     const h = new Date(c.epoch * 1000).getUTCHours();
     if (session === "night") return h >= 22 || h < 3;
     return h >= 6 && h < 20;
@@ -34,25 +35,42 @@ function filterBySession(candles: Candle[], session: "night" | "day" | "all"): C
 
 // Simplified backtest engine for new strategies
 function runSessionBacktest(config: BacktestConfig): BacktestResult {
-  const { strategyId, candles, session = "all", tpPips, slPips, warmupBars = 50, pipSize = 0.0001 } = config;
-  
+  const {
+    strategyId,
+    candles,
+    session = "all",
+    tpPips,
+    slPips,
+    warmupBars = 50,
+    pipSize = 0.0001,
+  } = config;
+
   const filtered = filterBySession(candles, session);
   const tradable = filtered.slice(warmupBars);
-  
-  let wins = 0, losses = 0, scratches = 0;
+
+  let wins = 0,
+    losses = 0,
+    scratches = 0;
   let totalR = 0;
-  let maxDD = 0, peak = 0, consecutiveLosses = 0, maxConsecLosses = 0;
-  let nightWR = 0, nightTrades = 0, nightNetPips = 0;
-  let dayWR = 0, dayTrades = 0, dayNetPips = 0;
+  let maxDD = 0,
+    peak = 0,
+    consecutiveLosses = 0,
+    maxConsecLosses = 0;
+  let nightWR = 0,
+    nightTrades = 0,
+    nightNetPips = 0;
+  let dayWR = 0,
+    dayTrades = 0,
+    dayNetPips = 0;
 
   for (let i = 2; i < tradable.length - 1; i++) {
     const c1 = tradable[i - 2];
     const c2 = tradable[i - 1];
     const entry = tradable[i];
-    
+
     // Determine direction based on strategy
     let direction: "BUY" | "SELL" | null = null;
-    
+
     if (strategyId.includes("squeeze")) {
       // Squeeze: check body ratios of last 3 candles
       const br1 = Math.abs(c1.close - c1.open) / Math.max(c1.high - c1.low, 0.0001);
@@ -110,7 +128,8 @@ function runSessionBacktest(config: BacktestConfig): BacktestResult {
       netPips = -slPips;
     } else {
       // Neither hit = scratch (close at end)
-      const closePnl = direction === "BUY" ? outcome.close - entryPrice : entryPrice - outcome.close;
+      const closePnl =
+        direction === "BUY" ? outcome.close - entryPrice : entryPrice - outcome.close;
       netPips = closePnl / pipSize;
       result = Math.abs(netPips) < 0.5 ? "scratch" : netPips > 0 ? "win" : "loss";
       rMultiple = result === "win" ? Math.abs(netPips) / slPips : result === "loss" ? -1 : 0;
@@ -182,12 +201,20 @@ export function runBacktestAgent(config: BacktestConfig): AgentResult {
   try {
     const result = runSessionBacktest(config);
 
-    insights.push(`Backtest complete: ${result.totalTrades} trades, ${result.winRate.toFixed(1)}% WR, ${result.profitFactor.toFixed(2)}x PF`);
-    insights.push(`Max drawdown: ${result.maxDrawdown.toFixed(2)}R, Max consecutive losses: ${result.maxConsecutiveLosses}`);
+    insights.push(
+      `Backtest complete: ${result.totalTrades} trades, ${result.winRate.toFixed(1)}% WR, ${result.profitFactor.toFixed(2)}x PF`,
+    );
+    insights.push(
+      `Max drawdown: ${result.maxDrawdown.toFixed(2)}R, Max consecutive losses: ${result.maxConsecutiveLosses}`,
+    );
 
     if (result.sessionBreakdown) {
-      insights.push(`Night: ${result.sessionBreakdown.night.trades} trades, ${result.sessionBreakdown.night.winRate.toFixed(1)}% WR, ${result.sessionBreakdown.night.netPips.toFixed(0)} pips net`);
-      insights.push(`Day: ${result.sessionBreakdown.day.trades} trades, ${result.sessionBreakdown.day.winRate.toFixed(1)}% WR, ${result.sessionBreakdown.day.netPips.toFixed(0)} pips net`);
+      insights.push(
+        `Night: ${result.sessionBreakdown.night.trades} trades, ${result.sessionBreakdown.night.winRate.toFixed(1)}% WR, ${result.sessionBreakdown.night.netPips.toFixed(0)} pips net`,
+      );
+      insights.push(
+        `Day: ${result.sessionBreakdown.day.trades} trades, ${result.sessionBreakdown.day.winRate.toFixed(1)}% WR, ${result.sessionBreakdown.day.netPips.toFixed(0)} pips net`,
+      );
     }
 
     if (result.winRate > 60 && result.profitFactor > 1.5) {

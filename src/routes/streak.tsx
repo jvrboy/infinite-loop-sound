@@ -2,9 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useMemo, useEffect } from "react";
 import {
-  Flame, TrendingUp, TrendingDown, Plus, Trash2, Trophy,
-  AlertTriangle, Brain, BarChart3, RefreshCw, CheckCircle2,
-  XCircle, MinusCircle, Target, Zap
+  Flame,
+  TrendingUp,
+  TrendingDown,
+  Plus,
+  Trash2,
+  Trophy,
+  AlertTriangle,
+  Brain,
+  BarChart3,
+  RefreshCw,
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+  Target,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +27,10 @@ export const Route = createFileRoute("/streak")({
   head: () => ({
     meta: [
       { title: "Trade Streak Tracker — DivergenceIQ" },
-      { name: "description", content: "Track win/loss streaks with psychological insights and tilt detection." },
+      {
+        name: "description",
+        content: "Track win/loss streaks with psychological insights and tilt detection.",
+      },
     ],
   }),
   component: StreakPage,
@@ -36,35 +51,66 @@ const LOCAL_KEY = "diq.streak.trades.v1";
 
 function readLocal(): TradeRecord[] {
   if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]"); } catch { return []; }
+  try {
+    return JSON.parse(localStorage.getItem(LOCAL_KEY) || "[]");
+  } catch {
+    return [];
+  }
 }
 function writeLocal(t: TradeRecord[]) {
   if (typeof window !== "undefined") localStorage.setItem(LOCAL_KEY, JSON.stringify(t));
 }
 
-const PAIRS = ["EUR/USD", "GBP/USD", "USD/JPY", "AUD/USD", "USD/CAD", "XAU/USD", "GBP/JPY", "EUR/JPY"];
+const PAIRS = [
+  "EUR/USD",
+  "GBP/USD",
+  "USD/JPY",
+  "AUD/USD",
+  "USD/CAD",
+  "XAU/USD",
+  "GBP/JPY",
+  "EUR/JPY",
+];
 
 function computeStreaks(trades: TradeRecord[]) {
-  if (!trades.length) return {
-    currentStreak: { type: "WIN" as TradeResult, count: 0 },
-    maxWinStreak: 0, maxLossStreak: 0,
-    winRate: 0, totalR: 0, avgRR: 0,
-    wins: 0, losses: 0, bes: 0,
-    streakHistory: [] as Array<{ type: TradeResult; count: number; end: number }>,
-    tiltRisk: "LOW" as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
-    tiltMessage: "",
-  };
+  if (!trades.length)
+    return {
+      currentStreak: { type: "WIN" as TradeResult, count: 0 },
+      maxWinStreak: 0,
+      maxLossStreak: 0,
+      winRate: 0,
+      totalR: 0,
+      avgRR: 0,
+      wins: 0,
+      losses: 0,
+      bes: 0,
+      streakHistory: [] as Array<{ type: TradeResult; count: number; end: number }>,
+      tiltRisk: "LOW" as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+      tiltMessage: "",
+    };
 
   const sorted = [...trades].sort((a, b) => a.ts - b.ts);
-  let maxWin = 0, maxLoss = 0, curWin = 0, curLoss = 0;
+  let maxWin = 0,
+    maxLoss = 0,
+    curWin = 0,
+    curLoss = 0;
   const streakHistory: Array<{ type: TradeResult; count: number; end: number }> = [];
   let lastType: TradeResult | null = null;
   let lastCount = 0;
 
   for (const t of sorted) {
-    if (t.result === "WIN") { curWin++; curLoss = 0; maxWin = Math.max(maxWin, curWin); }
-    else if (t.result === "LOSS") { curLoss++; curWin = 0; maxLoss = Math.max(maxLoss, curLoss); }
-    else { curWin = 0; curLoss = 0; }
+    if (t.result === "WIN") {
+      curWin++;
+      curLoss = 0;
+      maxWin = Math.max(maxWin, curWin);
+    } else if (t.result === "LOSS") {
+      curLoss++;
+      curWin = 0;
+      maxLoss = Math.max(maxLoss, curLoss);
+    } else {
+      curWin = 0;
+      curLoss = 0;
+    }
 
     if (lastType !== t.result) {
       if (lastType !== null) streakHistory.push({ type: lastType, count: lastCount, end: t.ts });
@@ -74,26 +120,33 @@ function computeStreaks(trades: TradeRecord[]) {
       lastCount++;
     }
   }
-  if (lastType !== null) streakHistory.push({ type: lastType, count: lastCount, end: sorted[sorted.length - 1].ts });
+  if (lastType !== null)
+    streakHistory.push({ type: lastType, count: lastCount, end: sorted[sorted.length - 1].ts });
 
   // Current streak
   let currentStreak: { type: TradeResult; count: number } = { type: "WIN", count: 0 };
   for (let i = sorted.length - 1; i >= 0; i--) {
-    if (i === sorted.length - 1) { currentStreak = { type: sorted[i].result, count: 1 }; }
-    else if (sorted[i].result === currentStreak.type) { currentStreak.count++; }
-    else break;
+    if (i === sorted.length - 1) {
+      currentStreak = { type: sorted[i].result, count: 1 };
+    } else if (sorted[i].result === currentStreak.type) {
+      currentStreak.count++;
+    } else break;
   }
 
-  const wins = sorted.filter(t => t.result === "WIN").length;
-  const losses = sorted.filter(t => t.result === "LOSS").length;
-  const bes = sorted.filter(t => t.result === "BE").length;
+  const wins = sorted.filter((t) => t.result === "WIN").length;
+  const losses = sorted.filter((t) => t.result === "LOSS").length;
+  const bes = sorted.filter((t) => t.result === "BE").length;
   const winRate = sorted.length > 0 ? (wins / sorted.length) * 100 : 0;
-  const totalR = sorted.reduce((s, t) => s + (t.result === "WIN" ? t.rr : t.result === "LOSS" ? -1 : 0), 0);
-  const avgRR = wins > 0 ? sorted.filter(t => t.result === "WIN").reduce((s, t) => s + t.rr, 0) / wins : 0;
+  const totalR = sorted.reduce(
+    (s, t) => s + (t.result === "WIN" ? t.rr : t.result === "LOSS" ? -1 : 0),
+    0,
+  );
+  const avgRR =
+    wins > 0 ? sorted.filter((t) => t.result === "WIN").reduce((s, t) => s + t.rr, 0) / wins : 0;
 
   // Tilt detection
   const recent5 = sorted.slice(-5);
-  const recentLosses = recent5.filter(t => t.result === "LOSS").length;
+  const recentLosses = recent5.filter((t) => t.result === "LOSS").length;
   let tiltRisk: "LOW" | "MEDIUM" | "HIGH" | "CRITICAL" = "LOW";
   let tiltMessage = "You are trading within normal parameters. Stay disciplined.";
 
@@ -105,13 +158,27 @@ function computeStreaks(trades: TradeRecord[]) {
     tiltMessage = `${currentStreak.count} consecutive losses. High tilt risk — reduce size or pause trading for the session.`;
   } else if (recentLosses >= 3) {
     tiltRisk = "MEDIUM";
-    tiltMessage = "3 losses in your last 5 trades. Monitor your emotional state before the next entry.";
+    tiltMessage =
+      "3 losses in your last 5 trades. Monitor your emotional state before the next entry.";
   } else if (currentStreak.type === "WIN" && currentStreak.count >= 5) {
     tiltRisk = "MEDIUM";
     tiltMessage = `${currentStreak.count}-trade win streak. Watch for overconfidence — stick to your plan.`;
   }
 
-  return { currentStreak, maxWinStreak: maxWin, maxLossStreak: maxLoss, winRate, totalR, avgRR, wins, losses, bes, streakHistory, tiltRisk, tiltMessage };
+  return {
+    currentStreak,
+    maxWinStreak: maxWin,
+    maxLossStreak: maxLoss,
+    winRate,
+    totalR,
+    avgRR,
+    wins,
+    losses,
+    bes,
+    streakHistory,
+    tiltRisk,
+    tiltMessage,
+  };
 }
 
 function StreakPage() {
@@ -120,7 +187,9 @@ function StreakPage() {
   const [rr, setRr] = useState(2.0);
   const [note, setNote] = useState("");
 
-  useEffect(() => { setTrades(readLocal()); }, []);
+  useEffect(() => {
+    setTrades(readLocal());
+  }, []);
 
   const stats = useMemo(() => computeStreaks(trades), [trades]);
 
@@ -136,7 +205,7 @@ function StreakPage() {
   function removeLast() {
     if (!trades.length) return;
     const sorted = [...trades].sort((a, b) => b.ts - a.ts);
-    const updated = trades.filter(t => t.id !== sorted[0].id);
+    const updated = trades.filter((t) => t.id !== sorted[0].id);
     setTrades(updated);
     writeLocal(updated);
     toast.info("Last trade removed");
@@ -182,7 +251,9 @@ function StreakPage() {
 
         {/* Tilt Alert */}
         {stats.tiltRisk !== "LOW" && (
-          <div className={`p-4 rounded-lg border flex items-start gap-3 ${tiltColors[stats.tiltRisk]}`}>
+          <div
+            className={`p-4 rounded-lg border flex items-start gap-3 ${tiltColors[stats.tiltRisk]}`}
+          >
             <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" />
             <div>
               <div className="text-sm font-semibold">Tilt Risk: {stats.tiltRisk}</div>
@@ -193,18 +264,64 @@ function StreakPage() {
 
         {/* Stats Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Current Streak" value={
-            stats.currentStreak.count > 0
-              ? `${stats.currentStreak.count}× ${stats.currentStreak.type}`
-              : "—"
-          } icon={Flame} accent={stats.currentStreak.type === "WIN" ? "bull" : stats.currentStreak.type === "LOSS" ? "bear" : "neutral"} />
-          <StatCard label="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target} accent={stats.winRate >= 50 ? "bull" : "bear"} />
-          <StatCard label="Total R" value={`${stats.totalR >= 0 ? "+" : ""}${stats.totalR.toFixed(2)}R`} icon={TrendingUp} accent={stats.totalR >= 0 ? "bull" : "bear"} />
-          <StatCard label="Avg R:R" value={`${stats.avgRR.toFixed(2)}:1`} icon={BarChart3} accent="neutral" />
-          <StatCard label="Best Win Streak" value={`${stats.maxWinStreak}`} icon={Trophy} accent="bull" />
-          <StatCard label="Worst Loss Streak" value={`${stats.maxLossStreak}`} icon={AlertTriangle} accent="bear" />
-          <StatCard label="Wins / Losses" value={`${stats.wins} / ${stats.losses}`} icon={Zap} accent="neutral" />
-          <StatCard label="Break-evens" value={`${stats.bes}`} icon={MinusCircle} accent="neutral" />
+          <StatCard
+            label="Current Streak"
+            value={
+              stats.currentStreak.count > 0
+                ? `${stats.currentStreak.count}× ${stats.currentStreak.type}`
+                : "—"
+            }
+            icon={Flame}
+            accent={
+              stats.currentStreak.type === "WIN"
+                ? "bull"
+                : stats.currentStreak.type === "LOSS"
+                  ? "bear"
+                  : "neutral"
+            }
+          />
+          <StatCard
+            label="Win Rate"
+            value={`${stats.winRate.toFixed(1)}%`}
+            icon={Target}
+            accent={stats.winRate >= 50 ? "bull" : "bear"}
+          />
+          <StatCard
+            label="Total R"
+            value={`${stats.totalR >= 0 ? "+" : ""}${stats.totalR.toFixed(2)}R`}
+            icon={TrendingUp}
+            accent={stats.totalR >= 0 ? "bull" : "bear"}
+          />
+          <StatCard
+            label="Avg R:R"
+            value={`${stats.avgRR.toFixed(2)}:1`}
+            icon={BarChart3}
+            accent="neutral"
+          />
+          <StatCard
+            label="Best Win Streak"
+            value={`${stats.maxWinStreak}`}
+            icon={Trophy}
+            accent="bull"
+          />
+          <StatCard
+            label="Worst Loss Streak"
+            value={`${stats.maxLossStreak}`}
+            icon={AlertTriangle}
+            accent="bear"
+          />
+          <StatCard
+            label="Wins / Losses"
+            value={`${stats.wins} / ${stats.losses}`}
+            icon={Zap}
+            accent="neutral"
+          />
+          <StatCard
+            label="Break-evens"
+            value={`${stats.bes}`}
+            icon={MinusCircle}
+            accent="neutral"
+          />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -218,42 +335,58 @@ function StreakPage() {
             <CardContent className="space-y-3">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Pair</label>
+                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    Pair
+                  </label>
                   <select
                     value={pair}
-                    onChange={e => setPair(e.target.value)}
+                    onChange={(e) => setPair(e.target.value)}
                     className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                   >
-                    {PAIRS.map(p => <option key={p} value={p}>{p}</option>)}
+                    {PAIRS.map((p) => (
+                      <option key={p} value={p}>
+                        {p}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">R:R (if win)</label>
+                  <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                    R:R (if win)
+                  </label>
                   <input
                     type="number"
                     min={0.1}
                     step={0.1}
                     value={rr}
-                    onChange={e => setRr(parseFloat(e.target.value) || 1)}
+                    onChange={(e) => setRr(parseFloat(e.target.value) || 1)}
                     className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                   />
                 </div>
               </div>
               <div>
-                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Note (optional)</label>
+                <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                  Note (optional)
+                </label>
                 <input
                   type="text"
                   placeholder="e.g. Fib retracement entry, news spike..."
                   value={note}
-                  onChange={e => setNote(e.target.value)}
+                  onChange={(e) => setNote(e.target.value)}
                   className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-sm"
                 />
               </div>
               <div className="grid grid-cols-3 gap-2 pt-1">
-                <Button className="bg-bull hover:bg-bull/80 text-white" onClick={() => addTrade("WIN")}>
+                <Button
+                  className="bg-bull hover:bg-bull/80 text-white"
+                  onClick={() => addTrade("WIN")}
+                >
                   <CheckCircle2 className="w-4 h-4 mr-1" /> WIN
                 </Button>
-                <Button className="bg-bear hover:bg-bear/80 text-white" onClick={() => addTrade("LOSS")}>
+                <Button
+                  className="bg-bear hover:bg-bear/80 text-white"
+                  onClick={() => addTrade("LOSS")}
+                >
                   <XCircle className="w-4 h-4 mr-1" /> LOSS
                 </Button>
                 <Button variant="outline" onClick={() => addTrade("BE")}>
@@ -280,7 +413,9 @@ function StreakPage() {
                 <div className="space-y-3">
                   {/* Dot strip — most recent 20 trades */}
                   <div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Last {recentTrades.length} Trades (newest → left)</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                      Last {recentTrades.length} Trades (newest → left)
+                    </div>
                     <div className="flex gap-1.5 flex-wrap">
                       {recentTrades.map((t) => (
                         <div
@@ -290,8 +425,8 @@ function StreakPage() {
                             t.result === "WIN"
                               ? "bg-bull/20 border-bull/40 text-bull"
                               : t.result === "LOSS"
-                              ? "bg-bear/20 border-bear/40 text-bear"
-                              : "bg-muted border-border text-muted-foreground"
+                                ? "bg-bear/20 border-bear/40 text-bear"
+                                : "bg-muted border-border text-muted-foreground"
                           }`}
                         >
                           {t.result === "WIN" ? "W" : t.result === "LOSS" ? "L" : "B"}
@@ -302,16 +437,24 @@ function StreakPage() {
 
                   {/* Streak history bars */}
                   <div>
-                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">Streak History</div>
+                    <div className="text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
+                      Streak History
+                    </div>
                     <div className="flex gap-1 items-end h-12">
                       {stats.streakHistory.slice(-20).map((s, i) => (
                         <div
                           key={i}
                           title={`${s.type} streak of ${s.count}`}
                           className={`flex-1 rounded-t min-h-[4px] ${
-                            s.type === "WIN" ? "bg-bull/60" : s.type === "LOSS" ? "bg-bear/60" : "bg-muted"
+                            s.type === "WIN"
+                              ? "bg-bull/60"
+                              : s.type === "LOSS"
+                                ? "bg-bear/60"
+                                : "bg-muted"
                           }`}
-                          style={{ height: `${Math.min(100, (s.count / Math.max(...stats.streakHistory.map(x => x.count), 1)) * 100)}%` }}
+                          style={{
+                            height: `${Math.min(100, (s.count / Math.max(...stats.streakHistory.map((x) => x.count), 1)) * 100)}%`,
+                          }}
                         />
                       ))}
                     </div>
@@ -339,25 +482,37 @@ function StreakPage() {
               />
               <InsightCard
                 title="Overconfidence Risk"
-                level={stats.currentStreak.type === "WIN" && stats.currentStreak.count >= 4 ? "HIGH" : stats.currentStreak.type === "WIN" && stats.currentStreak.count >= 2 ? "MEDIUM" : "LOW"}
+                level={
+                  stats.currentStreak.type === "WIN" && stats.currentStreak.count >= 4
+                    ? "HIGH"
+                    : stats.currentStreak.type === "WIN" && stats.currentStreak.count >= 2
+                      ? "MEDIUM"
+                      : "LOW"
+                }
                 message={
                   stats.currentStreak.type === "WIN" && stats.currentStreak.count >= 4
                     ? "Long win streak — beware of overconfidence and oversizing. Stick to your plan."
                     : stats.currentStreak.type === "WIN" && stats.currentStreak.count >= 2
-                    ? "Win streak building. Stay disciplined and don't increase risk."
-                    : "No overconfidence signals detected. Keep trading your plan."
+                      ? "Win streak building. Stay disciplined and don't increase risk."
+                      : "No overconfidence signals detected. Keep trading your plan."
                 }
                 colors={tiltColors}
               />
               <InsightCard
                 title="Expectancy Health"
-                level={stats.totalR > 0 && stats.winRate >= 40 ? "LOW" : stats.totalR < -3 ? "HIGH" : "MEDIUM"}
+                level={
+                  stats.totalR > 0 && stats.winRate >= 40
+                    ? "LOW"
+                    : stats.totalR < -3
+                      ? "HIGH"
+                      : "MEDIUM"
+                }
                 message={
                   stats.totalR > 0 && stats.winRate >= 40
                     ? `Positive expectancy: +${stats.totalR.toFixed(2)}R with ${stats.winRate.toFixed(0)}% win rate. Keep it up.`
                     : stats.totalR < -3
-                    ? `Negative expectancy: ${stats.totalR.toFixed(2)}R. Review your strategy and entry criteria.`
-                    : `Expectancy is borderline. Aim for consistent R:R above 1.5 and win rate above 45%.`
+                      ? `Negative expectancy: ${stats.totalR.toFixed(2)}R. Review your strategy and entry criteria.`
+                      : `Expectancy is borderline. Aim for consistent R:R above 1.5 and win rate above 45%.`
                 }
                 colors={tiltColors}
               />
@@ -386,27 +541,47 @@ function StreakPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {recentTrades.map(t => (
+                    {recentTrades.map((t) => (
                       <tr key={t.id} className="border-b border-border/50 hover:bg-white/2">
                         <td className="py-2 pr-4 text-muted-foreground font-mono text-xs">
-                          {new Date(t.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(t.ts).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </td>
                         <td className="py-2 pr-4 font-medium">{t.pair}</td>
                         <td className="py-2 pr-4">
-                          <Badge className={
-                            t.result === "WIN" ? "bg-bull/20 text-bull border-bull/30" :
-                            t.result === "LOSS" ? "bg-bear/20 text-bear border-bear/30" :
-                            "bg-muted text-muted-foreground"
-                          } variant="outline">
+                          <Badge
+                            className={
+                              t.result === "WIN"
+                                ? "bg-bull/20 text-bull border-bull/30"
+                                : t.result === "LOSS"
+                                  ? "bg-bear/20 text-bear border-bear/30"
+                                  : "bg-muted text-muted-foreground"
+                            }
+                            variant="outline"
+                          >
                             {t.result}
                           </Badge>
                         </td>
-                        <td className={`py-2 pr-4 font-mono font-semibold ${
-                          t.result === "WIN" ? "text-bull" : t.result === "LOSS" ? "text-bear" : "text-muted-foreground"
-                        }`}>
-                          {t.result === "WIN" ? `+${t.rr.toFixed(1)}R` : t.result === "LOSS" ? "-1R" : "0R"}
+                        <td
+                          className={`py-2 pr-4 font-mono font-semibold ${
+                            t.result === "WIN"
+                              ? "text-bull"
+                              : t.result === "LOSS"
+                                ? "text-bear"
+                                : "text-muted-foreground"
+                          }`}
+                        >
+                          {t.result === "WIN"
+                            ? `+${t.rr.toFixed(1)}R`
+                            : t.result === "LOSS"
+                              ? "-1R"
+                              : "0R"}
                         </td>
-                        <td className="py-2 text-muted-foreground text-xs truncate max-w-[200px]">{t.note || "—"}</td>
+                        <td className="py-2 text-muted-foreground text-xs truncate max-w-[200px]">
+                          {t.note || "—"}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -420,8 +595,15 @@ function StreakPage() {
   );
 }
 
-function StatCard({ label, value, icon: Icon, accent }: {
-  label: string; value: string; icon: any;
+function StatCard({
+  label,
+  value,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: string;
+  icon: any;
   accent: "bull" | "bear" | "neutral";
 }) {
   return (
@@ -429,21 +611,34 @@ function StatCard({ label, value, icon: Icon, accent }: {
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground mb-1">
         <Icon className="w-3 h-3" /> {label}
       </div>
-      <div className={`text-lg font-bold font-mono ${
-        accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-foreground"
-      }`}>{value}</div>
+      <div
+        className={`text-lg font-bold font-mono ${
+          accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-foreground"
+        }`}
+      >
+        {value}
+      </div>
     </div>
   );
 }
 
-function InsightCard({ title, level, message, colors }: {
-  title: string; level: string; message: string;
+function InsightCard({
+  title,
+  level,
+  message,
+  colors,
+}: {
+  title: string;
+  level: string;
+  message: string;
   colors: Record<string, string>;
 }) {
   return (
     <div className={`p-3 rounded-lg border ${colors[level] || colors.LOW}`}>
       <div className="text-[10px] uppercase tracking-wider font-semibold mb-1">{title}</div>
-      <Badge variant="outline" className={`text-[9px] mb-2 ${colors[level]}`}>{level}</Badge>
+      <Badge variant="outline" className={`text-[9px] mb-2 ${colors[level]}`}>
+        {level}
+      </Badge>
       <p className="text-[11px] leading-relaxed opacity-90">{message}</p>
     </div>
   );

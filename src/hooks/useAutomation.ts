@@ -38,9 +38,7 @@ export function useAutomation(
   const start = useCallback(() => {
     engineRef.current?.start();
     if (getCandles) {
-      engineRef.current?.onTick(() =>
-        engineRef.current.checkAndRun(getCandles),
-      );
+      engineRef.current?.onTick(() => engineRef.current.checkAndRun(getCandles));
     }
     setState(engineRef.current?.getState());
   }, [getCandles]);

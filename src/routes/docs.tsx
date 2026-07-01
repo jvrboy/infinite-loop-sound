@@ -3,14 +3,23 @@ import { AppShell } from "@/components/app/AppShell";
 import { BookOpen, Code2 } from "lucide-react";
 
 export const Route = createFileRoute("/docs")({
-  head: () => ({ meta: [
-    { title: "API Docs — DivergenceIQ" },
-    { name: "description", content: "REST API for latest signals, on-demand analysis, and webhook subscriptions. Free to use with an API key." },
-  ]}),
+  head: () => ({
+    meta: [
+      { title: "API Docs — DivergenceIQ" },
+      {
+        name: "description",
+        content:
+          "REST API for latest signals, on-demand analysis, and webhook subscriptions. Free to use with an API key.",
+      },
+    ],
+  }),
   component: DocsPage,
 });
 
-const BASE = typeof window !== "undefined" ? window.location.origin : "https://confluence-divergence-engine.lovable.app";
+const BASE =
+  typeof window !== "undefined"
+    ? window.location.origin
+    : "https://confluence-divergence-engine.lovable.app";
 
 function Block({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -21,7 +30,11 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
   );
 }
 function Code({ children }: { children: React.ReactNode }) {
-  return <pre className="text-[11px] font-mono bg-muted/50 rounded p-2 overflow-auto whitespace-pre-wrap">{children}</pre>;
+  return (
+    <pre className="text-[11px] font-mono bg-muted/50 rounded p-2 overflow-auto whitespace-pre-wrap">
+      {children}
+    </pre>
+  );
 }
 
 function DocsPage() {
@@ -29,8 +42,17 @@ function DocsPage() {
     <AppShell>
       <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2"><BookOpen className="w-6 h-6 text-primary"/> Public API</h1>
-          <p className="text-sm text-muted-foreground">Free REST API. Authenticate every request with an <code>X-API-Key</code> header. Create keys on the <a href="/api-keys" className="text-primary underline">API Keys</a> page.</p>
+          <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-2">
+            <BookOpen className="w-6 h-6 text-primary" /> Public API
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Free REST API. Authenticate every request with an <code>X-API-Key</code> header. Create
+            keys on the{" "}
+            <a href="/api-keys" className="text-primary underline">
+              API Keys
+            </a>{" "}
+            page.
+          </p>
         </div>
 
         <Block title="Base URL">
@@ -43,7 +65,10 @@ function DocsPage() {
         </Block>
 
         <Block title="GET /signals — latest signals">
-          <p>Query params: <code>limit</code> (1-100, default 20), <code>pair</code>, <code>min_score</code>.</p>
+          <p>
+            Query params: <code>limit</code> (1-100, default 20), <code>pair</code>,{" "}
+            <code>min_score</code>.
+          </p>
           <Code>{`curl "${BASE}/api/public/v1/signals?limit=10&min_score=70" \\
   -H "X-API-Key: $API_KEY"`}</Code>
           <Code>{`{
@@ -74,7 +99,9 @@ function DocsPage() {
         </Block>
 
         <Block title="POST /webhooks/subscribe — receive signal push">
-          <p>Subscribe a URL. We POST every signal whose <code>score</code> ≥ <code>min_score</code>.</p>
+          <p>
+            Subscribe a URL. We POST every signal whose <code>score</code> ≥ <code>min_score</code>.
+          </p>
           <Code>{`curl -X POST "${BASE}/api/public/v1/webhooks/subscribe" \\
   -H "X-API-Key: $API_KEY" \\
   -H "Content-Type: application/json" \\
@@ -96,7 +123,11 @@ Content-Type: application/json
         </Block>
 
         <Block title="POST /signals/incoming — push a signed signal IN">
-          <p>External system pushes a signal into DivergenceIQ. The body is HMAC-SHA256 signed with your API key as the secret. Every request — pass or fail — is recorded in the <code>/webhook-events</code> audit log.</p>
+          <p>
+            External system pushes a signal into DivergenceIQ. The body is HMAC-SHA256 signed with
+            your API key as the secret. Every request — pass or fail — is recorded in the{" "}
+            <code>/webhook-events</code> audit log.
+          </p>
           <Code>{`# bash example
 BODY='{"pair":"frxEURUSD","timeframe":"M15","direction":"BUY","entry":1.0834,"sl":1.0810,"tp1":1.0855,"tp2":1.0880,"tp3":1.0910,"score":86,"rating":"ELITE"}'
 SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$API_KEY" | awk '{print $2}')
@@ -115,7 +146,9 @@ curl -X POST "${BASE}/api/public/v1/signals/incoming" \\
         </Block>
 
         <Block title="Connecting other apps">
-          <p className="flex items-center gap-1"><Code2 className="w-3 h-3"/> Examples — Node, n8n, Make, Zapier, custom bots:</p>
+          <p className="flex items-center gap-1">
+            <Code2 className="w-3 h-3" /> Examples — Node, n8n, Make, Zapier, custom bots:
+          </p>
           <Code>{`// Node.js (any runtime)
 const r = await fetch("${BASE}/api/public/v1/signals?min_score=80", {
   headers: { "X-API-Key": process.env.DIVIQ_KEY }

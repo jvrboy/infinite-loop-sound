@@ -1,6 +1,20 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Send, BarChart3, Copy, CheckCheck, ThumbsUp, ThumbsDown, TrendingUp, TrendingDown, ArrowUpRight, ArrowDownRight, Target, Clock, Zap } from "lucide-react";
+import {
+  Send,
+  BarChart3,
+  Copy,
+  CheckCheck,
+  ThumbsUp,
+  ThumbsDown,
+  TrendingUp,
+  TrendingDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Target,
+  Clock,
+  Zap,
+} from "lucide-react";
 import { displayPair } from "@/lib/engine/deriv";
 import { useState } from "react";
 import { motion } from "framer-motion";
@@ -10,8 +24,13 @@ export interface SignalCardData {
   pair: string;
   timeframe: string;
   direction: "BUY" | "SELL";
-  entry: number; sl: number; tp1: number; tp2: number; tp3: number;
-  score: number; rating: string;
+  entry: number;
+  sl: number;
+  tp1: number;
+  tp2: number;
+  tp3: number;
+  score: number;
+  rating: string;
   confluence: { label: string; passed: boolean; pts: number }[];
   created_at?: string;
   sent_telegram?: boolean;
@@ -36,7 +55,8 @@ const getTimeAgo = (date: Date) => {
 
 const getStatusColor = (status?: string, result?: string | null) => {
   if (!result || result === "") {
-    if (!status || status === "active" || status === "pending") return "text-bull bg-bull/10 border-bull/30";
+    if (!status || status === "active" || status === "pending")
+      return "text-bull bg-bull/10 border-bull/30";
     return "text-muted-foreground bg-muted border-border";
   }
   const r = result.toUpperCase();
@@ -46,23 +66,34 @@ const getStatusColor = (status?: string, result?: string | null) => {
 };
 
 export function SignalCard({
-  signal, onSendTelegram, onView,
-}: { signal: SignalCardData; onSendTelegram?: () => void; onView?: () => void }) {
+  signal,
+  onSendTelegram,
+  onView,
+}: {
+  signal: SignalCardData;
+  onSendTelegram?: () => void;
+  onView?: () => void;
+}) {
   const { direction, rating, pair, timeframe, entry, sl, tp1, tp2, tp3, score } = signal;
   const isBuy = direction === "BUY";
-  const dirCls = isBuy ? "text-bull bg-bull/10 border-bull/30" : "text-bear bg-bear/10 border-bear/30";
+  const dirCls = isBuy
+    ? "text-bull bg-bull/10 border-bull/30"
+    : "text-bear bg-bear/10 border-bear/30";
   const ratingCls =
-    rating === "ELITE" ? "bg-gradient-to-r from-elite/20 to-primary/10 text-elite border-elite/40 shadow-[0_0_10px_rgba(56,189,248,0.1)]" :
-    rating === "STRONG" ? "bg-bull/15 text-bull border-bull/40" :
-    rating === "MEDIUM" ? "bg-medium/15 text-medium border-medium/40" :
-    "bg-muted text-muted-foreground border-border";
+    rating === "ELITE"
+      ? "bg-gradient-to-r from-elite/20 to-primary/10 text-elite border-elite/40 shadow-[0_0_10px_rgba(56,189,248,0.1)]"
+      : rating === "STRONG"
+        ? "bg-bull/15 text-bull border-bull/40"
+        : rating === "MEDIUM"
+          ? "bg-medium/15 text-medium border-medium/40"
+          : "bg-muted text-muted-foreground border-border";
 
   const rrPips = pips(entry, tp3, pair) / Math.max(1, pips(entry, sl, pair));
   const timeAgo = signal.created_at ? getTimeAgo(new Date(signal.created_at)) : "";
   const statusColor = getStatusColor(signal.status, signal.result);
 
   const [copied, setCopied] = useState(false);
-  const [sentiment, setSentiment] = useState<"up"|"down"|null>(null);
+  const [sentiment, setSentiment] = useState<"up" | "down" | null>(null);
 
   const handleCopy = () => {
     const text = `${isBuy ? "BUY" : "SELL"} ${displayPair(pair)} @ ${fmt(entry)}
@@ -76,7 +107,7 @@ TP3: ${fmt(tp3)}`;
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const passedCount = signal.confluence.filter(c => c.passed).length;
+  const passedCount = signal.confluence.filter((c) => c.passed).length;
   const totalCount = signal.confluence.length;
 
   return (
@@ -100,15 +131,31 @@ TP3: ${fmt(tp3)}`;
           </Badge>
           <span className="text-xs font-mono text-muted-foreground">{timeframe}</span>
           {signal.created_at && (
-            <span className="text-[10px] font-mono text-muted-foreground/80" title={new Date(signal.created_at).toString()}>
-              {new Date(signal.created_at).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            <span
+              className="text-[10px] font-mono text-muted-foreground/80"
+              title={new Date(signal.created_at).toString()}
+            >
+              {new Date(signal.created_at).toLocaleString(undefined, {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
               {timeAgo ? ` · ${timeAgo}` : ""}
             </span>
           )}
-          {signal.sent_telegram && <Badge variant="outline" className="text-[10px] border-bull/50 text-bull">SENT</Badge>}
+          {signal.sent_telegram && (
+            <Badge variant="outline" className="text-[10px] border-bull/50 text-bull">
+              SENT
+            </Badge>
+          )}
         </div>
         <div className="flex gap-1 items-center">
-          <button onClick={handleCopy} className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition" title="Copy Signal">
+          <button
+            onClick={handleCopy}
+            className="p-1.5 rounded text-muted-foreground hover:text-foreground hover:bg-accent transition"
+            title="Copy Signal"
+          >
             {copied ? <CheckCheck className="w-4 h-4 text-bull" /> : <Copy className="w-4 h-4" />}
           </button>
         </div>
@@ -118,11 +165,19 @@ TP3: ${fmt(tp3)}`;
         <div>
           <h3 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
             {displayPair(pair)}
-            {isBuy ? <ArrowUpRight className="w-5 h-5 text-bull" /> : <ArrowDownRight className="w-5 h-5 text-bear" />}
+            {isBuy ? (
+              <ArrowUpRight className="w-5 h-5 text-bull" />
+            ) : (
+              <ArrowDownRight className="w-5 h-5 text-bear" />
+            )}
           </h3>
           <div className="flex items-center gap-2 mt-1">
             <div className={`px-2.5 py-1 rounded border font-mono text-xs font-bold ${dirCls}`}>
-              {isBuy ? <TrendingUp className="w-3.5 h-3.5 inline mr-1" /> : <TrendingDown className="w-3.5 h-3.5 inline mr-1" />}
+              {isBuy ? (
+                <TrendingUp className="w-3.5 h-3.5 inline mr-1" />
+              ) : (
+                <TrendingDown className="w-3.5 h-3.5 inline mr-1" />
+              )}
               {direction}
             </div>
             <div className="text-xs font-mono text-muted-foreground">
@@ -162,12 +217,16 @@ TP3: ${fmt(tp3)}`;
         <div className="bg-bear/5 rounded p-2 text-center border border-bear/10">
           <div className="text-[10px] text-bear uppercase">SL</div>
           <div className="font-bold mt-0.5 text-bear">{fmt(sl)}</div>
-          <div className="text-[10px] text-muted-foreground">-{pips(entry, sl, pair).toFixed(0)}p</div>
+          <div className="text-[10px] text-muted-foreground">
+            -{pips(entry, sl, pair).toFixed(0)}p
+          </div>
         </div>
         <div className="bg-bull/5 rounded p-2 text-center border border-bull/10">
           <div className="text-[10px] text-bull uppercase">TP1</div>
           <div className="font-bold mt-0.5 text-bull">{fmt(tp1)}</div>
-          <div className="text-[10px] text-muted-foreground">+{pips(entry, tp1, pair).toFixed(0)}p</div>
+          <div className="text-[10px] text-muted-foreground">
+            +{pips(entry, tp1, pair).toFixed(0)}p
+          </div>
         </div>
         <div className="bg-bull/5 rounded p-2 text-center border border-bull/10">
           <div className="text-[10px] text-bull uppercase">TP3</div>
@@ -179,30 +238,58 @@ TP3: ${fmt(tp3)}`;
       {/* Confluence Tags */}
       <div className="flex flex-wrap gap-1.5 mb-4">
         {signal.confluence.slice(0, 6).map((c, i) => (
-          <span key={i} className={`px-1.5 py-0.5 rounded text-[10px] font-mono border ${c.passed ? "bg-bull/5 text-bull border-bull/20" : "bg-muted/50 text-muted-foreground/60 border-border/50 line-through"}`}>
-            {c.passed ? <Zap className="w-2.5 h-2.5 inline mr-0.5" /> : <Clock className="w-2.5 h-2.5 inline mr-0.5" />}
+          <span
+            key={i}
+            className={`px-1.5 py-0.5 rounded text-[10px] font-mono border ${c.passed ? "bg-bull/5 text-bull border-bull/20" : "bg-muted/50 text-muted-foreground/60 border-border/50 line-through"}`}
+          >
+            {c.passed ? (
+              <Zap className="w-2.5 h-2.5 inline mr-0.5" />
+            ) : (
+              <Clock className="w-2.5 h-2.5 inline mr-0.5" />
+            )}
             {c.label}
           </span>
         ))}
         {signal.confluence.length > 6 && (
-          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono text-muted-foreground">+{signal.confluence.length - 6} more</span>
+          <span className="px-1.5 py-0.5 rounded text-[10px] font-mono text-muted-foreground">
+            +{signal.confluence.length - 6} more
+          </span>
         )}
       </div>
 
       {/* Actions */}
       <div className="flex gap-2">
-        {onView && <Button size="sm" variant="outline" onClick={onView} className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors">
-          <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Chart
-        </Button>}
-        {onSendTelegram && <Button size="sm" onClick={onSendTelegram} className="flex-1">
-          <Send className="w-3.5 h-3.5 mr-1.5" /> Telegram
-        </Button>}
+        {onView && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onView}
+            className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors"
+          >
+            <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Chart
+          </Button>
+        )}
+        {onSendTelegram && (
+          <Button size="sm" onClick={onSendTelegram} className="flex-1">
+            <Send className="w-3.5 h-3.5 mr-1.5" /> Telegram
+          </Button>
+        )}
       </div>
     </motion.div>
   );
 }
 
-function Row({ label, value, sub, accent }: { label: string; value: string; sub?: string; accent?: "bull" | "bear" }) {
+function Row({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string;
+  sub?: string;
+  accent?: "bull" | "bear";
+}) {
   const c = accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-foreground";
   return (
     <div className="flex items-center justify-between bg-muted/30 rounded px-2 py-1.5">

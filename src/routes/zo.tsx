@@ -1,7 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect } from "react";
-import { Cloud, Zap, Server, Link2, Check, ExternalLink, Cpu, Database, Globe, Activity } from "lucide-react";
+import {
+  Cloud,
+  Zap,
+  Server,
+  Link2,
+  Check,
+  ExternalLink,
+  Cpu,
+  Database,
+  Globe,
+  Activity,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -37,13 +48,13 @@ function ZoPage() {
       return;
     }
     setSyncing(true);
-    
+
     try {
       // Real Zo API connection
       // Zo uses a simple REST API at https://api.zo.computer/v1
       const response = await fetch("https://api.zo.computer/v1/user", {
         headers: {
-          "Authorization": `Bearer ${key}`,
+          Authorization: `Bearer ${key}`,
           "Content-Type": "application/json",
         },
       }).catch(() => null);
@@ -51,7 +62,7 @@ function ZoPage() {
       if (response?.ok || key.startsWith("zo_")) {
         // Simulate successful connection (Zo API requires actual account)
         const data = response?.ok ? await response.json() : { id: "live" };
-        
+
         setConnected(true);
         setStatus({
           connected: true,
@@ -60,7 +71,7 @@ function ZoPage() {
           storage: { used: 2.4, total: 100 },
         });
         localStorage.setItem("zo_api_key", key);
-        
+
         if (!silent) {
           toast.success("Connected to Zo Computer!", {
             description: "Your personal AI cloud is online",
@@ -91,11 +102,11 @@ function ZoPage() {
     try {
       // Send signals to Zo for AI analysis
       const signals = JSON.parse(localStorage.getItem("signals_cache") || "[]");
-      
+
       await fetch("https://api.zo.computer/v1/automations", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${key}`,
+          Authorization: `Bearer ${key}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -113,12 +124,12 @@ function ZoPage() {
     try {
       const key = localStorage.getItem("zo_api_key") || import.meta.env.VITE_ZO_API_KEY;
       if (!key) throw new Error("Not connected");
-      
+
       // Real API call to Zo
       await fetch("https://api.zo.computer/v1/files", {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${key}`,
+          Authorization: `Bearer ${key}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -130,11 +141,11 @@ function ZoPage() {
       toast.success("247 signals synced to Zo!", {
         description: "Your AI agent can now analyze them 24/7",
       });
-      
-      setStatus(s => ({ ...s, storage: { used: 2.7, total: 100 } }));
+
+      setStatus((s) => ({ ...s, storage: { used: 2.7, total: 100 } }));
     } catch (e) {
       toast.success("Signals synced successfully!", {
-        description: "Your AI agent can now analyze them 24/7"
+        description: "Your AI agent can now analyze them 24/7",
       });
     } finally {
       setSyncing(false);
@@ -151,7 +162,9 @@ function ZoPage() {
             </div>
             Zo Computer Integration
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">Your personal AI cloud computer for autonomous trading</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Your personal AI cloud computer for autonomous trading
+          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4">
@@ -159,10 +172,16 @@ function ZoPage() {
             <div className="flex items-start justify-between mb-6">
               <div>
                 <h2 className="text-lg font-semibold mb-1">Connect Your Zo</h2>
-                <p className="text-sm text-muted-foreground">Run DivergenceIQ on your personal cloud 24/7</p>
+                <p className="text-sm text-muted-foreground">
+                  Run DivergenceIQ on your personal cloud 24/7
+                </p>
               </div>
-              <div className={`px-3 py-1 rounded-full text-xs font-mono flex items-center gap-1.5 ${connected ? "bg-bull/20 text-bull border border-bull/30" : "bg-muted text-muted-foreground"}`}>
-                <div className={`w-2 h-2 rounded-full ${connected ? "bg-bull animate-pulse" : "bg-muted-foreground"}`} />
+              <div
+                className={`px-3 py-1 rounded-full text-xs font-mono flex items-center gap-1.5 ${connected ? "bg-bull/20 text-bull border border-bull/30" : "bg-muted text-muted-foreground"}`}
+              >
+                <div
+                  className={`w-2 h-2 rounded-full ${connected ? "bg-bull animate-pulse" : "bg-muted-foreground"}`}
+                />
                 {connected ? "CONNECTED" : "OFFLINE"}
               </div>
             </div>
@@ -174,7 +193,7 @@ function ZoPage() {
                   <input
                     type="password"
                     value={apiKey}
-                    onChange={e => setApiKey(e.target.value)}
+                    onChange={(e) => setApiKey(e.target.value)}
                     placeholder="zo_xxxxxxxxxxxxxxxx"
                     className="w-full px-3 py-2.5 rounded-lg bg-background border border-border text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary/50"
                   />
@@ -193,7 +212,15 @@ function ZoPage() {
                 </div>
                 <div className="pt-4 border-t border-border">
                   <p className="text-xs text-muted-foreground">
-                    Don't have Zo? <a href="https://zo.computer" target="_blank" className="text-primary hover:underline">Get 100GB free</a> — your personal AI cloud computer
+                    Don't have Zo?{" "}
+                    <a
+                      href="https://zo.computer"
+                      target="_blank"
+                      className="text-primary hover:underline"
+                    >
+                      Get 100GB free
+                    </a>{" "}
+                    — your personal AI cloud computer
                   </p>
                 </div>
               </div>
@@ -209,7 +236,9 @@ function ZoPage() {
                     <Cloud className="w-4 h-4 mr-2" />
                     {syncing ? "Syncing..." : "Sync Now"}
                   </Button>
-                  <Button variant="outline" onClick={() => setConnected(false)}>Disconnect</Button>
+                  <Button variant="outline" onClick={() => setConnected(false)}>
+                    Disconnect
+                  </Button>
                 </div>
               </div>
             )}
@@ -277,8 +306,15 @@ function ZoPage() {
             <div>
               <h4 className="font-medium text-sm mb-1">Pro Tip: Run DivergenceIQ on Zo</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Deploy this entire app to your Zo computer in 1 click. It will run 24/7, scan markets while you sleep, 
-                and text you only ELITE signals. No VPS needed. <a href="https://zo.computer" className="text-amber-400 hover:underline" target="_blank">Learn more →</a>
+                Deploy this entire app to your Zo computer in 1 click. It will run 24/7, scan
+                markets while you sleep, and text you only ELITE signals. No VPS needed.{" "}
+                <a
+                  href="https://zo.computer"
+                  className="text-amber-400 hover:underline"
+                  target="_blank"
+                >
+                  Learn more →
+                </a>
               </p>
             </div>
           </div>
@@ -315,7 +351,12 @@ function ToolCard({ title, description, icon: Icon, action, onClick }: any) {
           </div>
         </div>
       </div>
-      <Button size="sm" variant="ghost" className="w-full mt-4 justify-between group-hover:bg-accent" onClick={onClick}>
+      <Button
+        size="sm"
+        variant="ghost"
+        className="w-full mt-4 justify-between group-hover:bg-accent"
+        onClick={onClick}
+      >
         {action}
         <ExternalLink className="w-3.5 h-3.5" />
       </Button>

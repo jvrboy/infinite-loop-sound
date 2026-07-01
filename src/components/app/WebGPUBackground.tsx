@@ -14,18 +14,18 @@ export function WebGPUBackground() {
       try {
         const gpu = (navigator as Navigator & { gpu?: any }).gpu;
         if (!gpu) throw new Error("WebGPU not supported");
-        
+
         const adapter = await gpu.requestAdapter({
-          powerPreference: "high-performance"
+          powerPreference: "high-performance",
         });
         if (!adapter) throw new Error("No adapter");
-        
+
         const device = await adapter.requestDevice();
         const context = canvas.getContext("webgpu") as any;
         if (!context) throw new Error("No context");
 
         useWebGPU = true;
-        
+
         const resize = () => {
           canvas.width = window.innerWidth * window.devicePixelRatio;
           canvas.height = window.innerHeight * window.devicePixelRatio;
@@ -157,42 +157,45 @@ export function WebGPUBackground() {
           entries: [{ binding: 0, resource: { buffer: uniformBuffer } }],
         });
 
-        let mouseX = 0.5, mouseY = 0.5;
+        let mouseX = 0.5,
+          mouseY = 0.5;
         canvas.addEventListener("mousemove", (e) => {
           mouseX = e.clientX / window.innerWidth;
           mouseY = 1 - e.clientY / window.innerHeight;
         });
 
         const startTime = performance.now();
-        
+
         const render = () => {
           const time = (performance.now() - startTime) / 1000;
-          
+
           device.queue.writeBuffer(
             uniformBuffer,
             0,
-            new Float32Array([time, canvas.width, canvas.height, mouseX, mouseY])
+            new Float32Array([time, canvas.width, canvas.height, mouseX, mouseY]),
           );
 
           const encoder = device.createCommandEncoder();
           const pass = encoder.beginRenderPass({
-            colorAttachments: [{
-              view: context.getCurrentTexture().createView(),
-              clearValue: { r: 0.043, g: 0.063, b: 0.125, a: 1 },
-              loadOp: "clear",
-              storeOp: "store",
-            }],
+            colorAttachments: [
+              {
+                view: context.getCurrentTexture().createView(),
+                clearValue: { r: 0.043, g: 0.063, b: 0.125, a: 1 },
+                loadOp: "clear",
+                storeOp: "store",
+              },
+            ],
           });
-          
+
           pass.setPipeline(pipeline);
           pass.setBindGroup(0, bindGroup);
           pass.draw(3);
           pass.end();
-          
+
           device.queue.submit([encoder.finish()]);
           animationId = requestAnimationFrame(render);
         };
-        
+
         render();
 
         return () => {
@@ -209,7 +212,7 @@ export function WebGPUBackground() {
     const initCanvas2D = () => {
       const ctx = canvas.getContext("2d");
       if (!ctx) return;
-      
+
       const resize = () => {
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
@@ -220,20 +223,22 @@ export function WebGPUBackground() {
       let time = 0;
       const render = () => {
         time += 0.01;
-        const w = canvas.width, h = canvas.height;
-        
+        const w = canvas.width,
+          h = canvas.height;
+
         // Fade
         ctx.fillStyle = "rgba(11, 16, 32, 0.05)";
         ctx.fillRect(0, 0, w, h);
-        
+
         // Neural grid with WebGPU-like effect
-        const centerX = w * 0.5, centerY = h * 0.4;
+        const centerX = w * 0.5,
+          centerY = h * 0.4;
         for (let i = 0; i < 8; i++) {
           const angle = (i / 8) * Math.PI * 2 + time * 0.2;
           const radius = 150 + Math.sin(time + i) * 30;
           const x = centerX + Math.cos(angle) * radius;
           const y = centerY + Math.sin(angle) * radius;
-          
+
           const gradient = ctx.createRadialGradient(x, y, 0, x, y, 80);
           gradient.addColorStop(0, `hsla(${195 + i * 10}, 100%, 65%, 0.3)`);
           gradient.addColorStop(1, "hsla(220, 100%, 50%, 0)");
@@ -241,7 +246,7 @@ export function WebGPUBackground() {
           ctx.beginPath();
           ctx.arc(x, y, 80, 0, Math.PI * 2);
           ctx.fill();
-          
+
           // Connections
           ctx.strokeStyle = `hsla(195, 100%, 65%, ${0.1 + Math.sin(time + i) * 0.05})`;
           ctx.lineWidth = 1;
@@ -250,7 +255,7 @@ export function WebGPUBackground() {
           ctx.lineTo(x, y);
           ctx.stroke();
         }
-        
+
         animationId = requestAnimationFrame(render);
       };
       render();
@@ -262,7 +267,9 @@ export function WebGPUBackground() {
     };
 
     let cleanup: (() => void) | undefined;
-    initWebGPU().then((c) => { cleanup = c; });
+    initWebGPU().then((c) => {
+      cleanup = c;
+    });
 
     return () => cleanup?.();
   }, []);

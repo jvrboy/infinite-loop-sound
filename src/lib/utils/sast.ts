@@ -6,7 +6,10 @@ export function toSAST(date: Date | string | number): Date {
   return new Date(d.getTime() + SAST_OFFSET * 60 * 60 * 1000);
 }
 
-export function formatSAST(date: Date | string | number, opts?: Intl.DateTimeFormatOptions): string {
+export function formatSAST(
+  date: Date | string | number,
+  opts?: Intl.DateTimeFormatOptions,
+): string {
   const d = toSAST(date);
   return d.toLocaleString("en-GB", { timeZone: "UTC", hour12: false, ...opts });
 }

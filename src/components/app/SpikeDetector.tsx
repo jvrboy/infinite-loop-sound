@@ -32,13 +32,18 @@ export function SpikeDetector({ symbol = "frxEURUSD", tf = "M5", zThreshold = 2.
     };
     tick();
     const id = setInterval(tick, 30_000);
-    return () => { live = false; clearInterval(id); };
+    return () => {
+      live = false;
+      clearInterval(id);
+    };
   }, [symbol, tf, zThreshold]);
 
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base">Spike Detector · {symbol} {tf}</CardTitle>
+        <CardTitle className="text-base">
+          Spike Detector · {symbol} {tf}
+        </CardTitle>
         {latest && (
           <Badge className={severityColor[latest.severity]}>
             {latest.severity.toUpperCase()} · z={latest.zScore.toFixed(2)}
@@ -53,13 +58,18 @@ export function SpikeDetector({ symbol = "frxEURUSD", tf = "M5", zThreshold = 2.
             className="flex items-center justify-between rounded-md border p-2 text-xs"
           >
             <span className="flex items-center gap-2">
-              <Badge variant="outline" className="capitalize">{e.kind}</Badge>
+              <Badge variant="outline" className="capitalize">
+                {e.kind}
+              </Badge>
               <span className="text-muted-foreground">
                 {new Date(e.epoch * 1000).toUTCString().slice(17, 25)}
               </span>
             </span>
             <span className="flex items-center gap-2 font-mono">
-              <span>{e.returnPct >= 0 ? "+" : ""}{e.returnPct.toFixed(3)}%</span>
+              <span>
+                {e.returnPct >= 0 ? "+" : ""}
+                {e.returnPct.toFixed(3)}%
+              </span>
               <Badge className={severityColor[e.severity]}>{e.severity}</Badge>
             </span>
           </div>

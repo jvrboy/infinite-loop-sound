@@ -12,8 +12,12 @@ export const Route = createFileRoute("/pivot")({
 // Classic floor-trader pivot calculation from yesterday's H, L, C.
 interface PivotSet {
   pp: number;
-  r1: number; r2: number; r3: number;
-  s1: number; s2: number; s3: number;
+  r1: number;
+  r2: number;
+  r3: number;
+  s1: number;
+  s2: number;
+  s3: number;
 }
 
 function classicPivots(h: number, l: number, c: number): PivotSet {
@@ -65,9 +69,13 @@ function PivotPage() {
 
           // find nearest pivot level
           const levels: Array<[string, number]> = [
-            ["S3", piv.s3], ["S2", piv.s2], ["S1", piv.s1],
+            ["S3", piv.s3],
+            ["S2", piv.s2],
+            ["S1", piv.s1],
             ["PP", piv.pp],
-            ["R1", piv.r1], ["R2", piv.r2], ["R3", piv.r3],
+            ["R1", piv.r1],
+            ["R2", piv.r2],
+            ["R3", piv.r3],
           ];
           let best = { label: "PP", level: piv.pp, distPct: Math.abs(last - piv.pp) / piv.pp };
           for (const [lbl, lvl] of levels) {
@@ -122,7 +130,9 @@ function PivotPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-card">
-            <Activity className={`w-3.5 h-3.5 text-primary ${loading ? "animate-spin" : "animate-pulse"}`} />
+            <Activity
+              className={`w-3.5 h-3.5 text-primary ${loading ? "animate-spin" : "animate-pulse"}`}
+            />
             <span className="text-xs font-mono text-primary">
               {loading ? "COMPUTING" : ago !== null ? `LIVE · ${ago}s ago` : "READY"}
             </span>

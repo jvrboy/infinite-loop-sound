@@ -42,7 +42,7 @@ const THREADS_KEY = "diq.chat.threads.v1";
 const ARTIFACTS_KEY = "diq.chat.artifacts.v1";
 const USAGE_KEY = "diq.chat.usage.v1";
 
-const safeRead = <T,>(k: string, fallback: T): T => {
+const safeRead = <T>(k: string, fallback: T): T => {
   if (typeof window === "undefined") return fallback;
   try {
     return JSON.parse(localStorage.getItem(k) || "null") ?? fallback;
@@ -69,32 +69,53 @@ export function useThreads() {
     safeWrite(THREADS_KEY, t);
   }, []);
 
-  const create = useCallback((title = "New chat"): Thread => {
-    const t: Thread = {
-      id: crypto.randomUUID(),
-      title,
-      messages: [],
-      updated: Date.now(),
-    };
-    persist([t, ...threads]);
-    return t;
-  }, [persist, threads]);
+  const create = useCallback(
+    (title = "New chat"): Thread => {
+      const t: Thread = {
+        id: crypto.randomUUID(),
+        title,
+        messages: [],
+        updated: Date.now(),
+      };
+      persist([t, ...threads]);
+      return t;
+    },
+    [persist, threads],
+  );
 
-  const update = useCallback((id: string, patch: Partial<Thread>) => {
-    persist(threads.map((t) => (t.id === id ? { ...t, ...patch, updated: Date.now() } : t)));
-  }, [persist, threads]);
+  const update = useCallback(
+    (id: string, patch: Partial<Thread>) => {
+      persist(threads.map((t) => (t.id === id ? { ...t, ...patch, updated: Date.now() } : t)));
+    },
+    [persist, threads],
+  );
 
-  const remove = useCallback((id: string) => {
-    persist(threads.filter((t) => t.id !== id));
-  }, [persist, threads]);
+  const remove = useCallback(
+    (id: string) => {
+      persist(threads.filter((t) => t.id !== id));
+    },
+    [persist, threads],
+  );
 
-  const togglePin = useCallback((id: string) => {
-    persist(threads.map((t) => (t.id === id ? { ...t, pinned: !t.pinned, updated: Date.now() } : t)));
-  }, [persist, threads]);
+  const togglePin = useCallback(
+    (id: string) => {
+      persist(
+        threads.map((t) => (t.id === id ? { ...t, pinned: !t.pinned, updated: Date.now() } : t)),
+      );
+    },
+    [persist, threads],
+  );
 
-  const toggleArchive = useCallback((id: string) => {
-    persist(threads.map((t) => (t.id === id ? { ...t, archived: !t.archived, updated: Date.now() } : t)));
-  }, [persist, threads]);
+  const toggleArchive = useCallback(
+    (id: string) => {
+      persist(
+        threads.map((t) =>
+          t.id === id ? { ...t, archived: !t.archived, updated: Date.now() } : t,
+        ),
+      );
+    },
+    [persist, threads],
+  );
 
   return { threads, persist, create, update, remove, togglePin, toggleArchive };
 }

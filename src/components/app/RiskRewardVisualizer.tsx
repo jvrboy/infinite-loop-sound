@@ -43,8 +43,8 @@ export function RiskRewardVisualizer({ entry, sl, tp1, tp2, tp3, direction, pair
 
   const rrRatio = riskPips > 0 ? (rewardPips / riskPips).toFixed(2) : "∞";
 
-  const maxPrice = Math.max(...levels.map(l => l.price));
-  const minPrice = Math.min(...levels.map(l => l.price));
+  const maxPrice = Math.max(...levels.map((l) => l.price));
+  const minPrice = Math.min(...levels.map((l) => l.price));
   const range = maxPrice - minPrice || 1;
 
   const getPosition = (price: number) => {
@@ -53,17 +53,23 @@ export function RiskRewardVisualizer({ entry, sl, tp1, tp2, tp3, direction, pair
 
   const getColor = (type: RRLevel["type"]) => {
     switch (type) {
-      case "entry": return "bg-primary border-primary text-primary-foreground";
-      case "sl": return "bg-bear/20 border-bear text-bear";
-      case "tp": return "bg-bull/20 border-bull text-bull";
+      case "entry":
+        return "bg-primary border-primary text-primary-foreground";
+      case "sl":
+        return "bg-bear/20 border-bear text-bear";
+      case "tp":
+        return "bg-bull/20 border-bull text-bull";
     }
   };
 
   const getLineColor = (type: RRLevel["type"]) => {
     switch (type) {
-      case "entry": return "border-primary/60";
-      case "sl": return "border-bear/60";
-      case "tp": return "border-bull/60";
+      case "entry":
+        return "border-primary/60";
+      case "sl":
+        return "border-bear/60";
+      case "tp":
+        return "border-bull/60";
     }
   };
 
@@ -112,13 +118,21 @@ export function RiskRewardVisualizer({ entry, sl, tp1, tp2, tp3, direction, pair
               className="absolute inset-x-0 flex items-center"
               style={{ top: `${getPosition(level.price)}%`, transform: "translateY(-50%)" }}
             >
-              <div className={`absolute -left-20 text-[10px] font-mono ${
-                level.type === "sl" ? "text-bear" : level.type === "tp" ? "text-bull" : "text-primary"
-              }`}>
+              <div
+                className={`absolute -left-20 text-[10px] font-mono ${
+                  level.type === "sl"
+                    ? "text-bear"
+                    : level.type === "tp"
+                      ? "text-bull"
+                      : "text-primary"
+                }`}
+              >
                 {level.label}
               </div>
               <div className={`w-full border-t border-dashed ${getLineColor(level.type)}`} />
-              <div className={`absolute right-0 text-[10px] font-mono px-1.5 py-0.5 rounded border ${getColor(level.type)}`}>
+              <div
+                className={`absolute right-0 text-[10px] font-mono px-1.5 py-0.5 rounded border ${getColor(level.type)}`}
+              >
                 {level.price.toFixed(pair.includes("JPY") ? 3 : 5)}
               </div>
             </div>
@@ -141,7 +155,9 @@ export function RiskRewardVisualizer({ entry, sl, tp1, tp2, tp3, direction, pair
           </div>
           <div className="p-2 rounded bg-bull/10 text-center">
             <div className="text-[9px] text-muted-foreground uppercase">Reward (TP3)</div>
-            <div className="text-sm font-mono font-bold text-bull">{rewardPips.toFixed(1)} pips</div>
+            <div className="text-sm font-mono font-bold text-bull">
+              {rewardPips.toFixed(1)} pips
+            </div>
           </div>
           <div className="p-2 rounded bg-primary/10 text-center">
             <div className="text-[9px] text-muted-foreground uppercase">R:R Ratio</div>

@@ -8,15 +8,15 @@ import type { Candle } from "./indicators";
 
 export interface CurrencyStrength {
   currency: string;
-  score: number;        // -100..+100
-  rank: number;         // 1 = strongest
+  score: number; // -100..+100
+  rank: number; // 1 = strongest
   pairsAnalyzed: number;
 }
 
 export interface PairChange {
-  symbol: string;       // e.g. "frxEURUSD"
-  base: string;         // "EUR"
-  quote: string;        // "USD"
+  symbol: string; // e.g. "frxEURUSD"
+  base: string; // "EUR"
+  quote: string; // "USD"
   changePct: number;
 }
 
@@ -40,9 +40,7 @@ export function changePct(candles: Candle[]): number {
  * Build a currency-strength leaderboard from a map of symbol → candles.
  * Non-FX symbols are ignored.
  */
-export function currencyStrength(
-  candlesBySymbol: Record<string, Candle[]>,
-): CurrencyStrength[] {
+export function currencyStrength(candlesBySymbol: Record<string, Candle[]>): CurrencyStrength[] {
   const buckets = new Map<string, { sum: number; n: number }>();
 
   for (const [sym, candles] of Object.entries(candlesBySymbol)) {
@@ -51,11 +49,13 @@ export function currencyStrength(
     const ch = changePct(candles);
     // base gains when pair rises
     const b = buckets.get(parsed.base) || { sum: 0, n: 0 };
-    b.sum += ch; b.n += 1;
+    b.sum += ch;
+    b.n += 1;
     buckets.set(parsed.base, b);
     // quote gains when pair falls
     const q = buckets.get(parsed.quote) || { sum: 0, n: 0 };
-    q.sum -= ch; q.n += 1;
+    q.sum -= ch;
+    q.n += 1;
     buckets.set(parsed.quote, q);
   }
 
@@ -67,9 +67,7 @@ export function currencyStrength(
     }),
   );
 
-  return rows
-    .sort((a, b) => b.score - a.score)
-    .map((r, i) => ({ ...r, rank: i + 1 }));
+  return rows.sort((a, b) => b.score - a.score).map((r, i) => ({ ...r, rank: i + 1 }));
 }
 
 /** Top-N strongest & weakest currencies, useful for pair-selection. */

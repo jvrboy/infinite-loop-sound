@@ -73,7 +73,6 @@ function sendInApp(_t: DispatchTarget, p: AlertPayload): DispatchResult {
 }
 
 function sendConsole(_t: DispatchTarget, p: AlertPayload): DispatchResult {
-  // eslint-disable-next-line no-console
   console.info(`[ALERT ${p.level ?? "info"}] ${p.title} — ${p.body}`);
   return { channel: "console", ok: true, ts: Date.now() };
 }
@@ -86,13 +85,18 @@ export async function dispatchAlert(
   return Promise.all(
     targets.map((t) => {
       switch (t.channel) {
-        case "telegram": return sendTelegram(t, payload);
-        case "webhook":  return sendWebhook(t, payload);
-        case "in-app":   return Promise.resolve(sendInApp(t, payload));
-        case "console":  return Promise.resolve(sendConsole(t, payload));
+        case "telegram":
+          return sendTelegram(t, payload);
+        case "webhook":
+          return sendWebhook(t, payload);
+        case "in-app":
+          return Promise.resolve(sendInApp(t, payload));
+        case "console":
+          return Promise.resolve(sendConsole(t, payload));
         default:
           return Promise.resolve({
-            channel: t.channel, ok: false,
+            channel: t.channel,
+            ok: false,
             error: `unknown channel: ${String(t.channel)}`,
             ts: Date.now(),
           });

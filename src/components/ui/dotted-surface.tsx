@@ -22,7 +22,12 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
     const scene = new THREE.Scene();
     scene.fog = new THREE.Fog(0x000000, 2000, 10000);
 
-    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+    const camera = new THREE.PerspectiveCamera(
+      60,
+      window.innerWidth / window.innerHeight,
+      1,
+      10000,
+    );
     camera.position.set(0, 355, 1220);
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -98,5 +103,11 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
     };
   }, []);
 
-  return <div ref={containerRef} className={cn("pointer-events-none fixed inset-0 -z-10", className)} {...props} />;
+  return (
+    <div
+      ref={containerRef}
+      className={cn("pointer-events-none fixed inset-0 -z-10", className)}
+      {...props}
+    />
+  );
 }

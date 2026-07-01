@@ -10,14 +10,14 @@ export type SpikeKind = "none" | "bullish" | "bearish" | "volatility";
 export type SpikeSeverity = "none" | "mild" | "strong" | "extreme";
 
 export interface SpikeEvent {
-  index: number;          // candle index where the spike occurred
+  index: number; // candle index where the spike occurred
   epoch: number;
   kind: SpikeKind;
   severity: SpikeSeverity;
-  zScore: number;         // signed z-score of the close-to-close return
-  rangeZScore: number;    // z-score of the high-low range
-  returnPct: number;      // signed return in %
-  rangePct: number;       // range / mid-price, in %
+  zScore: number; // signed z-score of the close-to-close return
+  rangeZScore: number; // z-score of the high-low range
+  returnPct: number; // signed return in %
+  rangePct: number; // range / mid-price, in %
 }
 
 export interface SpikeScan {
@@ -47,11 +47,7 @@ function stats(arr: number[]): { mean: number; std: number } {
  * Scan candles for spike events. Uses a rolling baseline of `window` bars
  * (default 50) and flags any bar whose return exceeds `zThreshold` (default 2.5).
  */
-export function detectSpikes(
-  candles: Candle[],
-  window = 50,
-  zThreshold = 2.5,
-): SpikeScan {
+export function detectSpikes(candles: Candle[], window = 50, zThreshold = 2.5): SpikeScan {
   if (candles.length < window + 2) {
     return { events: [], latest: null, meanReturn: 0, stdReturn: 0, meanRange: 0, stdRange: 0 };
   }

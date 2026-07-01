@@ -17,8 +17,8 @@ import { deriv, type TF } from "@/lib/engine/deriv";
 
 export interface CalendarEvent {
   id: string | number;
-  time: string;        // "HH:MM"
-  currency: string;    // "USD" | "EUR" | ...
+  time: string; // "HH:MM"
+  currency: string; // "USD" | "EUR" | ...
   impact: "High" | "Medium" | "Low";
   event: string;
   forecast?: string;
@@ -45,8 +45,8 @@ const IMPACT_MULT: Record<CalendarEvent["impact"], number> = {
 };
 
 export interface EventForecast {
-  baseVolPct: number;       // realised vol of the base pair (annualised %)
-  expectedMovePct: number;  // forecasted release impact, signed pct of price
+  baseVolPct: number; // realised vol of the base pair (annualised %)
+  expectedMovePct: number; // forecasted release impact, signed pct of price
   band: { low: number; high: number };
   pair: string;
 }
@@ -64,9 +64,7 @@ export async function forecastImpact(
     const closes = candles.map((c) => c.close);
     const returns = closes.slice(1).map((c, i) => (c - closes[i]) / closes[i]);
     const mean = returns.reduce((a, b) => a + b, 0) / returns.length;
-    const sd = Math.sqrt(
-      returns.reduce((a, r) => a + (r - mean) ** 2, 0) / returns.length,
-    );
+    const sd = Math.sqrt(returns.reduce((a, r) => a + (r - mean) ** 2, 0) / returns.length);
     const baseVolPct = sd * 100;
     const expected = baseVolPct * IMPACT_MULT[ev.impact];
     return {
@@ -116,8 +114,7 @@ export function recordHistory(entry: ForecastHistoryEntry): void {
 }
 
 export function accuracyStats(history: ForecastHistoryEntry[]) {
-  if (history.length === 0)
-    return { count: 0, mean: 0, byCurrency: {} as Record<string, number> };
+  if (history.length === 0) return { count: 0, mean: 0, byCurrency: {} as Record<string, number> };
   const mean = history.reduce((a, h) => a + h.accuracy, 0) / history.length;
   const byCcy = history.reduce<Record<string, number[]>>((acc, h) => {
     (acc[h.currency] ||= []).push(h.accuracy);

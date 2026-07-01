@@ -13,7 +13,10 @@ interface Props {
  * with PnL, max drawdown, and win rate. Read-only; takes pre-loaded trades.
  */
 export function EquityCurveWidget({ trades, startingBalance = 10_000 }: Props) {
-  const summary = useMemo(() => buildEquityCurve(trades, startingBalance), [trades, startingBalance]);
+  const summary = useMemo(
+    () => buildEquityCurve(trades, startingBalance),
+    [trades, startingBalance],
+  );
 
   const path = useMemo(() => {
     if (summary.series.length < 2) return "";
@@ -38,7 +41,8 @@ export function EquityCurveWidget({ trades, startingBalance = 10_000 }: Props) {
       <CardHeader className="flex-row items-center justify-between space-y-0">
         <CardTitle className="text-base">Equity Curve</CardTitle>
         <Badge variant={positive ? "default" : "destructive"}>
-          {positive ? "+" : ""}{summary.pnlPct.toFixed(2)}%
+          {positive ? "+" : ""}
+          {summary.pnlPct.toFixed(2)}%
         </Badge>
       </CardHeader>
       <CardContent className="space-y-3">

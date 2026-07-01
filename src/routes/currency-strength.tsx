@@ -71,10 +71,24 @@ function CurrencyStrengthPage() {
   //   - normalise the 8 currency scores to [0, 100] with min-max scaling.
   const strengths = useMemo(() => {
     const score: Record<Major, number> = {
-      USD: 0, EUR: 0, GBP: 0, JPY: 0, AUD: 0, CAD: 0, CHF: 0, NZD: 0,
+      USD: 0,
+      EUR: 0,
+      GBP: 0,
+      JPY: 0,
+      AUD: 0,
+      CAD: 0,
+      CHF: 0,
+      NZD: 0,
     };
     const count: Record<Major, number> = {
-      USD: 0, EUR: 0, GBP: 0, JPY: 0, AUD: 0, CAD: 0, CHF: 0, NZD: 0,
+      USD: 0,
+      EUR: 0,
+      GBP: 0,
+      JPY: 0,
+      AUD: 0,
+      CAD: 0,
+      CHF: 0,
+      NZD: 0,
     };
 
     for (const p of PAIRS) {
@@ -132,8 +146,12 @@ function CurrencyStrengthPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30">
-            <Activity className={`w-3.5 h-3.5 text-primary ${ready ? "animate-pulse" : "opacity-30"}`} />
-            <span className="text-xs font-mono text-primary">{ready ? `LIVE · ${livePairs}/${PAIRS.length}` : "CONNECTING…"}</span>
+            <Activity
+              className={`w-3.5 h-3.5 text-primary ${ready ? "animate-pulse" : "opacity-30"}`}
+            />
+            <span className="text-xs font-mono text-primary">
+              {ready ? `LIVE · ${livePairs}/${PAIRS.length}` : "CONNECTING…"}
+            </span>
           </div>
         </div>
 
@@ -143,7 +161,8 @@ function CurrencyStrengthPage() {
               <TrendingUp className="w-3 h-3 text-bull" /> Strongest
             </div>
             <div className="text-2xl font-bold font-mono mt-1">
-              {strongest?.currency ?? "—"} <span className="text-sm text-bull">{strongest?.strength.toFixed(1)}</span>
+              {strongest?.currency ?? "—"}{" "}
+              <span className="text-sm text-bull">{strongest?.strength.toFixed(1)}</span>
             </div>
           </div>
           <div className="rounded-lg border border-border bg-card p-3">
@@ -151,7 +170,8 @@ function CurrencyStrengthPage() {
               <TrendingDown className="w-3 h-3 text-bear" /> Weakest
             </div>
             <div className="text-2xl font-bold font-mono mt-1">
-              {weakest?.currency ?? "—"} <span className="text-sm text-bear">{weakest?.strength.toFixed(1)}</span>
+              {weakest?.currency ?? "—"}{" "}
+              <span className="text-sm text-bear">{weakest?.strength.toFixed(1)}</span>
             </div>
           </div>
         </div>
@@ -160,10 +180,13 @@ function CurrencyStrengthPage() {
           <div className="space-y-4">
             {sorted.map(({ currency, strength, raw, samples }) => {
               const color =
-                strength > 75 ? "bg-bull" :
-                strength > 50 ? "bg-emerald-400" :
-                strength > 25 ? "bg-amber-400" :
-                "bg-bear";
+                strength > 75
+                  ? "bg-bull"
+                  : strength > 50
+                    ? "bg-emerald-400"
+                    : strength > 25
+                      ? "bg-amber-400"
+                      : "bg-bear";
               return (
                 <div key={currency} className="flex items-center gap-4 group">
                   <div className="w-12 text-lg font-bold font-mono text-right">{currency}</div>
@@ -176,10 +199,13 @@ function CurrencyStrengthPage() {
                   <div className="w-16 text-sm font-mono text-muted-foreground text-right">
                     {strength.toFixed(1)}
                     <div className="text-[10px]">
-                      {raw >= 0 ? "+" : ""}{raw.toFixed(3)}%
+                      {raw >= 0 ? "+" : ""}
+                      {raw.toFixed(3)}%
                     </div>
                   </div>
-                  <div className="w-10 text-[10px] text-muted-foreground text-right">{samples}p</div>
+                  <div className="w-10 text-[10px] text-muted-foreground text-right">
+                    {samples}p
+                  </div>
                 </div>
               );
             })}
@@ -202,22 +228,23 @@ function CurrencyStrengthPage() {
                 </span>
               ) : (
                 "—"
-              )}
-              {" "}— BUY-bias setups when momentum aligns with strength differential.
+              )}{" "}
+              — BUY-bias setups when momentum aligns with strength differential.
             </p>
           </div>
           <div className="bg-card/50 border border-border rounded-lg p-5">
             <h3 className="font-semibold text-sm mb-2">Method</h3>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              For each pair, the rolling % change is added to the base currency's score
-              and subtracted from the quote. We average per-currency to remove the
-              "more pairs ⇒ louder score" bias, then min-max normalise to 0–100.
+              For each pair, the rolling % change is added to the base currency's score and
+              subtracted from the quote. We average per-currency to remove the "more pairs ⇒ louder
+              score" bias, then min-max normalise to 0–100.
             </p>
           </div>
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center">
-          Data: public Deriv WebSocket (app_id 1089) · {PAIRS.length} major crosses · {livePairs} streaming
+          Data: public Deriv WebSocket (app_id 1089) · {PAIRS.length} major crosses · {livePairs}{" "}
+          streaming
         </p>
       </div>
     </AppShell>

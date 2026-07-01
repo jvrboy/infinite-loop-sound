@@ -110,8 +110,7 @@ const CHECK_INTERVAL_MS = 30_000; // 30 seconds
 const MAX_RECENT_SIGNALS = 200;
 
 /** Generate a short unique ID */
-const uid = (): string =>
-  `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+const uid = (): string => `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 
 // ═══════════════════════════════════════════════════════════════════
 // AUTOMATION ENGINE
@@ -321,10 +320,7 @@ export class AutomationEngine {
             produced.push(signal);
           }
         } catch (err) {
-          console.error(
-            `[AutomationEngine] Error analyzing ${pair}/${schedule.timeframe}:`,
-            err,
-          );
+          console.error(`[AutomationEngine] Error analyzing ${pair}/${schedule.timeframe}:`, err);
         }
       }
     }
@@ -360,9 +356,7 @@ export class AutomationEngine {
   ): Promise<AutomationSignal | null> {
     // Need at least 30 candles for meaningful analysis
     if (candles.length < 30) {
-      console.log(
-        `[AutomationEngine] Skipping ${pair}/${tf} — only ${candles.length} candles`,
-      );
+      console.log(`[AutomationEngine] Skipping ${pair}/${tf} — only ${candles.length} candles`);
       return null;
     }
 
@@ -387,9 +381,7 @@ export class AutomationEngine {
 
     // If the optimizer has blacklisted this pair/TF, skip entirely
     if (adjusted.blacklist) {
-      console.log(
-        `[AutomationEngine] ${pair}/${tf} is blacklisted by signal optimizer`,
-      );
+      console.log(`[AutomationEngine] ${pair}/${tf} is blacklisted by signal optimizer`);
       return null;
     }
 
@@ -421,10 +413,7 @@ export class AutomationEngine {
         }
       } catch (err) {
         // Neural enhancement is best-effort; don't block on failure
-        console.warn(
-          `[AutomationEngine] Neural enhancement failed for ${pair}/${tf}:`,
-          err,
-        );
+        console.warn(`[AutomationEngine] Neural enhancement failed for ${pair}/${tf}:`, err);
       }
     }
 
@@ -500,9 +489,7 @@ export class AutomationEngine {
     // ── Step 8: Dispatch ────────────────────────────────────────
     if (schedule.dispatchTargets.length > 0) {
       signal.dispatchResults = await this.dispatchSignal(signal);
-      signal.dispatched = Object.values(signal.dispatchResults).some(
-        (r) => r.success,
-      );
+      signal.dispatched = Object.values(signal.dispatchResults).some((r) => r.success);
 
       // Update rate-limit counters on successful dispatch
       if (signal.dispatched) {
@@ -592,13 +579,9 @@ export class AutomationEngine {
           // Format a Telegram-friendly message using Markdown
           const emoji = signal.direction === "BUY" ? "🟢" : "🔴";
           const strategiesText =
-            signal.strategies.length > 0
-              ? `\n📊 Strategies: ${signal.strategies.join(", ")}`
-              : "";
+            signal.strategies.length > 0 ? `\n📊 Strategies: ${signal.strategies.join(", ")}` : "";
           const neuralText =
-            signal.neuralBoost > 0
-              ? `\n🧠 Neural Boost: +${signal.neuralBoost.toFixed(1)}%`
-              : "";
+            signal.neuralBoost > 0 ? `\n🧠 Neural Boost: +${signal.neuralBoost.toFixed(1)}%` : "";
 
           const telegramMessage =
             `${emoji} *${signal.direction} ${signal.pair} (${signal.timeframe})*\n` +
@@ -608,9 +591,7 @@ export class AutomationEngine {
             `🕐 ${new Date(signal.timestamp).toUTCString()}\n` +
             `🤖 Source: automation:${signal.scheduleId}`;
 
-          console.log(
-            `[AutomationEngine:Telegram] Message:\n${telegramMessage}`,
-          );
+          console.log(`[AutomationEngine:Telegram] Message:\n${telegramMessage}`);
           results["telegram"] = {
             success: true,
             message: `Telegram message formatted (${signal.pair} ${signal.direction})`,
@@ -636,10 +617,7 @@ export class AutomationEngine {
               timestamp: signal.timestamp,
             },
           };
-          console.log(
-            `[AutomationEngine:Webhook] Payload:`,
-            JSON.stringify(webhookPayload),
-          );
+          console.log(`[AutomationEngine:Webhook] Payload:`, JSON.stringify(webhookPayload));
           results["webhook"] = {
             success: true,
             message: `Webhook payload built for ${signal.pair} ${signal.direction}`,
@@ -715,8 +693,14 @@ export class AutomationEngine {
         name: "SAST Night Scanner",
         enabled: true,
         instruments: [
-          "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD",
-          "USDCAD", "USDCHF", "XAUUSD",
+          "EURUSD",
+          "GBPUSD",
+          "USDJPY",
+          "AUDUSD",
+          "NZDUSD",
+          "USDCAD",
+          "USDCHF",
+          "XAUUSD",
         ],
         timeframe: "M5",
         schedules: [
@@ -753,11 +737,14 @@ export class AutomationEngine {
           { hour: 8, minute: 5, daysOfWeek: [1, 2, 3, 4, 5], session: "day" },
         ],
         strategies: [
-          "squeeze-breakout", "small-body-breakout",
-          "sast-day-rule-b", "ichimoku-cloud", "ema-crossover",
+          "squeeze-breakout",
+          "small-body-breakout",
+          "sast-day-rule-b",
+          "ichimoku-cloud",
+          "ema-crossover",
         ],
         minScore: 45,
-        minConfidence: 0.70,
+        minConfidence: 0.7,
         dispatchTargets: ["supabase", "telegram", "bot"],
         neuralEnhance: true,
         maxSignalsPerHour: 3,
@@ -782,8 +769,11 @@ export class AutomationEngine {
           { hour: 12, minute: 35, daysOfWeek: [1, 2, 3, 4, 5] },
         ],
         strategies: [
-          "squeeze-breakout", "macd-adx", "psar-trend",
-          "stoch-bb-crossover", "confluence-master",
+          "squeeze-breakout",
+          "macd-adx",
+          "psar-trend",
+          "stoch-bb-crossover",
+          "confluence-master",
         ],
         minScore: 45,
         minConfidence: 0.68,
@@ -804,8 +794,14 @@ export class AutomationEngine {
         name: "News Hour Scanner",
         enabled: false, // Off by default — user enables manually
         instruments: [
-          "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD",
-          "USDCAD", "USDCHF", "XAUUSD",
+          "EURUSD",
+          "GBPUSD",
+          "USDJPY",
+          "AUDUSD",
+          "NZDUSD",
+          "USDCAD",
+          "USDCHF",
+          "XAUUSD",
         ],
         timeframe: "M15",
         schedules: [
@@ -839,8 +835,14 @@ export class AutomationEngine {
         name: "Weekend Close",
         enabled: true,
         instruments: [
-          "EURUSD", "GBPUSD", "USDJPY", "AUDUSD", "NZDUSD",
-          "USDCAD", "USDCHF", "XAUUSD",
+          "EURUSD",
+          "GBPUSD",
+          "USDJPY",
+          "AUDUSD",
+          "NZDUSD",
+          "USDCAD",
+          "USDCHF",
+          "XAUUSD",
         ],
         timeframe: "H4",
         schedules: [
@@ -1032,9 +1034,7 @@ export class AutomationEngine {
    */
   pruneSignals(olderThanTimestamp: number): number {
     const before = this.recentSignals.length;
-    this.recentSignals = this.recentSignals.filter(
-      (s) => s.timestamp >= olderThanTimestamp,
-    );
+    this.recentSignals = this.recentSignals.filter((s) => s.timestamp >= olderThanTimestamp);
     const pruned = before - this.recentSignals.length;
     if (pruned > 0) this.save();
     return pruned;
@@ -1048,9 +1048,7 @@ export class AutomationEngine {
     const total = this.schedules.length;
     const dispatched = this.recentSignals.filter((s) => s.dispatched).length;
     const nextRun = this.computeNextRunTime();
-    const minutesUntil = nextRun > 0
-      ? Math.round((nextRun - Date.now()) / 60_000)
-      : -1;
+    const minutesUntil = nextRun > 0 ? Math.round((nextRun - Date.now()) / 60_000) : -1;
 
     return (
       `[AutomationEngine] ` +

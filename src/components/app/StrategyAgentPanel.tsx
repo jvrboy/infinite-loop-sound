@@ -16,10 +16,16 @@ interface Props {
 function AgentStatusBadge({ result }: { result?: AgentResult }) {
   if (!result) return <Badge variant="outline">Idle</Badge>;
   switch (result.status) {
-    case "completed": return <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Active</Badge>;
-    case "running": return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Running</Badge>;
-    case "error": return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Alert</Badge>;
-    default: return <Badge variant="outline">Idle</Badge>;
+    case "completed":
+      return (
+        <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">Active</Badge>
+      );
+    case "running":
+      return <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Running</Badge>;
+    case "error":
+      return <Badge className="bg-red-500/20 text-red-400 border-red-500/30">Alert</Badge>;
+    default:
+      return <Badge variant="outline">Idle</Badge>;
   }
 }
 
@@ -33,7 +39,10 @@ function ConfidenceBar({ value, label }: { value: number; label: string }) {
         <span className="font-mono text-foreground">{pct}%</span>
       </div>
       <div className="h-1.5 bg-secondary rounded-full overflow-hidden">
-        <div className={`h-full ${color} rounded-full transition-all`} style={{ width: `${pct}%` }} />
+        <div
+          className={`h-full ${color} rounded-full transition-all`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
     </div>
   );
@@ -43,14 +52,18 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
   const strategyResult = state.results["strategy-agent"];
   const riskResult = state.results["risk-agent"];
   const newsResult = state.results["news-agent"];
-  const recommendations = (strategyResult?.output?.recommendations as StrategyRecommendation[] ?? []).slice(0, 5);
+  const recommendations = (
+    (strategyResult?.output?.recommendations as StrategyRecommendation[]) ?? []
+  ).slice(0, 5);
   const insights = [
     ...(strategyResult?.insights ?? []),
     ...(riskResult?.insights ?? []),
     ...(newsResult?.insights ?? []),
   ];
 
-  const assessment = newsResult?.output?.assessment as { impactLevel: string; recommendedAction: string; affectedPairs: string[] } | undefined;
+  const assessment = newsResult?.output?.assessment as
+    | { impactLevel: string; recommendedAction: string; affectedPairs: string[] }
+    | undefined;
 
   const sOut = (strategyResult?.output ?? {}) as {
     direction?: string;
@@ -66,7 +79,7 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
     <div className="space-y-4">
       {/* Agent Status Row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {ALL_AGENT_CONFIGS.map(agent => (
+        {ALL_AGENT_CONFIGS.map((agent) => (
           <Card key={agent.id} className="bg-card/50 backdrop-blur border-border/50">
             <CardContent className="p-3">
               <div className="flex items-center justify-between mb-1">
@@ -85,7 +98,9 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center justify-between">
               <span>Strategy Confluence</span>
-              {isRunning && <span className="text-xs text-blue-400 animate-pulse">Scanning...</span>}
+              {isRunning && (
+                <span className="text-xs text-blue-400 animate-pulse">Scanning...</span>
+              )}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -93,10 +108,15 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
               <>
                 <div className="flex items-center gap-4">
                   <div className="text-center">
-                    <div className={`text-2xl font-bold ${
-                      sOut.direction === "BUY" ? "text-emerald-400" :
-                      sOut.direction === "SELL" ? "text-red-400" : "text-muted-foreground"
-                    }`}>
+                    <div
+                      className={`text-2xl font-bold ${
+                        sOut.direction === "BUY"
+                          ? "text-emerald-400"
+                          : sOut.direction === "SELL"
+                            ? "text-red-400"
+                            : "text-muted-foreground"
+                      }`}
+                    >
                       {sOut.direction ?? "FLAT"}
                     </div>
                     <div className="text-[10px] text-muted-foreground">Direction</div>
@@ -137,7 +157,10 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
             <div className="space-y-2">
               {recommendations.map((rec, i) => (
                 <div key={i} className="flex items-center gap-2 p-2 rounded-lg bg-secondary/30">
-                  <Badge variant={rec.direction === "BUY" ? "default" : "destructive"} className="text-[10px]">
+                  <Badge
+                    variant={rec.direction === "BUY" ? "default" : "destructive"}
+                    className="text-[10px]"
+                  >
                     {rec.direction}
                   </Badge>
                   <div className="flex-1 min-w-0">
@@ -167,24 +190,51 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-3">
-              {(riskResult.output.assessment as { kellyFraction: number; maxPositionSize: number; consecutiveLosses: number; shouldHalt: boolean; currentDailyPnL: number }) && (
+              {(riskResult.output.assessment as {
+                kellyFraction: number;
+                maxPositionSize: number;
+                consecutiveLosses: number;
+                shouldHalt: boolean;
+                currentDailyPnL: number;
+              }) && (
                 <>
                   <div>
-                    <div className="text-lg font-mono">{((riskResult.output.assessment as { kellyFraction: number }).kellyFraction * 100).toFixed(2)}%</div>
+                    <div className="text-lg font-mono">
+                      {(
+                        (riskResult.output.assessment as { kellyFraction: number }).kellyFraction *
+                        100
+                      ).toFixed(2)}
+                      %
+                    </div>
                     <div className="text-[10px] text-muted-foreground">Kelly (Half)</div>
                   </div>
                   <div>
-                    <div className="text-lg font-mono">${(riskResult.output.assessment as { maxPositionSize: number }).maxPositionSize.toFixed(2)}</div>
+                    <div className="text-lg font-mono">
+                      $
+                      {(
+                        riskResult.output.assessment as { maxPositionSize: number }
+                      ).maxPositionSize.toFixed(2)}
+                    </div>
                     <div className="text-[10px] text-muted-foreground">Position Size</div>
                   </div>
                   <div>
-                    <div className={`text-lg font-mono ${(riskResult.output.assessment as { currentDailyPnL: number }).currentDailyPnL >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                      ${(riskResult.output.assessment as { currentDailyPnL: number }).currentDailyPnL.toFixed(2)}
+                    <div
+                      className={`text-lg font-mono ${(riskResult.output.assessment as { currentDailyPnL: number }).currentDailyPnL >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                    >
+                      $
+                      {(
+                        riskResult.output.assessment as { currentDailyPnL: number }
+                      ).currentDailyPnL.toFixed(2)}
                     </div>
                     <div className="text-[10px] text-muted-foreground">Daily P&L</div>
                   </div>
                   <div>
-                    <div className="text-lg font-mono">{(riskResult.output.assessment as { consecutiveLosses: number }).consecutiveLosses}</div>
+                    <div className="text-lg font-mono">
+                      {
+                        (riskResult.output.assessment as { consecutiveLosses: number })
+                          .consecutiveLosses
+                      }
+                    </div>
                     <div className="text-[10px] text-muted-foreground">Consec. Losses</div>
                   </div>
                 </>
@@ -205,17 +255,26 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
               News Intelligence
-              <Badge variant={
-                assessment.impactLevel === "high" ? "destructive" :
-                assessment.impactLevel === "medium" ? "default" : "outline"
-              } className="text-[10px]">
+              <Badge
+                variant={
+                  assessment.impactLevel === "high"
+                    ? "destructive"
+                    : assessment.impactLevel === "medium"
+                      ? "default"
+                      : "outline"
+                }
+                className="text-[10px]"
+              >
                 {assessment.impactLevel.toUpperCase()} IMPACT
               </Badge>
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-xs text-muted-foreground mb-2">
-              Action: <span className="text-foreground font-medium">{assessment.recommendedAction.toUpperCase()}</span>
+              Action:{" "}
+              <span className="text-foreground font-medium">
+                {assessment.recommendedAction.toUpperCase()}
+              </span>
               {assessment.affectedPairs.length > 0 && (
                 <span> — {assessment.affectedPairs.length} pairs affected</span>
               )}
@@ -231,11 +290,16 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-            {STRATEGY_CATALOG.map(s => (
-              <div key={s.id} className="p-2 rounded-lg bg-secondary/20 border border-border/30 space-y-1">
+            {STRATEGY_CATALOG.map((s) => (
+              <div
+                key={s.id}
+                className="p-2 rounded-lg bg-secondary/20 border border-border/30 space-y-1"
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">{s.name}</span>
-                  <Badge variant="outline" className="text-[9px]">{s.timeframe}</Badge>
+                  <Badge variant="outline" className="text-[9px]">
+                    {s.timeframe}
+                  </Badge>
                 </div>
                 <div className="flex gap-2 text-[10px] text-muted-foreground">
                   {s.winRate.night != null && <span>N: {s.winRate.night}%</span>}

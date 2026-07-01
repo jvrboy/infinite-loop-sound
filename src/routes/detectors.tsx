@@ -40,7 +40,9 @@ function DetectorsPage() {
             className="justify-start"
           >
             {(["M1", "M5", "M15", "H1", "H4", "D1"] as TF[]).map((t) => (
-              <ToggleGroupItem key={t} value={t} className="text-xs">{t}</ToggleGroupItem>
+              <ToggleGroupItem key={t} value={t} className="text-xs">
+                {t}
+              </ToggleGroupItem>
             ))}
           </ToggleGroup>
         </div>

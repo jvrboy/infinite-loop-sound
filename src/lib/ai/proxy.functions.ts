@@ -26,7 +26,11 @@ export const aiProxy = createServerFn({ method: "POST" })
         if (!key) return { ok: false, error: "LOVABLE_API_KEY not configured on server" };
         const r = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "Lovable-API-Key": key, "X-Lovable-AIG-SDK": "vercel-ai-sdk" },
+          headers: {
+            "Content-Type": "application/json",
+            "Lovable-API-Key": key,
+            "X-Lovable-AIG-SDK": "vercel-ai-sdk",
+          },
           body: JSON.stringify({ model, messages, temperature: data.temperature ?? 0.4 }),
         });
         const j: any = await r.json();
@@ -35,11 +39,18 @@ export const aiProxy = createServerFn({ method: "POST" })
       }
 
       if (provider === "anthropic") {
-        const sys = messages.filter(m => m.role === "system").map(m => m.content).join("\n");
-        const rest = messages.filter(m => m.role !== "system");
+        const sys = messages
+          .filter((m) => m.role === "system")
+          .map((m) => m.content)
+          .join("\n");
+        const rest = messages.filter((m) => m.role !== "system");
         const r = await fetch("https://api.anthropic.com/v1/messages", {
           method: "POST",
-          headers: { "Content-Type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": apiKey,
+            "anthropic-version": "2023-06-01",
+          },
           body: JSON.stringify({ model, max_tokens: 1024, system: sys, messages: rest }),
         });
         const j: any = await r.json();
@@ -48,15 +59,33 @@ export const aiProxy = createServerFn({ method: "POST" })
       }
 
       if (provider === "gemini") {
-        const sys = messages.filter(m => m.role === "system").map(m => m.content).join("\n");
-        const contents = messages.filter(m => m.role !== "system").map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.content }] }));
-        const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`, {
-          method: "POST", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ systemInstruction: sys ? { parts: [{ text: sys }] } : undefined, contents }),
-        });
+        const sys = messages
+          .filter((m) => m.role === "system")
+          .map((m) => m.content)
+          .join("\n");
+        const contents = messages
+          .filter((m) => m.role !== "system")
+          .map((m) => ({
+            role: m.role === "assistant" ? "model" : "user",
+            parts: [{ text: m.content }],
+          }));
+        const r = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: sys ? { parts: [{ text: sys }] } : undefined,
+              contents,
+            }),
+          },
+        );
         const j: any = await r.json();
         if (!r.ok) return { ok: false, error: j?.error?.message || `Gemini ${r.status}` };
-        return { ok: true, text: j.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("") ?? "" };
+        return {
+          ok: true,
+          text: j.candidates?.[0]?.content?.parts?.map((p: any) => p.text).join("") ?? "",
+        };
       }
 
       if (provider === "cohere") {
@@ -82,15 +111,20 @@ export const aiProxy = createServerFn({ method: "POST" })
         xai: "https://api.x.ai/v1/chat/completions",
         nvidia: "https://integrate.api.nvidia.com/v1/chat/completions",
       };
-      const url = provider === "gguf" ? (baseUrl?.replace(/\/$/, "") + "/v1/chat/completions") : urls[provider];
+      const url =
+        provider === "gguf" ? baseUrl?.replace(/\/$/, "") + "/v1/chat/completions" : urls[provider];
       if (!url) return { ok: false, error: `Unknown provider: ${provider}` };
       const r = await fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/json", ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}) },
+        headers: {
+          "Content-Type": "application/json",
+          ...(apiKey ? { Authorization: `Bearer ${apiKey}` } : {}),
+        },
         body: JSON.stringify({ model, messages, temperature: data.temperature ?? 0.4 }),
       });
       const j: any = await r.json();
-      if (!r.ok) return { ok: false, error: j?.error?.message || j?.error || `${provider} ${r.status}` };
+      if (!r.ok)
+        return { ok: false, error: j?.error?.message || j?.error || `${provider} ${r.status}` };
       return { ok: true, text: j.choices?.[0]?.message?.content ?? "" };
     } catch (e: any) {
       return { ok: false, error: e?.message || "proxy error" };

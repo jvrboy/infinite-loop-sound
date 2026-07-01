@@ -43,9 +43,7 @@ export function useConfluence() {
       const buyCount = allHits.filter((h: any) => h.side === "BUY").length;
       const sellCount = allHits.length - buyCount;
       const agreementScore =
-        allHits.length > 0
-          ? (Math.max(buyCount, sellCount) / allHits.length) * 100
-          : 0;
+        allHits.length > 0 ? (Math.max(buyCount, sellCount) / allHits.length) * 100 : 0;
 
       setResult({
         pair,
@@ -62,24 +60,23 @@ export function useConfluence() {
         error: null,
       });
     } catch (e: any) {
-      setResult(
-        prev =>
-          prev
-            ? { ...prev, loading: false, error: e.message }
-            : {
-                pair,
-                timeframe: tf,
-                signalResult: null,
-                v1Hits: [],
-                v2Hits: [],
-                v3Hits: [],
-                totalHits: 0,
-                buyCount: 0,
-                sellCount: 0,
-                agreementScore: 0,
-                loading: false,
-                error: e.message,
-              },
+      setResult((prev) =>
+        prev
+          ? { ...prev, loading: false, error: e.message }
+          : {
+              pair,
+              timeframe: tf,
+              signalResult: null,
+              v1Hits: [],
+              v2Hits: [],
+              v3Hits: [],
+              totalHits: 0,
+              buyCount: 0,
+              sellCount: 0,
+              agreementScore: 0,
+              loading: false,
+              error: e.message,
+            },
       );
     } finally {
       setLoading(false);

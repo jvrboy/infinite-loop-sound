@@ -26,15 +26,18 @@ function ScalingPage() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
             <SplitSquareHorizontal className="w-6 h-6 text-primary" /> Position Scaling Tool
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Calculate partial profit lot sizes for multiple Take Profit levels.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Calculate partial profit lot sizes for multiple Take Profit levels.
+          </p>
         </div>
 
         <div className="max-w-xl bg-card border border-border p-6 rounded-lg space-y-6">
           <div>
             <label className="text-sm font-medium mb-1.5 block">Total Entry Lot Size</label>
-            <input 
-              type="number" step="0.01"
-              value={totalLots || ''} 
+            <input
+              type="number"
+              step="0.01"
+              value={totalLots || ""}
               onChange={(e) => setTotalLots(Number(e.target.value))}
               className="w-full p-2 border border-input rounded bg-background font-mono text-xl"
             />
@@ -43,10 +46,14 @@ function ScalingPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 items-center">
               <div>
-                <label className="text-sm font-medium text-muted-foreground block mb-1">Close at TP1 (%)</label>
-                <input 
-                  type="number" min="0" max="100"
-                  value={tp1Percent} 
+                <label className="text-sm font-medium text-muted-foreground block mb-1">
+                  Close at TP1 (%)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={tp1Percent}
                   onChange={(e) => setTp1Percent(Number(e.target.value))}
                   className="w-full p-2 border border-input rounded bg-background font-mono"
                 />
@@ -59,10 +66,14 @@ function ScalingPage() {
 
             <div className="grid grid-cols-2 gap-4 items-center">
               <div>
-                <label className="text-sm font-medium text-muted-foreground block mb-1">Close at TP2 (%)</label>
-                <input 
-                  type="number" min="0" max="100"
-                  value={tp2Percent} 
+                <label className="text-sm font-medium text-muted-foreground block mb-1">
+                  Close at TP2 (%)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={tp2Percent}
                   onChange={(e) => setTp2Percent(Number(e.target.value))}
                   className="w-full p-2 border border-input rounded bg-background font-mono"
                 />
@@ -75,7 +86,9 @@ function ScalingPage() {
 
             <div className="grid grid-cols-2 gap-4 items-center bg-muted/30 p-3 rounded border border-border">
               <div>
-                <label className="text-sm font-medium text-muted-foreground block mb-1">Leave for TP3 / Runner (%)</label>
+                <label className="text-sm font-medium text-muted-foreground block mb-1">
+                  Leave for TP3 / Runner (%)
+                </label>
                 <div className="p-2 font-mono">{tp3Percent}%</div>
               </div>
               <div className="text-right">
@@ -84,10 +97,12 @@ function ScalingPage() {
               </div>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Layers className="w-4 h-4" />
-            <span>Ensure your broker allows partial closing of positions down to 0.01 micro lots.</span>
+            <span>
+              Ensure your broker allows partial closing of positions down to 0.01 micro lots.
+            </span>
           </div>
         </div>
       </div>

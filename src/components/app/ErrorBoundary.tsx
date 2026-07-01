@@ -32,7 +32,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, info: ErrorInfo): void {
     // Avoid noisy logs in test runs but always log in dev/prod for triage.
-    // eslint-disable-next-line no-console
+
     console.error("[ErrorBoundary]", this.props.label ?? "unknown", error, info);
     this.props.onError?.(error, info);
   }

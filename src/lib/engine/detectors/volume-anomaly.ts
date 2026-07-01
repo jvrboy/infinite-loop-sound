@@ -6,23 +6,23 @@ import type { Candle } from "../indicators";
 
 export type VolumeAnomalyKind =
   | "none"
-  | "climactic"   // huge volume + huge range → capitulation / breakout
-  | "churn"       // huge volume + tiny range → absorption / stalemate
-  | "stealth";    // small volume + large range → vacuum move, low conviction
+  | "climactic" // huge volume + huge range → capitulation / breakout
+  | "churn" // huge volume + tiny range → absorption / stalemate
+  | "stealth"; // small volume + large range → vacuum move, low conviction
 
 export interface VolumeEvent {
   index: number;
   epoch: number;
   kind: VolumeAnomalyKind;
-  volumeRatio: number;   // volume / avg(volume)
-  rangeRatio: number;    // range / avg(range)
+  volumeRatio: number; // volume / avg(volume)
+  rangeRatio: number; // range / avg(range)
   direction: "up" | "down";
 }
 
 export interface VolumeScan {
   events: VolumeEvent[];
   latest: VolumeEvent | null;
-  hasVolume: boolean;    // false for symbols without volume data
+  hasVolume: boolean; // false for symbols without volume data
 }
 
 export function detectVolumeAnomalies(

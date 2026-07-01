@@ -7,10 +7,10 @@ export interface SessionInfo {
   session: SASTSession;
   sastTime: string;
   utcTime: string;
-  sessionProgress: number;  // 0-100% through current session
+  sessionProgress: number; // 0-100% through current session
   sessionStart: Date;
   sessionEnd: Date;
-  isTransition: boolean;    // true if within 30 min of session change
+  isTransition: boolean; // true if within 30 min of session change
   nextSession: SASTSession;
   nightStats: { avgTPSLHitRate: number; bestPair: string; netPips: number };
   dayStats: { avgTPSLHitRate: number; bestPair: string; netPips: number };
@@ -45,9 +45,10 @@ export function useSessionTimer() {
       const duration = sessionEnd.getTime() - sessionStart.getTime();
       const elapsed = now.getTime() - sessionStart.getTime();
       const progress = Math.max(0, Math.min(100, (elapsed / duration) * 100));
-      const isTransition = session === "night"
-        ? (utcH === 2 || utcH === 3)   // near end of night
-        : (utcH === 19 || utcH === 20); // near end of day
+      const isTransition =
+        session === "night"
+          ? utcH === 2 || utcH === 3 // near end of night
+          : utcH === 19 || utcH === 20; // near end of day
 
       const nextSession: SASTSession = session === "night" ? "day" : "night";
 

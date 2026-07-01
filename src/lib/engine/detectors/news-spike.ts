@@ -10,7 +10,7 @@ import type { Candle } from "../indicators";
 import { detectSpikes, type SpikeEvent } from "./spike";
 
 export interface NewsEvent {
-  epoch: number;      // event time in seconds
+  epoch: number; // event time in seconds
   title: string;
   impact: "low" | "medium" | "high";
   currency?: string;
@@ -19,7 +19,7 @@ export interface NewsEvent {
 export interface NewsSpikeMatch {
   spike: SpikeEvent;
   event: NewsEvent;
-  deltaSec: number;   // signed: positive = spike after event
+  deltaSec: number; // signed: positive = spike after event
 }
 
 export interface NewsSpikeScan {

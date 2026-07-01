@@ -6,22 +6,24 @@
 import type { Candle } from "./indicators";
 
 export interface OFIWindow {
-  buyPressure: number;   // 0..1 share of bullish delta
-  sellPressure: number;  // 0..1 share of bearish delta
-  netDelta: number;      // signed sum of body sizes
-  cvd: number[];         // cumulative volume delta series (one per candle)
-  imbalance: number;     // (buy - sell) / (buy + sell), -1..+1
+  buyPressure: number; // 0..1 share of bullish delta
+  sellPressure: number; // 0..1 share of bearish delta
+  netDelta: number; // signed sum of body sizes
+  cvd: number[]; // cumulative volume delta series (one per candle)
+  imbalance: number; // (buy - sell) / (buy + sell), -1..+1
   regime: "strong-buy" | "buy" | "balanced" | "sell" | "strong-sell";
 }
 
 export function orderFlowImbalance(candles: Candle[], lookback = 50): OFIWindow {
   const window = candles.slice(-Math.min(lookback, candles.length));
-  let buy = 0, sell = 0;
+  let buy = 0,
+    sell = 0;
   const cvd: number[] = [];
   let running = 0;
   for (const c of window) {
     const body = c.close - c.open;
-    if (body >= 0) buy += body; else sell += -body;
+    if (body >= 0) buy += body;
+    else sell += -body;
     running += body;
     cvd.push(running);
   }

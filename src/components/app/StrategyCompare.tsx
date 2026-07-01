@@ -42,7 +42,9 @@ export function StrategyCompare({ symbolA, symbolB, tf = "H1" }: Props) {
       );
       if (!cancelled) setRows(results);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [symbolA, symbolB, tf]);
 
   const winner = useMemo(() => {

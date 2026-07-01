@@ -16,7 +16,7 @@ let _warned = false;
 function warnOnce() {
   if (_warned) return;
   _warned = true;
-  // eslint-disable-next-line no-console
+
   console.warn(
     "[Supabase admin] Not configured. Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in your server environment to enable admin operations.",
   );
@@ -25,25 +25,47 @@ function warnOnce() {
 function stubResult(method: string) {
   return Promise.resolve({
     data: null,
-    error: { message: `Supabase admin not configured (${method})`, name: "SupabaseAdminNotConfigured" },
+    error: {
+      message: `Supabase admin not configured (${method})`,
+      name: "SupabaseAdminNotConfigured",
+    },
   });
 }
 
 function createStub(): SupabaseClient<Database> {
   const q: any = {
-    select: () => q, insert: () => stubResult("insert"), update: () => stubResult("update"),
-    upsert: () => stubResult("upsert"), delete: () => stubResult("delete"),
-    eq: () => q, in: () => q, order: () => q, limit: () => q,
-    single: () => stubResult("single"), maybeSingle: () => stubResult("maybeSingle"),
+    select: () => q,
+    insert: () => stubResult("insert"),
+    update: () => stubResult("update"),
+    upsert: () => stubResult("upsert"),
+    delete: () => stubResult("delete"),
+    eq: () => q,
+    in: () => q,
+    order: () => q,
+    limit: () => q,
+    single: () => stubResult("single"),
+    maybeSingle: () => stubResult("maybeSingle"),
     then: (r: any) => stubResult("select").then(r),
   };
   return {
-    from: () => { warnOnce(); return q; },
-    rpc: () => { warnOnce(); return stubResult("rpc"); },
+    from: () => {
+      warnOnce();
+      return q;
+    },
+    rpc: () => {
+      warnOnce();
+      return stubResult("rpc");
+    },
     auth: {
       admin: {
-        getUserById: async () => { warnOnce(); return { data: { user: null }, error: null }; },
-        listUsers: async () => { warnOnce(); return { data: { users: [] }, error: null }; },
+        getUserById: async () => {
+          warnOnce();
+          return { data: { user: null }, error: null };
+        },
+        listUsers: async () => {
+          warnOnce();
+          return { data: { users: [] }, error: null };
+        },
       },
     },
   } as unknown as SupabaseClient<Database>;
@@ -51,7 +73,11 @@ function createStub(): SupabaseClient<Database> {
 
 function getOrCreate(): SupabaseClient<Database> {
   if (_client) return _client;
-  if (!isSupabaseAdminConfigured()) { warnOnce(); _client = createStub(); return _client; }
+  if (!isSupabaseAdminConfigured()) {
+    warnOnce();
+    _client = createStub();
+    return _client;
+  }
   _client = createClient<Database>(SUPABASE_URL!, SUPABASE_SERVICE_ROLE_KEY!, {
     auth: { storage: undefined, persistSession: false, autoRefreshToken: false },
   });

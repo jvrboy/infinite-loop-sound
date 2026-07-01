@@ -12,9 +12,9 @@ export interface ProfileBin {
 }
 
 export interface MarketProfileResult {
-  poc: number;          // Point of Control — highest-volume price
-  vah: number;          // Value Area High
-  val: number;          // Value Area Low
+  poc: number; // Point of Control — highest-volume price
+  vah: number; // Value Area High
+  val: number; // Value Area Low
   valueAreaPct: number; // share of volume inside the VA (~0.7 by default)
   bins: ProfileBin[];
   totalVolume: number;
@@ -26,7 +26,8 @@ export function marketProfile(
   valueAreaTarget = 0.7,
 ): MarketProfileResult | null {
   if (!candles.length) return null;
-  let hi = -Infinity, lo = Infinity;
+  let hi = -Infinity,
+    lo = Infinity;
   for (const c of candles) {
     if (c.high > hi) hi = c.high;
     if (c.low < lo) lo = c.low;
@@ -62,14 +63,20 @@ export function marketProfile(
   const poc = lo + binSize * (pocIdx + 0.5);
 
   // Expand value area outward from POC until cumulative volume ≥ target.
-  let lower = pocIdx, upper = pocIdx;
+  let lower = pocIdx,
+    upper = pocIdx;
   let cum = volumes[pocIdx];
   const target = totalVolume * valueAreaTarget;
   while (cum < target && (lower > 0 || upper < volumes.length - 1)) {
     const left = lower > 0 ? volumes[lower - 1] : -1;
     const right = upper < volumes.length - 1 ? volumes[upper + 1] : -1;
-    if (right >= left) { upper++; cum += volumes[upper]; }
-    else { lower--; cum += volumes[lower]; }
+    if (right >= left) {
+      upper++;
+      cum += volumes[upper];
+    } else {
+      lower--;
+      cum += volumes[lower];
+    }
   }
 
   return {

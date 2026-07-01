@@ -1,10 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect } from "react";
-import { Activity, Zap, Clock, CheckCircle2, XCircle, Radio, Server, Infinity } from "lucide-react";
+import {
+  Activity,
+  Zap,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  Radio,
+  Server,
+  Infinity as InfinityIcon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useServerFn } from "@tanstack/react-start";
-import { getKeepaliveStatus, start24x7Keepalive, stopKeepalive, pingZoComputer } from "@/lib/keepalive.functions";
+import {
+  getKeepaliveStatus,
+  start24x7Keepalive,
+  stopKeepalive,
+  pingZoComputer,
+} from "@/lib/keepalive.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/persistence")({
@@ -12,7 +26,11 @@ export const Route = createFileRoute("/persistence")({
 });
 
 function PersistencePage() {
-  const [status, setStatus] = useState<any>({ app: { status: "unknown" }, zo: { status: "unknown" }, mutual: false });
+  const [status, setStatus] = useState<any>({
+    app: { status: "unknown" },
+    zo: { status: "unknown" },
+    mutual: false,
+  });
   const [apiKey, setApiKey] = useState("");
   const [isActive, setIsActive] = useState(false);
   const getStatus = useServerFn(getKeepaliveStatus);
@@ -79,25 +97,33 @@ function PersistencePage() {
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-600 grid place-items-center">
-              <Infinity className="w-5 h-5 text-white" />
+              <InfinityIcon className="w-5 h-5 text-white" />
             </div>
             24/7 Persistence
           </h1>
-          <p className="text-sm text-muted-foreground mt-2">Mutual keepalive • Never sleeps • Zo ↔ App ping every 5 minutes 24/7</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            Mutual keepalive • Never sleeps • Zo ↔ App ping every 5 minutes 24/7
+          </p>
         </div>
 
         {/* Status Cards */}
         <div className="grid md:grid-cols-3 gap-4">
-          <div className={`rounded-xl border p-5 backdrop-blur ${isActive ? "border-emerald-500/50 bg-emerald-500/5" : "border-border bg-card/60"}`}>
+          <div
+            className={`rounded-xl border p-5 backdrop-blur ${isActive ? "border-emerald-500/50 bg-emerald-500/5" : "border-border bg-card/60"}`}
+          >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">System Status</span>
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                System Status
+              </span>
               {isActive ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               ) : (
                 <XCircle className="w-5 h-5 text-muted-foreground" />
               )}
             </div>
-            <div className={`text-2xl font-bold ${isActive ? "text-emerald-400" : "text-muted-foreground"}`}>
+            <div
+              className={`text-2xl font-bold ${isActive ? "text-emerald-400" : "text-muted-foreground"}`}
+            >
               {isActive ? "ACTIVE" : "INACTIVE"}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
@@ -107,8 +133,12 @@ function PersistencePage() {
 
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">App → Zo</span>
-              <Radio className={`w-4 h-4 ${status?.zo?.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`} />
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                App → Zo
+              </span>
+              <Radio
+                className={`w-4 h-4 ${status?.zo?.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`}
+              />
             </div>
             <div className="text-2xl font-bold font-mono">
               {status?.zo?.secondsAgo != null ? `${status?.zo?.secondsAgo}s` : "--"}
@@ -118,8 +148,12 @@ function PersistencePage() {
 
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Zo → App</span>
-              <Server className={`w-4 h-4 ${status?.app?.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`} />
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Zo → App
+              </span>
+              <Server
+                className={`w-4 h-4 ${status?.app?.status === "alive" ? "text-bull animate-pulse" : "text-muted-foreground"}`}
+              />
             </div>
             <div className="text-2xl font-bold font-mono">
               {status?.app?.secondsAgo != null ? `${status?.app?.secondsAgo}s` : "--"}
@@ -134,15 +168,17 @@ function PersistencePage() {
             <Zap className="w-4 h-4 text-primary" />
             Keepalive Control
           </h2>
-          
+
           <div className="space-y-4">
             <div>
-              <label className="text-xs text-muted-foreground mb-1.5 block">Zo.computer API Key</label>
+              <label className="text-xs text-muted-foreground mb-1.5 block">
+                Zo.computer API Key
+              </label>
               <div className="flex gap-2">
                 <input
                   type="password"
                   value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
+                  onChange={(e) => setApiKey(e.target.value)}
                   placeholder="zo_xxxxxxxxxxxxxxxx"
                   className="flex-1 px-3 py-2.5 rounded-lg bg-background border border-border text-sm font-mono"
                   disabled={isActive}
@@ -165,7 +201,9 @@ function PersistencePage() {
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <div>
                   <div className="text-sm font-medium">Ping Interval</div>
-                  <div className="text-xs text-muted-foreground">Both directions, every 5 minutes</div>
+                  <div className="text-xs text-muted-foreground">
+                    Both directions, every 5 minutes
+                  </div>
                 </div>
               </div>
               <Button size="sm" variant="outline" onClick={testPing} disabled={!apiKey}>
@@ -230,8 +268,9 @@ function PersistencePage() {
             <div className="text-sm">
               <h4 className="font-medium mb-1">Setup Zo to ping back</h4>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                In Zo.computer, create automation: "Every 1 minute → POST to https://your-app.com/api/keepalive/zo" 
-                with your API key. This creates the mutual ping loop.
+                In Zo.computer, create automation: "Every 1 minute → POST to
+                https://your-app.com/api/keepalive/zo" with your API key. This creates the mutual
+                ping loop.
               </p>
             </div>
           </div>

@@ -22,7 +22,9 @@ export function UsagePanel() {
           <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
         </div>
         <div className="flex justify-between text-[10px] text-muted-foreground mt-1">
-          <span>{pct.toFixed(1)}% of {DEFAULT_QUOTA.toLocaleString()} reference</span>
+          <span>
+            {pct.toFixed(1)}% of {DEFAULT_QUOTA.toLocaleString()} reference
+          </span>
           <span>{remaining.toLocaleString()} left</span>
         </div>
       </div>
@@ -38,7 +40,9 @@ export function UsagePanel() {
         <div className="rounded-lg border border-border p-3">
           <div className="flex items-center gap-1.5 mb-1">
             <BarChart3 className="w-3 h-3 text-muted-foreground" />
-            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Calls</span>
+            <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Calls
+            </span>
           </div>
           <div className="text-lg font-mono font-bold">{events.length.toLocaleString()}</div>
         </div>

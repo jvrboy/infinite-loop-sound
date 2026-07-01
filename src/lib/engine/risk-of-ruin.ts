@@ -2,16 +2,16 @@
 // Closed-form formulas based on win rate, payoff ratio, and bankroll units.
 
 export interface RiskOfRuinInput {
-  winRate: number;        // 0..1
-  payoffRatio: number;    // avg win / avg loss
+  winRate: number; // 0..1
+  payoffRatio: number; // avg win / avg loss
   riskPerTradePct: number; // % of bankroll risked per trade
   bankrollUnits?: number; // default 100 — number of fixed-risk "units" you have
 }
 
 export interface RiskOfRuinResult {
-  ror: number;            // probability of complete ruin (0..1)
-  edge: number;            // expectancy in R units per trade
-  kellyFraction: number;  // optimal fraction (0..1) of bankroll per trade
+  ror: number; // probability of complete ruin (0..1)
+  edge: number; // expectancy in R units per trade
+  kellyFraction: number; // optimal fraction (0..1) of bankroll per trade
   fractionalKelly: number; // half-kelly recommendation
   recommendedRiskPct: number; // half-kelly converted to percent
   isProfitable: boolean;
@@ -26,7 +26,7 @@ export function riskOfRuin(input: RiskOfRuinInput): RiskOfRuinResult {
   const { winRate, payoffRatio, riskPerTradePct, bankrollUnits = 100 } = input;
   const w = Math.max(0, Math.min(1, winRate));
   const r = Math.max(0.01, payoffRatio);
-  const edge = w * r - (1 - w);             // R-units per trade
+  const edge = w * r - (1 - w); // R-units per trade
   const isProfitable = edge > 0;
 
   // Kelly:  f* = (W * R - (1 - W)) / R  =  W - (1 - W) / R

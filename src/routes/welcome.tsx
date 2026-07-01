@@ -51,10 +51,14 @@ const TREE: FileNode = {
             { name: "engine/signal.ts", type: "file" },
             { name: "engine/indicators.ts", type: "file" },
             { name: "ai/client.ts", type: "file" },
-            { name: "executor/", type: "dir", children: [
-              { name: "runtimes.ts", type: "file" },
-              { name: "auto-correct.ts", type: "file" },
-            ]},
+            {
+              name: "executor/",
+              type: "dir",
+              children: [
+                { name: "runtimes.ts", type: "file" },
+                { name: "auto-correct.ts", type: "file" },
+              ],
+            },
             { name: "skills/list.ts", type: "file", hint: "50+ skills" },
           ],
         },
@@ -73,9 +77,11 @@ const TREE: FileNode = {
       name: "supabase/",
       type: "dir",
       children: [
-        { name: "functions/hf-proxy/", type: "dir", children: [
-          { name: "index.ts", type: "file", hint: "Range-aware HF proxy" },
-        ]},
+        {
+          name: "functions/hf-proxy/",
+          type: "dir",
+          children: [{ name: "index.ts", type: "file", hint: "Range-aware HF proxy" }],
+        },
         { name: "migrations/", type: "dir" },
       ],
     },
@@ -104,8 +110,8 @@ function WelcomePage() {
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto">
               DivergenceIQ pairs a private, in-browser GGUF model runtime with a real-time
-              confluence engine powered by the public Deriv tick stream. Your prompts stay
-              local. Your signals stay live.
+              confluence engine powered by the public Deriv tick stream. Your prompts stay local.
+              Your signals stay live.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
@@ -160,13 +166,10 @@ function WelcomePage() {
           {/* File tree showcase */}
           <div className="mt-16 grid md:grid-cols-[1fr_minmax(280px,400px)] gap-6 items-start">
             <div className="space-y-4">
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
-                Built in the open.
-              </h2>
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight">Built in the open.</h2>
               <p className="text-sm md:text-base text-muted-foreground">
-                Everything you see is a single TanStack-Start app with a Supabase backend,
-                a Deriv WebSocket engine, and a wllama runtime. Browse the source structure
-                on the right.
+                Everything you see is a single TanStack-Start app with a Supabase backend, a Deriv
+                WebSocket engine, and a wllama runtime. Browse the source structure on the right.
               </p>
               <div className="flex flex-col sm:flex-row gap-2 pt-2">
                 <Link to="/local-ai">

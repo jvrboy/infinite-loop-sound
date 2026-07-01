@@ -40,75 +40,142 @@ export const Route = createFileRoute("/api/public/v1/signals/incoming")({
         let payload: any = {};
         let error: string | null = null;
 
-        try { payload = JSON.parse(raw); } catch { error = "Invalid JSON"; }
+        try {
+          payload = JSON.parse(raw);
+        } catch {
+          error = "Invalid JSON";
+        }
 
         // Resolve secret = the API key value (caller derives HMAC over raw body with their key).
         if (apiKey) {
-          const { data } = await admin().from("api_keys").select("id").eq("key_hash", sha256(apiKey)).maybeSingle();
+          const { data } = await admin()
+            .from("api_keys")
+            .select("id")
+            .eq("key_hash", sha256(apiKey))
+            .maybeSingle();
           if (data) signatureValid = await verifyHmac(apiKey, raw, sigHeader);
         }
 
         if (!signatureValid) {
           await recordWebhookEvent({
-            source: "signals.incoming", endpoint, ip, signatureValid: false,
-            statusCode: 401, payload, headers, error: error || "Signature verification failed",
+            source: "signals.incoming",
+            endpoint,
+            ip,
+            signatureValid: false,
+            statusCode: 401,
+            payload,
+            headers,
+            error: error || "Signature verification failed",
           });
           await raiseAlert({
-            severity: "warn", kind: "webhook.signature_failed",
+            severity: "warn",
+            kind: "webhook.signature_failed",
             message: `Signature verification failed on ${endpoint}`,
             context: { ip, error: error || "bad signature" },
           });
           return new Response(JSON.stringify({ error: "Invalid signature" }), {
-            status: 401, headers: { "content-type": "application/json", ...CORS },
+            status: 401,
+            headers: { "content-type": "application/json", ...CORS },
           });
         }
 
         // Idempotency: dedupe duplicate signed deliveries.
-        const idemKey = idemHeader || (payload && typeof payload === "object" ? (payload.idempotency_key as string | undefined) : undefined)
-          || sha256(raw);
-        const { data: existing } = await admin().from("webhook_idempotency").select("signal_id").eq("idempotency_key", idemKey).maybeSingle();
+        const idemKey =
+          idemHeader ||
+          (payload && typeof payload === "object"
+            ? (payload.idempotency_key as string | undefined)
+            : undefined) ||
+          sha256(raw);
+        const { data: existing } = await admin()
+          .from("webhook_idempotency")
+          .select("signal_id")
+          .eq("idempotency_key", idemKey)
+          .maybeSingle();
         if (existing) {
           await recordWebhookEvent({
-            source: "signals.incoming", endpoint, ip, signatureValid: true,
-            statusCode: 200, payload, headers, error: "duplicate (idempotent replay)",
+            source: "signals.incoming",
+            endpoint,
+            ip,
+            signatureValid: true,
+            statusCode: 200,
+            payload,
+            headers,
+            error: "duplicate (idempotent replay)",
           });
-          return new Response(JSON.stringify({ ok: true, id: existing.signal_id, duplicate: true }), {
-            headers: { "content-type": "application/json", ...CORS },
-          });
+          return new Response(
+            JSON.stringify({ ok: true, id: existing.signal_id, duplicate: true }),
+            {
+              headers: { "content-type": "application/json", ...CORS },
+            },
+          );
         }
 
         const p = Body.safeParse(payload);
         if (!p.success) {
           await recordWebhookEvent({
-            source: "signals.incoming", endpoint, ip, signatureValid: true,
-            statusCode: 400, payload, headers, error: p.error.message,
+            source: "signals.incoming",
+            endpoint,
+            ip,
+            signatureValid: true,
+            statusCode: 400,
+            payload,
+            headers,
+            error: p.error.message,
           });
           return new Response(JSON.stringify({ error: p.error.message }), {
-            status: 400, headers: { "content-type": "application/json", ...CORS },
+            status: 400,
+            headers: { "content-type": "application/json", ...CORS },
           });
         }
 
-        const { data, error: insertErr } = await admin().from("signals").insert({
-          ...p.data, status: "active", confluence: p.data.confluence ?? {},
-        }).select().single();
+        const { data, error: insertErr } = await admin()
+          .from("signals")
+          .insert({
+            ...p.data,
+            status: "active",
+            confluence: p.data.confluence ?? {},
+          })
+          .select()
+          .single();
 
         if (insertErr) {
           await recordWebhookEvent({
-            source: "signals.incoming", endpoint, ip, signatureValid: true,
-            statusCode: 500, payload, headers, error: insertErr.message,
+            source: "signals.incoming",
+            endpoint,
+            ip,
+            signatureValid: true,
+            statusCode: 500,
+            payload,
+            headers,
+            error: insertErr.message,
           });
           return new Response(JSON.stringify({ error: insertErr.message }), {
-            status: 500, headers: { "content-type": "application/json", ...CORS },
+            status: 500,
+            headers: { "content-type": "application/json", ...CORS },
           });
         }
 
-        await admin().from("webhook_idempotency").insert({
-          idempotency_key: idemKey, source: "signals.incoming", signal_id: data.id,
-        }).then(() => null, () => null);
+        await admin()
+          .from("webhook_idempotency")
+          .insert({
+            idempotency_key: idemKey,
+            source: "signals.incoming",
+            signal_id: data.id,
+          })
+          .then(
+            () => null,
+            () => null,
+          );
 
         await recordWebhookEvent({
-          source: "signals.incoming", endpoint, ip, signatureValid: true,
-          statusCode: 200, payload, headers, error: null,
+          source: "signals.incoming",
+          endpoint,
+          ip,
+          signatureValid: true,
+          statusCode: 200,
+          payload,
+          headers,
+          error: null,
         });
         return new Response(JSON.stringify({ ok: true, id: data.id }), {
           headers: { "content-type": "application/json", ...CORS },

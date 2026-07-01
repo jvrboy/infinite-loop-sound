@@ -215,7 +215,9 @@ class BotRunner {
   }
   getNextLot(): number {
     if (!this.settings) return 0;
-    return this.settings.positionSizing === "martingale" ? this.martingaleLot : this.settings.lotSize;
+    return this.settings.positionSizing === "martingale"
+      ? this.martingaleLot
+      : this.settings.lotSize;
   }
   getBalance(): number | null {
     return this.lastBalance;
@@ -314,7 +316,10 @@ class BotRunner {
     const runningMode = this.settings.mode;
     this.settings = { ...s, mode: runningMode };
     // Keep the current martingale lot within the new base/cap bounds.
-    this.martingaleLot = Math.min(Math.max(this.martingaleLot, s.martingaleBase), s.martingaleMaxLot);
+    this.martingaleLot = Math.min(
+      Math.max(this.martingaleLot, s.martingaleBase),
+      s.martingaleMaxLot,
+    );
     this.log(
       `Settings applied live · sizing=${s.positionSizing} · maxOpen=${s.maxOpen} · TP=${s.tpSource}${s.tpSource === "fixed" ? `(${s.fixedTpPips}p)` : ""}`,
     );
@@ -363,7 +368,9 @@ class BotRunner {
       window.clearTimeout(this.scalperTimer);
       this.scalperTimer = null;
     }
-    this.log(`Bot paused — ${this.open.length} open position(s) still monitored; no new trades will open`);
+    this.log(
+      `Bot paused — ${this.open.length} open position(s) still monitored; no new trades will open`,
+    );
     this.emitChange();
   }
 
@@ -494,11 +501,17 @@ class BotRunner {
         if (min > 0 && amount <= min) {
           if (!this.balanceBlocked) {
             this.balanceBlocked = true;
-            this.log(`Balance ${amount.toFixed(2)} ≤ minimum ${min.toFixed(2)} — halting new trades`);
-            void this.raiseAlert("deriv.balance_low", `Bot halted new trades — balance ${amount.toFixed(2)} ≤ minimum ${min.toFixed(2)}`, {
-              balance: amount,
-              minBalance: min,
-            });
+            this.log(
+              `Balance ${amount.toFixed(2)} ≤ minimum ${min.toFixed(2)} — halting new trades`,
+            );
+            void this.raiseAlert(
+              "deriv.balance_low",
+              `Bot halted new trades — balance ${amount.toFixed(2)} ≤ minimum ${min.toFixed(2)}`,
+              {
+                balance: amount,
+                minBalance: min,
+              },
+            );
           }
         } else if (this.balanceBlocked) {
           this.balanceBlocked = false;
@@ -554,7 +567,8 @@ class BotRunner {
     if (this.status !== "running") return { accepted: false, reason: "Bot not running" };
     if (this.getMode() !== "signal") return { accepted: false, reason: "Bot not in SIGNAL mode" };
     const raw = String(input.direction || "").toUpperCase();
-    const dir = raw === "BUY" || raw === "CALL" ? "BUY" : raw === "SELL" || raw === "PUT" ? "SELL" : null;
+    const dir =
+      raw === "BUY" || raw === "CALL" ? "BUY" : raw === "SELL" || raw === "PUT" ? "SELL" : null;
     if (!dir) return { accepted: false, reason: `Invalid direction: ${input.direction}` };
     await this.handleSignal({
       pair: input.pair,
@@ -630,7 +644,15 @@ class BotRunner {
               slPips = Math.abs(a.trade.entry - a.trade.sl) / ps;
             }
             this.log(`scan ${pair} ${tf}: ${a.rating} ${a.scorePct.toFixed(0)}% ${a.direction}`);
-            await this.handleSignal({ pair, direction: a.direction, entry: lastClose, score: a.scorePct, source: "scan", tpPips, slPips });
+            await this.handleSignal({
+              pair,
+              direction: a.direction,
+              entry: lastClose,
+              score: a.scorePct,
+              source: "scan",
+              tpPips,
+              slPips,
+            });
           }
         } catch (e: unknown) {
           this.log(`scan ${pair} error: ${e instanceof Error ? e.message : String(e)}`);
@@ -667,7 +689,15 @@ class BotRunner {
     if (this.open.some((o) => o.pair === sig.pair)) return;
 
     if (!this.canOpenMore()) {
-      this.queue.push({ pair: sig.pair, direction: sig.direction, entry: sig.entry, score: sig.score, source: sig.source, tpPips: sig.tpPips, slPips: sig.slPips });
+      this.queue.push({
+        pair: sig.pair,
+        direction: sig.direction,
+        entry: sig.entry,
+        score: sig.score,
+        source: sig.source,
+        tpPips: sig.tpPips,
+        slPips: sig.slPips,
+      });
       this.log(`Max trades reached — queued ${sig.pair} (${this.queue.length} queued)`);
       return;
     }
@@ -684,7 +714,14 @@ class BotRunner {
       const next = this.queue.shift()!;
       if (this.open.some((o) => o.pair === next.pair)) continue;
       this.log(`Opening queued signal ${next.pair} (${this.queue.length} left)`);
-      void this.openPosition(next.pair, next.direction, next.entry, next.source, next.tpPips, next.slPips);
+      void this.openPosition(
+        next.pair,
+        next.direction,
+        next.entry,
+        next.source,
+        next.tpPips,
+        next.slPips,
+      );
     }
   }
 
@@ -732,7 +769,12 @@ class BotRunner {
   }
 
   // ── shared open/close ───────────────────────────────────────────
-  private resolveTpSl(pair: string, source: OpenPosition["source"], sigTp?: number, sigSl?: number): { tpPips: number; slPips: number } {
+  private resolveTpSl(
+    pair: string,
+    source: OpenPosition["source"],
+    sigTp?: number,
+    sigSl?: number,
+  ): { tpPips: number; slPips: number } {
     const s = this.settings!;
     if (source === "scalper") {
       const tp = s.tpSource === "system" ? s.scalperTpPips : s.fixedTpPips || s.scalperTpPips;
@@ -752,7 +794,14 @@ class BotRunner {
     return Math.min(s.martingaleMaxLot, Math.max(s.martingaleBase, this.martingaleLot));
   }
 
-  private async openPosition(pair: string, direction: "BUY" | "SELL", entryHint: number, source: OpenPosition["source"], sigTp?: number, sigSl?: number) {
+  private async openPosition(
+    pair: string,
+    direction: "BUY" | "SELL",
+    entryHint: number,
+    source: OpenPosition["source"],
+    sigTp?: number,
+    sigSl?: number,
+  ) {
     if (!this.settings || this.status !== "running") return;
     const s = this.settings;
 
@@ -821,25 +870,49 @@ class BotRunner {
           duration: s.durationSec,
         });
         pos.contractId = String(r.contract_id ?? "");
-        if (pos.dbId) await supabase.from("bot_trades").update({ status: "open", contract_id: pos.contractId }).eq("id", pos.dbId);
-        this.log(`LIVE ${pair} ${direction} ${lot} #${pos.contractId} · TP ${tpPips}p / SL ${slPips}p`);
+        if (pos.dbId)
+          await supabase
+            .from("bot_trades")
+            .update({ status: "open", contract_id: pos.contractId })
+            .eq("id", pos.dbId);
+        this.log(
+          `LIVE ${pair} ${direction} ${lot} #${pos.contractId} · TP ${tpPips}p / SL ${slPips}p`,
+        );
       } catch (e: unknown) {
         const msg = e instanceof Error ? e.message : String(e);
-        if (pos.dbId) await supabase.from("bot_trades").update({ status: "error", error: msg }).eq("id", pos.dbId);
+        if (pos.dbId)
+          await supabase
+            .from("bot_trades")
+            .update({ status: "error", error: msg })
+            .eq("id", pos.dbId);
         this.log(`ERR ${pair}: ${msg}`);
         // Insufficient balance — stop opening further trades and alert the user.
         if (/insufficient|balance|not enough/i.test(msg)) {
           this.balanceBlocked = true;
           this.log("Insufficient balance — new trades halted");
-          void this.raiseAlert("deriv.insufficient_balance", `Bot halted new trades — order rejected: ${msg}`, { pair, error: msg });
+          void this.raiseAlert(
+            "deriv.insufficient_balance",
+            `Bot halted new trades — order rejected: ${msg}`,
+            { pair, error: msg },
+          );
         }
         this.open = this.open.filter((o) => o.id !== pos.id);
         this.emitChange();
         return;
       }
     } else {
-      if (pos.dbId) await supabase.from("bot_trades").update({ status: "open" }).eq("id", pos.dbId).then(() => {}, () => {});
-      this.log(`DRY ${pair} ${direction} ${lot} @ ${entry.toFixed(5)} · TP ${tpPips}p / SL ${slPips}p`);
+      if (pos.dbId)
+        await supabase
+          .from("bot_trades")
+          .update({ status: "open" })
+          .eq("id", pos.dbId)
+          .then(
+            () => {},
+            () => {},
+          );
+      this.log(
+        `DRY ${pair} ${direction} ${lot} @ ${entry.toFixed(5)} · TP ${tpPips}p / SL ${slPips}p`,
+      );
     }
 
     // Monitor ticks to detect TP/SL hit.
@@ -862,14 +935,21 @@ class BotRunner {
       /* ignore — duration timeout still closes it */
     }
     // Safety timeout — force-close at duration if neither level is hit.
-    pos.timeout = window.setTimeout(() => {
-      if (this.open.some((o) => o.id === pos.id)) {
-        void this.closePosition(pos, pos.entry, "timeout");
-      }
-    }, Math.max(15, s.durationSec) * 1000);
+    pos.timeout = window.setTimeout(
+      () => {
+        if (this.open.some((o) => o.id === pos.id)) {
+          void this.closePosition(pos, pos.entry, "timeout");
+        }
+      },
+      Math.max(15, s.durationSec) * 1000,
+    );
   }
 
-  private async closePosition(pos: OpenPosition, exitPrice: number, reason: "tp" | "sl" | "timeout" | "manual") {
+  private async closePosition(
+    pos: OpenPosition,
+    exitPrice: number,
+    reason: "tp" | "sl" | "timeout" | "manual",
+  ) {
     if (!this.open.some((o) => o.id === pos.id)) return;
     this.open = this.open.filter((o) => o.id !== pos.id);
     if (pos.unsubTicks) {
@@ -901,7 +981,10 @@ class BotRunner {
         if (isWin) {
           this.martingaleLot = this.settings.martingaleBase;
         } else {
-          this.martingaleLot = Math.min(this.settings.martingaleMaxLot, this.martingaleLot * this.settings.martingaleMultiplier);
+          this.martingaleLot = Math.min(
+            this.settings.martingaleMaxLot,
+            this.martingaleLot * this.settings.martingaleMultiplier,
+          );
         }
       }
     }
@@ -937,12 +1020,15 @@ class BotRunner {
     }
 
     const tag = reason === "manual" ? "CLOSE" : reason.toUpperCase();
-    this.log(`${tag} ${pos.pair} ${pos.direction} ${pos.lot} → ${closed.result} ${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} (${pips.toFixed(1)}p)`);
+    this.log(
+      `${tag} ${pos.pair} ${pos.direction} ${pos.lot} → ${closed.result} ${pnl >= 0 ? "+" : ""}${pnl.toFixed(2)} (${pips.toFixed(1)}p)`,
+    );
     this.emitChange();
 
     if (this.status === "running") {
       if (this.settings?.mode === "signal") this.processQueue();
-      else if (this.settings?.mode === "scalper") this.scheduleScalper(Math.max(250, (this.settings?.cooldownSec ?? 1) * 1000));
+      else if (this.settings?.mode === "scalper")
+        this.scheduleScalper(Math.max(250, (this.settings?.cooldownSec ?? 1) * 1000));
     }
   }
 }

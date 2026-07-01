@@ -86,7 +86,9 @@ function ScannerPage() {
                   key={t}
                   onClick={() => setTf(t)}
                   className={`flex-1 px-2 py-1 rounded text-[11px] font-mono diq-press ${
-                    tf === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                    tf === t
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
                   }`}
                 >
                   {t}
@@ -154,7 +156,9 @@ function ScannerPage() {
         <div className="grid md:grid-cols-4 gap-3">
           {stats.map((s) => (
             <div key={s.label} className="glass-card p-3 rounded-lg diq-press">
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{s.label}</div>
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
+                {s.label}
+              </div>
               <div className="text-xl font-bold font-mono mt-1">{s.value}</div>
               <div className="text-[11px] text-muted-foreground">{s.sub}</div>
             </div>

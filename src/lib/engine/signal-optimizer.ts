@@ -112,10 +112,7 @@ export interface OptimizationState {
       topCause: string;
     }
   >;
-  sessionStats: Record<
-    string,
-    { total: number; wins: number; slHits: number }
-  >;
+  sessionStats: Record<string, { total: number; wins: number; slHits: number }>;
   improvementHistory: Array<{
     timestamp: number;
     metric: string;
@@ -159,10 +156,7 @@ export class SignalOptimizer {
    * and recommendations populated.
    */
   analyzeSLHit(
-    raw: Omit<
-      SignalOutcome,
-      "rootCauses" | "recommendations" | "misleadingConfluence"
-    >,
+    raw: Omit<SignalOutcome, "rootCauses" | "recommendations" | "misleadingConfluence">,
   ): SignalOutcome {
     const rootCauses: RootCause[] = [];
     const misleadingConfluence: string[] = [];
@@ -263,9 +257,7 @@ export class SignalOptimizer {
     const sessionLabel = session === "night" ? "Night (SAST)" : "Day (SAST)";
 
     // Check if the night-session confluence passed but it's daytime
-    const nightSessionItem = o.confluence.find(
-      (c) => c.label === "SAST Night Session Active",
-    );
+    const nightSessionItem = o.confluence.find((c) => c.label === "SAST Night Session Active");
     if (nightSessionItem) {
       if (session === "day") {
         causes.push({
@@ -273,7 +265,8 @@ export class SignalOptimizer {
           severity: "major",
           description: `Signal fired during the ${sessionLabel} session, but night-session confluence was active — likely a session boundary artifact.`,
           evidence: `Epoch ${o.timestamp} → ${sessionLabel}. Night session confluence passed: ${nightSessionItem.passed}.`,
-          fixSuggestion: "Add a session filter to suppress signals during day session when night-only confluence is active.",
+          fixSuggestion:
+            "Add a session filter to suppress signals during day session when night-only confluence is active.",
         });
       }
     }
@@ -281,15 +274,11 @@ export class SignalOptimizer {
     // Check historical session performance for this pair
     const sessionKey = `${o.pair}_${session}`;
     const sessionSLs = this.outcomes.filter(
-      (x) =>
-        x.pair === o.pair &&
-        x.outcome === "SL_HIT" &&
-        detectSession(x.timestamp) === session,
+      (x) => x.pair === o.pair && x.outcome === "SL_HIT" && detectSession(x.timestamp) === session,
     );
     if (sessionSLs.length >= 5) {
       const sessionTotal = this.outcomes.filter(
-        (x) =>
-          x.pair === o.pair && detectSession(x.timestamp) === session,
+        (x) => x.pair === o.pair && detectSession(x.timestamp) === session,
       ).length;
       const slRate = sessionSLs.length / sessionTotal;
       if (slRate > 0.45) {
@@ -322,34 +311,30 @@ export class SignalOptimizer {
       // Count how many past SL hits also had this item passing
       const pastWithItem = this.outcomes.filter(
         (x) =>
-          x.outcome === "SL_HIT" &&
-          x.confluence.some((c) => c.label === item.label && c.passed),
+          x.outcome === "SL_HIT" && x.confluence.some((c) => c.label === item.label && c.passed),
       );
       const pastWithoutItem = this.outcomes.filter(
         (x) =>
-          x.outcome === "SL_HIT" &&
-          !x.confluence.some((c) => c.label === item.label && c.passed),
+          x.outcome === "SL_HIT" && !x.confluence.some((c) => c.label === item.label && c.passed),
       );
 
       // If this item is present in >60% of SL hits, it's likely misleading
-      const totalSL = this.outcomes.filter(
-        (x) => x.outcome === "SL_HIT",
-      ).length;
+      const totalSL = this.outcomes.filter((x) => x.outcome === "SL_HIT").length;
       if (totalSL >= 10 && pastWithItem.length / totalSL > 0.6) {
         misleading.push(item.label);
       }
     }
 
     // If too many confluence items were misleading, flag it
-    const misleadingRatio =
-      passedItems.length > 0 ? misleading.length / passedItems.length : 0;
+    const misleadingRatio = passedItems.length > 0 ? misleading.length / passedItems.length : 0;
     if (misleading.length >= 3 && misleadingRatio > 0.5) {
       causes.push({
         category: "confluence_failure",
         severity: "major",
         description: `${misleading.length} of ${passedItems.length} passed confluence items appear to be unreliable: ${misleading.slice(0, 3).join(", ")}.`,
         evidence: `Misleading items: [${misleading.join(", ")}]. Ratio: ${(misleadingRatio * 100).toFixed(0)}%.`,
-        fixSuggestion: "Reduce the weight of misleading confluence items or remove them from the scoring model.",
+        fixSuggestion:
+          "Reduce the weight of misleading confluence items or remove them from the scoring model.",
       });
     }
   }
@@ -375,7 +360,8 @@ export class SignalOptimizer {
         severity: "critical",
         description: `A volatility spike likely caused the SL hit — adverse excursion (${o.maxAdverse.toFixed(1)}) was >2.5× the SL distance (${slDistance.toFixed(1)}) with minimal favorable movement first.`,
         evidence: `Max adverse: ${o.maxAdverse.toFixed(2)} vs SL distance: ${slDistance.toFixed(2)} = ratio ${(o.maxAdverse / slDistance).toFixed(2)}. Max favorable: ${o.maxFavorable.toFixed(2)}.`,
-        fixSuggestion: "Add a volatility filter to suppress signals when recent ATR > 2× the 50-bar average, or widen SL during high-vol periods.",
+        fixSuggestion:
+          "Add a volatility filter to suppress signals when recent ATR > 2× the 50-bar average, or widen SL during high-vol periods.",
       });
     }
   }
@@ -396,17 +382,14 @@ export class SignalOptimizer {
 
     // Price moved at least 50% toward TP1 before reversing to SL
     const tp1Distance = dist(o.entry, o.tp1);
-    if (
-      favorableRatio > 0.5 &&
-      o.maxFavorable > tp1Distance * 0.5 &&
-      o.outcome === "SL_HIT"
-    ) {
+    if (favorableRatio > 0.5 && o.maxFavorable > tp1Distance * 0.5 && o.outcome === "SL_HIT") {
       causes.push({
         category: "trend_reversal",
         severity: "critical",
         description: `Price moved ${o.maxFavorable.toFixed(1)} in our favour (${((o.maxFavorable / tp1Distance) * 100).toFixed(0)}% to TP1) before reversing to hit SL — likely a trend reversal.`,
         evidence: `Max favorable: ${o.maxFavorable.toFixed(2)} (${(favorableRatio * 100).toFixed(0)}% of SL distance). TP1 distance: ${tp1Distance.toFixed(2)}. Outcome: SL_HIT.`,
-        fixSuggestion: "Implement a trailing stop that locks in profit after price moves >50% toward TP1, or reduce position size.",
+        fixSuggestion:
+          "Implement a trailing stop that locks in profit after price moves >50% toward TP1, or reduce position size.",
       });
     }
   }
@@ -429,16 +412,14 @@ export class SignalOptimizer {
     // Exit price close to SL (within 20% of SL distance) and the
     // max adverse was much larger than the exit distance
     const exitOvershoot = Math.abs(exitDistance - slDistance);
-    if (
-      exitOvershoot < slDistance * 0.2 &&
-      o.maxAdverse > slDistance * 1.8
-    ) {
+    if (exitOvershoot < slDistance * 0.2 && o.maxAdverse > slDistance * 1.8) {
       causes.push({
         category: "fake_breakout",
         severity: "major",
         description: `Likely a fake breakout / stop-hunt — price spiked ${o.maxAdverse.toFixed(1)} against us but exited near SL (${o.exitPrice.toFixed(o.entry > 100 ? 3 : 5)}).`,
         evidence: `Exit overshoot: ${exitOvershoot.toFixed(2)} (< 20% of SL). Max adverse: ${o.maxAdverse.toFixed(2)} (> 1.8× SL distance).`,
-        fixSuggestion: "Consider a slightly wider SL (1.1–1.2×) or a time-based exit that ignores single-candle spikes.",
+        fixSuggestion:
+          "Consider a slightly wider SL (1.1–1.2×) or a time-based exit that ignores single-candle spikes.",
       });
     }
   }
@@ -519,7 +500,7 @@ export class SignalOptimizer {
           const session = detectSession(o.timestamp);
           recs.push({
             type: "add_session_filter",
-            description: `Filter out ${o.pair} signals during ${session === "night" ? "night" : "day"} session (SAST) — ${(detectSession(o.timestamp) === "night" ? "Night" : "Day")} session shows high SL-hit rate.`,
+            description: `Filter out ${o.pair} signals during ${session === "night" ? "night" : "day"} session (SAST) — ${detectSession(o.timestamp) === "night" ? "Night" : "Day"} session shows high SL-hit rate.`,
             impact: "high",
             confidence: 0.8,
             autoApplicable: false, // session filters need user confirmation
@@ -531,7 +512,10 @@ export class SignalOptimizer {
         case "confluence_failure": {
           // Reduce weight of misleading confluence items
           const misleadingItems = o.confluence.filter(
-            (c) => c.passed && c.label.includes("Divergence") || c.label.includes("Squeeze") || c.label.includes("Compression"),
+            (c) =>
+              (c.passed && c.label.includes("Divergence")) ||
+              c.label.includes("Squeeze") ||
+              c.label.includes("Compression"),
           );
           for (const item of misleadingItems.slice(0, 2)) {
             recs.push({
@@ -653,7 +637,8 @@ export class SignalOptimizer {
         for (const cause of o.rootCauses) {
           const existing = causeCounts.get(cause.category) ?? { count: 0, totalSeverity: 0 };
           existing.count++;
-          existing.totalSeverity += cause.severity === "critical" ? 3 : cause.severity === "major" ? 2 : 1;
+          existing.totalSeverity +=
+            cause.severity === "critical" ? 3 : cause.severity === "major" ? 2 : 1;
           causeCounts.set(cause.category, existing);
         }
       }
@@ -695,7 +680,8 @@ export class SignalOptimizer {
 
       if (topCause === "session_mismatch") {
         const sessionSLs = group.filter(
-          (o) => o.outcome === "SL_HIT" && o.rootCauses?.some((c) => c.category === "session_mismatch"),
+          (o) =>
+            o.outcome === "SL_HIT" && o.rootCauses?.some((c) => c.category === "session_mismatch"),
         );
         if (sessionSLs.length >= 3) {
           const sessions = new Set(sessionSLs.map((o) => detectSession(o.timestamp)));
@@ -730,7 +716,7 @@ export class SignalOptimizer {
       if (data.passed >= 10 && data.slHit / data.passed > 0.6) {
         allRecs.push({
           type: "reduce_confluence_weight",
-          description: `"${label}" has a ${(data.slHit / data.passed * 100).toFixed(0)}% SL-hit rate when passed (${data.slHit}/${data.passed}). Consider reducing its weight.`,
+          description: `"${label}" has a ${((data.slHit / data.passed) * 100).toFixed(0)}% SL-hit rate when passed (${data.slHit}/${data.passed}). Consider reducing its weight.`,
           impact: "medium",
           confidence: Math.min(0.85, 0.4 + (data.slHit / data.passed) * 0.5),
           autoApplicable: false,
@@ -772,8 +758,7 @@ export class SignalOptimizer {
     // Snapshot current metrics before applying
     const currentSLRate =
       this.outcomes.length > 0
-        ? this.outcomes.filter((o) => o.outcome === "SL_HIT").length /
-          this.outcomes.length
+        ? this.outcomes.filter((o) => o.outcome === "SL_HIT").length / this.outcomes.length
         : 0;
 
     const applied: string[] = [];
@@ -794,11 +779,7 @@ export class SignalOptimizer {
           if (mult && mult > 0 && mult <= 3.0) {
             const prev = (this.adjustments[`${key}_slMult`] as number) ?? 1.0;
             this.adjustments[`${key}_slMult`] = mult;
-            this.recordImprovement(
-              `${key}_slMultiplier`,
-              prev,
-              mult,
-            );
+            this.recordImprovement(`${key}_slMultiplier`, prev, mult);
             applied.push(`SL mult for ${key}: ${prev.toFixed(2)}→${mult.toFixed(2)}`);
           }
           break;
@@ -809,11 +790,7 @@ export class SignalOptimizer {
           if (mult && mult > 0 && mult <= 2.0) {
             const prev = (this.adjustments[`${key}_tpMult`] as number) ?? 1.0;
             this.adjustments[`${key}_tpMult`] = mult;
-            this.recordImprovement(
-              `${key}_tpMultiplier`,
-              prev,
-              mult,
-            );
+            this.recordImprovement(`${key}_tpMultiplier`, prev, mult);
             applied.push(`TP mult for ${key}: ${prev.toFixed(2)}→${mult.toFixed(2)}`);
           }
           break;
@@ -824,11 +801,7 @@ export class SignalOptimizer {
           if (threshold && threshold > 0) {
             const prev = (this.adjustments[`${key}_volFilter`] as number) ?? 0;
             this.adjustments[`${key}_volFilter`] = threshold;
-            this.recordImprovement(
-              `${key}_volFilter`,
-              prev,
-              threshold,
-            );
+            this.recordImprovement(`${key}_volFilter`, prev, threshold);
             applied.push(`Vol filter for ${key}: disabled→${threshold}× ATR`);
           }
           break;
@@ -839,11 +812,7 @@ export class SignalOptimizer {
           if (minScore && minScore >= 35 && minScore <= 80) {
             const prev = (this.adjustments[`${key}_minScore`] as number) ?? 35;
             this.adjustments[`${key}_minScore`] = minScore;
-            this.recordImprovement(
-              `${key}_minScore`,
-              prev,
-              minScore,
-            );
+            this.recordImprovement(`${key}_minScore`, prev, minScore);
             applied.push(`Min score for ${key}: ${prev}→${minScore}`);
           }
           break;
@@ -890,12 +859,8 @@ export class SignalOptimizer {
 
   getState(): OptimizationState {
     const totalAnalyzed = this.outcomes.length;
-    const slHitCount = this.outcomes.filter(
-      (o) => o.outcome === "SL_HIT",
-    ).length;
-    const winCount = this.outcomes.filter(
-      (o) => o.outcome === "WIN",
-    ).length;
+    const slHitCount = this.outcomes.filter((o) => o.outcome === "SL_HIT").length;
+    const winCount = this.outcomes.filter((o) => o.outcome === "WIN").length;
 
     // Aggregate root causes across all SL-hit outcomes
     const causeMap = new Map<string, RootCause>();
@@ -903,7 +868,11 @@ export class SignalOptimizer {
       if (o.outcome !== "SL_HIT" || !o.rootCauses) continue;
       for (const cause of o.rootCauses) {
         const existing = causeMap.get(cause.category);
-        if (!existing || cause.severity === "critical" || (cause.severity === "major" && existing.severity === "minor")) {
+        if (
+          !existing ||
+          cause.severity === "critical" ||
+          (cause.severity === "major" && existing.severity === "minor")
+        ) {
           causeMap.set(cause.category, cause);
         }
       }
@@ -929,10 +898,7 @@ export class SignalOptimizer {
     for (const [pair, group] of pairGroups) {
       const wins = group.filter((o) => o.outcome === "WIN").length;
       const slHits = group.filter((o) => o.outcome === "SL_HIT").length;
-      const avgPnl =
-        group.length > 0
-          ? group.reduce((sum, o) => sum + o.pnl, 0) / group.length
-          : 0;
+      const avgPnl = group.length > 0 ? group.reduce((sum, o) => sum + o.pnl, 0) / group.length : 0;
 
       // Find most common root cause for this pair
       const causeCounts = new Map<string, number>();
@@ -945,7 +911,10 @@ export class SignalOptimizer {
       let topCause = "unknown";
       let topCount = 0;
       for (const [cat, count] of causeCounts) {
-        if (count > topCount) { topCause = cat; topCount = count; }
+        if (count > topCount) {
+          topCause = cat;
+          topCount = count;
+        }
       }
 
       pairStats[pair] = { total: group.length, wins, slHits, avgPnl, topCause };
@@ -976,7 +945,8 @@ export class SignalOptimizer {
       appliedAdjustments: { ...this.adjustments },
       pairStats,
       sessionStats,
-      improvementHistory: (this.adjustments["_improvementHistory"] as OptimizationState["improvementHistory"]) ?? [],
+      improvementHistory:
+        (this.adjustments["_improvementHistory"] as OptimizationState["improvementHistory"]) ?? [],
     };
   }
 
@@ -993,10 +963,7 @@ export class SignalOptimizer {
         outcomes: this.outcomes,
         adjustments: this.adjustments,
       };
-      localStorage.setItem(
-        SignalOptimizer.STORAGE_KEY,
-        JSON.stringify(data),
-      );
+      localStorage.setItem(SignalOptimizer.STORAGE_KEY, JSON.stringify(data));
     } catch {
       // localStorage may be unavailable in SSR or restricted contexts
     }
@@ -1032,12 +999,9 @@ export class SignalOptimizer {
   }
 
   /** Record an improvement to the history log. */
-  private recordImprovement(
-    metric: string,
-    before: number,
-    after: number,
-  ): void {
-    const history = (this.adjustments["_improvementHistory"] as OptimizationState["improvementHistory"]) ?? [];
+  private recordImprovement(metric: string, before: number, after: number): void {
+    const history =
+      (this.adjustments["_improvementHistory"] as OptimizationState["improvementHistory"]) ?? [];
     history.push({ timestamp: Date.now(), metric, before, after });
     // Keep last 100 improvement records
     if (history.length > 100) {

@@ -21,14 +21,17 @@ function typicalPrice(c: Candle): number {
 /** Session-reset VWAP. Session boundary = UTC midnight by default. */
 export function sessionVwap(candles: Candle[]): (VWAPPoint | null)[] {
   const out: (VWAPPoint | null)[] = new Array(candles.length).fill(null);
-  let cumPV = 0, cumV = 0;
+  let cumPV = 0,
+    cumV = 0;
   let cumPV2 = 0; // for variance
   let lastDay = -1;
 
   for (let i = 0; i < candles.length; i++) {
     const day = Math.floor(candles[i].epoch / 86_400);
     if (day !== lastDay) {
-      cumPV = 0; cumV = 0; cumPV2 = 0;
+      cumPV = 0;
+      cumV = 0;
+      cumPV2 = 0;
       lastDay = day;
     }
     const tp = typicalPrice(candles[i]);
@@ -53,7 +56,9 @@ export function sessionVwap(candles: Candle[]): (VWAPPoint | null)[] {
 /** Anchored VWAP from a starting index. */
 export function anchoredVwap(candles: Candle[], anchorIdx: number): (VWAPPoint | null)[] {
   const out: (VWAPPoint | null)[] = new Array(candles.length).fill(null);
-  let cumPV = 0, cumV = 0, cumPV2 = 0;
+  let cumPV = 0,
+    cumV = 0,
+    cumPV2 = 0;
   for (let i = anchorIdx; i < candles.length; i++) {
     const tp = typicalPrice(candles[i]);
     const vol = candles[i].volume || 1;

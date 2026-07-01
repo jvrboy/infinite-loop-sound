@@ -36,12 +36,15 @@ export const ema = (src: number[], len: number): (number | null)[] => {
 export const rsi = (close: number[], len = 14): (number | null)[] => {
   const out: (number | null)[] = new Array(close.length).fill(null);
   if (close.length <= len) return out;
-  let gain = 0, loss = 0;
+  let gain = 0,
+    loss = 0;
   for (let i = 1; i <= len; i++) {
     const d = close[i] - close[i - 1];
-    if (d >= 0) gain += d; else loss -= d;
+    if (d >= 0) gain += d;
+    else loss -= d;
   }
-  let avgG = gain / len, avgL = loss / len;
+  let avgG = gain / len,
+    avgL = loss / len;
   out[len] = 100 - 100 / (1 + (avgL === 0 ? 100 : avgG / avgL));
   for (let i = len + 1; i < close.length; i++) {
     const d = close[i] - close[i - 1];
@@ -57,34 +60,47 @@ export const rsi = (close: number[], len = 14): (number | null)[] => {
 export const macd = (close: number[], fast = 12, slow = 26, sig = 9) => {
   const ef = ema(close, fast);
   const es = ema(close, slow);
-  const line = close.map((_, i) => (ef[i] != null && es[i] != null ? (ef[i] as number) - (es[i] as number) : null));
-  const valid = line.map(v => v ?? 0);
+  const line = close.map((_, i) =>
+    ef[i] != null && es[i] != null ? (ef[i] as number) - (es[i] as number) : null,
+  );
+  const valid = line.map((v) => v ?? 0);
   const signal = ema(valid, sig).map((v, i) => (line[i] == null ? null : v));
-  const hist = line.map((v, i) => (v != null && signal[i] != null ? v - (signal[i] as number) : null));
+  const hist = line.map((v, i) =>
+    v != null && signal[i] != null ? v - (signal[i] as number) : null,
+  );
   return { line, signal, hist };
 };
 
 export const stoch = (candles: Candle[], kLen = 14, kSmooth = 3, dSmooth = 3) => {
   const k: (number | null)[] = new Array(candles.length).fill(null);
   for (let i = kLen - 1; i < candles.length; i++) {
-    let hh = -Infinity, ll = Infinity;
+    let hh = -Infinity,
+      ll = Infinity;
     for (let j = i - kLen + 1; j <= i; j++) {
       if (candles[j].high > hh) hh = candles[j].high;
       if (candles[j].low < ll) ll = candles[j].low;
     }
     k[i] = hh === ll ? 50 : ((candles[i].close - ll) / (hh - ll)) * 100;
   }
-  const kArr = k.map(v => v ?? 0);
+  const kArr = k.map((v) => v ?? 0);
   const kS = sma(kArr, kSmooth).map((v, i) => (k[i] == null ? null : v));
-  const dS = sma(kS.map(v => v ?? 0), dSmooth).map((v, i) => (kS[i] == null ? null : v));
+  const dS = sma(
+    kS.map((v) => v ?? 0),
+    dSmooth,
+  ).map((v, i) => (kS[i] == null ? null : v));
   return { k: kS, d: dS };
 };
 
 // Relative Vigor Index (Larry Williams)
 export const rvi = (candles: Candle[], len = 10) => {
-  const num: number[] = [], den: number[] = [];
+  const num: number[] = [],
+    den: number[] = [];
   for (let i = 0; i < candles.length; i++) {
-    if (i < 3) { num.push(0); den.push(0); continue; }
+    if (i < 3) {
+      num.push(0);
+      den.push(0);
+      continue;
+    }
     const a = candles[i].close - candles[i].open;
     const b = candles[i - 1].close - candles[i - 1].open;
     const c = candles[i - 2].close - candles[i - 2].open;
@@ -98,11 +114,21 @@ export const rvi = (candles: Candle[], len = 10) => {
   }
   const sN = sma(num, len);
   const sD = sma(den, len);
-  const rviLine = sN.map((v, i) => (v != null && sD[i] != null && (sD[i] as number) !== 0 ? (v as number) / (sD[i] as number) : null));
-  const valid = rviLine.map(v => v ?? 0);
+  const rviLine = sN.map((v, i) =>
+    v != null && sD[i] != null && (sD[i] as number) !== 0
+      ? (v as number) / (sD[i] as number)
+      : null,
+  );
+  const valid = rviLine.map((v) => v ?? 0);
   const signal: (number | null)[] = new Array(rviLine.length).fill(null);
   for (let i = 3; i < rviLine.length; i++) {
-    if (rviLine[i] == null || rviLine[i - 1] == null || rviLine[i - 2] == null || rviLine[i - 3] == null) continue;
+    if (
+      rviLine[i] == null ||
+      rviLine[i - 1] == null ||
+      rviLine[i - 2] == null ||
+      rviLine[i - 3] == null
+    )
+      continue;
     signal[i] = (valid[i] + 2 * valid[i - 1] + 2 * valid[i - 2] + valid[i - 3]) / 6;
   }
   return { rvi: rviLine, signal };
@@ -111,8 +137,13 @@ export const rvi = (candles: Candle[], len = 10) => {
 export const atr = (candles: Candle[], len = 14): (number | null)[] => {
   const tr: number[] = [];
   for (let i = 0; i < candles.length; i++) {
-    if (i === 0) { tr.push(candles[i].high - candles[i].low); continue; }
-    const h = candles[i].high, l = candles[i].low, pc = candles[i - 1].close;
+    if (i === 0) {
+      tr.push(candles[i].high - candles[i].low);
+      continue;
+    }
+    const h = candles[i].high,
+      l = candles[i].low,
+      pc = candles[i - 1].close;
     tr.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
   }
   const out: (number | null)[] = new Array(candles.length).fill(null);
@@ -163,7 +194,9 @@ export const adx = (candles: Candle[], len = 14) => {
   const plusDM: number[] = new Array(n).fill(0);
   const minusDM: number[] = new Array(n).fill(0);
   for (let i = 1; i < n; i++) {
-    const h = candles[i].high, l = candles[i].low, pc = candles[i - 1].close;
+    const h = candles[i].high,
+      l = candles[i].low,
+      pc = candles[i - 1].close;
     tr[i] = Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc));
     const upMove = h - candles[i - 1].high;
     const downMove = candles[i - 1].low - l;
@@ -176,10 +209,13 @@ export const adx = (candles: Candle[], len = 14) => {
     let s = 0;
     for (let i = 1; i <= len; i++) s += src[i];
     out[len] = s;
-    for (let i = len + 1; i < n; i++) out[i] = (out[i - 1] as number) - (out[i - 1] as number) / len + src[i];
+    for (let i = len + 1; i < n; i++)
+      out[i] = (out[i - 1] as number) - (out[i - 1] as number) / len + src[i];
     return out;
   };
-  const trS = wilder(tr), pdmS = wilder(plusDM), mdmS = wilder(minusDM);
+  const trS = wilder(tr),
+    pdmS = wilder(plusDM),
+    mdmS = wilder(minusDM);
   const plusDI: (number | null)[] = new Array(n).fill(null);
   const minusDI: (number | null)[] = new Array(n).fill(null);
   const dx: (number | null)[] = new Array(n).fill(null);
@@ -193,7 +229,11 @@ export const adx = (candles: Candle[], len = 14) => {
   // Smooth DX with Wilder over `len`
   const adxOut: (number | null)[] = new Array(n).fill(null);
   let firstIdx = -1;
-  for (let i = 0; i < n; i++) if (dx[i] != null) { firstIdx = i; break; }
+  for (let i = 0; i < n; i++)
+    if (dx[i] != null) {
+      firstIdx = i;
+      break;
+    }
   if (firstIdx >= 0 && n - firstIdx > len) {
     let s = 0;
     for (let i = firstIdx; i < firstIdx + len; i++) s += dx[i] as number;
@@ -210,8 +250,10 @@ export const engulfing = (candles: Candle[]): "bull" | "bear" | null => {
   if (candles.length < 2) return null;
   const a = candles[candles.length - 2];
   const b = candles[candles.length - 1];
-  const aBear = a.close < a.open, aBull = a.close > a.open;
-  const bBull = b.close > b.open, bBear = b.close < b.open;
+  const aBear = a.close < a.open,
+    aBull = a.close > a.open;
+  const bBull = b.close > b.open,
+    bBear = b.close < b.open;
   if (aBear && bBull && b.close >= a.open && b.open <= a.close) return "bull";
   if (aBull && bBear && b.open >= a.close && b.close <= a.open) return "bear";
   return null;
@@ -238,7 +280,8 @@ export const pinBar = (candles: Candle[]): "bull" | "bear" | null => {
 export const williamsR = (candles: Candle[], len = 14): (number | null)[] => {
   const out: (number | null)[] = new Array(candles.length).fill(null);
   for (let i = len - 1; i < candles.length; i++) {
-    let hh = -Infinity, ll = Infinity;
+    let hh = -Infinity,
+      ll = Infinity;
     for (let j = i - len + 1; j <= i; j++) {
       if (candles[j].high > hh) hh = candles[j].high;
       if (candles[j].low < ll) ll = candles[j].low;
@@ -251,7 +294,7 @@ export const williamsR = (candles: Candle[], len = 14): (number | null)[] => {
 // Commodity Channel Index
 export const cci = (candles: Candle[], len = 20): (number | null)[] => {
   const out: (number | null)[] = new Array(candles.length).fill(null);
-  const tp = candles.map(c => (c.high + c.low + c.close) / 3);
+  const tp = candles.map((c) => (c.high + c.low + c.close) / 3);
   for (let i = len - 1; i < candles.length; i++) {
     let sum = 0;
     for (let j = i - len + 1; j <= i; j++) sum += tp[j];
@@ -267,10 +310,11 @@ export const cci = (candles: Candle[], len = 20): (number | null)[] => {
 // Money Flow Index
 export const mfi = (candles: Candle[], len = 14): (number | null)[] => {
   const out: (number | null)[] = new Array(candles.length).fill(null);
-  const tp = candles.map(c => (c.high + c.low + c.close) / 3);
+  const tp = candles.map((c) => (c.high + c.low + c.close) / 3);
   const flow = candles.map((c, i) => tp[i] * (c.volume ?? 1));
   for (let i = len; i < candles.length; i++) {
-    let pos = 0, neg = 0;
+    let pos = 0,
+      neg = 0;
     for (let j = i - len + 1; j <= i; j++) {
       if (tp[j] > tp[j - 1]) pos += flow[j];
       else if (tp[j] < tp[j - 1]) neg += flow[j];
@@ -284,11 +328,13 @@ export const mfi = (candles: Candle[], len = 14): (number | null)[] => {
 export const vwap = (candles: Candle[], len = 20): (number | null)[] => {
   const out: (number | null)[] = new Array(candles.length).fill(null);
   for (let i = len - 1; i < candles.length; i++) {
-    let pv = 0, vv = 0;
+    let pv = 0,
+      vv = 0;
     for (let j = i - len + 1; j <= i; j++) {
       const v = candles[j].volume ?? 1;
       const tp = (candles[j].high + candles[j].low + candles[j].close) / 3;
-      pv += tp * v; vv += v;
+      pv += tp * v;
+      vv += v;
     }
     out[i] = vv === 0 ? null : pv / vv;
   }
@@ -300,7 +346,9 @@ export const supertrend = (candles: Candle[], len = 10, mult = 3) => {
   const a = atr(candles, len);
   const trend: (1 | -1 | null)[] = new Array(candles.length).fill(null);
   const line: (number | null)[] = new Array(candles.length).fill(null);
-  let prevUpper = 0, prevLower = 0, prevTrend: 1 | -1 = 1;
+  let prevUpper = 0,
+    prevLower = 0,
+    prevTrend: 1 | -1 = 1;
   for (let i = 0; i < candles.length; i++) {
     const _a = a[i];
     if (_a == null) continue;
@@ -316,7 +364,9 @@ export const supertrend = (candles: Candle[], len = 10, mult = 3) => {
     else if (candles[i].close < prevLower) t = -1;
     trend[i] = t;
     line[i] = t === 1 ? lower : upper;
-    prevUpper = upper; prevLower = lower; prevTrend = t;
+    prevUpper = upper;
+    prevLower = lower;
+    prevTrend = t;
   }
   return { trend, line };
 };
@@ -333,11 +383,29 @@ export const psar = (candles: Candle[], step = 0.02, max = 0.2): (number | null)
   for (let i = 1; i < candles.length; i++) {
     sar = sar + af * (ep - sar);
     if (bull) {
-      if (candles[i].low < sar) { bull = false; sar = ep; ep = candles[i].low; af = step; }
-      else { if (candles[i].high > ep) { ep = candles[i].high; af = Math.min(af + step, max); } }
+      if (candles[i].low < sar) {
+        bull = false;
+        sar = ep;
+        ep = candles[i].low;
+        af = step;
+      } else {
+        if (candles[i].high > ep) {
+          ep = candles[i].high;
+          af = Math.min(af + step, max);
+        }
+      }
     } else {
-      if (candles[i].high > sar) { bull = true; sar = ep; ep = candles[i].high; af = step; }
-      else { if (candles[i].low < ep) { ep = candles[i].low; af = Math.min(af + step, max); } }
+      if (candles[i].high > sar) {
+        bull = true;
+        sar = ep;
+        ep = candles[i].high;
+        af = step;
+      } else {
+        if (candles[i].low < ep) {
+          ep = candles[i].low;
+          af = Math.min(af + step, max);
+        }
+      }
     }
     out[i] = sar;
   }
@@ -346,8 +414,16 @@ export const psar = (candles: Candle[], step = 0.02, max = 0.2): (number | null)
 
 // Ichimoku conversion + base lines (kijun/tenkan only — most useful for confluence)
 export const ichimoku = (candles: Candle[], conv = 9, base = 26) => {
-  const hh = (i: number, n: number) => { let v = -Infinity; for (let j = i - n + 1; j <= i; j++) if (candles[j].high > v) v = candles[j].high; return v; };
-  const ll = (i: number, n: number) => { let v = Infinity; for (let j = i - n + 1; j <= i; j++) if (candles[j].low < v) v = candles[j].low; return v; };
+  const hh = (i: number, n: number) => {
+    let v = -Infinity;
+    for (let j = i - n + 1; j <= i; j++) if (candles[j].high > v) v = candles[j].high;
+    return v;
+  };
+  const ll = (i: number, n: number) => {
+    let v = Infinity;
+    for (let j = i - n + 1; j <= i; j++) if (candles[j].low < v) v = candles[j].low;
+    return v;
+  };
   const tenkan: (number | null)[] = new Array(candles.length).fill(null);
   const kijun: (number | null)[] = new Array(candles.length).fill(null);
   for (let i = 0; i < candles.length; i++) {
@@ -369,8 +445,18 @@ export const doji = (candles: Candle[]): boolean => {
 export const threeBars = (candles: Candle[]): "bull" | "bear" | null => {
   if (candles.length < 3) return null;
   const [a, b, c] = candles.slice(-3);
-  const allUp = a.close > a.open && b.close > b.open && c.close > c.open && c.close > b.close && b.close > a.close;
-  const allDn = a.close < a.open && b.close < b.open && c.close < c.open && c.close < b.close && b.close < a.close;
+  const allUp =
+    a.close > a.open &&
+    b.close > b.open &&
+    c.close > c.open &&
+    c.close > b.close &&
+    b.close > a.close;
+  const allDn =
+    a.close < a.open &&
+    b.close < b.open &&
+    c.close < c.open &&
+    c.close < b.close &&
+    b.close < a.close;
   return allUp ? "bull" : allDn ? "bear" : null;
 };
 
@@ -387,13 +473,18 @@ export const bodyRatio = (c: Candle): number => {
 };
 
 // Body Ratio Series — returns ratio for each candle
-export const bodyRatioSeries = (candles: Candle[]): number[] =>
-  candles.map(c => bodyRatio(c));
+export const bodyRatioSeries = (candles: Candle[]): number[] => candles.map((c) => bodyRatio(c));
 
 // Squeeze Detector — counts consecutive candles with body/range below threshold.
 // Returns { count, isSqueezing, startIndex } for the most recent squeeze.
-export const squeezeDetector = (candles: Candle[], threshold = 0.35, minConsecutive = 3): {
-  count: number; isSqueezing: boolean; startIndex: number;
+export const squeezeDetector = (
+  candles: Candle[],
+  threshold = 0.35,
+  minConsecutive = 3,
+): {
+  count: number;
+  isSqueezing: boolean;
+  startIndex: number;
 } => {
   let count = 0;
   let startIndex = -1;
@@ -410,8 +501,13 @@ export const squeezeDetector = (candles: Candle[], threshold = 0.35, minConsecut
 
 // ZigZag — detects price pivots using a deviation threshold.
 // Returns array of { index, type, price } pivot points.
-export const zigzag = (candles: Candle[], deviationPct = 0.5): {
-  index: number; type: "high" | "low"; price: number;
+export const zigzag = (
+  candles: Candle[],
+  deviationPct = 0.5,
+): {
+  index: number;
+  type: "high" | "low";
+  price: number;
 }[] => {
   if (candles.length < 5) return [];
   const pivots: { index: number; type: "high" | "low"; price: number }[] = [];
@@ -448,7 +544,7 @@ export type SASTSession = "night" | "day" | "all";
 
 export const filterBySession = (candles: Candle[], session: SASTSession): Candle[] => {
   if (session === "all") return candles;
-  return candles.filter(c => {
+  return candles.filter((c) => {
     const h = new Date(c.epoch * 1000).getUTCHours();
     if (session === "night") return h >= 22 || h < 3;
     return h >= 6 && h < 20;
@@ -466,7 +562,7 @@ export const currentSession = (epoch?: number): SASTSession => {
 // Average True Range multiplier — returns ATR as percentage of price
 export const atrPercent = (candles: Candle[], len = 14): (number | null)[] => {
   const atrVals = atr(candles, len);
-  return atrVals.map((v, i) => v != null ? (v / candles[i].close) * 100 : null);
+  return atrVals.map((v, i) => (v != null ? (v / candles[i].close) * 100 : null));
 };
 
 // Compression Score — measures how compressed recent price action is.
@@ -483,7 +579,7 @@ export const compressionScore = (candles: Candle[], lookback = 5): number => {
 // a single -100 to +100 score. Used for confluence scoring.
 export const momentumScore = (candles: Candle[]): number => {
   if (candles.length < 30) return 0;
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const rsiVals = rsi(close, 14);
   const macdVals = macd(close);
   const last = close.length - 1;

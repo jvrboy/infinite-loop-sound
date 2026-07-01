@@ -132,11 +132,15 @@ export function validateSettings(s: BotSettings): string[] {
   if (s.instruments.length === 0) errors.push("Pick at least one instrument.");
 
   if (s.positionSizing === "fixed") {
-    if (!Number.isFinite(s.lotSize) || s.lotSize < 0.01) errors.push("Fixed lot size must be at least 0.01.");
+    if (!Number.isFinite(s.lotSize) || s.lotSize < 0.01)
+      errors.push("Fixed lot size must be at least 0.01.");
   } else {
-    if (!Number.isFinite(s.martingaleBase) || s.martingaleBase < 0.01) errors.push("Martingale base lot must be at least 0.01.");
-    if (!Number.isFinite(s.martingaleMultiplier) || s.martingaleMultiplier <= 1) errors.push("Martingale multiplier must be greater than 1.");
-    if (!Number.isFinite(s.martingaleMaxLot) || s.martingaleMaxLot < s.martingaleBase) errors.push("Martingale max lot must be ≥ base lot.");
+    if (!Number.isFinite(s.martingaleBase) || s.martingaleBase < 0.01)
+      errors.push("Martingale base lot must be at least 0.01.");
+    if (!Number.isFinite(s.martingaleMultiplier) || s.martingaleMultiplier <= 1)
+      errors.push("Martingale multiplier must be greater than 1.");
+    if (!Number.isFinite(s.martingaleMaxLot) || s.martingaleMaxLot < s.martingaleBase)
+      errors.push("Martingale max lot must be ≥ base lot.");
   }
 
   if (!Number.isFinite(s.maxOpen) || s.maxOpen < 1 || s.maxOpen > MAX_CONCURRENT_TRADES) {
@@ -147,16 +151,23 @@ export function validateSettings(s: BotSettings): string[] {
     errors.push("Fixed TP (pips) must be greater than 0.");
   }
   if (s.mode === "scalper") {
-    if (!Number.isFinite(s.scalperTpPips) || s.scalperTpPips <= 0) errors.push("Scalper TP (pips) must be greater than 0.");
-    if (!Number.isFinite(s.scalperSlPips) || s.scalperSlPips <= 0) errors.push("Scalper SL (pips) must be greater than 0.");
+    if (!Number.isFinite(s.scalperTpPips) || s.scalperTpPips <= 0)
+      errors.push("Scalper TP (pips) must be greater than 0.");
+    if (!Number.isFinite(s.scalperSlPips) || s.scalperSlPips <= 0)
+      errors.push("Scalper SL (pips) must be greater than 0.");
   }
-  if (!Number.isFinite(s.dailyLossCap) || s.dailyLossCap <= 0) errors.push("Daily loss cap must be greater than 0.");
-  if (!Number.isFinite(s.cooldownSec) || s.cooldownSec < 0) errors.push("Cooldown must be 0 or greater.");
-  if (!Number.isFinite(s.minBalance) || s.minBalance < 0) errors.push("Minimum balance must be 0 or greater.");
+  if (!Number.isFinite(s.dailyLossCap) || s.dailyLossCap <= 0)
+    errors.push("Daily loss cap must be greater than 0.");
+  if (!Number.isFinite(s.cooldownSec) || s.cooldownSec < 0)
+    errors.push("Cooldown must be 0 or greater.");
+  if (!Number.isFinite(s.minBalance) || s.minBalance < 0)
+    errors.push("Minimum balance must be 0 or greater.");
   if (s.avoidLowLiquidity) {
     const okHour = (h: number) => Number.isInteger(h) && h >= 0 && h <= 23;
-    if (!okHour(s.lowLiqStartUtc) || !okHour(s.lowLiqEndUtc)) errors.push("Low-liquidity hours must be whole numbers between 0 and 23.");
-    if (s.lowLiqStartUtc === s.lowLiqEndUtc) errors.push("Low-liquidity start and end hours must differ.");
+    if (!okHour(s.lowLiqStartUtc) || !okHour(s.lowLiqEndUtc))
+      errors.push("Low-liquidity hours must be whole numbers between 0 and 23.");
+    if (s.lowLiqStartUtc === s.lowLiqEndUtc)
+      errors.push("Low-liquidity start and end hours must differ.");
   }
   return errors;
 }

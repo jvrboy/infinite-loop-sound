@@ -42,8 +42,7 @@ const htmlRuntime: Runtime = {
       const parser = new DOMParser();
       const doc = parser.parseFromString(code, "text/html");
       const errs = doc.querySelectorAll("parsererror");
-      if (errs.length > 0)
-        return { ok: false, error: errs[0].textContent || "HTML parse error" };
+      if (errs.length > 0) return { ok: false, error: errs[0].textContent || "HTML parse error" };
       // success — report node count as a sanity output
       return {
         ok: true,
@@ -96,7 +95,10 @@ const csvRuntime: Runtime = {
   language: "csv",
   async execute(code) {
     try {
-      const lines = code.replace(/\r/g, "").split("\n").filter((l) => l.length > 0);
+      const lines = code
+        .replace(/\r/g, "")
+        .split("\n")
+        .filter((l) => l.length > 0);
       if (lines.length === 0) return { ok: false, error: "Empty CSV" };
       // very simple parser — handles quoted fields, commas, escaped quotes
       const parseLine = (line: string): string[] => {
@@ -210,16 +212,18 @@ const jsRuntime: Runtime = {
 // (type annotations + interfaces), then hand to JS runtime. Good enough for the
 // 80% of cases users will paste; legitimate TS-only constructs will still throw.
 function stripTs(code: string): string {
-  return code
-    // remove type-only imports
-    .replace(/import\s+type\b[^;]+;/g, "")
-    // strip `: type` annotations on params/vars (very rough, but safe for most cases)
-    .replace(/:\s*[A-Za-z_$][\w$<>[\]|&,\s.?]*?(?=\s*[=,)])/g, "")
-    // strip interfaces and type aliases
-    .replace(/\b(interface)\s+\w+\s*\{[\s\S]*?\}/g, "")
-    .replace(/\btype\s+\w+\s*=[^;]+;/g, "")
-    // strip `as Foo` casts
-    .replace(/\s+as\s+[A-Za-z_$][\w$<>[\]|&,\s.?]*/g, "");
+  return (
+    code
+      // remove type-only imports
+      .replace(/import\s+type\b[^;]+;/g, "")
+      // strip `: type` annotations on params/vars (very rough, but safe for most cases)
+      .replace(/:\s*[A-Za-z_$][\w$<>[\]|&,\s.?]*?(?=\s*[=,)])/g, "")
+      // strip interfaces and type aliases
+      .replace(/\b(interface)\s+\w+\s*\{[\s\S]*?\}/g, "")
+      .replace(/\btype\s+\w+\s*=[^;]+;/g, "")
+      // strip `as Foo` casts
+      .replace(/\s+as\s+[A-Za-z_$][\w$<>[\]|&,\s.?]*/g, "")
+  );
 }
 const tsRuntime: Runtime = {
   language: "ts",
@@ -260,7 +264,9 @@ const pythonRuntime: Runtime = {
       const timeoutMs = opts.timeoutMs ?? 15_000;
       const result = await Promise.race([
         py.runPythonAsync(code),
-        new Promise((_, rej) => setTimeout(() => rej(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs)),
+        new Promise((_, rej) =>
+          setTimeout(() => rej(new Error(`Timeout after ${timeoutMs}ms`)), timeoutMs),
+        ),
       ]);
       const tail = result === undefined || result === null ? "" : String(result);
       return { ok: true, output: (buf + tail).trim() || "no output" };

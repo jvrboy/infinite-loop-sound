@@ -47,7 +47,11 @@ export function ReplayPlayer({ symbol = "frxEURUSD", tf = "M5", bars = 500 }: Pr
 
   if (!state) {
     return (
-      <Card><CardHeader><CardTitle className="text-base">Replay…</CardTitle></CardHeader></Card>
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Replay…</CardTitle>
+        </CardHeader>
+      </Card>
     );
   }
 
@@ -56,15 +60,31 @@ export function ReplayPlayer({ symbol = "frxEURUSD", tf = "M5", bars = 500 }: Pr
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base">Replay · {symbol} {tf}</CardTitle>
-        <Badge variant="outline">{state.index + 1} / {state.total}</Badge>
+        <CardTitle className="text-base">
+          Replay · {symbol} {tf}
+        </CardTitle>
+        <Badge variant="outline">
+          {state.index + 1} / {state.total}
+        </Badge>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="grid grid-cols-4 gap-2 text-xs">
-          <div><div className="text-muted-foreground">Open</div><div className="font-mono">{state.candle.open.toFixed(5)}</div></div>
-          <div><div className="text-muted-foreground">High</div><div className="font-mono">{state.candle.high.toFixed(5)}</div></div>
-          <div><div className="text-muted-foreground">Low</div><div className="font-mono">{state.candle.low.toFixed(5)}</div></div>
-          <div><div className="text-muted-foreground">Close</div><div className="font-mono">{state.candle.close.toFixed(5)}</div></div>
+          <div>
+            <div className="text-muted-foreground">Open</div>
+            <div className="font-mono">{state.candle.open.toFixed(5)}</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">High</div>
+            <div className="font-mono">{state.candle.high.toFixed(5)}</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">Low</div>
+            <div className="font-mono">{state.candle.low.toFixed(5)}</div>
+          </div>
+          <div>
+            <div className="text-muted-foreground">Close</div>
+            <div className="font-mono">{state.candle.close.toFixed(5)}</div>
+          </div>
         </div>
         <Slider
           value={[state.index]}
@@ -74,21 +94,34 @@ export function ReplayPlayer({ symbol = "frxEURUSD", tf = "M5", bars = 500 }: Pr
           onValueChange={(v) => controller?.jumpTo(v[0])}
         />
         <div className="flex items-center gap-2">
-          <Button size="sm" variant="outline" onClick={() => controller?.step(-10)}>«</Button>
-          <Button size="sm" variant="outline" onClick={() => controller?.step(-1)}>‹</Button>
+          <Button size="sm" variant="outline" onClick={() => controller?.step(-10)}>
+            «
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => controller?.step(-1)}>
+            ‹
+          </Button>
           {state.isPlaying ? (
-            <Button size="sm" onClick={() => controller?.pause()}>Pause</Button>
+            <Button size="sm" onClick={() => controller?.pause()}>
+              Pause
+            </Button>
           ) : (
-            <Button size="sm" onClick={() => controller?.play()}>Play</Button>
+            <Button size="sm" onClick={() => controller?.play()}>
+              Play
+            </Button>
           )}
-          <Button size="sm" variant="outline" onClick={() => controller?.step(1)}>›</Button>
-          <Button size="sm" variant="outline" onClick={() => controller?.step(10)}>»</Button>
+          <Button size="sm" variant="outline" onClick={() => controller?.step(1)}>
+            ›
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => controller?.step(10)}>
+            »
+          </Button>
           <span className="text-xs text-muted-foreground ml-auto">{pct.toFixed(1)}%</span>
         </div>
         {liveAnalysis && (
           <div className="rounded-md border bg-muted/30 p-2 text-xs">
             Live <span className="font-medium">analyze()</span> on visible bars:{" "}
-            <span className="font-mono">{liveAnalysis.rating}</span> ({liveAnalysis.scorePct.toFixed(1)}%) {liveAnalysis.direction ?? "NEUTRAL"}
+            <span className="font-mono">{liveAnalysis.rating}</span> (
+            {liveAnalysis.scorePct.toFixed(1)}%) {liveAnalysis.direction ?? "NEUTRAL"}
           </div>
         )}
       </CardContent>

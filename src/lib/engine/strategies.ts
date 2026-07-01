@@ -12,11 +12,11 @@ import type { Tick } from "./heatmap-analytics";
 export interface StrategyHit {
   name: string;
   side: "BUY" | "SELL";
-  weight: number;   // 0..25
+  weight: number; // 0..25
   note: string;
 }
 
-const last = <T,>(arr: T[], n = 1): T | undefined => arr[arr.length - n];
+const last = <T>(arr: T[], n = 1): T | undefined => arr[arr.length - n];
 
 /* ============================================================
  * BTMM — Session sweep / Asian-range break
@@ -26,16 +26,26 @@ function btmmStopRun(c: Candle[]): StrategyHit | null {
   if (c.length < 30) return null;
   const recent = c.slice(-30);
   const k = recent[recent.length - 1];
-  const priorHigh = Math.max(...recent.slice(0, -1).map(x => x.high));
-  const priorLow = Math.min(...recent.slice(0, -1).map(x => x.low));
+  const priorHigh = Math.max(...recent.slice(0, -1).map((x) => x.high));
+  const priorLow = Math.min(...recent.slice(0, -1).map((x) => x.low));
   const body = Math.abs(k.close - k.open);
   const upWick = k.high - Math.max(k.open, k.close);
   const dnWick = Math.min(k.open, k.close) - k.low;
   if (k.high > priorHigh && upWick > body * 1.5 && k.close < priorHigh) {
-    return { name: "BTMM", side: "SELL", weight: 14, note: "BTMM stop run above prior high — rejection wick" };
+    return {
+      name: "BTMM",
+      side: "SELL",
+      weight: 14,
+      note: "BTMM stop run above prior high — rejection wick",
+    };
   }
   if (k.low < priorLow && dnWick > body * 1.5 && k.close > priorLow) {
-    return { name: "BTMM", side: "BUY", weight: 14, note: "BTMM stop run below prior low — rejection wick" };
+    return {
+      name: "BTMM",
+      side: "BUY",
+      weight: 14,
+      note: "BTMM stop run below prior low — rejection wick",
+    };
   }
   return null;
 }
@@ -50,13 +60,31 @@ function msnrRetest(c: Candle[]): StrategyHit | null {
   // find recent obvious swing pivots
   for (let i = 2; i < window.length - 2; i++) {
     const p = window[i];
-    const isHigh = p.high > window[i-1].high && p.high > window[i+1].high && p.high > window[i-2].high && p.high > window[i+2].high;
-    const isLow  = p.low  < window[i-1].low  && p.low  < window[i+1].low  && p.low  < window[i-2].low  && p.low  < window[i+2].low;
+    const isHigh =
+      p.high > window[i - 1].high &&
+      p.high > window[i + 1].high &&
+      p.high > window[i - 2].high &&
+      p.high > window[i + 2].high;
+    const isLow =
+      p.low < window[i - 1].low &&
+      p.low < window[i + 1].low &&
+      p.low < window[i - 2].low &&
+      p.low < window[i + 2].low;
     if (isHigh && Math.abs(k.high - p.high) / p.high < 0.0015 && k.close < k.open) {
-      return { name: "MSNR", side: "SELL", weight: 12, note: `MSNR A-level retest @ ${p.high.toFixed(5)}` };
+      return {
+        name: "MSNR",
+        side: "SELL",
+        weight: 12,
+        note: `MSNR A-level retest @ ${p.high.toFixed(5)}`,
+      };
     }
     if (isLow && Math.abs(k.low - p.low) / p.low < 0.0015 && k.close > k.open) {
-      return { name: "MSNR", side: "BUY", weight: 12, note: `MSNR V-level retest @ ${p.low.toFixed(5)}` };
+      return {
+        name: "MSNR",
+        side: "BUY",
+        weight: 12,
+        note: `MSNR V-level retest @ ${p.low.toFixed(5)}`,
+      };
     }
   }
   return null;
@@ -80,12 +108,22 @@ function alchemistOB(c: Candle[]): StrategyHit | null {
     // bullish OB = down candle followed by strong up candle
     if (o.close < o.open && next.close > next.open) {
       if (k.low <= o.high && k.close > o.low) {
-        return { name: "Alchemist", side: "BUY", weight: 13, note: `Alchemist bullish OB @ ${o.low.toFixed(5)}-${o.high.toFixed(5)}` };
+        return {
+          name: "Alchemist",
+          side: "BUY",
+          weight: 13,
+          note: `Alchemist bullish OB @ ${o.low.toFixed(5)}-${o.high.toFixed(5)}`,
+        };
       }
     }
     if (o.close > o.open && next.close < next.open) {
       if (k.high >= o.low && k.close < o.high) {
-        return { name: "Alchemist", side: "SELL", weight: 13, note: `Alchemist bearish OB @ ${o.low.toFixed(5)}-${o.high.toFixed(5)}` };
+        return {
+          name: "Alchemist",
+          side: "SELL",
+          weight: 13,
+          note: `Alchemist bearish OB @ ${o.low.toFixed(5)}-${o.high.toFixed(5)}`,
+        };
       }
     }
   }
@@ -100,10 +138,20 @@ function crtRaid(c: Candle[]): StrategyHit | null {
   if (c.length < 3) return null;
   const [c1, c2, c3] = c.slice(-3);
   if (c2.high > c1.high && c3.close < c1.high && c3.close < c2.close) {
-    return { name: "CRT", side: "SELL", weight: 15, note: "CRT bearish raid — swept range high then closed back inside" };
+    return {
+      name: "CRT",
+      side: "SELL",
+      weight: 15,
+      note: "CRT bearish raid — swept range high then closed back inside",
+    };
   }
   if (c2.low < c1.low && c3.close > c1.low && c3.close > c2.close) {
-    return { name: "CRT", side: "BUY", weight: 15, note: "CRT bullish raid — swept range low then closed back inside" };
+    return {
+      name: "CRT",
+      side: "BUY",
+      weight: 15,
+      note: "CRT bullish raid — swept range low then closed back inside",
+    };
   }
   return null;
 }
@@ -119,7 +167,12 @@ function vsa(c: Candle[]): StrategyHit | null {
   const spread = k.high - k.low;
   const avgSpread = c.slice(-21, -1).reduce((a, b) => a + (b.high - b.low), 0) / 20;
   if (v > avgVol * 2 && spread > avgSpread * 1.6 && k.close < k.open) {
-    return { name: "VSA", side: "BUY", weight: 10, note: "VSA selling climax — capitulation volume" };
+    return {
+      name: "VSA",
+      side: "BUY",
+      weight: 10,
+      note: "VSA selling climax — capitulation volume",
+    };
   }
   if (v > avgVol * 2 && spread > avgSpread * 1.6 && k.close > k.open) {
     return { name: "VSA", side: "SELL", weight: 10, note: "VSA buying climax — exhaustion volume" };
@@ -141,16 +194,27 @@ function orderFlowDelta(c: Candle[], ticks: Tick[]): StrategyHit | null {
   let acc = 0;
   for (let i = 1; i < ticks.length; i++) {
     const d = ticks[i].quote - ticks[i - 1].quote;
-    if (d > 0) acc++; else if (d < 0) acc--;
+    if (d > 0) acc++;
+    else if (d < 0) acc--;
   }
   const k = last(c)!;
   const prev = c[c.length - 2];
   // bullish: price makes new low but delta higher than recent low
   if (k.low < prev.low && acc > 0) {
-    return { name: "OrderFlow", side: "BUY", weight: 10, note: "Order-flow bullish divergence — price lower, delta positive" };
+    return {
+      name: "OrderFlow",
+      side: "BUY",
+      weight: 10,
+      note: "Order-flow bullish divergence — price lower, delta positive",
+    };
   }
   if (k.high > prev.high && acc < 0) {
-    return { name: "OrderFlow", side: "SELL", weight: 10, note: "Order-flow bearish divergence — price higher, delta negative" };
+    return {
+      name: "OrderFlow",
+      side: "SELL",
+      weight: 10,
+      note: "Order-flow bearish divergence — price higher, delta negative",
+    };
   }
   return null;
 }

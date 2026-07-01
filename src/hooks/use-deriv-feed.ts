@@ -16,8 +16,8 @@ export interface FeedTick {
   delta: number;
   pctDelta: number;
   epoch: number;
-  window: number[];        // last N quotes for rolling stats
-  volWindow: number[];      // |pctDelta| samples for realised vol
+  window: number[]; // last N quotes for rolling stats
+  volWindow: number[]; // |pctDelta| samples for realised vol
   updatedAt: number;
 }
 

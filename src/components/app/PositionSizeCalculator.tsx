@@ -39,7 +39,7 @@ export function PositionSizeCalculator({
     // Kelly criterion (simplified)
     const assumedWinRate = 0.55;
     const assumedRR = 2.0;
-    const kellyPct = ((assumedWinRate * assumedRR) - (1 - assumedWinRate)) / assumedRR;
+    const kellyPct = (assumedWinRate * assumedRR - (1 - assumedWinRate)) / assumedRR;
     const kellyLotSize = kellyPct > 0 ? lotSize * Math.min(kellyPct * 2, 1) : 0;
 
     // Risk assessment
@@ -95,7 +95,7 @@ export function PositionSizeCalculator({
             <input
               type="number"
               value={balance}
-              onChange={e => setBalance(Number(e.target.value) || 0)}
+              onChange={(e) => setBalance(Number(e.target.value) || 0)}
               className="w-full bg-input border border-border rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40"
             />
           </div>
@@ -109,7 +109,7 @@ export function PositionSizeCalculator({
               min="0.1"
               max="10"
               value={riskPct}
-              onChange={e => setRiskPct(Number(e.target.value) || 0)}
+              onChange={(e) => setRiskPct(Number(e.target.value) || 0)}
               className="w-full bg-input border border-border rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40"
             />
           </div>
@@ -120,7 +120,7 @@ export function PositionSizeCalculator({
             <input
               type="number"
               value={stopPips}
-              onChange={e => setStopPips(Number(e.target.value) || 0)}
+              onChange={(e) => setStopPips(Number(e.target.value) || 0)}
               className="w-full bg-input border border-border rounded px-2 py-1.5 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-primary/40"
             />
           </div>
@@ -130,7 +130,7 @@ export function PositionSizeCalculator({
             </label>
             <select
               value={leverage}
-              onChange={e => setLeverage(Number(e.target.value))}
+              onChange={(e) => setLeverage(Number(e.target.value))}
               className="w-full bg-input border border-border rounded px-2 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-primary/40"
             >
               <option value={30}>1:30</option>
@@ -154,17 +154,25 @@ export function PositionSizeCalculator({
         <div className="grid grid-cols-3 gap-2">
           <div className="p-2.5 rounded-lg bg-primary/10 border border-primary/20 text-center">
             <div className="text-[9px] text-muted-foreground uppercase">Lot Size</div>
-            <div className="text-lg font-mono font-bold text-primary">{calc.lotSize.toFixed(2)}</div>
-            <div className="text-[9px] text-muted-foreground">{Math.round(calc.units).toLocaleString()} units</div>
+            <div className="text-lg font-mono font-bold text-primary">
+              {calc.lotSize.toFixed(2)}
+            </div>
+            <div className="text-[9px] text-muted-foreground">
+              {Math.round(calc.units).toLocaleString()} units
+            </div>
           </div>
           <div className="p-2.5 rounded-lg bg-bear/10 border border-bear/20 text-center">
             <div className="text-[9px] text-muted-foreground uppercase">Risk Amount</div>
-            <div className="text-lg font-mono font-bold text-bear">${calc.riskAmount.toFixed(0)}</div>
+            <div className="text-lg font-mono font-bold text-bear">
+              ${calc.riskAmount.toFixed(0)}
+            </div>
             <div className="text-[9px] text-muted-foreground">{riskPct}% of balance</div>
           </div>
           <div className="p-2.5 rounded-lg bg-muted border border-border text-center">
             <div className="text-[9px] text-muted-foreground uppercase">Margin</div>
-            <div className="text-lg font-mono font-bold text-foreground">${calc.marginRequired.toFixed(0)}</div>
+            <div className="text-lg font-mono font-bold text-foreground">
+              ${calc.marginRequired.toFixed(0)}
+            </div>
             <div className="text-[9px] text-muted-foreground">1:{leverage}</div>
           </div>
         </div>
@@ -187,7 +195,9 @@ export function PositionSizeCalculator({
             <span className="text-muted-foreground flex items-center gap-1">
               <Shield className="w-3 h-3" /> Losses to 50% Drawdown
             </span>
-            <span className={`font-mono font-semibold ${calc.maxLossStreak < 10 ? "text-bear" : "text-bull"}`}>
+            <span
+              className={`font-mono font-semibold ${calc.maxLossStreak < 10 ? "text-bear" : "text-bull"}`}
+            >
               {calc.maxLossStreak} consecutive
             </span>
           </div>
@@ -198,9 +208,9 @@ export function PositionSizeCalculator({
           <div className="p-2 rounded bg-bear/10 border border-bear/30 text-[10px] text-bear flex items-start gap-1.5">
             <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
             <span>
-              <strong>Warning:</strong> Risking {riskPct}% per trade is extremely aggressive.
-              Only {calc.maxLossStreak} consecutive losses would halve your account.
-              Consider reducing to 1-2% for sustainable growth.
+              <strong>Warning:</strong> Risking {riskPct}% per trade is extremely aggressive. Only{" "}
+              {calc.maxLossStreak} consecutive losses would halve your account. Consider reducing to
+              1-2% for sustainable growth.
             </span>
           </div>
         )}

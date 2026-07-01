@@ -48,7 +48,9 @@ export interface ExecResult {
 
 export class RuntimeNotConfiguredError extends Error {
   constructor(public language: Language) {
-    super(`Runtime not configured for ${language}. Wire a backend executor (Judge0 / Piston / Docker) and set VITE_EXECUTOR_URL.`);
+    super(
+      `Runtime not configured for ${language}. Wire a backend executor (Judge0 / Piston / Docker) and set VITE_EXECUTOR_URL.`,
+    );
     this.name = "RuntimeNotConfiguredError";
   }
 }

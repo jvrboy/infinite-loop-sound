@@ -4,17 +4,24 @@
 
 import type { Candle } from "./indicators";
 
-export const DERIV_APP_ID = (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_DERIV_APP_ID) || "1089";
+export const DERIV_APP_ID =
+  (typeof import.meta !== "undefined" && (import.meta as any).env?.VITE_DERIV_APP_ID) || "1089";
 export const DERIV_WS_URL = `wss://ws.derivws.com/websockets/v3?app_id=${DERIV_APP_ID}`;
 
 export type DerivGranularity = 60 | 300 | 900 | 1800 | 3600 | 14400 | 86400;
 export type TF = "M1" | "M5" | "M15" | "M30" | "H1" | "H4" | "D1";
 
 export const TF_TO_GRAN: Record<TF, DerivGranularity> = {
-  M1: 60, M5: 300, M15: 900, M30: 1800, H1: 3600, H4: 14400, D1: 86400,
+  M1: 60,
+  M5: 300,
+  M15: 900,
+  M30: 1800,
+  H1: 3600,
+  H4: 14400,
+  D1: 86400,
 };
 
-export const TIMEFRAMES: TF[] = ["M1","M5","M15","M30","H1","H4","D1"];
+export const TIMEFRAMES: TF[] = ["M1", "M5", "M15", "M30", "H1", "H4", "D1"];
 
 export const FOREX_PAIRS = [
   { symbol: "frxEURUSD", display: "EUR/USD" },
@@ -33,7 +40,11 @@ export const FOREX_PAIRS = [
 
 export type AssetClass = "forex" | "metals" | "crypto" | "indices" | "synthetics" | "stocks";
 
-export interface AssetSymbol { symbol: string; display: string; class: AssetClass }
+export interface AssetSymbol {
+  symbol: string;
+  display: string;
+  class: AssetClass;
+}
 
 export const METALS: AssetSymbol[] = [
   { symbol: "frxXAUUSD", display: "XAU/USD (Gold)", class: "metals" },
@@ -62,16 +73,16 @@ export const INDICES: AssetSymbol[] = [
 ];
 
 export const SYNTHETICS: AssetSymbol[] = [
-  { symbol: "R_10",   display: "Volatility 10",  class: "synthetics" },
-  { symbol: "R_25",   display: "Volatility 25",  class: "synthetics" },
-  { symbol: "R_50",   display: "Volatility 50",  class: "synthetics" },
-  { symbol: "R_75",   display: "Volatility 75",  class: "synthetics" },
-  { symbol: "R_100",  display: "Volatility 100", class: "synthetics" },
-  { symbol: "1HZ10V", display: "Vol 10 (1s)",    class: "synthetics" },
-  { symbol: "1HZ100V",display: "Vol 100 (1s)",   class: "synthetics" },
-  { symbol: "BOOM1000N", display: "Boom 1000",   class: "synthetics" },
-  { symbol: "CRASH1000N",display: "Crash 1000",  class: "synthetics" },
-  { symbol: "JD10",   display: "Jump 10",        class: "synthetics" },
+  { symbol: "R_10", display: "Volatility 10", class: "synthetics" },
+  { symbol: "R_25", display: "Volatility 25", class: "synthetics" },
+  { symbol: "R_50", display: "Volatility 50", class: "synthetics" },
+  { symbol: "R_75", display: "Volatility 75", class: "synthetics" },
+  { symbol: "R_100", display: "Volatility 100", class: "synthetics" },
+  { symbol: "1HZ10V", display: "Vol 10 (1s)", class: "synthetics" },
+  { symbol: "1HZ100V", display: "Vol 100 (1s)", class: "synthetics" },
+  { symbol: "BOOM1000N", display: "Boom 1000", class: "synthetics" },
+  { symbol: "CRASH1000N", display: "Crash 1000", class: "synthetics" },
+  { symbol: "JD10", display: "Jump 10", class: "synthetics" },
 ];
 
 export const STOCKS: AssetSymbol[] = [
@@ -84,21 +95,34 @@ export const STOCKS: AssetSymbol[] = [
   { symbol: "OTC_NVDA", display: "Nvidia", class: "stocks" },
   { symbol: "OTC_NFLX", display: "Netflix", class: "stocks" },
   { symbol: "OTC_BABA", display: "Alibaba", class: "stocks" },
-  { symbol: "OTC_JPM",  display: "JPMorgan", class: "stocks" },
+  { symbol: "OTC_JPM", display: "JPMorgan", class: "stocks" },
 ];
 
-export const FOREX_ASSETS: AssetSymbol[] = FOREX_PAIRS.map(p => ({ ...p, class: "forex" as const }));
+export const FOREX_ASSETS: AssetSymbol[] = FOREX_PAIRS.map((p) => ({
+  ...p,
+  class: "forex" as const,
+}));
 
 export const ALL_ASSETS: AssetSymbol[] = [
-  ...FOREX_ASSETS, ...METALS, ...CRYPTO, ...INDICES, ...SYNTHETICS, ...STOCKS,
+  ...FOREX_ASSETS,
+  ...METALS,
+  ...CRYPTO,
+  ...INDICES,
+  ...SYNTHETICS,
+  ...STOCKS,
 ];
 
 export const ASSETS_BY_CLASS: Record<AssetClass, AssetSymbol[]> = {
-  forex: FOREX_ASSETS, metals: METALS, crypto: CRYPTO, indices: INDICES, synthetics: SYNTHETICS, stocks: STOCKS,
+  forex: FOREX_ASSETS,
+  metals: METALS,
+  crypto: CRYPTO,
+  indices: INDICES,
+  synthetics: SYNTHETICS,
+  stocks: STOCKS,
 };
 
 export const displayPair = (sym: string): string => {
-  const m = ALL_ASSETS.find(p => p.symbol === sym);
+  const m = ALL_ASSETS.find((p) => p.symbol === sym);
   if (m) return m.display;
   return sym.replace(/^frx/, "").replace(/(.{3})(.{3})/, "$1/$2");
 };
@@ -129,9 +153,13 @@ class DerivClient {
         ws.onclose = () => {
           this.ws = null;
           this.connectPromise = null;
-          // Fail any in-flight requests so callers can retry/​degrade gracefully.
+          // Fail any in-flight requests so callers can retry/degrade gracefully.
           this.pending.forEach((r) => {
-            try { r({ error: { message: "Deriv connection closed" } }); } catch { /* ignore */ }
+            try {
+              r({ error: { message: "Deriv connection closed" } });
+            } catch {
+              /* ignore */
+            }
           });
           this.pending.clear();
           // If we still have active tick subscriptions, reconnect with backoff.
@@ -147,11 +175,15 @@ class DerivClient {
             if (msg.msg_type === "tick" && msg.tick) {
               const sym = msg.tick.symbol;
               const cbs = this.tickListeners.get(sym);
-              if (cbs) cbs.forEach(cb => cb({ quote: msg.tick.quote, epoch: msg.tick.epoch }));
+              if (cbs) cbs.forEach((cb) => cb({ quote: msg.tick.quote, epoch: msg.tick.epoch }));
             }
-          } catch { /* ignore */ }
+          } catch {
+            /* ignore */
+          }
         };
-      } catch (e) { reject(e); }
+      } catch (e) {
+        reject(e);
+      }
     });
     return this.connectPromise;
   }
@@ -176,20 +208,26 @@ class DerivClient {
   }
 
   private send<T = any>(req: object): Promise<T> {
-    return this.connect().then(() => new Promise((resolve, reject) => {
-      const id = this.reqId++;
-      const payload = { ...req, req_id: id };
-      this.pending.set(id, resolve as PendingResolver);
-      try {
-        this.ws!.send(JSON.stringify(payload));
-        setTimeout(() => {
-          if (this.pending.has(id)) {
+    return this.connect().then(
+      () =>
+        new Promise((resolve, reject) => {
+          const id = this.reqId++;
+          const payload = { ...req, req_id: id };
+          this.pending.set(id, resolve as PendingResolver);
+          try {
+            this.ws!.send(JSON.stringify(payload));
+            setTimeout(() => {
+              if (this.pending.has(id)) {
+                this.pending.delete(id);
+                reject(new Error("Deriv request timeout"));
+              }
+            }, 15000);
+          } catch (e) {
             this.pending.delete(id);
-            reject(new Error("Deriv request timeout"));
+            reject(e);
           }
-        }, 15000);
-      } catch (e) { this.pending.delete(id); reject(e); }
-    }));
+        }),
+    );
   }
 
   async getCandles(symbol: string, tf: TF, count = 250): Promise<Candle[]> {
@@ -237,8 +275,8 @@ class DerivClient {
     if (!scopes.includes("trade") && !scopes.includes("admin")) {
       throw new Error(
         "This Deriv API token does NOT have the Trade scope. " +
-        "Create a new token at app.deriv.com → API token with Read + Trade enabled, " +
-        "then re-add the account here."
+          "Create a new token at app.deriv.com → API token with Read + Trade enabled, " +
+          "then re-add the account here.",
       );
     }
   }
@@ -258,14 +296,22 @@ class DerivClient {
   }
 
   async buyContract(opts: {
-    token: string; symbol: string;
+    token: string;
+    symbol: string;
     direction: "CALL" | "PUT";
-    amount: number; duration: number;
+    amount: number;
+    duration: number;
   }): Promise<{ contract_id: number | string; buy_price: number }> {
     await this.assertTradeScope(opts.token);
     const proposal = await this.send<any>({
-      proposal: 1, amount: opts.amount, basis: "stake", contract_type: opts.direction,
-      currency: "USD", duration: opts.duration, duration_unit: "s", symbol: opts.symbol,
+      proposal: 1,
+      amount: opts.amount,
+      basis: "stake",
+      contract_type: opts.direction,
+      currency: "USD",
+      duration: opts.duration,
+      duration_unit: "s",
+      symbol: opts.symbol,
     });
     if (proposal.error) throw new Error(proposal.error.message);
     const id = proposal.proposal.id;

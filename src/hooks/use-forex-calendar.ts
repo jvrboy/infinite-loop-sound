@@ -10,8 +10,8 @@ export interface FFEvent {
   country: string;
   currency: string;
   impact: "High" | "Medium" | "Low" | "Holiday";
-  date: string;         // ISO UTC (or raw fallback)
-  sast: string;         // formatted in Africa/Johannesburg
+  date: string; // ISO UTC (or raw fallback)
+  sast: string; // formatted in Africa/Johannesburg
   forecast: string;
   previous: string;
   actual: string;

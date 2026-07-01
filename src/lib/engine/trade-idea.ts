@@ -17,12 +17,12 @@ export interface TradeIdea {
   symbol: string;
   tf: TF;
   side: "BUY" | "SELL" | "WAIT";
-  confidence: number;        // 0..100
+  confidence: number; // 0..100
   entry: number;
   stopLoss: number;
   takeProfit: number;
-  riskReward: number;        // (TP-entry) / (entry-SL), absolute
-  rationale: string[];       // bullet list of confluence reasons
+  riskReward: number; // (TP-entry) / (entry-SL), absolute
+  rationale: string[]; // bullet list of confluence reasons
   warnings: string[];
   generatedAt: number;
 }
@@ -34,9 +34,16 @@ export function generateTradeIdea(symbol: string, tf: TF, candles: Candle[]): Tr
 
   if (candles.length < 50) {
     return {
-      symbol, tf, side: "WAIT", confidence: 0,
-      entry: 0, stopLoss: 0, takeProfit: 0, riskReward: 0,
-      rationale: ["insufficient candles"], warnings: ["need ≥ 50 candles"],
+      symbol,
+      tf,
+      side: "WAIT",
+      confidence: 0,
+      entry: 0,
+      stopLoss: 0,
+      takeProfit: 0,
+      riskReward: 0,
+      rationale: ["insufficient candles"],
+      warnings: ["need ≥ 50 candles"],
       generatedAt: now,
     };
   }
@@ -54,11 +61,15 @@ export function generateTradeIdea(symbol: string, tf: TF, candles: Candle[]): Tr
   if (a.direction === "BUY" && a.scorePct >= 60) side = "BUY";
   else if (a.direction === "SELL" && a.scorePct >= 60) side = "SELL";
 
-  rationale.push(`Confluence engine: ${a.rating} (${a.scorePct.toFixed(1)}%) → ${a.direction ?? "NEUTRAL"}`);
+  rationale.push(
+    `Confluence engine: ${a.rating} (${a.scorePct.toFixed(1)}%) → ${a.direction ?? "NEUTRAL"}`,
+  );
 
   // Detector boosts
   if (det.spike.latest && det.spike.latest.index >= candles.length - 3) {
-    rationale.push(`Recent ${det.spike.latest.kind} spike (z=${det.spike.latest.zScore.toFixed(2)})`);
+    rationale.push(
+      `Recent ${det.spike.latest.kind} spike (z=${det.spike.latest.zScore.toFixed(2)})`,
+    );
     confidence = Math.min(100, confidence + 5);
   }
   if (det.liquiditySweeps.latest && det.liquiditySweeps.latest.index >= candles.length - 3) {
@@ -70,7 +81,9 @@ export function generateTradeIdea(symbol: string, tf: TF, candles: Candle[]): Tr
   }
   if (det.rangeBreaks.latest && det.rangeBreaks.latest.index >= candles.length - 2) {
     const rb = det.rangeBreaks.latest;
-    rationale.push(`Range break ${rb.direction} (${rb.expansionAtrMult.toFixed(2)}× ATR expansion)`);
+    rationale.push(
+      `Range break ${rb.direction} (${rb.expansionAtrMult.toFixed(2)}× ATR expansion)`,
+    );
     side = rb.direction === "up" ? "BUY" : "SELL";
     confidence = Math.min(100, confidence + 6);
   }
@@ -103,10 +116,16 @@ export function generateTradeIdea(symbol: string, tf: TF, candles: Candle[]): Tr
   if (atrVal === 0) warnings.push("ATR unavailable — SL/TP sized off price");
 
   return {
-    symbol, tf, side,
+    symbol,
+    tf,
+    side,
     confidence: Math.round(confidence),
-    entry, stopLoss, takeProfit, riskReward: rr,
-    rationale, warnings,
+    entry,
+    stopLoss,
+    takeProfit,
+    riskReward: rr,
+    rationale,
+    warnings,
     generatedAt: now,
   };
 }

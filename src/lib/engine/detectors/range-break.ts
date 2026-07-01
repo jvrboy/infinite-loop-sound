@@ -50,7 +50,8 @@ export function detectRangeBreaks(
     const a = atrVals[i] ?? 0;
     if (a <= 0) continue;
     const window = candles.slice(i - minBars, i);
-    let hi = -Infinity, lo = Infinity;
+    let hi = -Infinity,
+      lo = Infinity;
     for (const c of window) {
       if (c.high > hi) hi = c.high;
       if (c.low < lo) lo = c.low;

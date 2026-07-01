@@ -10,7 +10,10 @@ export const Route = createFileRoute("/api/keepalive/zo")({
           const result = await receiveZoPing({ data: body });
           return Response.json(result);
         } catch (e: any) {
-          return Response.json({ success: false, error: e?.message || "Keepalive failed" }, { status: 500 });
+          return Response.json(
+            { success: false, error: e?.message || "Keepalive failed" },
+            { status: 500 },
+          );
         }
       },
       GET: async () => Response.json({ status: "alive", service: "divergenceiq-keepalive" }),

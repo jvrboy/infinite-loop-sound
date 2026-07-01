@@ -66,12 +66,15 @@ function NeuralPage() {
           // simple ensemble: weighted average favouring higher TFs
           const weights = { M5: 1, M15: 1.5, H1: 2 } as Record<TF, number>;
           const totalW = perTf.reduce((a, p) => a + weights[p.tf], 0) || 1;
-          const combinedScore =
-            perTf.reduce((a, p) => a + p.score * weights[p.tf], 0) / totalW;
+          const combinedScore = perTf.reduce((a, p) => a + p.score * weights[p.tf], 0) / totalW;
 
           // direction: vote-weighted majority
-          const buyW = perTf.filter((p) => p.direction === "BUY").reduce((a, p) => a + weights[p.tf], 0);
-          const sellW = perTf.filter((p) => p.direction === "SELL").reduce((a, p) => a + weights[p.tf], 0);
+          const buyW = perTf
+            .filter((p) => p.direction === "BUY")
+            .reduce((a, p) => a + weights[p.tf], 0);
+          const sellW = perTf
+            .filter((p) => p.direction === "SELL")
+            .reduce((a, p) => a + weights[p.tf], 0);
           const combinedDirection: "BUY" | "SELL" | null =
             buyW === sellW ? null : buyW > sellW ? "BUY" : "SELL";
 
@@ -130,7 +133,7 @@ function NeuralPage() {
 
     let raf = 0;
     let time = 0;
-    let burstT = 1;        // 1 = fresh burst, decays to 0
+    let burstT = 1; // 1 = fresh burst, decays to 0
     const nodes: Array<{ x: number; y: number; layer: number; activation: number }> = [];
     const layers = [11, 8, 6, 1];
     const layerX = [80, 220, 360, 500];
@@ -209,11 +212,14 @@ function NeuralPage() {
               Neural Confluence Engine
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Multi-TF ensemble (M5/M15/H1) on live Deriv candles. Refresh every {REFRESH_MS / 1000}s.
+              Multi-TF ensemble (M5/M15/H1) on live Deriv candles. Refresh every {REFRESH_MS / 1000}
+              s.
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/30">
-            <Activity className={`w-3.5 h-3.5 text-sky-400 ${predictions.length ? "animate-pulse" : "opacity-30"}`} />
+            <Activity
+              className={`w-3.5 h-3.5 text-sky-400 ${predictions.length ? "animate-pulse" : "opacity-30"}`}
+            />
             <span className="text-xs font-mono text-sky-400">
               {predictions.length ? `${predictions.length} PAIRS · burst ${pulse}` : "CONNECTING…"}
             </span>
@@ -226,7 +232,11 @@ function NeuralPage() {
               <h3 className="font-semibold text-sm flex items-center gap-2">
                 <Zap className="w-4 h-4 text-amber-400" /> Network · live activations
               </h3>
-              <Button size="sm" variant={training ? "default" : "outline"} onClick={() => setTraining((t) => !t)}>
+              <Button
+                size="sm"
+                variant={training ? "default" : "outline"}
+                onClick={() => setTraining((t) => !t)}
+              >
                 <RefreshCw className={`w-3.5 h-3.5 mr-1 ${training ? "animate-spin" : ""}`} />
                 {training ? "Training…" : "Idle"}
               </Button>
@@ -313,8 +323,8 @@ function NeuralPage() {
             </div>
             {predictions.length > 0 && (
               <p className="text-[10px] text-muted-foreground mt-3 text-center">
-                Avg ensemble: <span className="font-mono">{meanConf}%</span> · {WATCH.length} pairs ×{" "}
-                {TFS.length} TFs
+                Avg ensemble: <span className="font-mono">{meanConf}%</span> · {WATCH.length} pairs
+                × {TFS.length} TFs
               </p>
             )}
           </div>
@@ -331,7 +341,9 @@ function NeuralPage() {
                 <div
                   key={i}
                   className={`flex items-center justify-between p-2 rounded ${
-                    it.passed ? "bg-bull/10 border border-bull/30" : "bg-muted/30 border border-border"
+                    it.passed
+                      ? "bg-bull/10 border border-bull/30"
+                      : "bg-muted/30 border border-border"
                   }`}
                 >
                   <span className="text-xs">{it.label}</span>

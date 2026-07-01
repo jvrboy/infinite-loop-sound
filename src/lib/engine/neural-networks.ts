@@ -105,7 +105,7 @@ function zeros2D(rows: number, cols: number): number[][] {
 function xavierMatrix(rows: number, cols: number): number[][] {
   const scale = xavierScale(cols, rows);
   return Array.from({ length: rows }, () =>
-    Array.from({ length: cols }, () => (Math.random() * 2 - 1) * scale)
+    Array.from({ length: cols }, () => (Math.random() * 2 - 1) * scale),
   );
 }
 
@@ -135,30 +135,30 @@ function saveJSON(key: string, data: unknown): void {
 
 /** 24 feature names for the LSTM network input */
 const LSTM_FEATURE_NAMES: string[] = [
-  "return_1",      // 0  — 1-bar return
-  "return_3",      // 1  — 3-bar cumulative return
-  "return_5",      // 2  — 5-bar cumulative return
-  "return_10",     // 3  — 10-bar cumulative return
-  "return_20",     // 4  — 20-bar cumulative return
-  "rsi_14",        // 5  — RSI(14) normalised to 0-1
-  "momentum",      // 6  — (close - close[10]) / close[10]
-  "volatility",    // 7  — rolling std of returns normalised
-  "atr_ratio",     // 8  — current ATR / 20-period avg ATR
-  "bb_position",   // 9  — position within Bollinger Bands 0-1
-  "ema8_slope",    // 10 — slope of 8-EMA
-  "ema21_slope",   // 11 — slope of 21-EMA
-  "ema50_slope",   // 12 — slope of 50-EMA
-  "macd_signal",   // 13 — MACD histogram value
-  "stoch_k",       // 14 — Stochastic %K
-  "stoch_d",       // 15 — Stochastic %D
-  "session",       // 16 — binary: 1=day, 0=night
-  "day_of_week",   // 17 — 0-6 (Mon-Sun) normalised
-  "hour_of_day",   // 18 — 0-23 normalised to 0-1
+  "return_1", // 0  — 1-bar return
+  "return_3", // 1  — 3-bar cumulative return
+  "return_5", // 2  — 5-bar cumulative return
+  "return_10", // 3  — 10-bar cumulative return
+  "return_20", // 4  — 20-bar cumulative return
+  "rsi_14", // 5  — RSI(14) normalised to 0-1
+  "momentum", // 6  — (close - close[10]) / close[10]
+  "volatility", // 7  — rolling std of returns normalised
+  "atr_ratio", // 8  — current ATR / 20-period avg ATR
+  "bb_position", // 9  — position within Bollinger Bands 0-1
+  "ema8_slope", // 10 — slope of 8-EMA
+  "ema21_slope", // 11 — slope of 21-EMA
+  "ema50_slope", // 12 — slope of 50-EMA
+  "macd_signal", // 13 — MACD histogram value
+  "stoch_k", // 14 — Stochastic %K
+  "stoch_d", // 15 — Stochastic %D
+  "session", // 16 — binary: 1=day, 0=night
+  "day_of_week", // 17 — 0-6 (Mon-Sun) normalised
+  "hour_of_day", // 18 — 0-23 normalised to 0-1
   "trend_consist", // 19 — fraction of up-bars in last 20
-  "mean_revert",   // 20 — deviation from 20-SMA normalised
-  "skewness",      // 21 — return skewness
-  "kurtosis",      // 22 — excess kurtosis of returns
-  "noise",         // 23 — small random noise for regularisation
+  "mean_revert", // 20 — deviation from 20-SMA normalised
+  "skewness", // 21 — return skewness
+  "kurtosis", // 22 — excess kurtosis of returns
+  "noise", // 23 — small random noise for regularisation
 ];
 
 /** 12 feature names for the multi-asset per-asset vector */
@@ -206,11 +206,17 @@ export class EnhancedLSTMNeuralNetwork {
   private Ui: number[][]; // [hiddenSize x hiddenSize]
   private bi: number[];
   // Forget gate
-  private Wf: number[][]; private Uf: number[][]; private bf: number[];
+  private Wf: number[][];
+  private Uf: number[][];
+  private bf: number[];
   // Output gate
-  private Wo: number[][]; private Uo: number[][]; private bo: number[];
+  private Wo: number[][];
+  private Uo: number[][];
+  private bo: number[];
   // Cell candidate
-  private Wc: number[][]; private Uc: number[][]; private bc: number[];
+  private Wc: number[][];
+  private Uc: number[][];
+  private bc: number[];
 
   // ── Dense output layer ──
   private Wout: number[][]; // [outputSize x hiddenSize]
@@ -226,7 +232,10 @@ export class EnhancedLSTMNeuralNetwork {
     cellState: number[];
     hiddenState: number[];
     gates: {
-      i: number[]; f: number[]; o: number[]; cCandidate: number[];
+      i: number[];
+      f: number[];
+      o: number[];
+      cCandidate: number[];
       cNew: number[];
     };
     output: number[];
@@ -251,31 +260,31 @@ export class EnhancedLSTMNeuralNetwork {
     // Initialise all gate weights with Xavier
     this.Wi = xavierMatrix(this.HIDDEN_SIZE, this.INPUT_SIZE);
     this.Ui = Array.from({ length: this.HIDDEN_SIZE }, () =>
-      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden)
+      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden),
     );
     this.bi = new Array(this.HIDDEN_SIZE).fill(0);
 
     this.Wf = xavierMatrix(this.HIDDEN_SIZE, this.INPUT_SIZE);
     this.Uf = Array.from({ length: this.HIDDEN_SIZE }, () =>
-      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden)
+      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden),
     );
     this.bf = new Array(this.HIDDEN_SIZE).fill(0);
 
     this.Wo = xavierMatrix(this.HIDDEN_SIZE, this.INPUT_SIZE);
     this.Uo = Array.from({ length: this.HIDDEN_SIZE }, () =>
-      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden)
+      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden),
     );
     this.bo = new Array(this.HIDDEN_SIZE).fill(0);
 
     this.Wc = xavierMatrix(this.HIDDEN_SIZE, this.INPUT_SIZE);
     this.Uc = Array.from({ length: this.HIDDEN_SIZE }, () =>
-      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden)
+      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sHidden),
     );
     this.bc = new Array(this.HIDDEN_SIZE).fill(0);
 
     // Dense output layer
     this.Wout = Array.from({ length: this.OUTPUT_SIZE }, () =>
-      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sOutput)
+      Array.from({ length: this.HIDDEN_SIZE }, () => (Math.random() * 2 - 1) * sOutput),
     );
     this.bout = new Array(this.OUTPUT_SIZE).fill(0);
 
@@ -455,20 +464,29 @@ export class EnhancedLSTMNeuralNetwork {
 
     // Accumulated weight gradients (zeroed)
     // Gate weight grads
-    const dWi = zeros2D(H, I), dUi = zeros2D(H, H), dbi = new Array(H).fill(0);
-    const dWf = zeros2D(H, I), dUf = zeros2D(H, H), dbf = new Array(H).fill(0);
-    const dWo = zeros2D(H, I), dUo = zeros2D(H, H), dbo = new Array(H).fill(0);
-    const dWc = zeros2D(H, I), dUc = zeros2D(H, H), dbc = new Array(H).fill(0);
+    const dWi = zeros2D(H, I),
+      dUi = zeros2D(H, H),
+      dbi = new Array(H).fill(0);
+    const dWf = zeros2D(H, I),
+      dUf = zeros2D(H, H),
+      dbf = new Array(H).fill(0);
+    const dWo = zeros2D(H, I),
+      dUo = zeros2D(H, H),
+      dbo = new Array(H).fill(0);
+    const dWc = zeros2D(H, I),
+      dUc = zeros2D(H, H),
+      dbc = new Array(H).fill(0);
     // Output layer grads
-    const dWout = zeros2D(O, H), dbout = new Array(O).fill(0);
+    const dWout = zeros2D(O, H),
+      dbout = new Array(O).fill(0);
 
     // Running loss
     let totalLoss = 0;
 
     // BPTT: walk backwards through time
     // dh_next and dc_next are the gradients flowing from future timestep
-    let dhNext = new Array(H).fill(0);
-    let dcNext = new Array(H).fill(0);
+    const dhNext = new Array(H).fill(0);
+    const dcNext = new Array(H).fill(0);
 
     for (let t = T - 1; t >= 0; t--) {
       const step = this.bpttBuffer[t];
@@ -553,8 +571,8 @@ export class EnhancedLSTMNeuralNetwork {
         // Gradients flowing to previous timestep
         dhNext[j] = 0;
         for (let k = 0; k < H; k++) {
-          dhNext[j] += this.Wf[j][k] * df + this.Wi[j][k] * di
-                     + this.Wc[j][k] * dcTilde + this.Wo[j][k] * dO;
+          dhNext[j] +=
+            this.Wf[j][k] * df + this.Wi[j][k] * di + this.Wc[j][k] * dcTilde + this.Wo[j][k] * dO;
         }
         dhNext[j] = clipGrad(dhNext[j]);
 
@@ -565,9 +583,12 @@ export class EnhancedLSTMNeuralNetwork {
     // ── Apply accumulated gradients (SGD) ──
     // Gate weights
     const applyGateGrad = (
-      W: number[][], dW: number[][],
-      U: number[][], dU: number[][],
-      b: number[], db: number[]
+      W: number[][],
+      dW: number[][],
+      U: number[][],
+      dU: number[][],
+      b: number[],
+      db: number[],
     ) => {
       for (let j = 0; j < H; j++) {
         for (let k = 0; k < I; k++) W[j][k] += effectiveLR * clipGrad(dW[j][k] / T);
@@ -669,11 +690,20 @@ export class EnhancedLSTMNeuralNetwork {
 
   save(): void {
     saveJSON("diq_lstm_nn", {
-      Wi: this.Wi, Ui: this.Ui, bi: this.bi,
-      Wf: this.Wf, Uf: this.Uf, bf: this.bf,
-      Wo: this.Wo, Uo: this.Uo, bo: this.bo,
-      Wc: this.Wc, Uc: this.Uc, bc: this.bc,
-      Wout: this.Wout, bout: this.bout,
+      Wi: this.Wi,
+      Ui: this.Ui,
+      bi: this.bi,
+      Wf: this.Wf,
+      Uf: this.Uf,
+      bf: this.bf,
+      Wo: this.Wo,
+      Uo: this.Uo,
+      bo: this.bo,
+      Wc: this.Wc,
+      Uc: this.Uc,
+      bc: this.bc,
+      Wout: this.Wout,
+      bout: this.bout,
       version: this.version,
       totalTraining: this.totalTraining,
       learningRate: this.learningRate,
@@ -690,16 +720,26 @@ export class EnhancedLSTMNeuralNetwork {
       const Wi = data.Wi as number[][];
       if (Wi?.length !== this.HIDDEN_SIZE || Wi[0]?.length !== this.INPUT_SIZE) return;
 
-      this.Wi = Wi;    this.Ui = data.Ui as number[][];   this.bi = data.bi as number[];
-      this.Wf = data.Wf as number[][]; this.Uf = data.Uf as number[][]; this.bf = data.bf as number[];
-      this.Wo = data.Wo as number[][]; this.Uo = data.Uo as number[][]; this.bo = data.bo as number[];
-      this.Wc = data.Wc as number[][]; this.Uc = data.Uc as number[][]; this.bc = data.bc as number[];
-      this.Wout = data.Wout as number[][]; this.bout = data.bout as number[];
+      this.Wi = Wi;
+      this.Ui = data.Ui as number[][];
+      this.bi = data.bi as number[];
+      this.Wf = data.Wf as number[][];
+      this.Uf = data.Uf as number[][];
+      this.bf = data.bf as number[];
+      this.Wo = data.Wo as number[][];
+      this.Uo = data.Uo as number[][];
+      this.bo = data.bo as number[];
+      this.Wc = data.Wc as number[][];
+      this.Uc = data.Uc as number[][];
+      this.bc = data.bc as number[];
+      this.Wout = data.Wout as number[][];
+      this.bout = data.bout as number[];
       this.version = (data.version as number) ?? 0;
       this.totalTraining = (data.totalTraining as number) ?? 0;
       this.learningRate = (data.learningRate as number) ?? 0.003;
       this.lastTrained = (data.lastTrained as number) ?? 0;
-      this.trainingHistory = (data.trainingHistory as Array<{ predicted: number; actual: number }>) ?? [];
+      this.trainingHistory =
+        (data.trainingHistory as Array<{ predicted: number; actual: number }>) ?? [];
     } catch {
       // Corrupt data — keep defaults
     }
@@ -741,7 +781,10 @@ export class MultiAssetNeuralNetwork {
   private b3: number[];
 
   // ── Correlation tracking ──
-  private correlationAccum: Record<string, Record<string, { xy: number; xx: number; yy: number; count: number }>> = {};
+  private correlationAccum: Record<
+    string,
+    Record<string, { xy: number; xx: number; yy: number; count: number }>
+  > = {};
 
   // ── Training bookkeeping ──
   private totalTraining = 0;
@@ -762,15 +805,15 @@ export class MultiAssetNeuralNetwork {
     const s3 = xavierScale(this.HIDDEN2, this.OUTPUT_SIZE);
 
     this.W1 = Array.from({ length: this.HIDDEN1 }, () =>
-      Array.from({ length: this.INPUT_SIZE }, () => (Math.random() * 2 - 1) * s1)
+      Array.from({ length: this.INPUT_SIZE }, () => (Math.random() * 2 - 1) * s1),
     );
     this.b1 = new Array(this.HIDDEN1).fill(0);
     this.W2 = Array.from({ length: this.HIDDEN2 }, () =>
-      Array.from({ length: this.HIDDEN1 }, () => (Math.random() * 2 - 1) * s2)
+      Array.from({ length: this.HIDDEN1 }, () => (Math.random() * 2 - 1) * s2),
     );
     this.b2 = new Array(this.HIDDEN2).fill(0);
     this.W3 = Array.from({ length: this.OUTPUT_SIZE }, () =>
-      Array.from({ length: this.HIDDEN2 }, () => (Math.random() * 2 - 1) * s3)
+      Array.from({ length: this.HIDDEN2 }, () => (Math.random() * 2 - 1) * s3),
     );
     this.b3 = new Array(this.OUTPUT_SIZE).fill(0);
 
@@ -863,7 +906,10 @@ export class MultiAssetNeuralNetwork {
 
     // Derive feature importance from input→hidden1 weights and hidden activations
     const features: NNFeatureImportance[] = [];
-    const allPairs = [primaryPair, ...Array.from(assetFeatures.keys()).filter(p => p !== primaryPair)];
+    const allPairs = [
+      primaryPair,
+      ...Array.from(assetFeatures.keys()).filter((p) => p !== primaryPair),
+    ];
 
     for (let a = 0; a < Math.min(allPairs.length, this.NUM_ASSETS); a++) {
       const pair = allPairs[a] ?? `asset_${a}`;
@@ -912,7 +958,8 @@ export class MultiAssetNeuralNetwork {
         const valB = (assetFeatures.get(pairB)?.[0] ?? 0) * (outcome > 0.5 ? 1 : -1);
 
         if (!this.correlationAccum[pairA]) this.correlationAccum[pairA] = {};
-        if (!this.correlationAccum[pairA][pairB]) this.correlationAccum[pairA][pairB] = { xy: 0, xx: 0, yy: 0, count: 0 };
+        if (!this.correlationAccum[pairA][pairB])
+          this.correlationAccum[pairA][pairB] = { xy: 0, xx: 0, yy: 0, count: 0 };
 
         const acc = this.correlationAccum[pairA][pairB];
         acc.xy += valA * valB;
@@ -932,7 +979,11 @@ export class MultiAssetNeuralNetwork {
    * @param primaryPair   — The pair being predicted
    * @param outcome       — 0 (bearish) or 1 (bullish)
    */
-  train(assetFeatures: Map<string, number[]>, primaryPair: string, outcome: number): { loss: number } {
+  train(
+    assetFeatures: Map<string, number[]>,
+    primaryPair: string,
+    outcome: number,
+  ): { loss: number } {
     const input = this.buildInput(assetFeatures, primaryPair);
     const { output, h1, h2 } = this.forward(input);
 
@@ -1071,9 +1122,12 @@ export class MultiAssetNeuralNetwork {
 
   save(): void {
     saveJSON("diq_multiasset_nn", {
-      W1: this.W1, b1: this.b1,
-      W2: this.W2, b2: this.b2,
-      W3: this.W3, b3: this.b3,
+      W1: this.W1,
+      b1: this.b1,
+      W2: this.W2,
+      b2: this.b2,
+      W3: this.W3,
+      b3: this.b3,
       version: this.version,
       totalTraining: this.totalTraining,
       learningRate: this.learningRate,
@@ -1090,15 +1144,23 @@ export class MultiAssetNeuralNetwork {
       const W1 = data.W1 as number[][];
       if (W1?.length !== this.HIDDEN1 || W1[0]?.length !== this.INPUT_SIZE) return;
 
-      this.W1 = W1; this.b1 = data.b1 as number[];
-      this.W2 = data.W2 as number[][]; this.b2 = data.b2 as number[];
-      this.W3 = data.W3 as number[][]; this.b3 = data.b3 as number[];
+      this.W1 = W1;
+      this.b1 = data.b1 as number[];
+      this.W2 = data.W2 as number[][];
+      this.b2 = data.b2 as number[];
+      this.W3 = data.W3 as number[][];
+      this.b3 = data.b3 as number[];
       this.version = (data.version as number) ?? 0;
       this.totalTraining = (data.totalTraining as number) ?? 0;
       this.learningRate = (data.learningRate as number) ?? 0.004;
       this.lastTrained = (data.lastTrained as number) ?? 0;
-      this.trainingHistory = (data.trainingHistory as Array<{ predicted: number; actual: number }>) ?? [];
-      this.correlationAccum = (data.correlationAccum as Record<string, Record<string, { xy: number; xx: number; yy: number; count: number }>>) ?? this.correlationAccum;
+      this.trainingHistory =
+        (data.trainingHistory as Array<{ predicted: number; actual: number }>) ?? [];
+      this.correlationAccum =
+        (data.correlationAccum as Record<
+          string,
+          Record<string, { xy: number; xx: number; yy: number; count: number }>
+        >) ?? this.correlationAccum;
     } catch {
       // Corrupt data — keep defaults
     }
@@ -1349,7 +1411,7 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
   // Default fallback if not enough data
   if (candles.length < 5) return new Array(24).fill(0.5);
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const n = close.length;
   const last = n - 1;
 
@@ -1358,7 +1420,7 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
     if (last < lookback) return 0;
     return (close[last] - close[last - lookback]) / (close[last - lookback] || 1);
   };
-  const return1 = Math.tanh(safeReturn(1) * 50);       // amplified & bounded
+  const return1 = Math.tanh(safeReturn(1) * 50); // amplified & bounded
   const return3 = Math.tanh(safeReturn(3) * 25);
   const return5 = Math.tanh(safeReturn(5) * 15);
   const return10 = Math.tanh(safeReturn(10) * 8);
@@ -1369,9 +1431,8 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
   const rsiVal = (rsiValues[last] ?? 50) / 100; // normalise to 0-1
 
   // ── Momentum (index 6) ──
-  const momentum = last >= 10
-    ? Math.tanh(((close[last] - close[last - 10]) / (close[last - 10] || 1)) * 20)
-    : 0;
+  const momentum =
+    last >= 10 ? Math.tanh(((close[last] - close[last - 10]) / (close[last - 10] || 1)) * 20) : 0;
 
   // ── Volatility (index 7) ──
   const returns: number[] = [];
@@ -1382,7 +1443,7 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
   const recentReturns = returns.slice(-volLookback);
   const meanReturn = recentReturns.reduce((a, b) => a + b, 0) / volLookback;
   const returnStd = Math.sqrt(
-    recentReturns.reduce((a, r) => a + (r - meanReturn) ** 2, 0) / volLookback
+    recentReturns.reduce((a, r) => a + (r - meanReturn) ** 2, 0) / volLookback,
   );
   const volatility = Math.min(1, returnStd * 100); // normalise
 
@@ -1395,7 +1456,10 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
   const atrLookback = Math.min(20, last + 1);
   for (let i = n - atrLookback; i < n; i++) {
     const a = atrValues[i];
-    if (a != null && a > 0) { atrSum += a; atrCount++; }
+    if (a != null && a > 0) {
+      atrSum += a;
+      atrCount++;
+    }
   }
   const avgATR = atrCount > 0 ? atrSum / atrCount : 1;
   const atrRatio = avgATR > 0 ? Math.min(2, currentATR / avgATR) / 2 : 0.5;
@@ -1405,9 +1469,8 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
   const bbUpper = bb.upper[last] ?? close[last] * 1.01;
   const bbLower = bb.lower[last] ?? close[last] * 0.99;
   const bbRange = bbUpper - bbLower;
-  const bbPosition = bbRange > 0
-    ? Math.max(0, Math.min(1, (close[last] - bbLower) / bbRange))
-    : 0.5;
+  const bbPosition =
+    bbRange > 0 ? Math.max(0, Math.min(1, (close[last] - bbLower) / bbRange)) : 0.5;
 
   // ── EMA slopes (indices 10-12) ──
   const computeEMASlope = (period: number): number => {
@@ -1428,13 +1491,13 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
 
   // ── Stochastic %K and %D (indices 14-15) ──
   const stochVals = stoch(candles, 14, 3, 3);
-  const stochK = ((stochVals.k[last] ?? 50) / 100); // 0-1
-  const stochD = ((stochVals.d[last] ?? 50) / 100); // 0-1
+  const stochK = (stochVals.k[last] ?? 50) / 100; // 0-1
+  const stochD = (stochVals.d[last] ?? 50) / 100; // 0-1
 
   // ── Session binary (index 16) ──
   const lastEpoch = candles[last].epoch;
   const hourUTC = new Date(lastEpoch * 1000).getUTCHours();
-  const session = (hourUTC >= 6 && hourUTC < 20) ? 1 : 0;
+  const session = hourUTC >= 6 && hourUTC < 20 ? 1 : 0;
 
   // ── Day of week (index 17) ──
   const dayOfWeek = new Date(lastEpoch * 1000).getUTCDay() / 6; // 0-1
@@ -1459,39 +1522,45 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
   const skewLookback = Math.min(30, returns.length);
   const skewReturns = returns.slice(-skewLookback);
   const skewMean = skewReturns.reduce((a, b) => a + b, 0) / skewLookback;
-  const skewStd = Math.sqrt(
-    skewReturns.reduce((a, r) => a + (r - skewMean) ** 2, 0) / skewLookback
-  ) || 0.001;
+  const skewStd =
+    Math.sqrt(skewReturns.reduce((a, r) => a + (r - skewMean) ** 2, 0) / skewLookback) || 0.001;
   const skewness = Math.tanh(
-    (skewReturns.reduce((a, r) => a + ((r - skewMean) / skewStd) ** 3, 0) / skewLookback) / 3
+    skewReturns.reduce((a, r) => a + ((r - skewMean) / skewStd) ** 3, 0) / skewLookback / 3,
   );
 
   // ── Kurtosis (index 22) ──
   const kurtosis = Math.tanh(
-    (skewReturns.reduce((a, r) => a + ((r - skewMean) / skewStd) ** 4, 0) / skewLookback - 3) / 10
+    (skewReturns.reduce((a, r) => a + ((r - skewMean) / skewStd) ** 4, 0) / skewLookback - 3) / 10,
   );
 
   // ── Noise (index 23) ──
   const noise = (Math.random() - 0.5) * 0.1; // small regularisation noise
 
   return [
-    return1, return3, return5, return10, return20, // 0-4
-    rsiVal,                                        // 5
-    momentum,                                      // 6
-    volatility,                                    // 7
-    atrRatio,                                      // 8
-    bbPosition,                                    // 9
-    ema8Slope, ema21Slope, ema50Slope,            // 10-12
-    macdSignal,                                    // 13
-    stochK, stochD,                               // 14-15
-    session,                                       // 16
-    dayOfWeek,                                     // 17
-    hourOfDay,                                     // 18
-    trendConsistency,                              // 19
-    meanRevert,                                    // 20
-    skewness,                                      // 21
-    kurtosis,                                      // 22
-    noise,                                         // 23
+    return1,
+    return3,
+    return5,
+    return10,
+    return20, // 0-4
+    rsiVal, // 5
+    momentum, // 6
+    volatility, // 7
+    atrRatio, // 8
+    bbPosition, // 9
+    ema8Slope,
+    ema21Slope,
+    ema50Slope, // 10-12
+    macdSignal, // 13
+    stochK,
+    stochD, // 14-15
+    session, // 16
+    dayOfWeek, // 17
+    hourOfDay, // 18
+    trendConsistency, // 19
+    meanRevert, // 20
+    skewness, // 21
+    kurtosis, // 22
+    noise, // 23
   ];
 }
 
@@ -1513,7 +1582,7 @@ export function extractMarketFeatures(candles: Candle[]): number[] {
 export function extractMultiAssetFeatures(candles: Candle[]): number[] {
   if (candles.length < 5) return new Array(12).fill(0.5);
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const n = close.length;
   const last = n - 1;
 
@@ -1531,9 +1600,8 @@ export function extractMultiAssetFeatures(candles: Candle[]): number[] {
   const rsiVal = (rsiValues[last] ?? 50) / 100;
 
   // ── Momentum (4) ──
-  const momentum = last >= 10
-    ? Math.tanh(((close[last] - close[last - 10]) / (close[last - 10] || 1)) * 20)
-    : 0;
+  const momentum =
+    last >= 10 ? Math.tanh(((close[last] - close[last - 10]) / (close[last - 10] || 1)) * 20) : 0;
 
   // ── Volatility (5) ──
   const returns: number[] = [];
@@ -1547,7 +1615,7 @@ export function extractMultiAssetFeatures(candles: Candle[]): number[] {
   // ── Trend (6) — SMA5 vs SMA20 direction ──
   const sma5 = close.slice(-5).reduce((a, b) => a + b, 0) / Math.min(5, n);
   const sma20 = close.slice(-20).reduce((a, b) => a + b, 0) / Math.min(20, n);
-  const trend = sma20 > 0 ? Math.tanh((sma5 - sma20) / sma20 * 50) : 0;
+  const trend = sma20 > 0 ? Math.tanh(((sma5 - sma20) / sma20) * 50) : 0;
 
   // ── Volume ratio (7) ──
   let volumeRatio = 0.5;
@@ -1562,18 +1630,21 @@ export function extractMultiAssetFeatures(candles: Candle[]): number[] {
   const bbUpper = bb.upper[last] ?? close[last] * 1.01;
   const bbLower = bb.lower[last] ?? close[last] * 0.99;
   const bbRange = bbUpper - bbLower;
-  const bbPosition = bbRange > 0
-    ? Math.max(0, Math.min(1, (close[last] - bbLower) / bbRange))
-    : 0.5;
+  const bbPosition =
+    bbRange > 0 ? Math.max(0, Math.min(1, (close[last] - bbLower) / bbRange)) : 0.5;
 
   // ── ATR ratio (9) ──
   const atrValues = atr(candles, 14);
   const currentATR = atrValues[last] ?? 0;
-  let atrSum = 0, atrCount = 0;
+  let atrSum = 0,
+    atrCount = 0;
   const atrLookback = Math.min(20, last + 1);
   for (let i = n - atrLookback; i < n; i++) {
     const a = atrValues[i];
-    if (a != null && a > 0) { atrSum += a; atrCount++; }
+    if (a != null && a > 0) {
+      atrSum += a;
+      atrCount++;
+    }
   }
   const avgATR = atrCount > 0 ? atrSum / atrCount : 1;
   const atrRatio = avgATR > 0 ? Math.min(1, currentATR / avgATR / 2) : 0.5;
@@ -1586,16 +1657,18 @@ export function extractMultiAssetFeatures(candles: Candle[]): number[] {
   const noise = (Math.random() - 0.5) * 0.1;
 
   return [
-    return1, return5, return20,  // 0-2
-    rsiVal,                      // 3
-    momentum,                    // 4
-    volatility,                  // 5
-    trend,                       // 6
-    volumeRatio,                 // 7
-    bbPosition,                  // 8
-    atrRatio,                    // 9
-    stochK,                      // 10
-    noise,                       // 11
+    return1,
+    return5,
+    return20, // 0-2
+    rsiVal, // 3
+    momentum, // 4
+    volatility, // 5
+    trend, // 6
+    volumeRatio, // 7
+    bbPosition, // 8
+    atrRatio, // 9
+    stochK, // 10
+    noise, // 11
   ];
 }
 
@@ -1619,7 +1692,7 @@ export function extractMultiAssetFeatures(candles: Candle[]): number[] {
 export function neuralEnhanceSignal(
   baseSignal: { direction: "BUY" | "SELL"; scorePct: number; pair: string; timeframe: string },
   candles: Candle[],
-  correlatedCandles?: Map<string, Candle[]>
+  correlatedCandles?: Map<string, Candle[]>,
 ): {
   direction: "BUY" | "SELL";
   scorePct: number;
@@ -1631,7 +1704,7 @@ export function neuralEnhanceSignal(
 
   // ── Step 2: Run LSTM prediction ──
   const lstmResult = lstmNetwork.predict(features);
-  const lstmDirection = lstmResult.direction;  // 0-1, >0.5 bullish
+  const lstmDirection = lstmResult.direction; // 0-1, >0.5 bullish
   const lstmConfidence = lstmResult.confidence;
 
   // ── Step 3: Multi-asset prediction (if correlated data available) ──
@@ -1675,7 +1748,8 @@ export function neuralEnhanceSignal(
 
   // If NN strongly disagrees (combined dir on opposite side and confident), flip direction
   let finalDirection = baseSignal.direction;
-  const nnDisagrees = (baseDir === 1 && combinedDir < 0.35) || (baseDir === 0 && combinedDir > 0.65);
+  const nnDisagrees =
+    (baseDir === 1 && combinedDir < 0.35) || (baseDir === 0 && combinedDir > 0.65);
   const nnVeryConfident = combinedConfidence > 0.7;
 
   if (nnDisagrees && nnVeryConfident) {

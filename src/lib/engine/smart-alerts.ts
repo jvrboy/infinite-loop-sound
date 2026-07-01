@@ -41,11 +41,11 @@ export interface AlertCondition {
   timeframe?: string;
   params: Record<string, any>;
   priority: AlertPriority;
-  cooldownMs: number;       // minimum time between repeated triggers
+  cooldownMs: number; // minimum time between repeated triggers
   lastTriggered: number;
   triggerCount: number;
   createdAt: number;
-  expiresAt?: number;       // optional expiry
+  expiresAt?: number; // optional expiry
   sound?: boolean;
   vibrate?: boolean;
 }
@@ -73,7 +73,9 @@ const EVENTS_KEY = "diq.alert-events";
 export function loadAlertConditions(): AlertCondition[] {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -89,7 +91,9 @@ export function saveAlertConditions(conditions: AlertCondition[]): void {
 export function loadAlertEvents(): AlertEvent[] {
   try {
     return JSON.parse(localStorage.getItem(EVENTS_KEY) || "[]");
-  } catch { return []; }
+  } catch {
+    return [];
+  }
 }
 
 /**
@@ -131,18 +135,30 @@ export function createAlertCondition(
 
 function getDefaultDescription(type: AlertType, params: Record<string, any>): string {
   switch (type) {
-    case "price_above": return `Price rises above ${params.threshold}`;
-    case "price_below": return `Price falls below ${params.threshold}`;
-    case "volatility_regime_change": return `Volatility regime changes to ${params.targetRegime || "any"}`;
-    case "confluence_threshold": return `Confluence score exceeds ${params.minScore}%`;
-    case "divergence_detected": return `New ${params.divType || "any"} divergence detected`;
-    case "session_open": return `${params.session || "London"} session opens`;
-    case "session_close": return `${params.session || "London"} session closes`;
-    case "drawdown_limit": return `Drawdown exceeds ${params.maxDrawdownPct}%`;
-    case "streak_alert": return `${params.streakType || "loss"} streak reaches ${params.count}`;
-    case "mtf_agreement": return `${params.minAgreement || 3}+ timeframes agree on direction`;
-    case "correlation_change": return `Correlation regime change detected`;
-    case "custom": return params.description || "Custom alert condition";
+    case "price_above":
+      return `Price rises above ${params.threshold}`;
+    case "price_below":
+      return `Price falls below ${params.threshold}`;
+    case "volatility_regime_change":
+      return `Volatility regime changes to ${params.targetRegime || "any"}`;
+    case "confluence_threshold":
+      return `Confluence score exceeds ${params.minScore}%`;
+    case "divergence_detected":
+      return `New ${params.divType || "any"} divergence detected`;
+    case "session_open":
+      return `${params.session || "London"} session opens`;
+    case "session_close":
+      return `${params.session || "London"} session closes`;
+    case "drawdown_limit":
+      return `Drawdown exceeds ${params.maxDrawdownPct}%`;
+    case "streak_alert":
+      return `${params.streakType || "loss"} streak reaches ${params.count}`;
+    case "mtf_agreement":
+      return `${params.minAgreement || 3}+ timeframes agree on direction`;
+    case "correlation_change":
+      return `Correlation regime change detected`;
+    case "custom":
+      return params.description || "Custom alert condition";
   }
 }
 
@@ -218,7 +234,7 @@ export function evaluateCondition(
     case "divergence_detected":
       if (context.divergences && context.divergences.length > 0) {
         const matching = condition.params.divType
-          ? context.divergences.filter(d => d.includes(condition.params.divType))
+          ? context.divergences.filter((d) => d.includes(condition.params.divType))
           : context.divergences;
         if (matching.length > 0) {
           triggered = true;
@@ -239,11 +255,15 @@ export function evaluateCondition(
 
     case "streak_alert":
       if (context.streak !== undefined) {
-        const isLoss = condition.params.streakType === "loss" && context.streak <= -condition.params.count;
-        const isWin = condition.params.streakType === "win" && context.streak >= condition.params.count;
+        const isLoss =
+          condition.params.streakType === "loss" && context.streak <= -condition.params.count;
+        const isWin =
+          condition.params.streakType === "win" && context.streak >= condition.params.count;
         if (isLoss || isWin) {
           triggered = true;
-          title = isLoss ? `❌ Loss Streak: ${Math.abs(context.streak)}` : `✅ Win Streak: ${context.streak}`;
+          title = isLoss
+            ? `❌ Loss Streak: ${Math.abs(context.streak)}`
+            : `✅ Win Streak: ${context.streak}`;
           message = isLoss
             ? `You've lost ${Math.abs(context.streak)} trades in a row. Consider taking a break.`
             : `${context.streak} wins in a row! Stay disciplined — don't get overconfident.`;
@@ -290,7 +310,10 @@ export function evaluateCondition(
 /**
  * Default alert presets for quick setup.
  */
-export const ALERT_PRESETS: Omit<AlertCondition, "id" | "lastTriggered" | "triggerCount" | "createdAt">[] = [
+export const ALERT_PRESETS: Omit<
+  AlertCondition,
+  "id" | "lastTriggered" | "triggerCount" | "createdAt"
+>[] = [
   {
     type: "drawdown_limit",
     name: "Daily Drawdown Limit",

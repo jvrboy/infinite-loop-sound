@@ -11,10 +11,10 @@ export type RegimeShift = "none" | "expansion" | "contraction";
 
 export interface RegimeShiftEvent {
   shift: RegimeShift;
-  recentVol: number;       // stdev of returns in the recent window
-  priorVol: number;        // stdev of returns in the prior window
-  ratio: number;           // recent / prior
-  confidence: number;      // 0..1
+  recentVol: number; // stdev of returns in the recent window
+  priorVol: number; // stdev of returns in the prior window
+  ratio: number; // recent / prior
+  confidence: number; // 0..1
 }
 
 function stdev(arr: number[]): number {
@@ -53,9 +53,11 @@ export function detectRegimeShift(
   else if (ratio <= contractionThreshold) shift = "contraction";
 
   const distance =
-    shift === "expansion" ? Math.min(1, (ratio - expansionThreshold) / expansionThreshold) :
-    shift === "contraction" ? Math.min(1, (contractionThreshold - ratio) / contractionThreshold) :
-    0;
+    shift === "expansion"
+      ? Math.min(1, (ratio - expansionThreshold) / expansionThreshold)
+      : shift === "contraction"
+        ? Math.min(1, (contractionThreshold - ratio) / contractionThreshold)
+        : 0;
 
   return { shift, recentVol: rv, priorVol: pv, ratio, confidence: Math.max(0, distance) };
 }

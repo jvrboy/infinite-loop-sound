@@ -11,9 +11,13 @@ let lastAppPing = 0;
 let pingInterval: ReturnType<typeof setInterval> | null = null;
 
 export const pingZoComputer = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
-    apiKey: z.string().optional(),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        apiKey: z.string().optional(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     const apiKey = data.apiKey || DEFAULT_API_KEY || process.env.ZO_API_KEY;
     if (!apiKey) {
@@ -25,7 +29,7 @@ export const pingZoComputer = createServerFn({ method: "POST" })
       const response = await fetch(`${ZO_API_BASE}/ping`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -36,12 +40,12 @@ export const pingZoComputer = createServerFn({ method: "POST" })
       }).catch(() => null);
 
       lastZoPing = Date.now();
-      
+
       // Also trigger Zo automation
       await fetch(`${ZO_API_BASE}/automations/trigger`, {
         method: "POST",
         headers: {
-          "Authorization": `Bearer ${apiKey}`,
+          Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
@@ -50,8 +54,8 @@ export const pingZoComputer = createServerFn({ method: "POST" })
         }),
       }).catch(() => {});
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         timestamp: lastZoPing,
         zoStatus: response?.ok ? "alive" : "unreachable",
       };
@@ -61,52 +65,57 @@ export const pingZoComputer = createServerFn({ method: "POST" })
   });
 
 export const receiveZoPing = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
-    source: z.string(),
-    timestamp: z.number().optional(),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        source: z.string(),
+        timestamp: z.number().optional(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     lastAppPing = Date.now();
-    
+
     // Log the ping
     console.log(`[KEEPALIVE] Received ping from ${data.source} at ${new Date().toISOString()}`);
-    
+
     // Trigger internal keepalive tasks
     await performKeepaliveTasks();
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       appStatus: "alive",
       timestamp: lastAppPing,
       uptime: process.uptime(),
     };
   });
 
-export const getKeepaliveStatus = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const now = Date.now();
-    return {
-      app: {
-        lastPing: lastAppPing,
-        secondsAgo: lastAppPing ? Math.floor((now - lastAppPing) / 1000) : null,
-        status: lastAppPing && (now - lastAppPing) < 120000 ? "alive" : "unknown",
-      },
-      zo: {
-        lastPing: lastZoPing,
-        secondsAgo: lastZoPing ? Math.floor((now - lastZoPing) / 1000) : null,
-        status: lastZoPing && (now - lastZoPing) < 120000 ? "alive" : "unknown",
-      },
-      mutual: lastAppPing && lastZoPing && 
-              (now - lastAppPing) < 120000 && 
-              (now - lastZoPing) < 120000,
-    };
-  });
+export const getKeepaliveStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const now = Date.now();
+  return {
+    app: {
+      lastPing: lastAppPing,
+      secondsAgo: lastAppPing ? Math.floor((now - lastAppPing) / 1000) : null,
+      status: lastAppPing && now - lastAppPing < 120000 ? "alive" : "unknown",
+    },
+    zo: {
+      lastPing: lastZoPing,
+      secondsAgo: lastZoPing ? Math.floor((now - lastZoPing) / 1000) : null,
+      status: lastZoPing && now - lastZoPing < 120000 ? "alive" : "unknown",
+    },
+    mutual: lastAppPing && lastZoPing && now - lastAppPing < 120000 && now - lastZoPing < 120000,
+  };
+});
 
 export const start24x7Keepalive = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
-    apiKey: z.string(),
-    intervalSeconds: z.number().optional().default(300),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        apiKey: z.string(),
+        intervalSeconds: z.number().optional().default(300),
+      })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     if (pingInterval) {
       clearInterval(pingInterval);
@@ -125,20 +134,19 @@ export const start24x7Keepalive = createServerFn({ method: "POST" })
     // Initial ping
     await pingZoComputer({ data: { apiKey: data.apiKey } });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: `24/7 keepalive started - pinging every ${data.intervalSeconds}s`,
     };
   });
 
-export const stopKeepalive = createServerFn({ method: "POST" })
-  .handler(async () => {
-    if (pingInterval) {
-      clearInterval(pingInterval);
-      pingInterval = null;
-    }
-    return { success: true };
-  });
+export const stopKeepalive = createServerFn({ method: "POST" }).handler(async () => {
+  if (pingInterval) {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
+  return { success: true };
+});
 
 async function performKeepaliveTasks() {
   // Tasks to run on each keepalive ping

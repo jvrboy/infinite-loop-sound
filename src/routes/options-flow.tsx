@@ -55,10 +55,7 @@ function OptionsFlowPage() {
       });
   }, [rows]);
 
-  const totalPremium = flows.reduce(
-    (a, f) => a + parseFloat(f.premium.replace("k", "")),
-    0,
-  );
+  const totalPremium = flows.reduce((a, f) => a + parseFloat(f.premium.replace("k", "")), 0);
   const calls = flows.filter((f) => f.type === "CALL").length;
   const puts = flows.filter((f) => f.type === "PUT").length;
   const putCall = calls > 0 ? (puts / calls).toFixed(2) : "—";
@@ -77,17 +74,42 @@ function OptionsFlowPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30">
-            <Activity className={`w-3.5 h-3.5 text-amber-400 ${ready ? "animate-pulse" : "opacity-30"}`} />
-            <span className="text-xs font-mono text-amber-400">{ready ? "LIVE" : "CONNECTING…"}</span>
+            <Activity
+              className={`w-3.5 h-3.5 text-amber-400 ${ready ? "animate-pulse" : "opacity-30"}`}
+            />
+            <span className="text-xs font-mono text-amber-400">
+              {ready ? "LIVE" : "CONNECTING…"}
+            </span>
           </div>
         </div>
 
         <div className="grid md:grid-cols-4 gap-3">
           {[
-            { label: "Total RV Notional", value: `${totalPremium.toFixed(1)}k`, change: `${flows.length} pairs` },
-            { label: "CALL bias", value: calls.toString(), change: calls + puts > 0 ? `${Math.round((calls / (calls + puts)) * 100)}%` : "—" },
-            { label: "PUT bias", value: puts.toString(), change: calls + puts > 0 ? `${Math.round((puts / (calls + puts)) * 100)}%` : "—" },
-            { label: "Put/Call", value: putCall, change: parseFloat(putCall) < 1 ? "Bullish" : parseFloat(putCall) > 1 ? "Bearish" : "Neutral" },
+            {
+              label: "Total RV Notional",
+              value: `${totalPremium.toFixed(1)}k`,
+              change: `${flows.length} pairs`,
+            },
+            {
+              label: "CALL bias",
+              value: calls.toString(),
+              change: calls + puts > 0 ? `${Math.round((calls / (calls + puts)) * 100)}%` : "—",
+            },
+            {
+              label: "PUT bias",
+              value: puts.toString(),
+              change: calls + puts > 0 ? `${Math.round((puts / (calls + puts)) * 100)}%` : "—",
+            },
+            {
+              label: "Put/Call",
+              value: putCall,
+              change:
+                parseFloat(putCall) < 1
+                  ? "Bullish"
+                  : parseFloat(putCall) > 1
+                    ? "Bearish"
+                    : "Neutral",
+            },
           ].map((stat) => (
             <div key={stat.label} className="rounded-lg border border-border bg-card p-3">
               <div className="text-[10px] text-muted-foreground uppercase">{stat.label}</div>
@@ -116,7 +138,9 @@ function OptionsFlowPage() {
                 {flows.length === 0 && (
                   <tr>
                     <td colSpan={8} className="p-6 text-center text-muted-foreground italic">
-                      {ready ? "Warming up rolling windows (≥20 ticks/symbol)…" : "Connecting to Deriv WS…"}
+                      {ready
+                        ? "Warming up rolling windows (≥20 ticks/symbol)…"
+                        : "Connecting to Deriv WS…"}
                     </td>
                   </tr>
                 )}
@@ -125,9 +149,11 @@ function OptionsFlowPage() {
                     <td className="p-3 text-muted-foreground">{flow.time}</td>
                     <td className="p-3 font-medium">{flow.pair}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        flow.type === "CALL" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"
-                      }`}>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          flow.type === "CALL" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"
+                        }`}
+                      >
                         {flow.type}
                       </span>
                     </td>
@@ -136,8 +162,14 @@ function OptionsFlowPage() {
                     <td className="p-3 text-right">{flow.iv}</td>
                     <td className="p-3 text-right text-muted-foreground">{flow.oi}</td>
                     <td className="p-3">
-                      <span className={`flex items-center gap-1 ${flow.sentiment === "BULLISH" ? "text-bull" : "text-bear"}`}>
-                        {flow.sentiment === "BULLISH" ? <TrendingUp className="w-3 h-3" /> : <TrendingUp className="w-3 h-3 rotate-180" />}
+                      <span
+                        className={`flex items-center gap-1 ${flow.sentiment === "BULLISH" ? "text-bull" : "text-bear"}`}
+                      >
+                        {flow.sentiment === "BULLISH" ? (
+                          <TrendingUp className="w-3 h-3" />
+                        ) : (
+                          <TrendingUp className="w-3 h-3 rotate-180" />
+                        )}
                         {flow.sentiment}
                       </span>
                     </td>
@@ -160,7 +192,9 @@ function OptionsFlowPage() {
                 .slice(0, 3)
                 .map((f, i) => (
                   <div key={i} className="p-2.5 rounded bg-amber-500/10 border border-amber-500/20">
-                    <div className="font-medium">{f.pair} — vol {f.rv}</div>
+                    <div className="font-medium">
+                      {f.pair} — vol {f.rv}
+                    </div>
                     <div className="text-muted-foreground mt-1">
                       Trend {f.trend} · {f.oi} percentile · {f.sentiment.toLowerCase()} bias
                     </div>
@@ -190,9 +224,15 @@ function OptionsFlowPage() {
                 <span className="text-muted-foreground">Vol Regime</span>
                 <div className="text-right">
                   <div className="font-medium">
-                    {flows.some((f) => f.trend === "UP") ? "Expanding" : flows.some((f) => f.trend === "DOWN") ? "Contracting" : "Stable"}
+                    {flows.some((f) => f.trend === "UP")
+                      ? "Expanding"
+                      : flows.some((f) => f.trend === "DOWN")
+                        ? "Contracting"
+                        : "Stable"}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">{flows.length} symbols tracked</div>
+                  <div className="text-[10px] text-muted-foreground">
+                    {flows.length} symbols tracked
+                  </div>
                 </div>
               </div>
               <div className="flex justify-between">
@@ -207,7 +247,8 @@ function OptionsFlowPage() {
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center">
-          No options exchange feed wired — Deriv is spot only. Numbers are realised-vol-based proxies. True options flow needs Polygon / Unusual Whales (TODO).
+          No options exchange feed wired — Deriv is spot only. Numbers are realised-vol-based
+          proxies. True options flow needs Polygon / Unusual Whales (TODO).
         </p>
       </div>
     </AppShell>

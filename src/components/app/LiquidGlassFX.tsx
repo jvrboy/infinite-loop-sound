@@ -181,7 +181,8 @@ export function LiquidGlassFX() {
         style={{
           backdropFilter: "blur(8px) saturate(160%)",
           WebkitBackdropFilter: "blur(8px) saturate(160%)",
-          background: "radial-gradient(circle at center, rgba(255,255,255,0.06), rgba(255,255,255,0) 70%)",
+          background:
+            "radial-gradient(circle at center, rgba(255,255,255,0.06), rgba(255,255,255,0) 70%)",
           border: "1px solid rgba(255,255,255,0.08)",
           opacity: 0,
         }}

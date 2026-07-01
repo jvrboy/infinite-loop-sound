@@ -10,12 +10,12 @@ import type { Candle } from "../indicators";
 export type SweepSide = "high" | "low";
 
 export interface SweepEvent {
-  index: number;            // candle that performed the sweep
+  index: number; // candle that performed the sweep
   epoch: number;
-  side: SweepSide;          // which side of liquidity was taken
-  sweptLevel: number;       // the swing high/low that was breached
+  side: SweepSide; // which side of liquidity was taken
+  sweptLevel: number; // the swing high/low that was breached
   wickPenetrationPct: number; // how far past the level, as % of bar range
-  rejection: boolean;       // closed back through the level (true sweep)
+  rejection: boolean; // closed back through the level (true sweep)
   followThroughBars: number; // bars before price reverses
 }
 
@@ -27,7 +27,8 @@ export interface SweepScan {
 /** Rolling swing high/low over a fixed lookback. */
 function swingLevels(candles: Candle[], i: number, lookback: number) {
   const start = Math.max(0, i - lookback);
-  let hi = -Infinity, lo = Infinity;
+  let hi = -Infinity,
+    lo = Infinity;
   for (let j = start; j < i; j++) {
     if (candles[j].high > hi) hi = candles[j].high;
     if (candles[j].low < lo) lo = candles[j].low;
@@ -88,7 +89,8 @@ export function detectLiquiditySweeps(
     const startClose = candles[ev.index].close;
     let bars = 0;
     for (let j = ev.index + 1; j < candles.length; j++) {
-      const moved = ev.side === "high" ? candles[j].close < startClose : candles[j].close > startClose;
+      const moved =
+        ev.side === "high" ? candles[j].close < startClose : candles[j].close > startClose;
       if (!moved) break;
       bars++;
     }

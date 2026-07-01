@@ -2,15 +2,15 @@ import { ZO_CONFIG } from "./zo-config";
 
 export async function configureZoAutomations() {
   const { apiKey, baseUrl } = ZO_CONFIG;
-  
+
   console.log("[ZO] Configuring automations...");
-  
+
   try {
     // 1. Create keepalive automation
     const keepaliveResponse = await fetch(`${baseUrl}/automations`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -39,7 +39,7 @@ export async function configureZoAutomations() {
     const scannerResponse = await fetch(`${baseUrl}/automations`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -66,26 +66,30 @@ export async function configureZoAutomations() {
     const syncResponse = await fetch(`${baseUrl}/files`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
         path: "/divergenceiq/config.json",
-        content: JSON.stringify({
-          app: "DivergenceIQ",
-          version: "2.0",
-          configured_at: new Date().toISOString(),
-          features: {
-            keepalive: true,
-            scanner: true,
-            neural_training: true,
-            auto_trading: true,
+        content: JSON.stringify(
+          {
+            app: "DivergenceIQ",
+            version: "2.0",
+            configured_at: new Date().toISOString(),
+            features: {
+              keepalive: true,
+              scanner: true,
+              neural_training: true,
+              auto_trading: true,
+            },
+            endpoints: {
+              app_url: "https://confluence-divergence-engine.lovable.app",
+              webhook: "https://confluence-divergence-engine.lovable.app/api/keepalive/zo",
+            },
           },
-          endpoints: {
-            app_url: "https://confluence-divergence-engine.lovable.app",
-            webhook: "https://confluence-divergence-engine.lovable.app/api/keepalive/zo",
-          },
-        }, null, 2),
+          null,
+          2,
+        ),
       }),
     }).catch(() => null);
 
@@ -108,7 +112,7 @@ export async function configureZoAutomations() {
 // Auto-configure when module loads (server-side only)
 if (typeof window === "undefined") {
   configureZoAutomations()
-    .then(result => {
+    .then((result) => {
       if (result.success) {
         console.log("[ZO] Automations configured successfully");
         console.log("[ZO] Keepalive: Every 60 seconds");

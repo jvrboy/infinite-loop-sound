@@ -26,7 +26,7 @@ export function ThreeBackground() {
     let scrollY = 0;
     let scrollVelocity = 0;
     let lastScrollY = window.scrollY;
-    let mouse = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
+    const mouse = { x: 0, y: 0, targetX: 0, targetY: 0, active: false };
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -77,7 +77,7 @@ export function ThreeBackground() {
         color1: "rgba(20, 184, 166, 0.12)", // Teal
         color2: "rgba(13, 148, 136, 0.0)",
         noiseOffset: Math.random() * 100,
-        pulseSpeed: 0.002 + Math.random() * 0.003
+        pulseSpeed: 0.002 + Math.random() * 0.003,
       },
       {
         x: Math.random() * window.innerWidth,
@@ -88,7 +88,7 @@ export function ThreeBackground() {
         color1: "rgba(56, 189, 248, 0.1)", // Cyan / Sky Blue
         color2: "rgba(14, 165, 233, 0.0)",
         noiseOffset: Math.random() * 100,
-        pulseSpeed: 0.001 + Math.random() * 0.002
+        pulseSpeed: 0.001 + Math.random() * 0.002,
       },
       {
         x: Math.random() * window.innerWidth,
@@ -99,7 +99,7 @@ export function ThreeBackground() {
         color1: "rgba(139, 92, 246, 0.08)", // Purple
         color2: "rgba(109, 40, 217, 0.0)",
         noiseOffset: Math.random() * 100,
-        pulseSpeed: 0.001 + Math.random() * 0.0015
+        pulseSpeed: 0.001 + Math.random() * 0.0015,
       },
       {
         x: Math.random() * window.innerWidth,
@@ -110,7 +110,7 @@ export function ThreeBackground() {
         color1: "rgba(16, 185, 129, 0.1)", // Bull Emerald Green
         color2: "rgba(4, 120, 87, 0.0)",
         noiseOffset: Math.random() * 100,
-        pulseSpeed: 0.003 + Math.random() * 0.004
+        pulseSpeed: 0.003 + Math.random() * 0.004,
       },
       {
         x: Math.random() * window.innerWidth,
@@ -121,8 +121,8 @@ export function ThreeBackground() {
         color1: "rgba(239, 68, 68, 0.07)", // Bear Crimson Red
         color2: "rgba(185, 28, 28, 0.0)",
         noiseOffset: Math.random() * 100,
-        pulseSpeed: 0.003 + Math.random() * 0.003
-      }
+        pulseSpeed: 0.003 + Math.random() * 0.003,
+      },
     ];
 
     const animate = () => {
@@ -141,7 +141,14 @@ export function ThreeBackground() {
       ctx.clearRect(0, 0, w, h);
 
       // Deep dark futuristic trade room background
-      const bgGrad = ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, Math.max(w, h));
+      const bgGrad = ctx.createRadialGradient(
+        w * 0.5,
+        h * 0.5,
+        0,
+        w * 0.5,
+        h * 0.5,
+        Math.max(w, h),
+      );
       bgGrad.addColorStop(0, "#080b16");
       bgGrad.addColorStop(0.5, "#05070e");
       bgGrad.addColorStop(1, "#020306");
@@ -217,7 +224,7 @@ export function ThreeBackground() {
             const dist = Math.sqrt(dx * dx + dy * dy);
             if (dist < 300) {
               const refract = Math.sin((dist / 300) * Math.PI - Math.PI / 2); // glass refraction formula
-              const factor = refract * 15; 
+              const factor = refract * 15;
               displayX += (dx / (dist || 1)) * factor;
               displayY += (dy / (dist || 1)) * factor;
             }
@@ -274,7 +281,14 @@ export function ThreeBackground() {
       ctx.stroke();
 
       // Subtle frosted vignettes
-      const vig = ctx.createRadialGradient(w * 0.5, h * 0.5, Math.min(w, h) * 0.4, w * 0.5, h * 0.5, Math.max(w, h));
+      const vig = ctx.createRadialGradient(
+        w * 0.5,
+        h * 0.5,
+        Math.min(w, h) * 0.4,
+        w * 0.5,
+        h * 0.5,
+        Math.max(w, h),
+      );
       vig.addColorStop(0, "rgba(0, 0, 0, 0)");
       vig.addColorStop(1, "rgba(2, 4, 10, 0.55)");
       ctx.fillStyle = vig;

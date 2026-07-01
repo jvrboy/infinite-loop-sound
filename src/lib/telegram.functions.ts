@@ -15,11 +15,10 @@ const tgFetch = async (method: string, body: any) => {
   return data.result;
 };
 
-const admin = () => createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+const admin = () =>
+  createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 
 const SignalSchema = z.object({
   pair: z.string(),
@@ -58,22 +57,80 @@ const buildSnapshotUrl = (s: any, closes?: number[]) => {
   const color = s.direction === "BUY" ? "#10b981" : "#ef4444";
   const cfg = {
     type: "line",
-    data: { labels, datasets: [{ data, borderColor: color, backgroundColor: color + "22", fill: true, pointRadius: 0, borderWidth: 2, tension: 0.25 }] },
+    data: {
+      labels,
+      datasets: [
+        {
+          data,
+          borderColor: color,
+          backgroundColor: color + "22",
+          fill: true,
+          pointRadius: 0,
+          borderWidth: 2,
+          tension: 0.25,
+        },
+      ],
+    },
     options: {
       plugins: {
-        title: { display: true, text: `${displaySymbol(s.pair)} ${s.timeframe} • ${s.direction} • ${s.score}/100`, color: "#e5e7eb" },
+        title: {
+          display: true,
+          text: `${displaySymbol(s.pair)} ${s.timeframe} • ${s.direction} • ${s.score}/100`,
+          color: "#e5e7eb",
+        },
         legend: { display: false },
         annotation: {
           annotations: {
-            entry: { type: "line", yMin: s.entry, yMax: s.entry, borderColor: "#94a3b8", borderWidth: 1, borderDash: [4,4], label: { content: "ENTRY", display: true, color: "#fff", backgroundColor: "#475569" } },
-            sl:    { type: "line", yMin: s.sl,    yMax: s.sl,    borderColor: "#ef4444", borderWidth: 1, label: { content: "SL",  display: true, color: "#fff", backgroundColor: "#ef4444" } },
-            tp1:   { type: "line", yMin: s.tp1,   yMax: s.tp1,   borderColor: "#10b981", borderWidth: 1, label: { content: "TP1", display: true, color: "#fff", backgroundColor: "#10b981" } },
-            tp2:   { type: "line", yMin: s.tp2,   yMax: s.tp2,   borderColor: "#10b981", borderWidth: 1, borderDash: [3,3], label: { content: "TP2", display: true, color: "#fff", backgroundColor: "#10b981" } },
-            tp3:   { type: "line", yMin: s.tp3,   yMax: s.tp3,   borderColor: "#10b981", borderWidth: 1, borderDash: [2,4], label: { content: "TP3", display: true, color: "#fff", backgroundColor: "#10b981" } },
+            entry: {
+              type: "line",
+              yMin: s.entry,
+              yMax: s.entry,
+              borderColor: "#94a3b8",
+              borderWidth: 1,
+              borderDash: [4, 4],
+              label: { content: "ENTRY", display: true, color: "#fff", backgroundColor: "#475569" },
+            },
+            sl: {
+              type: "line",
+              yMin: s.sl,
+              yMax: s.sl,
+              borderColor: "#ef4444",
+              borderWidth: 1,
+              label: { content: "SL", display: true, color: "#fff", backgroundColor: "#ef4444" },
+            },
+            tp1: {
+              type: "line",
+              yMin: s.tp1,
+              yMax: s.tp1,
+              borderColor: "#10b981",
+              borderWidth: 1,
+              label: { content: "TP1", display: true, color: "#fff", backgroundColor: "#10b981" },
+            },
+            tp2: {
+              type: "line",
+              yMin: s.tp2,
+              yMax: s.tp2,
+              borderColor: "#10b981",
+              borderWidth: 1,
+              borderDash: [3, 3],
+              label: { content: "TP2", display: true, color: "#fff", backgroundColor: "#10b981" },
+            },
+            tp3: {
+              type: "line",
+              yMin: s.tp3,
+              yMax: s.tp3,
+              borderColor: "#10b981",
+              borderWidth: 1,
+              borderDash: [2, 4],
+              label: { content: "TP3", display: true, color: "#fff", backgroundColor: "#10b981" },
+            },
           },
         },
       },
-      scales: { x: { display: false }, y: { ticks: { color: "#94a3b8" }, grid: { color: "#1f2937" } } },
+      scales: {
+        x: { display: false },
+        y: { ticks: { color: "#94a3b8" }, grid: { color: "#1f2937" } },
+      },
     },
   };
   const encoded = encodeURIComponent(JSON.stringify(cfg));
@@ -82,8 +139,18 @@ const buildSnapshotUrl = (s: any, closes?: number[]) => {
 
 const buildMessage = (s: z.infer<typeof SignalSchema>) => {
   const dir = s.direction === "BUY" ? "BUY" : "SELL";
-  const badge = s.rating === "ELITE" ? "ELITE SIGNAL" : s.rating === "STRONG" ? "STRONG SIGNAL" : s.rating === "MEDIUM" ? "MEDIUM SETUP" : "WEAK";
-  const confLines = s.confluence.filter(c => c.passed).map(c => `▪ ${c.label}`).join("\n");
+  const badge =
+    s.rating === "ELITE"
+      ? "ELITE SIGNAL"
+      : s.rating === "STRONG"
+        ? "STRONG SIGNAL"
+        : s.rating === "MEDIUM"
+          ? "MEDIUM SETUP"
+          : "WEAK";
+  const confLines = s.confluence
+    .filter((c) => c.passed)
+    .map((c) => `▪ ${c.label}`)
+    .join("\n");
   const pair = displaySymbol(s.pair);
   return [
     "━━━━━━━━━━━━━━━━━━━━",
@@ -109,12 +176,16 @@ const buildMessage = (s: z.infer<typeof SignalSchema>) => {
 };
 
 export const sendSignalToTelegram = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
-    signalId: z.string().uuid().optional(),
-    signal: SignalSchema,
-    closes: z.array(z.number()).optional(),
-    withChart: z.boolean().optional(),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        signalId: z.string().uuid().optional(),
+        signal: SignalSchema,
+        closes: z.array(z.number()).optional(),
+        withChart: z.boolean().optional(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     const sb = admin();
     const { data: subs, error } = await sb
@@ -134,33 +205,44 @@ export const sendSignalToTelegram = createServerFn({ method: "POST" })
           await tgFetch("sendMessage", { chat_id: sub.chat_id, text });
         }
         sent++;
-      } catch (e) { console.error("Telegram send fail", e); }
+      } catch (e) {
+        console.error("Telegram send fail", e);
+      }
     }
     if (data.signalId) {
-      await sb.from("signals").update({ sent_telegram: sent > 0 }).eq("id", data.signalId);
+      await sb
+        .from("signals")
+        .update({ sent_telegram: sent > 0 })
+        .eq("id", data.signalId);
     }
     return { sent, total: targets.length };
   });
 
 export const subscribeChatId = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({ chatId: z.number().int(), username: z.string().optional() }).parse(d))
+  .inputValidator((d) =>
+    z.object({ chatId: z.number().int(), username: z.string().optional() }).parse(d),
+  )
   .handler(async ({ data }) => {
     const sb = admin();
-    const { error } = await sb.from("telegram_subscribers").upsert(
-      { chat_id: data.chatId, username: data.username, active: true },
-      { onConflict: "chat_id" },
-    );
+    const { error } = await sb
+      .from("telegram_subscribers")
+      .upsert(
+        { chat_id: data.chatId, username: data.username, active: true },
+        { onConflict: "chat_id" },
+      );
     if (error) throw new Error(error.message);
     return { ok: true };
   });
 
-export const listSubscribers = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const sb = admin();
-    const { data, error } = await sb.from("telegram_subscribers").select("*").order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
-    return { subscribers: data || [] };
-  });
+export const listSubscribers = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = admin();
+  const { data, error } = await sb
+    .from("telegram_subscribers")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+  return { subscribers: data || [] };
+});
 
 export const sendTestMessage = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ chatId: z.number().int() }).parse(d))
@@ -172,11 +254,10 @@ export const sendTestMessage = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-export const getBotInfo = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const me = await tgFetch("getMe", {});
-    return { username: me.username as string, name: me.first_name as string, id: me.id as number };
-  });
+export const getBotInfo = createServerFn({ method: "GET" }).handler(async () => {
+  const me = await tgFetch("getMe", {});
+  return { username: me.username as string, name: me.first_name as string, id: me.id as number };
+});
 
 export const setupTelegramWebhook = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ webhookUrl: z.string().url() }).parse(d))
@@ -189,15 +270,14 @@ export const setupTelegramWebhook = createServerFn({ method: "POST" })
     return { ok: true, result };
   });
 
-export const getWebhookStatus = createServerFn({ method: "GET" })
-  .handler(async () => {
-    const info = await tgFetch("getWebhookInfo", {});
-    return {
-      url: info.url as string,
-      pending: (info.pending_update_count ?? 0) as number,
-      lastError: (info.last_error_message ?? null) as string | null,
-      lastErrorDate: (info.last_error_date ?? null) as number | null,
-      ipAddress: (info.ip_address ?? null) as string | null,
-      maxConnections: (info.max_connections ?? 40) as number,
-    };
-  });
+export const getWebhookStatus = createServerFn({ method: "GET" }).handler(async () => {
+  const info = await tgFetch("getWebhookInfo", {});
+  return {
+    url: info.url as string,
+    pending: (info.pending_update_count ?? 0) as number,
+    lastError: (info.last_error_message ?? null) as string | null,
+    lastErrorDate: (info.last_error_date ?? null) as number | null,
+    ipAddress: (info.ip_address ?? null) as string | null,
+    maxConnections: (info.max_connections ?? 40) as number,
+  };
+});

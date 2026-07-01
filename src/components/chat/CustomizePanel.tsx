@@ -24,9 +24,7 @@ export function CustomizePanel() {
       .then((mod) => {
         if (cancelled) return;
         const enabledMap: Record<string, boolean> =
-          typeof window !== "undefined"
-            ? JSON.parse(localStorage.getItem(STORE_KEY) || "{}")
-            : {};
+          typeof window !== "undefined" ? JSON.parse(localStorage.getItem(STORE_KEY) || "{}") : {};
         setSkills(
           mod.SKILLS.map((s: any) => ({
             id: s.id,
@@ -128,7 +126,8 @@ export function CustomizePanel() {
           </Button>
         </Link>
         <p className="text-[10px] text-muted-foreground mt-2">
-          Generate, run, auto-correct: TS, JS, Python, HTML, CSS, JSON, CSV. C#/C++/Java/Swift need a backend runtime.
+          Generate, run, auto-correct: TS, JS, Python, HTML, CSS, JSON, CSV. C#/C++/Java/Swift need
+          a backend runtime.
         </p>
       </div>
     </div>

@@ -20,12 +20,12 @@ export type VolatilityRegime = "QUIET" | "NORMAL" | "ELEVATED" | "EXTREME";
 export interface RegimeAnalysis {
   regime: VolatilityRegime;
   atrCurrent: number;
-  atrPercentile: number;       // 0-100: where current ATR sits in recent history
-  bbWidth: number;             // Bollinger Band width (normalized)
-  bbWidthPercentile: number;   // 0-100
-  velocity: number;            // price change velocity (pips/bar)
-  positionSizeMultiplier: number;  // 0.25-1.5 (scale position size)
-  stopMultiplier: number;          // 1.0-2.5 (widen/tighten stops)
+  atrPercentile: number; // 0-100: where current ATR sits in recent history
+  bbWidth: number; // Bollinger Band width (normalized)
+  bbWidthPercentile: number; // 0-100
+  velocity: number; // price change velocity (pips/bar)
+  positionSizeMultiplier: number; // 0.25-1.5 (scale position size)
+  stopMultiplier: number; // 1.0-2.5 (widen/tighten stops)
   recommendations: string[];
   historicalRegimes: { epoch: number; regime: VolatilityRegime }[];
 }
@@ -34,7 +34,7 @@ export interface RegimeAnalysis {
  * Compute the percentile rank of a value within an array.
  */
 function percentileRank(value: number, arr: number[]): number {
-  const below = arr.filter(v => v < value).length;
+  const below = arr.filter((v) => v < value).length;
   return (below / arr.length) * 100;
 }
 
@@ -55,10 +55,14 @@ function classifyRegime(atrPctile: number, bbPctile: number): VolatilityRegime {
  */
 function getPositionMultiplier(regime: VolatilityRegime): number {
   switch (regime) {
-    case "QUIET": return 1.5;
-    case "NORMAL": return 1.0;
-    case "ELEVATED": return 0.6;
-    case "EXTREME": return 0.25;
+    case "QUIET":
+      return 1.5;
+    case "NORMAL":
+      return 1.0;
+    case "ELEVATED":
+      return 0.6;
+    case "EXTREME":
+      return 0.25;
   }
 }
 
@@ -68,10 +72,14 @@ function getPositionMultiplier(regime: VolatilityRegime): number {
  */
 function getStopMultiplier(regime: VolatilityRegime): number {
   switch (regime) {
-    case "QUIET": return 1.0;
-    case "NORMAL": return 1.2;
-    case "ELEVATED": return 1.8;
-    case "EXTREME": return 2.5;
+    case "QUIET":
+      return 1.0;
+    case "NORMAL":
+      return 1.2;
+    case "ELEVATED":
+      return 1.8;
+    case "EXTREME":
+      return 2.5;
   }
 }
 
@@ -118,7 +126,12 @@ function getRecommendations(regime: VolatilityRegime): string[] {
 /**
  * Analyze the volatility regime for a given set of candles.
  */
-export function analyzeVolatilityRegime(candles: Candle[], atrLen = 14, bbLen = 20, lookback = 100): RegimeAnalysis {
+export function analyzeVolatilityRegime(
+  candles: Candle[],
+  atrLen = 14,
+  bbLen = 20,
+  lookback = 100,
+): RegimeAnalysis {
   if (candles.length < Math.max(atrLen, bbLen, lookback) + 10) {
     return {
       regime: "NORMAL",
@@ -134,7 +147,7 @@ export function analyzeVolatilityRegime(candles: Candle[], atrLen = 14, bbLen = 
     };
   }
 
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const atrSeries = atr(candles, atrLen);
   const bb = bbands(close, bbLen);
 
@@ -181,11 +194,13 @@ export function analyzeVolatilityRegime(candles: Candle[], atrLen = 14, bbLen = 
     const subCandles = candles.slice(sliceStart, sliceEnd);
     if (subCandles.length < atrLen + 5) continue;
     const subATR = atr(subCandles, atrLen).filter((v): v is number => v !== null);
-    const subClose = subCandles.map(c => c.close);
+    const subClose = subCandles.map((c) => c.close);
     const subBB = bbands(subClose, bbLen);
     const subBBWidths: number[] = [];
     for (let j = 0; j < subBB.upper.length; j++) {
-      const u = subBB.upper[j], l = subBB.lower[j], m = subBB.mid[j];
+      const u = subBB.upper[j],
+        l = subBB.lower[j],
+        m = subBB.mid[j];
       if (u !== null && l !== null && m !== null && m > 0) subBBWidths.push((u - l) / m);
     }
     if (subATR.length > 0 && subBBWidths.length > 0) {

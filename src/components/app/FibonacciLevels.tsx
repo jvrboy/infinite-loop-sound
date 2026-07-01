@@ -28,7 +28,10 @@ export function FibonacciLevels({ symbol = "frxEURUSD", tf = "H1", lookback = 10
     };
     load();
     const id = setInterval(load, 60_000);
-    return () => { mounted = false; clearInterval(id); };
+    return () => {
+      mounted = false;
+      clearInterval(id);
+    };
   }, [symbol, tf, lookback]);
 
   const nearest = result && price != null ? nearestFib(price, result) : null;
@@ -36,8 +39,12 @@ export function FibonacciLevels({ symbol = "frxEURUSD", tf = "H1", lookback = 10
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between space-y-0">
-        <CardTitle className="text-base">Fibonacci · {symbol} {tf}</CardTitle>
-        {result && <Badge variant="outline">{result.direction === "up" ? "↑ swing" : "↓ swing"}</Badge>}
+        <CardTitle className="text-base">
+          Fibonacci · {symbol} {tf}
+        </CardTitle>
+        {result && (
+          <Badge variant="outline">{result.direction === "up" ? "↑ swing" : "↓ swing"}</Badge>
+        )}
       </CardHeader>
       <CardContent className="space-y-2">
         {!result && <div className="text-sm text-muted-foreground">Loading…</div>}
@@ -55,7 +62,10 @@ export function FibonacciLevels({ symbol = "frxEURUSD", tf = "H1", lookback = 10
                     className={`flex items-center justify-between px-3 py-1.5 text-sm ${isNearest ? "bg-primary/10 font-medium" : ""}`}
                   >
                     <span className="flex items-center gap-2">
-                      <Badge variant={l.kind === "retracement" ? "secondary" : "outline"} className="text-xs">
+                      <Badge
+                        variant={l.kind === "retracement" ? "secondary" : "outline"}
+                        className="text-xs"
+                      >
                         {l.kind === "retracement" ? "R" : "E"}
                       </Badge>
                       {l.label}
@@ -67,7 +77,8 @@ export function FibonacciLevels({ symbol = "frxEURUSD", tf = "H1", lookback = 10
             </div>
             {nearest && price != null && (
               <div className="text-xs text-muted-foreground">
-                Price {price.toFixed(5)} · {nearest.distancePct.toFixed(3)}% from {nearest.level.label}
+                Price {price.toFixed(5)} · {nearest.distancePct.toFixed(3)}% from{" "}
+                {nearest.level.label}
               </div>
             )}
           </>

@@ -24,7 +24,14 @@ const initialState: OrchestratorState = {
   lastRun: 0,
   results: {},
   messageLog: [],
-  activeAgents: ["strategy-agent", "risk-agent", "news-agent", "confluence-agent", "optimization-agent", "automation-agent"],
+  activeAgents: [
+    "strategy-agent",
+    "risk-agent",
+    "news-agent",
+    "confluence-agent",
+    "optimization-agent",
+    "automation-agent",
+  ],
 };
 
 let state: OrchestratorState = { ...initialState };
@@ -47,9 +54,15 @@ export interface FullAnalysisInput {
 
 export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
   const {
-    pair, timeframe, candles, ticks, balance,
-    newsEvents, currentEpoch,
-    dailyLossCap = 50, maxPositions = 2,
+    pair,
+    timeframe,
+    candles,
+    ticks,
+    balance,
+    newsEvents,
+    currentEpoch,
+    dailyLossCap = 50,
+    maxPositions = 2,
   } = input;
 
   state.isRunning = true;
@@ -57,8 +70,12 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
 
   // 1. Strategy Agent
   const strategyResult = runStrategyAgent(
-    pair, timeframe, candles, ticks,
-    newsEvents, currentEpoch
+    pair,
+    timeframe,
+    candles,
+    ticks,
+    newsEvents,
+    currentEpoch,
   );
   state.results["strategy-agent"] = strategyResult;
   newMessages.push({
@@ -74,7 +91,7 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
     balance,
     dailyLossCap,
     maxPositions,
-    winRate: strategyResult.output?.confidence as number ?? 0.6,
+    winRate: (strategyResult.output?.confidence as number) ?? 0.6,
     avgWinLossRatio: 1.5,
   });
   state.results["risk-agent"] = riskResult;
@@ -99,9 +116,26 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
 
   // 4. Confluence Agent — evaluates V1+V2+V3 strategy confluence
   const confluenceResult = runConfluenceAgent(
-    pair, timeframe, candles, ticks,
-    { pair, timeframe, candles: [], ind: {} as any, divergences: [], direction: null, score: 0, scorePct: 0, maxScore: 0, rating: "WEAK", confluence: [], trade: null, trendBias: "NEUTRAL" },
-    newsEvents
+    pair,
+    timeframe,
+    candles,
+    ticks,
+    {
+      pair,
+      timeframe,
+      candles: [],
+      ind: {} as any,
+      divergences: [],
+      direction: null,
+      score: 0,
+      scorePct: 0,
+      maxScore: 0,
+      rating: "WEAK",
+      confluence: [],
+      trade: null,
+      trendBias: "NEUTRAL",
+    },
+    newsEvents,
   );
   state.results["confluence-agent"] = confluenceResult;
   newMessages.push({
@@ -109,7 +143,7 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
     agentId: "orchestrator",
     type: "info",
     timestamp: Date.now(),
-    content: `Confluence Agent: ${confluenceResult.signals?.length ?? 0} confluence signals, ${(confluenceResult.output?.agreementScore as number ?? 0).toFixed(0)}% agreement`,
+    content: `Confluence Agent: ${confluenceResult.signals?.length ?? 0} confluence signals, ${((confluenceResult.output?.agreementScore as number) ?? 0).toFixed(0)}% agreement`,
   });
 
   // 5. Optimization Agent — analyzes past SL hits and suggests improvements
@@ -191,7 +225,8 @@ export const ALL_AGENT_CONFIGS: AgentConfig[] = [
   {
     id: "confluence-agent",
     name: "Confluence Agent",
-    description: "Evaluates V1+V2+V3 strategy confluence (24 strategies), detects meta-confluence patterns (multi-session, harmonic, SMC, Ichimoku alignment)",
+    description:
+      "Evaluates V1+V2+V3 strategy confluence (24 strategies), detects meta-confluence patterns (multi-session, harmonic, SMC, Ichimoku alignment)",
     enabled: true,
     priority: "critical",
     intervalSec: 30,
@@ -201,7 +236,8 @@ export const ALL_AGENT_CONFIGS: AgentConfig[] = [
   {
     id: "optimization-agent",
     name: "Optimization Agent",
-    description: "Analyzes SL-hit patterns, detects root causes (tight SL, session mismatch, fake breakouts), auto-applies parameter fixes",
+    description:
+      "Analyzes SL-hit patterns, detects root causes (tight SL, session mismatch, fake breakouts), auto-applies parameter fixes",
     enabled: true,
     priority: "high",
     intervalSec: 60,
@@ -211,7 +247,8 @@ export const ALL_AGENT_CONFIGS: AgentConfig[] = [
   {
     id: "automation-agent",
     name: "Automation Agent",
-    description: "Manages time-based strategy automation, suggests optimal scan schedules, monitors dispatch success rates",
+    description:
+      "Manages time-based strategy automation, suggests optimal scan schedules, monitors dispatch success rates",
     enabled: true,
     priority: "high",
     intervalSec: 30,

@@ -11,7 +11,7 @@ export const Route = createFileRoute("/fibonacci")({
 function FibonacciPage() {
   const [high, setHigh] = useState<number>();
   const [low, setLow] = useState<number>();
-  const [direction, setDirection] = useState<"UP"|"DOWN">("UP");
+  const [direction, setDirection] = useState<"UP" | "DOWN">("UP");
 
   const h = high || 0;
   const l = low || 0;
@@ -35,7 +35,7 @@ function FibonacciPage() {
     { level: "261.8%", value: direction === "UP" ? h + diff * 1.618 : l - diff * 1.618 },
   ];
 
-  const fmt = (n: number) => n ? n.toFixed(5) : "—";
+  const fmt = (n: number) => (n ? n.toFixed(5) : "—");
 
   return (
     <AppShell>
@@ -44,7 +44,9 @@ function FibonacciPage() {
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
             <AlignJustify className="w-6 h-6 text-primary" /> Fibonacci Calculator
           </h1>
-          <p className="text-sm text-muted-foreground mt-1">Identify potential retracement support/resistance and extension targets.</p>
+          <p className="text-sm text-muted-foreground mt-1">
+            Identify potential retracement support/resistance and extension targets.
+          </p>
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
@@ -52,13 +54,13 @@ function FibonacciPage() {
             <div>
               <label className="text-sm font-medium mb-1 block">Trend Direction</label>
               <div className="grid grid-cols-2 gap-2">
-                <button 
+                <button
                   onClick={() => setDirection("UP")}
                   className={`p-2 rounded flex items-center justify-center gap-1.5 border transition-colors ${direction === "UP" ? "bg-bull/20 border-bull/50 text-bull" : "bg-background border-border text-muted-foreground hover:bg-accent"}`}
                 >
                   <ArrowUpRight className="w-4 h-4" /> Uptrend
                 </button>
-                <button 
+                <button
                   onClick={() => setDirection("DOWN")}
                   className={`p-2 rounded flex items-center justify-center gap-1.5 border transition-colors ${direction === "DOWN" ? "bg-bear/20 border-bear/50 text-bear" : "bg-background border-border text-muted-foreground hover:bg-accent"}`}
                 >
@@ -68,11 +70,21 @@ function FibonacciPage() {
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">High Price</label>
-              <input type="number" value={high || ''} onChange={e => setHigh(Number(e.target.value))} className="w-full p-2 border border-input rounded bg-background font-mono text-lg" />
+              <input
+                type="number"
+                value={high || ""}
+                onChange={(e) => setHigh(Number(e.target.value))}
+                className="w-full p-2 border border-input rounded bg-background font-mono text-lg"
+              />
             </div>
             <div>
               <label className="text-sm font-medium mb-1 block">Low Price</label>
-              <input type="number" value={low || ''} onChange={e => setLow(Number(e.target.value))} className="w-full p-2 border border-input rounded bg-background font-mono text-lg" />
+              <input
+                type="number"
+                value={low || ""}
+                onChange={(e) => setLow(Number(e.target.value))}
+                className="w-full p-2 border border-input rounded bg-background font-mono text-lg"
+              />
             </div>
           </div>
 
@@ -84,9 +96,20 @@ function FibonacciPage() {
               </div>
               <div className="divide-y divide-border">
                 {retracements.map((r, i) => (
-                  <div key={r.level} className={`p-3 flex justify-between items-center hover:bg-accent/30 transition-colors ${r.level === "50.0%" || r.level === "61.8%" ? "bg-primary/5" : ""}`}>
-                    <span className={`font-mono text-sm ${r.level === "50.0%" || r.level === "61.8%" ? "text-primary font-bold" : "text-muted-foreground"}`}>{r.level}</span>
-                    <span className={`font-mono ${r.level === "50.0%" || r.level === "61.8%" ? "font-bold" : ""}`}>{fmt(r.value)}</span>
+                  <div
+                    key={r.level}
+                    className={`p-3 flex justify-between items-center hover:bg-accent/30 transition-colors ${r.level === "50.0%" || r.level === "61.8%" ? "bg-primary/5" : ""}`}
+                  >
+                    <span
+                      className={`font-mono text-sm ${r.level === "50.0%" || r.level === "61.8%" ? "text-primary font-bold" : "text-muted-foreground"}`}
+                    >
+                      {r.level}
+                    </span>
+                    <span
+                      className={`font-mono ${r.level === "50.0%" || r.level === "61.8%" ? "font-bold" : ""}`}
+                    >
+                      {fmt(r.value)}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -99,7 +122,10 @@ function FibonacciPage() {
               </div>
               <div className="divide-y divide-border">
                 {extensions.map((e) => (
-                  <div key={e.level} className="p-3 flex justify-between items-center hover:bg-accent/30 transition-colors">
+                  <div
+                    key={e.level}
+                    className="p-3 flex justify-between items-center hover:bg-accent/30 transition-colors"
+                  >
                     <span className="font-mono text-sm text-primary">{e.level}</span>
                     <span className="font-mono font-bold">{fmt(e.value)}</span>
                   </div>

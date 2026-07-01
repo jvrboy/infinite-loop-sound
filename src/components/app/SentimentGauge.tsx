@@ -11,7 +11,13 @@ interface Props {
   sources?: { name: string; sentiment: "bullish" | "bearish" | "neutral"; weight: number }[];
 }
 
-export function SentimentGauge({ bullishSignals, bearishSignals, neutralSignals, pair, sources }: Props) {
+export function SentimentGauge({
+  bullishSignals,
+  bearishSignals,
+  neutralSignals,
+  pair,
+  sources,
+}: Props) {
   const total = bullishSignals + bearishSignals + neutralSignals;
 
   const sentiment = useMemo(() => {
@@ -34,7 +40,11 @@ export function SentimentGauge({ bullishSignals, bearishSignals, neutralSignals,
           <span className="flex items-center gap-2">
             <Gauge className="w-4 h-4 text-primary" /> Market Sentiment
           </span>
-          {pair && <Badge variant="outline" className="text-[10px] font-mono">{pair}</Badge>}
+          {pair && (
+            <Badge variant="outline" className="text-[10px] font-mono">
+              {pair}
+            </Badge>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0 space-y-3">
@@ -85,12 +95,25 @@ export function SentimentGauge({ bullishSignals, bearishSignals, neutralSignals,
             />
             {/* Needle */}
             <g transform={`rotate(${rotation}, 100, 100)`}>
-              <line x1="100" y1="100" x2="100" y2="35" stroke="currentColor" strokeWidth="2.5" className="text-foreground" strokeLinecap="round" />
+              <line
+                x1="100"
+                y1="100"
+                x2="100"
+                y2="35"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                className="text-foreground"
+                strokeLinecap="round"
+              />
               <circle cx="100" cy="100" r="5" fill="currentColor" className="text-foreground" />
             </g>
             {/* Labels */}
-            <text x="15" y="108" className="text-[8px] fill-bear" textAnchor="start">BEAR</text>
-            <text x="185" y="108" className="text-[8px] fill-bull" textAnchor="end">BULL</text>
+            <text x="15" y="108" className="text-[8px] fill-bear" textAnchor="start">
+              BEAR
+            </text>
+            <text x="185" y="108" className="text-[8px] fill-bull" textAnchor="end">
+              BULL
+            </text>
           </svg>
         </div>
 
@@ -99,9 +122,7 @@ export function SentimentGauge({ bullishSignals, bearishSignals, neutralSignals,
           <div className={`text-xl font-bold font-mono ${sentiment.color}`}>
             {sentiment.score.toFixed(0)}
           </div>
-          <div className={`text-xs font-semibold ${sentiment.color}`}>
-            {sentiment.label}
-          </div>
+          <div className={`text-xs font-semibold ${sentiment.color}`}>{sentiment.label}</div>
         </div>
 
         {/* Signal breakdown */}
@@ -126,15 +147,21 @@ export function SentimentGauge({ bullishSignals, bearishSignals, neutralSignals,
         {/* Sources breakdown */}
         {sources && sources.length > 0 && (
           <div className="space-y-1 pt-2 border-t border-border">
-            <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">Signal Sources</div>
+            <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-1">
+              Signal Sources
+            </div>
             {sources.map((s, i) => (
               <div key={i} className="flex items-center justify-between text-[11px]">
                 <span className="text-muted-foreground">{s.name}</span>
-                <Badge className={`text-[9px] ${
-                  s.sentiment === "bullish" ? "bg-bull/10 text-bull border-bull/30" :
-                  s.sentiment === "bearish" ? "bg-bear/10 text-bear border-bear/30" :
-                  "bg-muted text-muted-foreground border-border"
-                }`}>
+                <Badge
+                  className={`text-[9px] ${
+                    s.sentiment === "bullish"
+                      ? "bg-bull/10 text-bull border-bull/30"
+                      : s.sentiment === "bearish"
+                        ? "bg-bear/10 text-bear border-bear/30"
+                        : "bg-muted text-muted-foreground border-border"
+                  }`}
+                >
                   {s.sentiment}
                 </Badge>
               </div>

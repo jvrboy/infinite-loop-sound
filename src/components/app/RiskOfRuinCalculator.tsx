@@ -20,9 +20,11 @@ export function RiskOfRuinCalculator() {
   );
 
   const tone =
-    result.ror < 0.05 ? "bg-emerald-500/20 text-emerald-300" :
-    result.ror < 0.25 ? "bg-yellow-500/20 text-yellow-300" :
-    "bg-red-500/20 text-red-300 animate-pulse";
+    result.ror < 0.05
+      ? "bg-emerald-500/20 text-emerald-300"
+      : result.ror < 0.25
+        ? "bg-yellow-500/20 text-yellow-300"
+        : "bg-red-500/20 text-red-300 animate-pulse";
 
   return (
     <Card>
@@ -34,18 +36,37 @@ export function RiskOfRuinCalculator() {
         <div className="grid grid-cols-3 gap-3">
           <div>
             <Label htmlFor="ror-wr">Win rate</Label>
-            <Input id="ror-wr" type="number" step="0.01" min={0} max={1}
-              value={winRate} onChange={(e) => setWinRate(parseFloat(e.target.value) || 0)} />
+            <Input
+              id="ror-wr"
+              type="number"
+              step="0.01"
+              min={0}
+              max={1}
+              value={winRate}
+              onChange={(e) => setWinRate(parseFloat(e.target.value) || 0)}
+            />
           </div>
           <div>
             <Label htmlFor="ror-pay">Payoff (R)</Label>
-            <Input id="ror-pay" type="number" step="0.1" min={0.1}
-              value={payoff} onChange={(e) => setPayoff(parseFloat(e.target.value) || 0)} />
+            <Input
+              id="ror-pay"
+              type="number"
+              step="0.1"
+              min={0.1}
+              value={payoff}
+              onChange={(e) => setPayoff(parseFloat(e.target.value) || 0)}
+            />
           </div>
           <div>
             <Label htmlFor="ror-risk">Risk %</Label>
-            <Input id="ror-risk" type="number" step="0.1" min={0.1}
-              value={risk} onChange={(e) => setRisk(parseFloat(e.target.value) || 0)} />
+            <Input
+              id="ror-risk"
+              type="number"
+              step="0.1"
+              min={0.1}
+              value={risk}
+              onChange={(e) => setRisk(parseFloat(e.target.value) || 0)}
+            />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2 rounded-md border bg-muted/30 p-3 text-sm">

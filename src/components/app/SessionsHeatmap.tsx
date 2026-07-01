@@ -4,10 +4,10 @@ import { Badge } from "../ui/badge";
 import { Clock, Globe, Activity } from "lucide-react";
 
 export interface SessionActivity {
-  hour: number;       // 0-23 UTC
+  hour: number; // 0-23 UTC
   session: "sydney" | "tokyo" | "london" | "new_york" | "overlap";
-  avgVolatility: number;  // normalized 0-100
-  avgVolume: number;      // normalized 0-100
+  avgVolatility: number; // normalized 0-100
+  avgVolume: number; // normalized 0-100
   tradeCount: number;
   winRate: number;
 }
@@ -19,10 +19,34 @@ interface Props {
 }
 
 const SESSIONS = [
-  { id: "sydney", label: "Sydney", start: 22, end: 7, color: "bg-purple-500/20 text-purple-400 border-purple-500/30" },
-  { id: "tokyo", label: "Tokyo", start: 0, end: 9, color: "bg-blue-500/20 text-blue-400 border-blue-500/30" },
-  { id: "london", label: "London", start: 7, end: 16, color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
-  { id: "new_york", label: "New York", start: 13, end: 22, color: "bg-amber-500/20 text-amber-400 border-amber-500/30" },
+  {
+    id: "sydney",
+    label: "Sydney",
+    start: 22,
+    end: 7,
+    color: "bg-purple-500/20 text-purple-400 border-purple-500/30",
+  },
+  {
+    id: "tokyo",
+    label: "Tokyo",
+    start: 0,
+    end: 9,
+    color: "bg-blue-500/20 text-blue-400 border-blue-500/30",
+  },
+  {
+    id: "london",
+    label: "London",
+    start: 7,
+    end: 16,
+    color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+  },
+  {
+    id: "new_york",
+    label: "New York",
+    start: 13,
+    end: 22,
+    color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+  },
 ];
 
 const OVERLAPS = [
@@ -39,15 +63,35 @@ function generateDefaultData(): SessionActivity[] {
     let volume = 15;
 
     // London/NY overlap — highest volatility
-    if (h >= 13 && h < 16) { session = "overlap"; vol = 85 + Math.random() * 15; volume = 90 + Math.random() * 10; }
+    if (h >= 13 && h < 16) {
+      session = "overlap";
+      vol = 85 + Math.random() * 15;
+      volume = 90 + Math.random() * 10;
+    }
     // London session
-    else if (h >= 7 && h < 13) { session = "london"; vol = 55 + Math.random() * 25; volume = 60 + Math.random() * 20; }
+    else if (h >= 7 && h < 13) {
+      session = "london";
+      vol = 55 + Math.random() * 25;
+      volume = 60 + Math.random() * 20;
+    }
     // NY session
-    else if (h >= 16 && h < 22) { session = "new_york"; vol = 45 + Math.random() * 20; volume = 50 + Math.random() * 15; }
+    else if (h >= 16 && h < 22) {
+      session = "new_york";
+      vol = 45 + Math.random() * 20;
+      volume = 50 + Math.random() * 15;
+    }
     // Tokyo session
-    else if (h >= 0 && h < 7) { session = "tokyo"; vol = 30 + Math.random() * 15; volume = 25 + Math.random() * 15; }
+    else if (h >= 0 && h < 7) {
+      session = "tokyo";
+      vol = 30 + Math.random() * 15;
+      volume = 25 + Math.random() * 15;
+    }
     // Sydney
-    else { session = "sydney"; vol = 15 + Math.random() * 10; volume = 10 + Math.random() * 10; }
+    else {
+      session = "sydney";
+      vol = 15 + Math.random() * 10;
+      volume = 10 + Math.random() * 10;
+    }
 
     data.push({
       hour: h,
@@ -96,10 +140,13 @@ export function SessionsHeatmap({ data, currentHourUTC, timezone = "UTC" }: Prop
           <span className="flex items-center gap-2">
             <Globe className="w-4 h-4 text-primary" /> Market Sessions
           </span>
-          <Badge className={activeSession.isOverlap
-            ? "bg-bull/20 text-bull border-bull/30 text-[10px]"
-            : "bg-primary/20 text-primary border-primary/30 text-[10px]"
-          }>
+          <Badge
+            className={
+              activeSession.isOverlap
+                ? "bg-bull/20 text-bull border-bull/30 text-[10px]"
+                : "bg-primary/20 text-primary border-primary/30 text-[10px]"
+            }
+          >
             <Activity className="w-3 h-3 mr-1" />
             {activeSession.label}
           </Badge>
@@ -108,14 +155,16 @@ export function SessionsHeatmap({ data, currentHourUTC, timezone = "UTC" }: Prop
       <CardContent className="pt-0 space-y-3">
         {/* Session bars */}
         <div className="space-y-1">
-          {SESSIONS.map(s => {
+          {SESSIONS.map((s) => {
             const isActive = (() => {
               if (s.start < s.end) return nowHour >= s.start && nowHour < s.end;
               return nowHour >= s.start || nowHour < s.end;
             })();
             return (
               <div key={s.id} className="flex items-center gap-2">
-                <span className={`text-[10px] w-16 font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}>
+                <span
+                  className={`text-[10px] w-16 font-medium ${isActive ? "text-foreground" : "text-muted-foreground"}`}
+                >
                   {s.label}
                 </span>
                 <div className="flex-1 h-3 bg-muted/30 rounded-full overflow-hidden relative">
@@ -194,9 +243,15 @@ export function SessionsHeatmap({ data, currentHourUTC, timezone = "UTC" }: Prop
             Optimal Trading Windows
           </div>
           <div className="text-[11px] text-muted-foreground space-y-0.5">
-            <div>🟢 <strong>13:00–16:00 UTC</strong> — London/NY overlap (highest liquidity)</div>
-            <div>🟡 <strong>07:00–09:00 UTC</strong> — Tokyo/London overlap</div>
-            <div>🔵 <strong>08:00–12:00 UTC</strong> — London session peak</div>
+            <div>
+              🟢 <strong>13:00–16:00 UTC</strong> — London/NY overlap (highest liquidity)
+            </div>
+            <div>
+              🟡 <strong>07:00–09:00 UTC</strong> — Tokyo/London overlap
+            </div>
+            <div>
+              🔵 <strong>08:00–12:00 UTC</strong> — London session peak
+            </div>
           </div>
         </div>
       </CardContent>

@@ -2,9 +2,9 @@
 // metals (XAU/XAG) use 0.1, indices use 1.0. Crypto pairs treat tickSize as pip.
 
 export interface PipInfo {
-  pipSize: number;        // price unit of 1 pip
+  pipSize: number; // price unit of 1 pip
   pipValuePerLot: number; // USD value of 1 pip per 1.0 standard lot (100k)
-  spreadCostUsd: number;  // cost of the spread at given lot size
+  spreadCostUsd: number; // cost of the spread at given lot size
 }
 
 export function pipSizeFor(symbol: string): number {
@@ -21,11 +21,7 @@ export function pipSizeFor(symbol: string): number {
  * Compute pip value per standard lot. For pairs quoted in USD this is a
  * direct calculation; for others we accept a quote rate to USD.
  */
-export function pipValue(
-  symbol: string,
-  lotSize: number,
-  quoteToUsdRate = 1
-): PipInfo {
+export function pipValue(symbol: string, lotSize: number, quoteToUsdRate = 1): PipInfo {
   const pipSize = pipSizeFor(symbol);
   // 1 std lot = 100,000 units of base currency
   const valuePerLot = (pipSize / 1) * 100_000 * quoteToUsdRate;

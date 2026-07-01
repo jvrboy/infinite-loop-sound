@@ -21,15 +21,16 @@ function readEnv(name: string): string | undefined {
     // Vite injects import.meta.env at build time; process.env is for SSR.
     const fromMeta = (import.meta as any)?.env?.[name];
     if (fromMeta) return String(fromMeta);
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   if (typeof process !== "undefined" && process.env && process.env[name]) {
     return String(process.env[name]);
   }
   return undefined;
 }
 
-const SUPABASE_URL =
-  readEnv("VITE_SUPABASE_URL") || readEnv("SUPABASE_URL");
+const SUPABASE_URL = readEnv("VITE_SUPABASE_URL") || readEnv("SUPABASE_URL");
 const SUPABASE_PUBLISHABLE_KEY =
   readEnv("VITE_SUPABASE_PUBLISHABLE_KEY") ||
   readEnv("SUPABASE_PUBLISHABLE_KEY") ||
@@ -45,14 +46,17 @@ let _warned = false;
 function warnOnce() {
   if (_warned) return;
   _warned = true;
-  // eslint-disable-next-line no-console
+
   console.warn(
     "[Supabase] Not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY (or SUPABASE_URL / SUPABASE_PUBLISHABLE_KEY for SSR) to enable database features. See .env.example.",
   );
 }
 
 function stubResult(method: string) {
-  return { data: null, error: { message: `Supabase not configured (${method})`, name: "SupabaseNotConfigured" } };
+  return {
+    data: null,
+    error: { message: `Supabase not configured (${method})`, name: "SupabaseNotConfigured" },
+  };
 }
 
 function createStubClient(): SupabaseClient<Database> {
@@ -62,32 +66,69 @@ function createStubClient(): SupabaseClient<Database> {
     update: () => Promise.resolve(stubResult("update")),
     upsert: () => Promise.resolve(stubResult("upsert")),
     delete: () => Promise.resolve(stubResult("delete")),
-    eq: () => q, in: () => q, is: () => q, gt: () => q, gte: () => q, lt: () => q, lte: () => q,
-    order: () => q, limit: () => q, range: () => q,
+    eq: () => q,
+    in: () => q,
+    is: () => q,
+    gt: () => q,
+    gte: () => q,
+    lt: () => q,
+    lte: () => q,
+    order: () => q,
+    limit: () => q,
+    range: () => q,
     single: () => Promise.resolve(stubResult("single")),
     maybeSingle: () => Promise.resolve(stubResult("maybeSingle")),
     then: (r: any) => Promise.resolve(stubResult("select")).then(r),
   };
   const ch: any = { on: () => ch, subscribe: () => ch, unsubscribe: () => Promise.resolve("ok") };
   return {
-    from: () => { warnOnce(); return q; },
-    rpc: () => { warnOnce(); return Promise.resolve(stubResult("rpc")); },
-    channel: () => { warnOnce(); return ch; },
+    from: () => {
+      warnOnce();
+      return q;
+    },
+    rpc: () => {
+      warnOnce();
+      return Promise.resolve(stubResult("rpc"));
+    },
+    channel: () => {
+      warnOnce();
+      return ch;
+    },
     removeChannel: () => Promise.resolve("ok"),
     auth: {
       getUser: async () => ({ data: { user: null }, error: null }),
       getSession: async () => ({ data: { session: null }, error: null }),
-      signInWithPassword: async () => { warnOnce(); return stubResult("signIn"); },
-      signInWithOAuth: async () => { warnOnce(); return stubResult("signInWithOAuth"); },
-      signUp: async () => { warnOnce(); return stubResult("signUp"); },
+      signInWithPassword: async () => {
+        warnOnce();
+        return stubResult("signIn");
+      },
+      signInWithOAuth: async () => {
+        warnOnce();
+        return stubResult("signInWithOAuth");
+      },
+      signUp: async () => {
+        warnOnce();
+        return stubResult("signUp");
+      },
       signOut: async () => ({ error: null }),
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } }),
     },
-    functions: { invoke: async () => { warnOnce(); return stubResult("invoke"); } },
+    functions: {
+      invoke: async () => {
+        warnOnce();
+        return stubResult("invoke");
+      },
+    },
     storage: {
       from: () => ({
-        upload: async () => { warnOnce(); return stubResult("upload"); },
-        download: async () => { warnOnce(); return stubResult("download"); },
+        upload: async () => {
+          warnOnce();
+          return stubResult("upload");
+        },
+        download: async () => {
+          warnOnce();
+          return stubResult("download");
+        },
         getPublicUrl: () => ({ data: { publicUrl: "" } }),
         list: async () => stubResult("list"),
         remove: async () => stubResult("remove"),

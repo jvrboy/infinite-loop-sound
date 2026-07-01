@@ -2,8 +2,16 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState, useMemo } from "react";
 import {
-  Globe, Clock, Zap, TrendingUp, AlertTriangle, CheckCircle2,
-  Activity, Target, BarChart3, Info
+  Globe,
+  Clock,
+  Zap,
+  TrendingUp,
+  AlertTriangle,
+  CheckCircle2,
+  Activity,
+  Target,
+  BarChart3,
+  Info,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -12,7 +20,11 @@ export const Route = createFileRoute("/session-overlap")({
   head: () => ({
     meta: [
       { title: "Session Overlap Detector — DivergenceIQ" },
-      { name: "description", content: "Real-time forex session overlap detection with liquidity scoring and trade recommendations." },
+      {
+        name: "description",
+        content:
+          "Real-time forex session overlap detection with liquidity scoring and trade recommendations.",
+      },
     ],
   }),
   component: SessionOverlapPage,
@@ -22,8 +34,8 @@ interface SessionDef {
   name: string;
   color: string;
   bgColor: string;
-  openUTC: number;   // hour
-  closeUTC: number;  // hour (can wrap past 24)
+  openUTC: number; // hour
+  closeUTC: number; // hour (can wrap past 24)
   pairs: string[];
   description: string;
 }
@@ -33,7 +45,8 @@ const SESSIONS: SessionDef[] = [
     name: "Sydney",
     color: "text-blue-400",
     bgColor: "bg-blue-500",
-    openUTC: 21, closeUTC: 6,
+    openUTC: 21,
+    closeUTC: 6,
     pairs: ["AUD/USD", "NZD/USD", "AUD/JPY"],
     description: "Low volatility, thin liquidity. Suitable for range strategies.",
   },
@@ -41,7 +54,8 @@ const SESSIONS: SessionDef[] = [
     name: "Tokyo",
     color: "text-amber-400",
     bgColor: "bg-amber-500",
-    openUTC: 0, closeUTC: 9,
+    openUTC: 0,
+    closeUTC: 9,
     pairs: ["USD/JPY", "EUR/JPY", "AUD/JPY", "GBP/JPY"],
     description: "Moderate volatility. JPY pairs most active. Range-bound for EUR/USD.",
   },
@@ -49,7 +63,8 @@ const SESSIONS: SessionDef[] = [
     name: "London",
     color: "text-violet-400",
     bgColor: "bg-violet-500",
-    openUTC: 7, closeUTC: 16,
+    openUTC: 7,
+    closeUTC: 16,
     pairs: ["EUR/USD", "GBP/USD", "EUR/GBP", "USD/CHF"],
     description: "Highest liquidity session. Major moves often begin here.",
   },
@@ -57,7 +72,8 @@ const SESSIONS: SessionDef[] = [
     name: "New York",
     color: "text-bull",
     bgColor: "bg-bull",
-    openUTC: 12, closeUTC: 21,
+    openUTC: 12,
+    closeUTC: 21,
     pairs: ["EUR/USD", "GBP/USD", "USD/CAD", "USD/JPY"],
     description: "High volatility, especially during US economic releases.",
   },
@@ -71,7 +87,11 @@ interface OverlapInfo {
   risk: "LOW" | "MEDIUM" | "HIGH";
 }
 
-function getSessionProgress(session: SessionDef, utcHour: number, utcMin: number): { open: boolean; progress: number; minutesLeft: number } {
+function getSessionProgress(
+  session: SessionDef,
+  utcHour: number,
+  utcMin: number,
+): { open: boolean; progress: number; minutesLeft: number } {
   const nowDecimal = utcHour + utcMin / 60;
   const { openUTC: o, closeUTC: c } = session;
   const wraps = o > c;
@@ -83,7 +103,7 @@ function getSessionProgress(session: SessionDef, utcHour: number, utcMin: number
     open = nowDecimal >= o && nowDecimal < c;
   }
 
-  const length = wraps ? (24 - o + c) : (c - o);
+  const length = wraps ? 24 - o + c : c - o;
   let elapsed: number;
   if (wraps) {
     elapsed = nowDecimal >= o ? nowDecimal - o : 24 - o + nowDecimal;
@@ -98,8 +118,8 @@ function getSessionProgress(session: SessionDef, utcHour: number, utcMin: number
 }
 
 function computeOverlap(utcHour: number, utcMin: number): OverlapInfo {
-  const openSessions = SESSIONS.filter(s => getSessionProgress(s, utcHour, utcMin).open);
-  const names = openSessions.map(s => s.name);
+  const openSessions = SESSIONS.filter((s) => getSessionProgress(s, utcHour, utcMin).open);
+  const names = openSessions.map((s) => s.name);
 
   // Liquidity score based on overlap
   let liquidityScore = 0;
@@ -114,26 +134,30 @@ function computeOverlap(utcHour: number, utcMin: number): OverlapInfo {
 
   // Best pairs from active sessions
   const pairSet = new Set<string>();
-  openSessions.forEach(s => s.pairs.forEach(p => pairSet.add(p)));
+  openSessions.forEach((s) => s.pairs.forEach((p) => pairSet.add(p)));
   const bestPairs = Array.from(pairSet).slice(0, 5);
 
   let recommendation = "";
   let risk: "LOW" | "MEDIUM" | "HIGH" = "LOW";
 
   if (names.includes("London") && names.includes("New York")) {
-    recommendation = "PRIME OVERLAP: London-NY overlap (12:00–16:00 UTC). Highest liquidity and volatility of the day. Ideal for breakout and momentum strategies on EUR/USD, GBP/USD.";
+    recommendation =
+      "PRIME OVERLAP: London-NY overlap (12:00–16:00 UTC). Highest liquidity and volatility of the day. Ideal for breakout and momentum strategies on EUR/USD, GBP/USD.";
     risk = "HIGH";
   } else if (names.includes("Tokyo") && names.includes("London")) {
-    recommendation = "ACTIVE OVERLAP: Tokyo-London overlap (07:00–09:00 UTC). EUR/JPY and GBP/JPY often see sharp moves. Good for breakout entries.";
+    recommendation =
+      "ACTIVE OVERLAP: Tokyo-London overlap (07:00–09:00 UTC). EUR/JPY and GBP/JPY often see sharp moves. Good for breakout entries.";
     risk = "MEDIUM";
   } else if (names.includes("Sydney") && names.includes("Tokyo")) {
-    recommendation = "LIGHT OVERLAP: Sydney-Tokyo overlap. AUD/JPY and NZD/USD most active. Suitable for range trading with tight stops.";
+    recommendation =
+      "LIGHT OVERLAP: Sydney-Tokyo overlap. AUD/JPY and NZD/USD most active. Suitable for range trading with tight stops.";
     risk = "LOW";
   } else if (openSessions.length === 1) {
     recommendation = `Single session (${names[0]}) open. ${openSessions[0].description}`;
     risk = names[0] === "London" || names[0] === "New York" ? "MEDIUM" : "LOW";
   } else if (openSessions.length === 0) {
-    recommendation = "No major session open. Very thin liquidity — avoid trading or use wide stops. Watch for gap risk.";
+    recommendation =
+      "No major session open. Very thin liquidity — avoid trading or use wide stops. Watch for gap risk.";
     risk = "LOW";
   } else {
     recommendation = `${names.join(" + ")} sessions active. Monitor for confluence setups.`;
@@ -145,8 +169,7 @@ function computeOverlap(utcHour: number, utcMin: number): OverlapInfo {
 
 // 24-hour liquidity profile (approximate scores per hour UTC)
 const HOURLY_LIQUIDITY = [
-  55, 50, 45, 40, 40, 38, 38, 65, 80, 80, 78, 75,
-  100, 100, 98, 95, 85, 75, 70, 70, 68, 65, 60, 58,
+  55, 50, 45, 40, 40, 38, 38, 65, 80, 80, 78, 75, 100, 100, 98, 95, 85, 75, 70, 70, 68, 65, 60, 58,
 ];
 
 function SessionOverlapPage() {
@@ -164,9 +187,9 @@ function SessionOverlapPage() {
 
   const overlap = useMemo(() => computeOverlap(utcHour, utcMin), [utcHour, utcMin]);
 
-  const sessionStates = useMemo(() =>
-    SESSIONS.map(s => ({ ...s, ...getSessionProgress(s, utcHour, utcMin) })),
-    [utcHour, utcMin]
+  const sessionStates = useMemo(
+    () => SESSIONS.map((s) => ({ ...s, ...getSessionProgress(s, utcHour, utcMin) })),
+    [utcHour, utcMin],
   );
 
   const riskColors: Record<string, string> = {
@@ -175,9 +198,12 @@ function SessionOverlapPage() {
     HIGH: "bg-bull/10 border-bull/30 text-bull",
   };
 
-  const liquidityColor = overlap.liquidityScore >= 80
-    ? "text-bull" : overlap.liquidityScore >= 55
-    ? "text-amber-400" : "text-muted-foreground";
+  const liquidityColor =
+    overlap.liquidityScore >= 80
+      ? "text-bull"
+      : overlap.liquidityScore >= 55
+        ? "text-amber-400"
+        : "text-muted-foreground";
 
   return (
     <AppShell>
@@ -196,10 +222,13 @@ function SessionOverlapPage() {
         <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <Clock className="w-4 h-4" />
           <span className="font-mono text-foreground font-semibold">
-            {String(utcHour).padStart(2, "0")}:{String(utcMin).padStart(2, "0")}:{String(utcSec).padStart(2, "0")} UTC
+            {String(utcHour).padStart(2, "0")}:{String(utcMin).padStart(2, "0")}:
+            {String(utcSec).padStart(2, "0")} UTC
           </span>
           <span>·</span>
-          <span>{now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}</span>
+          <span>
+            {now.toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" })}
+          </span>
         </div>
 
         {/* Overlap Status Banner */}
@@ -217,8 +246,8 @@ function SessionOverlapPage() {
                 {overlap.sessions.length >= 2
                   ? `${overlap.sessions.join(" + ")} Overlap`
                   : overlap.sessions.length === 1
-                  ? `${overlap.sessions[0]} Session`
-                  : "Off-Hours"}
+                    ? `${overlap.sessions[0]} Session`
+                    : "Off-Hours"}
               </span>
               <Badge variant="outline" className={riskColors[overlap.risk]}>
                 {overlap.risk} VOLATILITY
@@ -246,8 +275,11 @@ function SessionOverlapPage() {
               <div className="w-full bg-muted rounded-full h-2">
                 <div
                   className={`h-2 rounded-full transition-all duration-500 ${
-                    overlap.liquidityScore >= 80 ? "bg-bull" :
-                    overlap.liquidityScore >= 55 ? "bg-amber-500" : "bg-muted-foreground"
+                    overlap.liquidityScore >= 80
+                      ? "bg-bull"
+                      : overlap.liquidityScore >= 55
+                        ? "bg-amber-500"
+                        : "bg-muted-foreground"
                   }`}
                   style={{ width: `${overlap.liquidityScore}%` }}
                 />
@@ -256,8 +288,8 @@ function SessionOverlapPage() {
                 {overlap.liquidityScore >= 80
                   ? "Excellent liquidity. Tight spreads, fast execution expected."
                   : overlap.liquidityScore >= 55
-                  ? "Moderate liquidity. Normal spreads. Suitable for most strategies."
-                  : "Low liquidity. Expect wider spreads and slower fills."}
+                    ? "Moderate liquidity. Normal spreads. Suitable for most strategies."
+                    : "Low liquidity. Expect wider spreads and slower fills."}
               </p>
             </CardContent>
           </Card>
@@ -273,8 +305,12 @@ function SessionOverlapPage() {
                 <p className="text-sm text-muted-foreground">No active sessions — avoid trading.</p>
               ) : (
                 <div className="flex flex-wrap gap-2">
-                  {overlap.bestPairs.map(p => (
-                    <Badge key={p} variant="outline" className="text-sm font-mono px-3 py-1.5 bg-primary/5 border-primary/30 text-primary">
+                  {overlap.bestPairs.map((p) => (
+                    <Badge
+                      key={p}
+                      variant="outline"
+                      className="text-sm font-mono px-3 py-1.5 bg-primary/5 border-primary/30 text-primary"
+                    >
                       {p}
                     </Badge>
                   ))}
@@ -295,24 +331,38 @@ function SessionOverlapPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {sessionStates.map(s => (
+            {sessionStates.map((s) => (
               <div key={s.name}>
                 <div className="flex items-center justify-between mb-1.5">
                   <div className="flex items-center gap-2">
                     <div className={`w-2 h-2 rounded-full ${s.open ? s.bgColor : "bg-muted"}`} />
-                    <span className={`text-sm font-medium ${s.open ? s.color : "text-muted-foreground"}`}>{s.name}</span>
+                    <span
+                      className={`text-sm font-medium ${s.open ? s.color : "text-muted-foreground"}`}
+                    >
+                      {s.name}
+                    </span>
                     <span className="text-[10px] text-muted-foreground font-mono">
-                      {String(s.openUTC).padStart(2, "0")}:00 – {String(s.closeUTC).padStart(2, "0")}:00 UTC
+                      {String(s.openUTC).padStart(2, "0")}:00 –{" "}
+                      {String(s.closeUTC).padStart(2, "0")}:00 UTC
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     {s.open ? (
                       <>
-                        <Badge variant="outline" className="text-[10px] bg-bull/10 text-bull border-bull/30">OPEN</Badge>
-                        <span className="text-[10px] text-muted-foreground font-mono">{Math.floor(s.minutesLeft / 60)}h {s.minutesLeft % 60}m left</span>
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] bg-bull/10 text-bull border-bull/30"
+                        >
+                          OPEN
+                        </Badge>
+                        <span className="text-[10px] text-muted-foreground font-mono">
+                          {Math.floor(s.minutesLeft / 60)}h {s.minutesLeft % 60}m left
+                        </span>
                       </>
                     ) : (
-                      <Badge variant="outline" className="text-[10px] text-muted-foreground">CLOSED</Badge>
+                      <Badge variant="outline" className="text-[10px] text-muted-foreground">
+                        CLOSED
+                      </Badge>
                     )}
                   </div>
                 </div>
@@ -340,9 +390,14 @@ function SessionOverlapPage() {
               {HOURLY_LIQUIDITY.map((score, hour) => {
                 const isCurrent = hour === utcHour;
                 const height = Math.max(8, (score / 100) * 100);
-                const color = score >= 80 ? "bg-bull" : score >= 55 ? "bg-amber-500" : "bg-muted-foreground/40";
+                const color =
+                  score >= 80 ? "bg-bull" : score >= 55 ? "bg-amber-500" : "bg-muted-foreground/40";
                 return (
-                  <div key={hour} className="flex-1 flex flex-col items-center gap-0.5" title={`${String(hour).padStart(2, "0")}:00 UTC — Liquidity: ${score}`}>
+                  <div
+                    key={hour}
+                    className="flex-1 flex flex-col items-center gap-0.5"
+                    title={`${String(hour).padStart(2, "0")}:00 UTC — Liquidity: ${score}`}
+                  >
                     <div
                       className={`w-full rounded-t transition-all ${color} ${isCurrent ? "ring-1 ring-white/50" : ""}`}
                       style={{ height: `${height}%` }}
@@ -352,14 +407,30 @@ function SessionOverlapPage() {
               })}
             </div>
             <div className="flex justify-between text-[9px] text-muted-foreground font-mono mt-1">
-              <span>00</span><span>03</span><span>06</span><span>09</span>
-              <span>12</span><span>15</span><span>18</span><span>21</span><span>23</span>
+              <span>00</span>
+              <span>03</span>
+              <span>06</span>
+              <span>09</span>
+              <span>12</span>
+              <span>15</span>
+              <span>18</span>
+              <span>21</span>
+              <span>23</span>
             </div>
             <div className="flex items-center gap-4 mt-2 text-[10px] text-muted-foreground">
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-bull inline-block" /> High (≥80)</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-amber-500 inline-block" /> Medium (55–79)</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-muted-foreground/40 inline-block" /> Low (&lt;55)</span>
-              <span className="flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-white/50 inline-block" /> Current hour</span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-sm bg-bull inline-block" /> High (≥80)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-sm bg-amber-500 inline-block" /> Medium (55–79)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-sm bg-muted-foreground/40 inline-block" /> Low
+                (&lt;55)
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="w-2 h-2 rounded-sm bg-white/50 inline-block" /> Current hour
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -374,24 +445,60 @@ function SessionOverlapPage() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               {[
-                { name: "Sydney + Tokyo", time: "00:00 – 06:00", score: 55, pairs: "AUD/JPY, NZD/USD", desc: "Light overlap. Range-bound conditions." },
-                { name: "Tokyo + London", time: "07:00 – 09:00", score: 80, pairs: "EUR/JPY, GBP/JPY", desc: "Sharp moves possible. Watch for breakouts." },
-                { name: "London + New York", time: "12:00 – 16:00", score: 100, pairs: "EUR/USD, GBP/USD", desc: "PRIME window. Highest daily volume and volatility." },
-              ].map(w => {
-                const isActive = overlap.sessions.length >= 2 &&
-                  w.name.split(" + ").every(n => overlap.sessions.includes(n));
+                {
+                  name: "Sydney + Tokyo",
+                  time: "00:00 – 06:00",
+                  score: 55,
+                  pairs: "AUD/JPY, NZD/USD",
+                  desc: "Light overlap. Range-bound conditions.",
+                },
+                {
+                  name: "Tokyo + London",
+                  time: "07:00 – 09:00",
+                  score: 80,
+                  pairs: "EUR/JPY, GBP/JPY",
+                  desc: "Sharp moves possible. Watch for breakouts.",
+                },
+                {
+                  name: "London + New York",
+                  time: "12:00 – 16:00",
+                  score: 100,
+                  pairs: "EUR/USD, GBP/USD",
+                  desc: "PRIME window. Highest daily volume and volatility.",
+                },
+              ].map((w) => {
+                const isActive =
+                  overlap.sessions.length >= 2 &&
+                  w.name.split(" + ").every((n) => overlap.sessions.includes(n));
                 return (
-                  <div key={w.name} className={`p-3 rounded-lg border ${isActive ? "border-primary/40 bg-primary/5" : "border-border bg-card"}`}>
+                  <div
+                    key={w.name}
+                    className={`p-3 rounded-lg border ${isActive ? "border-primary/40 bg-primary/5" : "border-border bg-card"}`}
+                  >
                     <div className="flex items-center justify-between mb-1">
-                      <span className={`text-sm font-semibold ${isActive ? "text-primary" : ""}`}>{w.name}</span>
-                      {isActive && <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/30">ACTIVE NOW</Badge>}
+                      <span className={`text-sm font-semibold ${isActive ? "text-primary" : ""}`}>
+                        {w.name}
+                      </span>
+                      {isActive && (
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] bg-primary/10 text-primary border-primary/30"
+                        >
+                          ACTIVE NOW
+                        </Badge>
+                      )}
                     </div>
                     <div className="text-xs font-mono text-muted-foreground mb-1">{w.time}</div>
                     <div className="flex items-center gap-1 mb-1">
                       <div className="w-full bg-muted rounded-full h-1">
-                        <div className={`h-1 rounded-full ${w.score >= 80 ? "bg-bull" : "bg-amber-500"}`} style={{ width: `${w.score}%` }} />
+                        <div
+                          className={`h-1 rounded-full ${w.score >= 80 ? "bg-bull" : "bg-amber-500"}`}
+                          style={{ width: `${w.score}%` }}
+                        />
                       </div>
-                      <span className="text-[10px] text-muted-foreground font-mono w-8">{w.score}</span>
+                      <span className="text-[10px] text-muted-foreground font-mono w-8">
+                        {w.score}
+                      </span>
                     </div>
                     <div className="text-[10px] text-primary/80 font-mono mb-1">{w.pairs}</div>
                     <p className="text-[10px] text-muted-foreground">{w.desc}</p>

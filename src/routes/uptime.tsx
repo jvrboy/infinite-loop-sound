@@ -1,7 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect } from "react";
-import { Activity, CheckCircle2, AlertTriangle, XCircle, RotateCw, Server, Clock, Zap } from "lucide-react";
+import {
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  XCircle,
+  RotateCw,
+  Server,
+  Clock,
+  Zap,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { runHealthCheck, getUptimeStats, startHealthMonitoring } from "@/lib/health-monitor";
 import { Button } from "@/components/ui/button";
@@ -45,19 +54,27 @@ function UptimePage() {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "healthy": return <CheckCircle2 className="w-4 h-4 text-bull" />;
-      case "degraded": return <AlertTriangle className="w-4 h-4 text-amber-400" />;
-      case "down": return <XCircle className="w-4 h-4 text-bear" />;
-      default: return <Activity className="w-4 h-4 text-muted-foreground" />;
+      case "healthy":
+        return <CheckCircle2 className="w-4 h-4 text-bull" />;
+      case "degraded":
+        return <AlertTriangle className="w-4 h-4 text-amber-400" />;
+      case "down":
+        return <XCircle className="w-4 h-4 text-bear" />;
+      default:
+        return <Activity className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "healthy": return "text-bull border-bull/30 bg-bull/5";
-      case "degraded": return "text-amber-400 border-amber-500/30 bg-amber-500/5";
-      case "down": return "text-bear border-bear/30 bg-bear/5";
-      default: return "text-muted-foreground border-border bg-card";
+      case "healthy":
+        return "text-bull border-bull/30 bg-bull/5";
+      case "degraded":
+        return "text-amber-400 border-amber-500/30 bg-amber-500/5";
+      case "down":
+        return "text-bear border-bear/30 bg-bear/5";
+      default:
+        return "text-muted-foreground border-border bg-card";
     }
   };
 
@@ -70,7 +87,9 @@ function UptimePage() {
               <Activity className="w-6 h-6 text-primary" />
               Uptime Monitoring
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">Health checks • Auto-restart • 99.9% uptime target</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Health checks • Auto-restart • 99.9% uptime target
+            </p>
           </div>
           <Button onClick={runCheck} disabled={loading} size="sm">
             <RotateCw className={`w-3.5 h-3.5 mr-1.5 ${loading ? "animate-spin" : ""}`} />
@@ -80,13 +99,17 @@ function UptimePage() {
 
         {/* Overview */}
         <div className="grid md:grid-cols-4 gap-4">
-          <div className={`rounded-xl border p-5 backdrop-blur ${getStatusColor(health?.status || "unknown")}`}>
+          <div
+            className={`rounded-xl border p-5 backdrop-blur ${getStatusColor(health?.status || "unknown")}`}
+          >
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs uppercase tracking-wider">Overall</span>
               {getStatusIcon(health?.status || "unknown")}
             </div>
             <div className="text-2xl font-bold capitalize">{health?.status || "Checking..."}</div>
-            <div className="text-xs opacity-70 mt-1">{health?.healthy}/{health?.total} services</div>
+            <div className="text-xs opacity-70 mt-1">
+              {health?.healthy}/{health?.total} services
+            </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
@@ -95,7 +118,9 @@ function UptimePage() {
               <Clock className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="text-2xl font-bold font-mono">{uptime?.uptime.formatted || "--"}</div>
-            <div className="text-xs text-muted-foreground mt-1">Since {uptime ? new Date(uptime.uptime.startedAt).toLocaleTimeString() : "--"}</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              Since {uptime ? new Date(uptime.uptime.startedAt).toLocaleTimeString() : "--"}
+            </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
@@ -103,19 +128,31 @@ function UptimePage() {
               <span className="text-xs uppercase tracking-wider text-muted-foreground">Health</span>
               <Server className="w-4 h-4 text-muted-foreground" />
             </div>
-            <div className="text-2xl font-bold font-mono text-bull">{uptime?.health.percentage || 0}%</div>
-            <div className="text-xs text-muted-foreground mt-1">{uptime?.health.status || "unknown"}</div>
+            <div className="text-2xl font-bold font-mono text-bull">
+              {uptime?.health.percentage || 0}%
+            </div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {uptime?.health.status || "unknown"}
+            </div>
           </div>
 
           <div className="rounded-xl border border-border bg-card/60 backdrop-blur p-5">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs uppercase tracking-wider text-muted-foreground">Auto-Restart</span>
-              <Zap className={`w-4 h-4 ${uptime?.autoRestart ? "text-bull" : "text-muted-foreground"}`} />
+              <span className="text-xs uppercase tracking-wider text-muted-foreground">
+                Auto-Restart
+              </span>
+              <Zap
+                className={`w-4 h-4 ${uptime?.autoRestart ? "text-bull" : "text-muted-foreground"}`}
+              />
             </div>
-            <div className={`text-2xl font-bold ${uptime?.autoRestart ? "text-bull" : "text-muted-foreground"}`}>
+            <div
+              className={`text-2xl font-bold ${uptime?.autoRestart ? "text-bull" : "text-muted-foreground"}`}
+            >
               {uptime?.autoRestart ? "ON" : "OFF"}
             </div>
-            <div className="text-xs text-muted-foreground mt-1">{uptime?.crashes || 0} crashes prevented</div>
+            <div className="text-xs text-muted-foreground mt-1">
+              {uptime?.crashes || 0} crashes prevented
+            </div>
           </div>
         </div>
 
@@ -123,11 +160,16 @@ function UptimePage() {
         <div className="rounded-xl border border-border bg-card/80 backdrop-blur overflow-hidden">
           <div className="p-4 border-b border-border flex items-center justify-between">
             <h2 className="font-semibold">Service Health</h2>
-            <span className="text-xs text-muted-foreground">Last check: {health ? new Date(health.timestamp).toLocaleTimeString() : "--"}</span>
+            <span className="text-xs text-muted-foreground">
+              Last check: {health ? new Date(health.timestamp).toLocaleTimeString() : "--"}
+            </span>
           </div>
           <div className="divide-y divide-border">
             {health?.checks.map((check: any) => (
-              <div key={check.name} className="p-4 flex items-center justify-between hover:bg-accent/20 transition-colors">
+              <div
+                key={check.name}
+                className="p-4 flex items-center justify-between hover:bg-accent/20 transition-colors"
+              >
                 <div className="flex items-center gap-3">
                   {getStatusIcon(check.status)}
                   <div>
@@ -136,11 +178,15 @@ function UptimePage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className={`text-xs font-mono px-2 py-1 rounded ${
-                    check.status === "healthy" ? "bg-bull/20 text-bull" :
-                    check.status === "degraded" ? "bg-amber-500/20 text-amber-400" :
-                    "bg-bear/20 text-bear"
-                  }`}>
+                  <div
+                    className={`text-xs font-mono px-2 py-1 rounded ${
+                      check.status === "healthy"
+                        ? "bg-bull/20 text-bull"
+                        : check.status === "degraded"
+                          ? "bg-amber-500/20 text-amber-400"
+                          : "bg-bear/20 text-bear"
+                    }`}
+                  >
                     {check.status.toUpperCase()}
                   </div>
                   {check.latency && (

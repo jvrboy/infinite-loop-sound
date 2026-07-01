@@ -2,9 +2,22 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
-  Clock, Play, Square, Activity, Zap, Calendar,
-  Send, CheckCircle2, XCircle, ArrowRight, Timer,
-  TrendingUp, Settings, RefreshCw, Loader2, Package
+  Clock,
+  Play,
+  Square,
+  Activity,
+  Zap,
+  Calendar,
+  Send,
+  CheckCircle2,
+  XCircle,
+  ArrowRight,
+  Timer,
+  TrendingUp,
+  Settings,
+  RefreshCw,
+  Loader2,
+  Package,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +37,10 @@ export const Route = createFileRoute("/automation")({
   head: () => ({
     meta: [
       { title: "Strategy Automation — DivergenceIQ" },
-      { name: "description", content: "Time-based auto-analysis & signal dispatch with preset schedules." },
+      {
+        name: "description",
+        content: "Time-based auto-analysis & signal dispatch with preset schedules.",
+      },
     ],
   }),
   component: AutomationPage,
@@ -60,11 +76,36 @@ interface AutoSignal {
 }
 
 const PRESETS = [
-  { id: "preset_sast_night", name: "SAST Night Scanner", desc: "8 forex pairs · M5 · Night session · Neural enhanced", icon: "🌙" },
-  { id: "preset_london_open", name: "London Open", desc: "EUR/GBP/XAU · H1 · Weekday 07:55-08:00 · Bot dispatch", icon: "🇬🇧" },
-  { id: "preset_ny_open", name: "NY Open", desc: "JPY/CAD/SPX · H1 · Weekday 12:25-12:30", icon: "🇺🇸" },
-  { id: "preset_news_hour", name: "News Hour Scanner", desc: "5 pairs · M15 · Midday scans · Webhook alerts", icon: "📰" },
-  { id: "preset_weekend_close", name: "Weekend Close", desc: "4 pairs · H4 · Friday 21:00 · High score threshold", icon: "📅" },
+  {
+    id: "preset_sast_night",
+    name: "SAST Night Scanner",
+    desc: "8 forex pairs · M5 · Night session · Neural enhanced",
+    icon: "🌙",
+  },
+  {
+    id: "preset_london_open",
+    name: "London Open",
+    desc: "EUR/GBP/XAU · H1 · Weekday 07:55-08:00 · Bot dispatch",
+    icon: "🇬🇧",
+  },
+  {
+    id: "preset_ny_open",
+    name: "NY Open",
+    desc: "JPY/CAD/SPX · H1 · Weekday 12:25-12:30",
+    icon: "🇺🇸",
+  },
+  {
+    id: "preset_news_hour",
+    name: "News Hour Scanner",
+    desc: "5 pairs · M15 · Midday scans · Webhook alerts",
+    icon: "📰",
+  },
+  {
+    id: "preset_weekend_close",
+    name: "Weekend Close",
+    desc: "4 pairs · H4 · Friday 21:00 · High score threshold",
+    icon: "📅",
+  },
 ];
 
 function AutomationPage() {
@@ -221,7 +262,9 @@ function AutomationPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
-            <Activity className={`w-3.5 h-3.5 ${isRunning ? "text-emerald-400 animate-pulse" : "text-muted-foreground"}`} />
+            <Activity
+              className={`w-3.5 h-3.5 ${isRunning ? "text-emerald-400 animate-pulse" : "text-muted-foreground"}`}
+            />
             <span className="text-xs font-mono text-emerald-400">
               {isRunning ? "ENGINE RUNNING" : "STOPPED"}
             </span>
@@ -236,13 +279,22 @@ function AutomationPage() {
                 <Button
                   variant={isRunning ? "destructive" : "default"}
                   size="sm"
-                  onClick={() => { setIsRunning(!isRunning); toast.success(isRunning ? "Engine stopped" : "Engine started"); }}
+                  onClick={() => {
+                    setIsRunning(!isRunning);
+                    toast.success(isRunning ? "Engine stopped" : "Engine started");
+                  }}
                 >
-                  {isRunning ? <Square className="w-3.5 h-3.5 mr-1.5" /> : <Play className="w-3.5 h-3.5 mr-1.5" />}
+                  {isRunning ? (
+                    <Square className="w-3.5 h-3.5 mr-1.5" />
+                  ) : (
+                    <Play className="w-3.5 h-3.5 mr-1.5" />
+                  )}
                   {isRunning ? "Stop Engine" : "Start Engine"}
                 </Button>
                 <Badge variant={isRunning ? "default" : "secondary"} className="gap-1">
-                  <div className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-green-400 animate-pulse" : "bg-muted-foreground"}`} />
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full ${isRunning ? "bg-green-400 animate-pulse" : "bg-muted-foreground"}`}
+                  />
                   {isRunning ? "Running" : "Stopped"}
                 </Badge>
               </div>
@@ -250,10 +302,16 @@ function AutomationPage() {
                 <div className="flex items-center gap-2">
                   <Timer className="w-4 h-4 text-muted-foreground" />
                   <span className="text-xs text-muted-foreground">Next run:</span>
-                  <span className="text-sm font-mono font-semibold text-sky-400">{nextRunCountdown}</span>
+                  <span className="text-sm font-mono font-semibold text-sky-400">
+                    {nextRunCountdown}
+                  </span>
                 </div>
                 <Button size="sm" variant="outline" disabled={triggering} onClick={handleTrigger}>
-                  {triggering ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Zap className="w-3.5 h-3.5 mr-1.5" />}
+                  {triggering ? (
+                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  ) : (
+                    <Zap className="w-3.5 h-3.5 mr-1.5" />
+                  )}
                   Trigger Now
                 </Button>
                 <Button size="sm" variant="outline" disabled={loadingPresets} onClick={loadData}>
@@ -282,7 +340,9 @@ function AutomationPage() {
               {schedules.length === 0 ? (
                 <div className="flex flex-col items-center py-8 text-center">
                   <Calendar className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                  <p className="text-xs text-muted-foreground">No schedules configured. Load presets to get started.</p>
+                  <p className="text-xs text-muted-foreground">
+                    No schedules configured. Load presets to get started.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -306,7 +366,10 @@ function AutomationPage() {
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium truncate">{schedule.name}</span>
                           {schedule.neuralEnhance && (
-                            <Badge variant="outline" className="text-[10px] text-violet-400 border-violet-500/30">
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] text-violet-400 border-violet-500/30"
+                            >
                               Neural
                             </Badge>
                           )}
@@ -316,7 +379,9 @@ function AutomationPage() {
                             {schedule.instruments.length} pairs
                           </span>
                           <span className="text-muted-foreground/40">·</span>
-                          <span className="text-[10px] font-mono text-muted-foreground">{schedule.timeframe}</span>
+                          <span className="text-[10px] font-mono text-muted-foreground">
+                            {schedule.timeframe}
+                          </span>
                           <span className="text-muted-foreground/40">·</span>
                           <span className="text-[10px] font-mono text-muted-foreground">
                             {schedule.schedules.map(formatTime).join(", ")}
@@ -325,7 +390,9 @@ function AutomationPage() {
                             <>
                               <span className="text-muted-foreground/40">·</span>
                               <span className="text-[10px] text-muted-foreground">
-                                {schedule.schedules[0].daysOfWeek.map((d) => dayNames[d]).join(", ")}
+                                {schedule.schedules[0].daysOfWeek
+                                  .map((d) => dayNames[d])
+                                  .join(", ")}
                               </span>
                             </>
                           )}
@@ -361,7 +428,9 @@ function AutomationPage() {
               {signals.length === 0 ? (
                 <div className="flex flex-col items-center py-8 text-center">
                   <Send className="w-8 h-8 text-muted-foreground/30 mb-2" />
-                  <p className="text-xs text-muted-foreground">No automated signals yet. Enable a schedule to begin.</p>
+                  <p className="text-xs text-muted-foreground">
+                    No automated signals yet. Enable a schedule to begin.
+                  </p>
                 </div>
               ) : (
                 <div className="space-y-1 max-h-80 overflow-y-auto">
@@ -379,7 +448,14 @@ function AutomationPage() {
                         >
                           {sig.direction}
                         </span>
-                        <Badge variant={sig.rating === "ELITE" || sig.rating === "STRONG" ? "default" : "secondary"} className="text-[9px] px-1.5 py-0">
+                        <Badge
+                          variant={
+                            sig.rating === "ELITE" || sig.rating === "STRONG"
+                              ? "default"
+                              : "secondary"
+                          }
+                          className="text-[9px] px-1.5 py-0"
+                        >
                           {sig.rating}
                         </Badge>
                         <span className="font-mono text-muted-foreground">{sig.score}%</span>
@@ -391,7 +467,10 @@ function AutomationPage() {
                           <XCircle className="w-3.5 h-3.5 text-muted-foreground/40" />
                         )}
                         <span className="text-[10px] text-muted-foreground">
-                          {new Date(sig.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                          {new Date(sig.created_at).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                       </div>
                     </div>
@@ -418,7 +497,10 @@ function AutomationPage() {
               ) : (
                 <div className="space-y-2">
                   {dispatchStats().map(({ target, rate, count }) => (
-                    <div key={target} className="flex items-center gap-3 p-2 rounded bg-background/50">
+                    <div
+                      key={target}
+                      className="flex items-center gap-3 p-2 rounded bg-background/50"
+                    >
                       <span className="text-sm font-medium w-24 capitalize">{target}</span>
                       <div className="flex-1 h-2 rounded-full bg-primary/20 overflow-hidden">
                         <div
@@ -432,8 +514,12 @@ function AutomationPage() {
                           style={{ width: `${rate}%` }}
                         />
                       </div>
-                      <span className="text-xs font-mono text-muted-foreground w-12 text-right">{rate}%</span>
-                      <span className="text-[10px] text-muted-foreground w-16 text-right">{count} signals</span>
+                      <span className="text-xs font-mono text-muted-foreground w-12 text-right">
+                        {rate}%
+                      </span>
+                      <span className="text-[10px] text-muted-foreground w-16 text-right">
+                        {count} signals
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -449,7 +535,12 @@ function AutomationPage() {
                   <Package className="w-4 h-4 text-pink-400" />
                   Preset Schedules
                 </CardTitle>
-                <Button size="sm" variant="outline" disabled={loadingPresets} onClick={handleLoadPresets}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={loadingPresets}
+                  onClick={handleLoadPresets}
+                >
                   {loadingPresets ? (
                     <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   ) : (
@@ -468,18 +559,14 @@ function AutomationPage() {
                     <div
                       key={preset.id}
                       className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
-                        loaded
-                          ? "bg-bull/5 border-bull/30"
-                          : "bg-background/50 border-border"
+                        loaded ? "bg-bull/5 border-bull/30" : "bg-background/50 border-border"
                       }`}
                     >
                       <span className="text-lg">{preset.icon}</span>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium">{preset.name}</span>
-                          {loaded && (
-                            <CheckCircle2 className="w-3.5 h-3.5 text-bull" />
-                          )}
+                          {loaded && <CheckCircle2 className="w-3.5 h-3.5 text-bull" />}
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-0.5">{preset.desc}</p>
                       </div>

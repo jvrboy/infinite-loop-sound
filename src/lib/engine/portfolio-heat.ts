@@ -16,11 +16,11 @@ export interface OpenPosition {
 
 export interface PortfolioHeatResult {
   totalRiskUsd: number;
-  heatPct: number;            // total risk / balance × 100
+  heatPct: number; // total risk / balance × 100
   openCount: number;
   status: "safe" | "warm" | "hot" | "critical";
   warnings: string[];
-  perSymbol: Record<string, number>;  // symbol -> risk in USD
+  perSymbol: Record<string, number>; // symbol -> risk in USD
 }
 
 export function portfolioHeat(
@@ -52,11 +52,14 @@ export function portfolioHeat(
   else if (heatPct >= thresholds.hot) status = "hot";
   else if (heatPct >= thresholds.warm) status = "warm";
 
-  if (status === "critical") warnings.push("Heat above critical threshold — consider closing or hedging positions.");
+  if (status === "critical")
+    warnings.push("Heat above critical threshold — consider closing or hedging positions.");
   if (status === "hot") warnings.push("Heat above hot threshold — avoid new entries.");
   for (const [sym, risk] of Object.entries(perSymbol)) {
     if (balance > 0 && (risk / balance) * 100 >= thresholds.warm) {
-      warnings.push(`${sym} alone accounts for ${((risk / balance) * 100).toFixed(2)}% of balance.`);
+      warnings.push(
+        `${sym} alone accounts for ${((risk / balance) * 100).toFixed(2)}% of balance.`,
+      );
     }
   }
 

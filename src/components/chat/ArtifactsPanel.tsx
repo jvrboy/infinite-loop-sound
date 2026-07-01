@@ -48,10 +48,7 @@ export function ArtifactsPanel({ threadId }: { threadId?: string | null }) {
         </p>
       )}
       {forThread.map((a) => (
-        <div
-          key={a.id}
-          className="flex items-center gap-2 p-2 rounded hover:bg-muted/40 group"
-        >
+        <div key={a.id} className="flex items-center gap-2 p-2 rounded hover:bg-muted/40 group">
           {iconFor(a.kind)}
           <div className="flex-1 min-w-0">
             <div className="text-xs font-mono truncate">{a.name}</div>

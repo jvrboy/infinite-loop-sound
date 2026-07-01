@@ -106,10 +106,7 @@ function ChatPage() {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [threads, activeId, pipelineActive, currentStep]);
 
-  const active = useMemo(
-    () => threads.find((t) => t.id === activeId) ?? null,
-    [threads, activeId],
-  );
+  const active = useMemo(() => threads.find((t) => t.id === activeId) ?? null, [threads, activeId]);
 
   const newChat = () => {
     const t = createThread("New chat");
@@ -147,7 +144,8 @@ function ChatPage() {
 
     try {
       const res = await aiChat(messages);
-      if (!res) throw new Error("AI request failed — no API key available or all providers exhausted.");
+      if (!res)
+        throw new Error("AI request failed — no API key available or all providers exhausted.");
       const { text: reply, provider } = res;
       const assistant: Msg = {
         role: "assistant",
@@ -265,9 +263,7 @@ function ChatPage() {
           <header className="flex items-center justify-between gap-3 px-4 py-3 border-b border-border">
             <div className="flex items-center gap-2 min-w-0">
               <Bot className="w-4 h-4 text-primary shrink-0" />
-              <span className="text-sm font-medium truncate">
-                {active?.title ?? "New chat"}
-              </span>
+              <span className="text-sm font-medium truncate">{active?.title ?? "New chat"}</span>
             </div>
             <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
               {active?.messages.length ?? 0} msgs
@@ -278,7 +274,9 @@ function ChatPage() {
             {active && active.messages.length === 0 && (
               <div className="text-center text-muted-foreground py-12">
                 <Sparkles className="w-8 h-8 mx-auto mb-2 text-primary" />
-                <p className="text-sm">Start a conversation about a setup, an indicator, or a strategy.</p>
+                <p className="text-sm">
+                  Start a conversation about a setup, an indicator, or a strategy.
+                </p>
               </div>
             )}
             {active?.messages.map((m, i) => (

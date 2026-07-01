@@ -4,7 +4,8 @@ import type { AgentConfig, AgentResult, RiskAssessment, AgentMessage } from "./t
 const RISK_AGENT_CONFIG: AgentConfig = {
   id: "risk-agent",
   name: "Risk Agent",
-  description: "Real-time risk management with Kelly criterion, daily loss caps, consecutive loss tracking, and position sizing recommendations.",
+  description:
+    "Real-time risk management with Kelly criterion, daily loss caps, consecutive loss tracking, and position sizing recommendations.",
   enabled: true,
   priority: "critical",
   intervalSec: 10,
@@ -39,7 +40,11 @@ let riskState: RiskState = { ...DEFAULT_STATE };
 function resetIfNewDay() {
   const today = new Date().toDateString();
   if (riskState.lastResetDate !== today) {
-    riskState = { ...DEFAULT_STATE, dailyStartBalance: riskState.dailyStartBalance + riskState.dailyPnL, lastResetDate: today };
+    riskState = {
+      ...DEFAULT_STATE,
+      dailyStartBalance: riskState.dailyStartBalance + riskState.dailyPnL,
+      lastResetDate: today,
+    };
   }
 }
 
@@ -53,7 +58,10 @@ export function recordTrade(result: { pnl: number; won: boolean }) {
   } else {
     riskState.lossesToday++;
     riskState.consecutiveLosses++;
-    riskState.maxConsecutiveLosses = Math.max(riskState.maxConsecutiveLosses, riskState.consecutiveLosses);
+    riskState.maxConsecutiveLosses = Math.max(
+      riskState.maxConsecutiveLosses,
+      riskState.consecutiveLosses,
+    );
   }
 }
 
@@ -100,9 +108,8 @@ export function runRiskAgent(config: {
   const maxPositionSize = Math.max(0.01, recommendedSize);
 
   // Safety checks
-  const shouldHalt = 
-    riskState.dailyPnL <= -dailyLossCap ||
-    riskState.consecutiveLosses >= maxConsecutiveLosses;
+  const shouldHalt =
+    riskState.dailyPnL <= -dailyLossCap || riskState.consecutiveLosses >= maxConsecutiveLosses;
 
   let haltReason: string | undefined;
   if (riskState.dailyPnL <= -dailyLossCap) {
@@ -143,7 +150,9 @@ export function runRiskAgent(config: {
   const insights: string[] = [];
   insights.push(`Kelly fraction (half): ${(safeKelly * 100).toFixed(2)}%`);
   insights.push(`Recommended position size: $${maxPositionSize.toFixed(2)}`);
-  insights.push(`Today: ${riskState.totalTradesToday} trades, WR: ${riskState.totalTradesToday > 0 ? ((riskState.winsToday / riskState.totalTradesToday) * 100).toFixed(1) : "N/A"}%`);
+  insights.push(
+    `Today: ${riskState.totalTradesToday} trades, WR: ${riskState.totalTradesToday > 0 ? ((riskState.winsToday / riskState.totalTradesToday) * 100).toFixed(1) : "N/A"}%`,
+  );
   insights.push(`Daily P&L: $${riskState.dailyPnL.toFixed(2)} (cap: -$${dailyLossCap})`);
 
   if (riskState.consecutiveLosses > 0) {

@@ -13,14 +13,19 @@
 export interface CorrelationEntry {
   pairA: string;
   pairB: string;
-  correlation: number;    // -1 to +1
-  strength: "strong_positive" | "moderate_positive" | "weak" | "moderate_negative" | "strong_negative";
+  correlation: number; // -1 to +1
+  strength:
+    | "strong_positive"
+    | "moderate_positive"
+    | "weak"
+    | "moderate_negative"
+    | "strong_negative";
   recommendation: string;
 }
 
 export interface CorrelationMatrix {
   pairs: string[];
-  matrix: number[][];     // pairs.length x pairs.length
+  matrix: number[][]; // pairs.length x pairs.length
   entries: CorrelationEntry[];
   strongPositive: CorrelationEntry[];
   strongNegative: CorrelationEntry[];
@@ -49,7 +54,9 @@ export function pearsonCorrelation(x: number[], y: number[]): number {
   const meanX = xSlice.reduce((s, v) => s + v, 0) / n;
   const meanY = ySlice.reduce((s, v) => s + v, 0) / n;
 
-  let sumXY = 0, sumX2 = 0, sumY2 = 0;
+  let sumXY = 0,
+    sumX2 = 0,
+    sumY2 = 0;
   for (let i = 0; i < n; i++) {
     const dx = xSlice[i] - meanX;
     const dy = ySlice[i] - meanY;
@@ -76,7 +83,11 @@ function classifyCorrelation(r: number): CorrelationEntry["strength"] {
 /**
  * Get recommendation based on correlation.
  */
-function getRecommendation(strength: CorrelationEntry["strength"], pairA: string, pairB: string): string {
+function getRecommendation(
+  strength: CorrelationEntry["strength"],
+  pairA: string,
+  pairB: string,
+): string {
   switch (strength) {
     case "strong_positive":
       return `${pairA} and ${pairB} move together. Avoid taking the same direction on both — it doubles your risk.`;
@@ -97,7 +108,10 @@ function getRecommendation(strength: CorrelationEntry["strength"], pairA: string
 export function computeReturns(closes: number[]): number[] {
   const returns: number[] = [];
   for (let i = 1; i < closes.length; i++) {
-    if (closes[i - 1] === 0) { returns.push(0); continue; }
+    if (closes[i - 1] === 0) {
+      returns.push(0);
+      continue;
+    }
     returns.push((closes[i] - closes[i - 1]) / closes[i - 1]);
   }
   return returns;
@@ -109,8 +123,8 @@ export function computeReturns(closes: number[]): number[] {
 export function buildCorrelationMatrix(
   pairData: { pair: string; closes: number[] }[],
 ): CorrelationMatrix {
-  const pairs = pairData.map(p => p.pair);
-  const returns = pairData.map(p => computeReturns(p.closes));
+  const pairs = pairData.map((p) => p.pair);
+  const returns = pairData.map((p) => computeReturns(p.closes));
   const n = pairs.length;
   const matrix: number[][] = Array.from({ length: n }, () => new Array(n).fill(0));
   const entries: CorrelationEntry[] = [];
@@ -137,8 +151,8 @@ export function buildCorrelationMatrix(
     pairs,
     matrix,
     entries,
-    strongPositive: entries.filter(e => e.strength === "strong_positive"),
-    strongNegative: entries.filter(e => e.strength === "strong_negative"),
+    strongPositive: entries.filter((e) => e.strength === "strong_positive"),
+    strongNegative: entries.filter((e) => e.strength === "strong_negative"),
     timestamp: Date.now(),
   };
 }
@@ -172,9 +186,9 @@ export function computeRollingCorrelation(
   // Determine trend
   let trend: RollingCorrelation["trend"] = "stable";
   if (windows.length >= 3) {
-    const recent = windows.slice(-3).map(w => w.correlation);
+    const recent = windows.slice(-3).map((w) => w.correlation);
     const avgRecent = recent.reduce((s, v) => s + v, 0) / recent.length;
-    const older = windows.slice(-6, -3).map(w => w.correlation);
+    const older = windows.slice(-6, -3).map((w) => w.correlation);
     if (older.length >= 2) {
       const avgOlder = older.reduce((s, v) => s + v, 0) / older.length;
       const diff = Math.abs(avgRecent) - Math.abs(avgOlder);

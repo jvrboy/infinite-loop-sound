@@ -7,7 +7,12 @@ export const Route = createFileRoute("/api/public/health")({
       GET: async () => {
         const sb = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
         const { data } = await sb.from("system_health").select("*").eq("id", 1).single();
-        const { data: latest } = await sb.from("signals").select("created_at").order("created_at", { ascending: false }).limit(1).maybeSingle();
+        const { data: latest } = await sb
+          .from("signals")
+          .select("created_at")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
         return Response.json({
           status: "ok",
           last_ping: data?.last_ping ?? null,

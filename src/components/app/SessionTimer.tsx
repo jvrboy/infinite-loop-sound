@@ -10,13 +10,15 @@ interface Props {
 export function SessionTimer({ info }: Props) {
   if (!info) return null;
 
-  const sessionColor = info.session === "night"
-    ? "from-indigo-500/20 to-purple-500/20 border-indigo-500/30"
-    : "from-amber-500/20 to-orange-500/20 border-amber-500/30";
+  const sessionColor =
+    info.session === "night"
+      ? "from-indigo-500/20 to-purple-500/20 border-indigo-500/30"
+      : "from-amber-500/20 to-orange-500/20 border-amber-500/30";
 
-  const sessionBadge = info.session === "night"
-    ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30"
-    : "bg-amber-500/20 text-amber-400 border-amber-500/30";
+  const sessionBadge =
+    info.session === "night"
+      ? "bg-indigo-500/20 text-indigo-400 border-indigo-500/30"
+      : "bg-amber-500/20 text-amber-400 border-amber-500/30";
 
   return (
     <Card className={`bg-gradient-to-r ${sessionColor} border`}>
@@ -27,7 +29,10 @@ export function SessionTimer({ info }: Props) {
               {info.session === "night" ? "🌙 NIGHT" : "☀️ DAY"} SESSION
             </Badge>
             {info.isTransition && (
-              <Badge variant="outline" className="text-[10px] animate-pulse text-yellow-400 border-yellow-500/30">
+              <Badge
+                variant="outline"
+                className="text-[10px] animate-pulse text-yellow-400 border-yellow-500/30"
+              >
                 TRANSITIONING → {info.nextSession.toUpperCase()}
               </Badge>
             )}
@@ -44,12 +49,16 @@ export function SessionTimer({ info }: Props) {
           <div className="p-1.5 rounded bg-background/20">
             <div className="text-muted-foreground">Night Avg TP/SL Hit</div>
             <div className="font-mono text-indigo-400">{info.nightStats.avgTPSLHitRate}%</div>
-            <div className="text-muted-foreground">Best: {info.nightStats.bestPair} (+{info.nightStats.netPips} pips)</div>
+            <div className="text-muted-foreground">
+              Best: {info.nightStats.bestPair} (+{info.nightStats.netPips} pips)
+            </div>
           </div>
           <div className="p-1.5 rounded bg-background/20">
             <div className="text-muted-foreground">Day Avg TP/SL Hit</div>
             <div className="font-mono text-amber-400">{info.dayStats.avgTPSLHitRate}%</div>
-            <div className="text-muted-foreground">Best: {info.dayStats.bestPair} (+{info.dayStats.netPips} pips)</div>
+            <div className="text-muted-foreground">
+              Best: {info.dayStats.bestPair} (+{info.dayStats.netPips} pips)
+            </div>
           </div>
         </div>
       </CardContent>

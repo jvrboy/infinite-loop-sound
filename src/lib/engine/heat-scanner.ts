@@ -8,7 +8,7 @@ import { runAllDetectors, type DetectorReport } from "./detectors";
 export interface HeatRow {
   symbol: string;
   tf: TF;
-  heat: number;          // 0..6  (number of detectors hot on latest bar)
+  heat: number; // 0..6  (number of detectors hot on latest bar)
   report: DetectorReport;
   lastPrice: number;
   changePct: number;
@@ -57,7 +57,5 @@ export async function scanHeat(opts: HeatScanOpts = {}): Promise<HeatRow[]> {
     }
   });
 
-  return rows
-    .filter((r): r is HeatRow => r !== null)
-    .sort((a, b) => b.heat - a.heat);
+  return rows.filter((r): r is HeatRow => r !== null).sort((a, b) => b.heat - a.heat);
 }

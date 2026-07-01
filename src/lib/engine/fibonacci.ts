@@ -5,9 +5,9 @@
 import type { Candle } from "./indicators";
 
 export interface FibLevel {
-  ratio: number;   // 0.236, 0.382, 0.5, 0.618, 0.786, 1.0, 1.272, 1.618, 2.618
+  ratio: number; // 0.236, 0.382, 0.5, 0.618, 0.786, 1.0, 1.272, 1.618, 2.618
   price: number;
-  label: string;   // human label e.g. "61.8%"
+  label: string; // human label e.g. "61.8%"
   kind: "retracement" | "extension";
 }
 
@@ -16,7 +16,7 @@ export interface FibResult {
   swingLow: number;
   swingHighIdx: number;
   swingLowIdx: number;
-  direction: "up" | "down";  // direction of the swing
+  direction: "up" | "down"; // direction of the swing
   levels: FibLevel[];
 }
 
@@ -31,10 +31,19 @@ const EXTENSIONS = [1.0, 1.272, 1.618, 2.618];
 export function fibLevels(candles: Candle[], lookback = 100): FibResult | null {
   if (candles.length < 5) return null;
   const window = candles.slice(-Math.min(lookback, candles.length));
-  let hi = window[0].high, lo = window[0].low, hiIdx = 0, loIdx = 0;
+  let hi = window[0].high,
+    lo = window[0].low,
+    hiIdx = 0,
+    loIdx = 0;
   for (let i = 1; i < window.length; i++) {
-    if (window[i].high > hi) { hi = window[i].high; hiIdx = i; }
-    if (window[i].low < lo) { lo = window[i].low; loIdx = i; }
+    if (window[i].high > hi) {
+      hi = window[i].high;
+      hiIdx = i;
+    }
+    if (window[i].low < lo) {
+      lo = window[i].low;
+      loIdx = i;
+    }
   }
   const direction: "up" | "down" = loIdx < hiIdx ? "up" : "down";
   const range = hi - lo;
@@ -50,17 +59,30 @@ export function fibLevels(candles: Candle[], lookback = 100): FibResult | null {
     levels.push({ ratio: r, price, label: `${(r * 100).toFixed(1)}%`, kind: "extension" });
   }
 
-  return { swingHigh: hi, swingLow: lo, swingHighIdx: hiIdx, swingLowIdx: loIdx, direction, levels };
+  return {
+    swingHigh: hi,
+    swingLow: lo,
+    swingHighIdx: hiIdx,
+    swingLowIdx: loIdx,
+    direction,
+    levels,
+  };
 }
 
 /** Nearest fib level to current price — useful for confluence scoring. */
-export function nearestFib(price: number, result: FibResult): { level: FibLevel; distancePct: number } | null {
+export function nearestFib(
+  price: number,
+  result: FibResult,
+): { level: FibLevel; distancePct: number } | null {
   if (!result.levels.length) return null;
   let best = result.levels[0];
   let bestDist = Math.abs(price - best.price);
   for (const l of result.levels) {
     const d = Math.abs(price - l.price);
-    if (d < bestDist) { best = l; bestDist = d; }
+    if (d < bestDist) {
+      best = l;
+      bestDist = d;
+    }
   }
   return { level: best, distancePct: (bestDist / price) * 100 };
 }

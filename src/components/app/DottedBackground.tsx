@@ -9,10 +9,8 @@ export function DottedBackground({ className = "" }: { className?: string }) {
         backgroundImage:
           "radial-gradient(circle, hsl(var(--foreground) / 0.08) 1px, transparent 1px)",
         backgroundSize: "22px 22px",
-        maskImage:
-          "radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%)",
-        WebkitMaskImage:
-          "radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%)",
+        maskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%)",
+        WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 40%, black 40%, transparent 100%)",
       }}
     />
   );

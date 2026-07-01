@@ -1,7 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect, useCallback } from "react";
-import { Sparkles, TrendingUp, TrendingDown, Activity, Brain, Globe, DollarSign, Users, Zap, Target, BarChart3, Twitter } from "lucide-react";
+import {
+  Sparkles,
+  TrendingUp,
+  TrendingDown,
+  Activity,
+  Brain,
+  Globe,
+  DollarSign,
+  Users,
+  Zap,
+  Target,
+  BarChart3,
+  Twitter,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -31,7 +44,18 @@ function UltraConfluencePage() {
     setLoading(true);
     try {
       // Real 6-factor analysis using market data
-      const pairs = ["EUR/USD", "GBP/USD", "USD/JPY", "XAU/USD", "AUD/USD", "USD/CHF", "NZD/USD", "EUR/GBP", "GBP/JPY", "EUR/JPY"];
+      const pairs = [
+        "EUR/USD",
+        "GBP/USD",
+        "USD/JPY",
+        "XAU/USD",
+        "AUD/USD",
+        "USD/CHF",
+        "NZD/USD",
+        "EUR/GBP",
+        "GBP/JPY",
+        "EUR/JPY",
+      ];
       const results: UltraSignal[] = [];
 
       for (const pair of pairs) {
@@ -45,14 +69,18 @@ function UltraConfluencePage() {
 
         // Weighted ultra score
         const ultraScore = Math.round(
-          technical * 0.25 + sentiment * 0.1 + fundamental * 0.15 +
-          ai * 0.2 + optionsFlow * 0.15 + darkPool * 0.15
+          technical * 0.25 +
+            sentiment * 0.1 +
+            fundamental * 0.15 +
+            ai * 0.2 +
+            optionsFlow * 0.15 +
+            darkPool * 0.15,
         );
 
         // Only include high-confluence signals
         if (ultraScore < 65) continue;
 
-        const direction = (technical > 55 && ai > 60) ? "BUY" : "SELL";
+        const direction = technical > 55 && ai > 60 ? "BUY" : "SELL";
         const confidence = Math.min(95, Math.round((ultraScore - 50) * 2));
         const pipMove = 20 + Math.floor(Math.random() * 120);
         const sign = direction === "BUY" ? "+" : "-";
@@ -67,7 +95,9 @@ function UltraConfluencePage() {
           ai,
           optionsFlow,
           darkPool,
-          prediction: pair.includes("XAU") ? `$${sign}${Math.round(pipMove * 0.3)}` : `${sign}${pipMove} pips`,
+          prediction: pair.includes("XAU")
+            ? `$${sign}${Math.round(pipMove * 0.3)}`
+            : `${sign}${pipMove} pips`,
           confidence,
         });
       }
@@ -121,17 +151,58 @@ function UltraConfluencePage() {
         {/* Factor Overview */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {[
-            { label: "Technical", icon: Activity, value: "88%", color: "text-cyan-400", desc: "11 indicators" },
-            { label: "Sentiment", icon: Twitter, value: "76%", color: "text-blue-400", desc: "Twitter + news" },
-            { label: "Fundamental", icon: Globe, value: "82%", color: "text-emerald-400", desc: "Economic data" },
-            { label: "AI Neural", icon: Brain, value: "92%", color: "text-violet-400", desc: "Deep learning" },
-            { label: "Options Flow", icon: TrendingUp, value: "95%", color: "text-amber-400", desc: "$2.4M calls" },
-            { label: "Dark Pool", icon: Users, value: "89%", color: "text-pink-400", desc: "Institutional" },
+            {
+              label: "Technical",
+              icon: Activity,
+              value: "88%",
+              color: "text-cyan-400",
+              desc: "11 indicators",
+            },
+            {
+              label: "Sentiment",
+              icon: Twitter,
+              value: "76%",
+              color: "text-blue-400",
+              desc: "Twitter + news",
+            },
+            {
+              label: "Fundamental",
+              icon: Globe,
+              value: "82%",
+              color: "text-emerald-400",
+              desc: "Economic data",
+            },
+            {
+              label: "AI Neural",
+              icon: Brain,
+              value: "92%",
+              color: "text-violet-400",
+              desc: "Deep learning",
+            },
+            {
+              label: "Options Flow",
+              icon: TrendingUp,
+              value: "95%",
+              color: "text-amber-400",
+              desc: "$2.4M calls",
+            },
+            {
+              label: "Dark Pool",
+              icon: Users,
+              value: "89%",
+              color: "text-pink-400",
+              desc: "Institutional",
+            },
           ].map((factor) => (
-            <div key={factor.label} className="rounded-xl border border-border bg-card/60 backdrop-blur p-3 hover:border-primary/50 transition-colors">
+            <div
+              key={factor.label}
+              className="rounded-xl border border-border bg-card/60 backdrop-blur p-3 hover:border-primary/50 transition-colors"
+            >
               <div className="flex items-center justify-between mb-2">
                 <factor.icon className={`w-4 h-4 ${factor.color}`} />
-                <span className={`text-lg font-bold font-mono ${factor.color}`}>{factor.value}</span>
+                <span className={`text-lg font-bold font-mono ${factor.color}`}>
+                  {factor.value}
+                </span>
               </div>
               <div className="text-xs font-medium">{factor.label}</div>
               <div className="text-[10px] text-muted-foreground">{factor.desc}</div>
@@ -150,33 +221,48 @@ function UltraConfluencePage() {
             </div>
           ) : (
             signals.map((signal) => (
-              <div key={signal.pair} className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-card/80 to-card/40 backdrop-blur hover:border-violet-500/50 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-violet-500/10">
+              <div
+                key={signal.pair}
+                className="group relative overflow-hidden rounded-2xl border border-border bg-gradient-to-r from-card/80 to-card/40 backdrop-blur hover:border-violet-500/50 transition-all hover:-translate-y-0.5 hover:shadow-2xl hover:shadow-violet-500/10"
+              >
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500/5 via-transparent to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
-                
+
                 <div className="relative p-5 md:p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-4">
-                      <div className={`w-12 h-12 rounded-xl grid place-items-center ${signal.direction === "BUY" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"}`}>
-                        {signal.direction === "BUY" ? <TrendingUp className="w-6 h-6" /> : <TrendingDown className="w-6 h-6" />}
+                      <div
+                        className={`w-12 h-12 rounded-xl grid place-items-center ${signal.direction === "BUY" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"}`}
+                      >
+                        {signal.direction === "BUY" ? (
+                          <TrendingUp className="w-6 h-6" />
+                        ) : (
+                          <TrendingDown className="w-6 h-6" />
+                        )}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
                           <h3 className="text-2xl font-bold font-mono">{signal.pair}</h3>
-                          <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${signal.direction === "BUY" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"}`}>
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-xs font-bold ${signal.direction === "BUY" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"}`}
+                          >
                             {signal.direction}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs text-muted-foreground">Target: {signal.prediction}</span>
+                          <span className="text-xs text-muted-foreground">
+                            Target: {signal.prediction}
+                          </span>
                           <span className="text-xs px-2 py-0.5 rounded bg-violet-500/20 text-violet-400 font-mono">
                             {signal.confidence}% confidence
                           </span>
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="text-right">
-                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Ultra Score</div>
+                      <div className="text-[10px] uppercase tracking-wider text-muted-foreground">
+                        Ultra Score
+                      </div>
                       <div className="text-4xl font-bold font-mono bg-gradient-to-br from-violet-400 to-cyan-400 bg-clip-text text-transparent">
                         {signal.ultraScore}
                       </div>
@@ -202,13 +288,16 @@ function UltraConfluencePage() {
                           <span className="text-[10px] font-mono font-medium">{factor.value}</span>
                         </div>
                         <div className="h-1.5 bg-muted rounded-full overflow-hidden">
-                          <div 
+                          <div
                             className="h-full rounded-full transition-all duration-1000"
-                            style={{ 
+                            style={{
                               width: `${factor.value}%`,
-                              background: factor.value >= 85 ? "linear-gradient(90deg, #10b981, #38bdf8)" : 
-                                         factor.value >= 70 ? "linear-gradient(90deg, #f59e0b, #eab308)" :
-                                         "linear-gradient(90deg, #6b7280, #9ca3af)"
+                              background:
+                                factor.value >= 85
+                                  ? "linear-gradient(90deg, #10b981, #38bdf8)"
+                                  : factor.value >= 70
+                                    ? "linear-gradient(90deg, #f59e0b, #eab308)"
+                                    : "linear-gradient(90deg, #6b7280, #9ca3af)",
                             }}
                           />
                         </div>
@@ -232,7 +321,10 @@ function UltraConfluencePage() {
                       <Button size="sm" variant="outline" className="h-7 text-xs">
                         Details
                       </Button>
-                      <Button size="sm" className="h-7 text-xs bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90">
+                      <Button
+                        size="sm"
+                        className="h-7 text-xs bg-gradient-to-r from-violet-600 to-cyan-600 hover:opacity-90"
+                      >
                         Trade Now
                       </Button>
                     </div>
@@ -252,17 +344,44 @@ function UltraConfluencePage() {
             </h3>
             <div className="space-y-2.5 text-sm">
               {[
-                { pair: "EUR/USD", flow: "$2.4M CALLS", strike: "1.0900", exp: "Today", sentiment: "BULLISH" },
-                { pair: "XAU/USD", flow: "$1.8M CALLS", strike: "2680", exp: "Tomorrow", sentiment: "BULLISH" },
-                { pair: "GBP/USD", flow: "$1.2M PUTS", strike: "1.2700", exp: "Today", sentiment: "BEARISH" },
+                {
+                  pair: "EUR/USD",
+                  flow: "$2.4M CALLS",
+                  strike: "1.0900",
+                  exp: "Today",
+                  sentiment: "BULLISH",
+                },
+                {
+                  pair: "XAU/USD",
+                  flow: "$1.8M CALLS",
+                  strike: "2680",
+                  exp: "Tomorrow",
+                  sentiment: "BULLISH",
+                },
+                {
+                  pair: "GBP/USD",
+                  flow: "$1.2M PUTS",
+                  strike: "1.2700",
+                  exp: "Today",
+                  sentiment: "BEARISH",
+                },
               ].map((opt) => (
-                <div key={opt.pair} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50">
+                <div
+                  key={opt.pair}
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-background/50"
+                >
                   <div>
                     <div className="font-mono font-medium">{opt.pair}</div>
-                    <div className="text-xs text-muted-foreground">{opt.strike} • {opt.exp}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {opt.strike} • {opt.exp}
+                    </div>
                   </div>
                   <div className="text-right">
-                    <div className={`text-xs font-medium ${opt.sentiment === "BULLISH" ? "text-bull" : "text-bear"}`}>{opt.flow}</div>
+                    <div
+                      className={`text-xs font-medium ${opt.sentiment === "BULLISH" ? "text-bull" : "text-bear"}`}
+                    >
+                      {opt.flow}
+                    </div>
                     <div className="text-[10px] text-muted-foreground">{opt.sentiment}</div>
                   </div>
                 </div>
@@ -281,13 +400,22 @@ function UltraConfluencePage() {
                 { pair: "XAU/USD", volume: "$523M", side: "BUY", blocks: 18, avg: "$29.1M" },
                 { pair: "GBP/USD", volume: "£412M", side: "SELL", blocks: 15, avg: "£27.5M" },
               ].map((dp) => (
-                <div key={dp.pair} className="flex items-center justify-between p-2.5 rounded-lg bg-background/50">
+                <div
+                  key={dp.pair}
+                  className="flex items-center justify-between p-2.5 rounded-lg bg-background/50"
+                >
                   <div>
                     <div className="font-mono font-medium">{dp.pair}</div>
-                    <div className="text-xs text-muted-foreground">{dp.blocks} blocks • {dp.avg} avg</div>
+                    <div className="text-xs text-muted-foreground">
+                      {dp.blocks} blocks • {dp.avg} avg
+                    </div>
                   </div>
                   <div className="text-right">
-                    <div className={`text-xs font-medium ${dp.side === "BUY" ? "text-bull" : "text-bear"}`}>{dp.volume}</div>
+                    <div
+                      className={`text-xs font-medium ${dp.side === "BUY" ? "text-bull" : "text-bear"}`}
+                    >
+                      {dp.volume}
+                    </div>
                     <div className="text-[10px] text-muted-foreground">{dp.side}</div>
                   </div>
                 </div>
@@ -304,9 +432,30 @@ function UltraConfluencePage() {
           </h3>
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { pair: "EUR/USD", sentiment: 76, tweets: 2847, bullish: 68, bearish: 32, trending: "#EURUSD" },
-              { pair: "XAU/USD", sentiment: 88, tweets: 1923, bullish: 81, bearish: 19, trending: "#Gold" },
-              { pair: "GBP/USD", sentiment: 71, tweets: 1534, bullish: 59, bearish: 41, trending: "#GBP" },
+              {
+                pair: "EUR/USD",
+                sentiment: 76,
+                tweets: 2847,
+                bullish: 68,
+                bearish: 32,
+                trending: "#EURUSD",
+              },
+              {
+                pair: "XAU/USD",
+                sentiment: 88,
+                tweets: 1923,
+                bullish: 81,
+                bearish: 19,
+                trending: "#Gold",
+              },
+              {
+                pair: "GBP/USD",
+                sentiment: 71,
+                tweets: 1534,
+                bullish: 59,
+                bearish: 41,
+                trending: "#GBP",
+              },
             ].map((tw) => (
               <div key={tw.pair} className="p-3 rounded-lg bg-background/50">
                 <div className="flex items-center justify-between mb-2">
@@ -320,7 +469,9 @@ function UltraConfluencePage() {
                   </div>
                   <span className="text-xs font-mono">{tw.sentiment}%</span>
                 </div>
-                <div className="text-[10px] text-muted-foreground">{tw.tweets.toLocaleString()} tweets • {tw.bullish}% bull</div>
+                <div className="text-[10px] text-muted-foreground">
+                  {tw.tweets.toLocaleString()} tweets • {tw.bullish}% bull
+                </div>
               </div>
             ))}
           </div>

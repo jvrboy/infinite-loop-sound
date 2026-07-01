@@ -31,13 +31,13 @@ type Preset =
   | "sell-bias";
 
 const PRESETS: Array<{ id: Preset; label: string; icon: any; desc: string }> = [
-  { id: "all",            label: "All",            icon: Search,       desc: "Every symbol" },
-  { id: "top-gainers",    label: "Top Gainers",    icon: TrendingUp,   desc: "Largest +% over window" },
-  { id: "top-losers",     label: "Top Losers",     icon: TrendingDown, desc: "Largest –% over window" },
-  { id: "most-volatile",  label: "Most Volatile",  icon: Flame,        desc: "Highest realised vol" },
-  { id: "elite-setups",   label: "Elite Setups",   icon: Star,         desc: "ELITE rating from analyze()" },
-  { id: "buy-bias",       label: "Buy Bias",       icon: TrendingUp,   desc: "score ≥ 65 + BUY direction" },
-  { id: "sell-bias",      label: "Sell Bias",      icon: TrendingDown, desc: "score ≥ 65 + SELL direction" },
+  { id: "all", label: "All", icon: Search, desc: "Every symbol" },
+  { id: "top-gainers", label: "Top Gainers", icon: TrendingUp, desc: "Largest +% over window" },
+  { id: "top-losers", label: "Top Losers", icon: TrendingDown, desc: "Largest –% over window" },
+  { id: "most-volatile", label: "Most Volatile", icon: Flame, desc: "Highest realised vol" },
+  { id: "elite-setups", label: "Elite Setups", icon: Star, desc: "ELITE rating from analyze()" },
+  { id: "buy-bias", label: "Buy Bias", icon: TrendingUp, desc: "score ≥ 65 + BUY direction" },
+  { id: "sell-bias", label: "Sell Bias", icon: TrendingDown, desc: "score ≥ 65 + SELL direction" },
 ];
 
 function ScreenerPage() {
@@ -47,24 +47,29 @@ function ScreenerPage() {
   const [query, setQuery] = useState("");
 
   const universe = useMemo(() => {
-    const all = ALL_ASSETS.filter(a => classFilter === "ALL" || a.class === classFilter);
-    return all.slice(0, 28).map(a => ({ symbol: a.symbol, display: a.display, class: a.class }));
+    const all = ALL_ASSETS.filter((a) => classFilter === "ALL" || a.class === classFilter);
+    return all.slice(0, 28).map((a) => ({ symbol: a.symbol, display: a.display, class: a.class }));
   }, [classFilter]);
 
   // Live tick feed gives us rolling momentum + realised vol per symbol
-  const { ticks, ready: feedReady } = useDerivFeed(universe.map(u => u.symbol));
+  const { ticks, ready: feedReady } = useDerivFeed(universe.map((u) => u.symbol));
   // Live confluence scan layered on top
-  const { rows: scanRows, scanning, lastFullScanAt, errors } = useLiveScan(
-    universe.map(u => ({ symbol: u.symbol, display: u.display })),
+  const {
+    rows: scanRows,
+    scanning,
+    lastFullScanAt,
+    errors,
+  } = useLiveScan(
+    universe.map((u) => ({ symbol: u.symbol, display: u.display })),
     tf,
     45_000,
   );
 
   // Merge feed + scan + class into one row per symbol
   const rows = useMemo(() => {
-    return universe.map(u => {
+    return universe.map((u) => {
       const t = ticks[u.symbol];
-      const scan = scanRows.find(r => r.symbol === u.symbol);
+      const scan = scanRows.find((r) => r.symbol === u.symbol);
 
       // momentum & vol from tick window
       let pctChange = 0;
@@ -99,25 +104,41 @@ function ScreenerPage() {
     let r = rows;
     if (query) {
       const q = query.toLowerCase();
-      r = r.filter(x => x.display.toLowerCase().includes(q) || x.symbol.toLowerCase().includes(q));
+      r = r.filter(
+        (x) => x.display.toLowerCase().includes(q) || x.symbol.toLowerCase().includes(q),
+      );
     }
     switch (preset) {
-      case "top-gainers":   r = [...r].sort((a, b) => b.pctChange - a.pctChange); break;
-      case "top-losers":    r = [...r].sort((a, b) => a.pctChange - b.pctChange); break;
-      case "most-volatile": r = [...r].sort((a, b) => b.realisedVol - a.realisedVol); break;
-      case "elite-setups":  r = r.filter(x => x.scanRating === "ELITE")
-                                 .sort((a, b) => b.scanScore - a.scanScore); break;
-      case "buy-bias":      r = r.filter(x => x.scanDir === "BUY" && x.scanScore >= 65)
-                                 .sort((a, b) => b.scanScore - a.scanScore); break;
-      case "sell-bias":     r = r.filter(x => x.scanDir === "SELL" && x.scanScore >= 65)
-                                 .sort((a, b) => b.scanScore - a.scanScore); break;
-      default:              r = [...r].sort((a, b) => b.scanScore - a.scanScore);
+      case "top-gainers":
+        r = [...r].sort((a, b) => b.pctChange - a.pctChange);
+        break;
+      case "top-losers":
+        r = [...r].sort((a, b) => a.pctChange - b.pctChange);
+        break;
+      case "most-volatile":
+        r = [...r].sort((a, b) => b.realisedVol - a.realisedVol);
+        break;
+      case "elite-setups":
+        r = r.filter((x) => x.scanRating === "ELITE").sort((a, b) => b.scanScore - a.scanScore);
+        break;
+      case "buy-bias":
+        r = r
+          .filter((x) => x.scanDir === "BUY" && x.scanScore >= 65)
+          .sort((a, b) => b.scanScore - a.scanScore);
+        break;
+      case "sell-bias":
+        r = r
+          .filter((x) => x.scanDir === "SELL" && x.scanScore >= 65)
+          .sort((a, b) => b.scanScore - a.scanScore);
+        break;
+      default:
+        r = [...r].sort((a, b) => b.scanScore - a.scanScore);
     }
     return r;
   }, [rows, preset, query]);
 
   const ago = lastFullScanAt ? Math.max(0, Math.round((Date.now() - lastFullScanAt) / 1000)) : null;
-  const liveCount = Object.values(ticks).filter(t => t.window.length > 1).length;
+  const liveCount = Object.values(ticks).filter((t) => t.window.length > 1).length;
 
   return (
     <AppShell>
@@ -135,10 +156,18 @@ function ScreenerPage() {
             {scanning ? (
               <RefreshCw className="w-3.5 h-3.5 text-primary animate-spin" />
             ) : (
-              <Activity className={`w-3.5 h-3.5 text-primary ${feedReady ? "animate-pulse" : "opacity-30"}`} />
+              <Activity
+                className={`w-3.5 h-3.5 text-primary ${feedReady ? "animate-pulse" : "opacity-30"}`}
+              />
             )}
             <span className="text-xs font-mono text-primary">
-              {scanning ? "SCANNING" : ago !== null ? `LIVE · ${ago}s ago` : feedReady ? "LIVE" : "CONNECTING…"}
+              {scanning
+                ? "SCANNING"
+                : ago !== null
+                  ? `LIVE · ${ago}s ago`
+                  : feedReady
+                    ? "LIVE"
+                    : "CONNECTING…"}
               {errors > 0 && ` · ${errors} err`}
             </span>
           </div>
@@ -146,7 +175,7 @@ function ScreenerPage() {
 
         {/* Preset grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
-          {PRESETS.map(p => {
+          {PRESETS.map((p) => {
             const Icon = p.icon;
             const active = preset === p.id;
             return (
@@ -157,9 +186,17 @@ function ScreenerPage() {
                   active ? "diq-glow-pulse ring-1 ring-primary/50" : ""
                 }`}
               >
-                <Icon className={`w-4 h-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`} />
-                <div className={`text-xs font-semibold ${active ? "text-primary" : "text-foreground"}`}>{p.label}</div>
-                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">{p.desc}</div>
+                <Icon
+                  className={`w-4 h-4 mb-1.5 ${active ? "text-primary" : "text-muted-foreground"}`}
+                />
+                <div
+                  className={`text-xs font-semibold ${active ? "text-primary" : "text-foreground"}`}
+                >
+                  {p.label}
+                </div>
+                <div className="text-[10px] text-muted-foreground mt-0.5 leading-tight">
+                  {p.desc}
+                </div>
               </button>
             );
           })}
@@ -173,15 +210,17 @@ function ScreenerPage() {
               type="text"
               placeholder="Search symbol…"
               value={query}
-              onChange={e => setQuery(e.target.value)}
+              onChange={(e) => setQuery(e.target.value)}
               className="w-full pl-8 pr-3 py-2 rounded border border-input bg-background text-sm"
             />
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Asset class</label>
+            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Asset class
+            </label>
             <select
               value={classFilter}
-              onChange={e => setClassFilter(e.target.value as any)}
+              onChange={(e) => setClassFilter(e.target.value as any)}
               className="w-full mt-1 h-9 rounded border border-input bg-background px-2 text-xs"
             >
               <option value="ALL">All</option>
@@ -194,14 +233,18 @@ function ScreenerPage() {
             </select>
           </div>
           <div>
-            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">Scan timeframe</label>
+            <label className="text-[10px] uppercase tracking-wider text-muted-foreground">
+              Scan timeframe
+            </label>
             <div className="flex gap-1 mt-1">
-              {(["M5","M15","M30","H1","H4"] as TF[]).map(t => (
+              {(["M5", "M15", "M30", "H1", "H4"] as TF[]).map((t) => (
                 <button
                   key={t}
                   onClick={() => setTf(t)}
                   className={`flex-1 px-2 py-1 rounded text-[11px] font-mono diq-press ${
-                    tf === t ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground hover:bg-muted/70"
+                    tf === t
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground hover:bg-muted/70"
                   }`}
                 >
                   {t}
@@ -224,37 +267,55 @@ function ScreenerPage() {
           <div className="divide-y divide-border max-h-[60dvh] overflow-y-auto">
             {filtered.length === 0 && (
               <div className="p-8 text-center text-xs text-muted-foreground italic">
-                {!feedReady ? "Warming up tick streams…" : "Nothing matches the current preset/filters."}
+                {!feedReady
+                  ? "Warming up tick streams…"
+                  : "Nothing matches the current preset/filters."}
               </div>
             )}
-            {filtered.map(r => (
+            {filtered.map((r) => (
               <div
                 key={r.symbol}
                 className="grid grid-cols-12 gap-2 px-3 py-2 items-center hover:bg-accent/30 transition diq-press text-xs"
               >
                 <div className="col-span-3 font-medium text-sm">{r.display}</div>
-                <div className="col-span-1 text-center font-mono text-[10px] text-muted-foreground uppercase">{r.cls}</div>
-                <div className={`col-span-2 text-right font-mono ${r.pctChange >= 0 ? "text-bull" : "text-bear"}`}>
-                  {r.pctChange >= 0 ? "+" : ""}{r.pctChange.toFixed(3)}%
+                <div className="col-span-1 text-center font-mono text-[10px] text-muted-foreground uppercase">
+                  {r.cls}
+                </div>
+                <div
+                  className={`col-span-2 text-right font-mono ${r.pctChange >= 0 ? "text-bull" : "text-bear"}`}
+                >
+                  {r.pctChange >= 0 ? "+" : ""}
+                  {r.pctChange.toFixed(3)}%
                 </div>
                 <div className="col-span-2 text-right font-mono text-muted-foreground">
                   {r.realisedVol > 0 ? r.realisedVol.toFixed(4) : "—"}
                 </div>
                 <div className="col-span-2 text-right">
-                  <span className={`font-mono ${
-                    r.scanRating === "ELITE" ? "text-emerald-300" :
-                    r.scanRating === "STRONG" ? "text-bull" :
-                    r.scanRating === "MEDIUM" ? "text-amber-300" :
-                    "text-muted-foreground"
-                  }`}>
+                  <span
+                    className={`font-mono ${
+                      r.scanRating === "ELITE"
+                        ? "text-emerald-300"
+                        : r.scanRating === "STRONG"
+                          ? "text-bull"
+                          : r.scanRating === "MEDIUM"
+                            ? "text-amber-300"
+                            : "text-muted-foreground"
+                    }`}
+                  >
                     {r.scanScore > 0 ? `${r.scanScore.toFixed(0)}%` : "—"}
                   </span>
                 </div>
                 <div className="col-span-2 text-right">
                   {r.scanDir === "BUY" ? (
-                    <span className="text-bull flex items-center justify-end gap-1"><TrendingUp className="w-3 h-3" />BUY</span>
+                    <span className="text-bull flex items-center justify-end gap-1">
+                      <TrendingUp className="w-3 h-3" />
+                      BUY
+                    </span>
                   ) : r.scanDir === "SELL" ? (
-                    <span className="text-bear flex items-center justify-end gap-1"><TrendingDown className="w-3 h-3" />SELL</span>
+                    <span className="text-bear flex items-center justify-end gap-1">
+                      <TrendingDown className="w-3 h-3" />
+                      SELL
+                    </span>
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
@@ -265,7 +326,8 @@ function ScreenerPage() {
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center flex items-center justify-center gap-1">
-          <Filter className="w-3 h-3" /> Ticks from public Deriv WS · Confluence from src/lib/engine/signal.ts · {filtered.length} matching · refreshing 45s
+          <Filter className="w-3 h-3" /> Ticks from public Deriv WS · Confluence from
+          src/lib/engine/signal.ts · {filtered.length} matching · refreshing 45s
         </p>
       </div>
     </AppShell>

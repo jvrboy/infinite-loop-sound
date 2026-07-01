@@ -1,7 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useMemo } from "react";
-import { analyzeVolatilityRegime, type VolatilityRegime, type RegimeAnalysis } from "@/lib/engine/volatility-regime";
+import {
+  analyzeVolatilityRegime,
+  type VolatilityRegime,
+  type RegimeAnalysis,
+} from "@/lib/engine/volatility-regime";
 import { Flame, Activity, AlertTriangle, Shield, TrendingUp, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +14,11 @@ export const Route = createFileRoute("/volatility")({
   head: () => ({
     meta: [
       { title: "Volatility Regime — DivergenceIQ" },
-      { name: "description", content: "Detect and adapt to current market volatility regime. Adjust position sizing and strategy selection." },
+      {
+        name: "description",
+        content:
+          "Detect and adapt to current market volatility regime. Adjust position sizing and strategy selection.",
+      },
     ],
   }),
   component: VolatilityPage,
@@ -20,7 +28,7 @@ export const Route = createFileRoute("/volatility")({
 function generateSampleCandles(count = 100) {
   const candles: { epoch: number; high: number; low: number; close: number; open: number }[] = [];
   const baseEpoch = Math.floor(Date.now() / 1000) - count * 3600;
-  let price = 1.1000;
+  let price = 1.1;
   let volatility = 0.001;
 
   for (let i = 0; i < count; i++) {
@@ -50,14 +58,22 @@ function VolatilityPage() {
   }, [sampleCandles]);
 
   // Adapt to the RegimeAnalysis interface
-  const regime = useMemo(() => ({
-    regime: regimeAnalysis.regime === "QUIET" ? "LOW" : regimeAnalysis.regime === "ELEVATED" ? "HIGH" : regimeAnalysis.regime,
-    currentATR: regimeAnalysis.atrCurrent,
-    percentile: regimeAnalysis.atrPercentile,
-    avgATR: regimeAnalysis.atrCurrent * 0.85,
-    ratio: regimeAnalysis.positionSizeMultiplier,
-    expanding: regimeAnalysis.velocity > 0,
-  }), [regimeAnalysis]);
+  const regime = useMemo(
+    () => ({
+      regime:
+        regimeAnalysis.regime === "QUIET"
+          ? "LOW"
+          : regimeAnalysis.regime === "ELEVATED"
+            ? "HIGH"
+            : regimeAnalysis.regime,
+      currentATR: regimeAnalysis.atrCurrent,
+      percentile: regimeAnalysis.atrPercentile,
+      avgATR: regimeAnalysis.atrCurrent * 0.85,
+      ratio: regimeAnalysis.positionSizeMultiplier,
+      expanding: regimeAnalysis.velocity > 0,
+    }),
+    [regimeAnalysis],
+  );
 
   const regimeColors: Record<string, string> = {
     LOW: "text-blue-400 bg-blue-500/10 border-blue-500/30",
@@ -139,13 +155,17 @@ function VolatilityPage() {
                 </div>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-muted-foreground">Volatility Ratio</span>
-                  <span className={`font-mono font-semibold ${regime.ratio > 1.5 ? "text-bear" : regime.ratio < 0.7 ? "text-blue-400" : "text-bull"}`}>
+                  <span
+                    className={`font-mono font-semibold ${regime.ratio > 1.5 ? "text-bear" : regime.ratio < 0.7 ? "text-blue-400" : "text-bull"}`}
+                  >
                     {regime.ratio.toFixed(2)}x
                   </span>
                 </div>
                 <div className="flex justify-between text-[11px]">
                   <span className="text-muted-foreground">Expanding/Contracting</span>
-                  <span className={`font-mono font-semibold ${regime.expanding ? "text-bear" : "text-bull"}`}>
+                  <span
+                    className={`font-mono font-semibold ${regime.expanding ? "text-bear" : "text-bull"}`}
+                  >
                     {regime.expanding ? "📈 Expanding" : "📉 Contracting"}
                   </span>
                 </div>
@@ -153,7 +173,9 @@ function VolatilityPage() {
 
               {/* Volatility gauge */}
               <div className="pt-3 border-t border-border">
-                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">Volatility Level</div>
+                <div className="text-[9px] uppercase tracking-wider text-muted-foreground mb-2">
+                  Volatility Level
+                </div>
                 <div className="h-3 bg-muted/30 rounded-full overflow-hidden relative">
                   <div className="absolute inset-0 flex">
                     <div className="w-1/4 bg-blue-500/30 border-r border-background/50" />
@@ -189,19 +211,25 @@ function VolatilityPage() {
                   <div className="text-[9px] uppercase tracking-wider text-primary font-semibold mb-1.5 flex items-center gap-1">
                     <TrendingUp className="w-3 h-3" /> Position Sizing
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">{advice.sizing}</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {advice.sizing}
+                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-bull/5 border border-bull/20">
                   <div className="text-[9px] uppercase tracking-wider text-bull font-semibold mb-1.5 flex items-center gap-1">
                     <Activity className="w-3 h-3" /> Strategy Selection
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">{advice.strategy}</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {advice.strategy}
+                  </p>
                 </div>
                 <div className="p-3 rounded-lg bg-medium/5 border border-medium/20">
                   <div className="text-[9px] uppercase tracking-wider text-medium font-semibold mb-1.5 flex items-center gap-1">
                     <Shield className="w-3 h-3" /> Stop Loss
                   </div>
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">{advice.stops}</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">
+                    {advice.stops}
+                  </p>
                 </div>
               </div>
 
@@ -213,9 +241,16 @@ function VolatilityPage() {
                 <div className="flex gap-0.5 h-8">
                   {sampleCandles.map((c, i) => {
                     const range = c.high - c.low;
-                    const maxRange = Math.max(...sampleCandles.map(x => x.high - x.low));
+                    const maxRange = Math.max(...sampleCandles.map((x) => x.high - x.low));
                     const height = maxRange > 0 ? (range / maxRange) * 100 : 50;
-                    const color = height > 75 ? "bg-bear/60" : height > 50 ? "bg-medium/60" : height > 25 ? "bg-bull/60" : "bg-blue-500/60";
+                    const color =
+                      height > 75
+                        ? "bg-bear/60"
+                        : height > 50
+                          ? "bg-medium/60"
+                          : height > 25
+                            ? "bg-bull/60"
+                            : "bg-blue-500/60";
                     return (
                       <div
                         key={i}
@@ -235,14 +270,33 @@ function VolatilityPage() {
                 </div>
                 <div className="grid grid-cols-4 gap-2">
                   {[
-                    { regime: "LOW", mult: "1.25x", color: "bg-blue-500/10 border-blue-500/30 text-blue-400" },
-                    { regime: "NORMAL", mult: "1.0x", color: "bg-bull/10 border-bull/30 text-bull" },
-                    { regime: "HIGH", mult: "0.5x", color: "bg-medium/10 border-medium/30 text-medium" },
-                    { regime: "EXTREME", mult: "0.25x", color: "bg-bear/10 border-bear/30 text-bear" },
-                  ].map(r => (
-                    <div key={r.regime} className={`p-2 rounded border text-center ${r.color} ${
-                      r.regime === regime.regime ? "ring-1 ring-current" : "opacity-60"
-                    }`}>
+                    {
+                      regime: "LOW",
+                      mult: "1.25x",
+                      color: "bg-blue-500/10 border-blue-500/30 text-blue-400",
+                    },
+                    {
+                      regime: "NORMAL",
+                      mult: "1.0x",
+                      color: "bg-bull/10 border-bull/30 text-bull",
+                    },
+                    {
+                      regime: "HIGH",
+                      mult: "0.5x",
+                      color: "bg-medium/10 border-medium/30 text-medium",
+                    },
+                    {
+                      regime: "EXTREME",
+                      mult: "0.25x",
+                      color: "bg-bear/10 border-bear/30 text-bear",
+                    },
+                  ].map((r) => (
+                    <div
+                      key={r.regime}
+                      className={`p-2 rounded border text-center ${r.color} ${
+                        r.regime === regime.regime ? "ring-1 ring-current" : "opacity-60"
+                      }`}
+                    >
                       <div className="text-[9px] uppercase font-semibold">{r.regime}</div>
                       <div className="text-sm font-mono font-bold">{r.mult}</div>
                     </div>
@@ -255,10 +309,13 @@ function VolatilityPage() {
                 <div className="p-3 rounded-lg bg-bear/10 border border-bear/30 flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-bear mt-0.5 shrink-0" />
                   <div>
-                    <div className="text-xs font-semibold text-bear">Extreme Volatility Warning</div>
+                    <div className="text-xs font-semibold text-bear">
+                      Extreme Volatility Warning
+                    </div>
                     <p className="text-[11px] text-muted-foreground mt-1">
-                      Market is in an extreme volatility regime. Consider reducing position sizes to 25% of normal
-                      or sitting out entirely. News events or liquidity gaps may cause unpredictable moves.
+                      Market is in an extreme volatility regime. Consider reducing position sizes to
+                      25% of normal or sitting out entirely. News events or liquidity gaps may cause
+                      unpredictable moves.
                     </p>
                   </div>
                 </div>

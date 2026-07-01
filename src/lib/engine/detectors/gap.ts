@@ -6,15 +6,20 @@
 import type { Candle } from "../indicators";
 import { atr } from "../indicators";
 
-export type GapKind = "none" | "breakaway-up" | "breakaway-down" | "exhaustion-up" | "exhaustion-down";
+export type GapKind =
+  | "none"
+  | "breakaway-up"
+  | "breakaway-down"
+  | "exhaustion-up"
+  | "exhaustion-down";
 
 export interface GapEvent {
   index: number;
   epoch: number;
-  gapSize: number;        // signed price distance
-  gapAtrMult: number;     // gap size / ATR(14)
+  gapSize: number; // signed price distance
+  gapAtrMult: number; // gap size / ATR(14)
   kind: GapKind;
-  filled: boolean;        // did a later bar trade back through the gap?
+  filled: boolean; // did a later bar trade back through the gap?
   filledAtIndex?: number;
 }
 
@@ -24,11 +29,7 @@ export interface GapScan {
   unfilledGaps: GapEvent[];
 }
 
-export function detectGaps(
-  candles: Candle[],
-  minAtrMult = 0.5,
-  atrLen = 14,
-): GapScan {
+export function detectGaps(candles: Candle[], minAtrMult = 0.5, atrLen = 14): GapScan {
   if (candles.length < atrLen + 2) return { events: [], latest: null, unfilledGaps: [] };
   const atrVals = atr(candles, atrLen);
   const events: GapEvent[] = [];
@@ -64,9 +65,7 @@ export function detectGaps(
   for (const ev of events) {
     const refPrice = candles[ev.index - 1].close;
     for (let j = ev.index + 1; j < candles.length; j++) {
-      const traded = ev.gapSize > 0
-        ? candles[j].low <= refPrice
-        : candles[j].high >= refPrice;
+      const traded = ev.gapSize > 0 ? candles[j].low <= refPrice : candles[j].high >= refPrice;
       if (traded) {
         ev.filled = true;
         ev.filledAtIndex = j;

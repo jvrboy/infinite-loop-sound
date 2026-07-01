@@ -2,16 +2,16 @@
 // Used by the EquityCurve UI widget and the `equity-summary` chat skill.
 
 export interface TradeRecord {
-  ts: number;       // close epoch (seconds)
-  pnl: number;      // USD
+  ts: number; // close epoch (seconds)
+  pnl: number; // USD
   symbol?: string;
 }
 
 export interface EquityPoint {
   ts: number;
   equity: number;
-  drawdown: number;     // negative number, USD
-  drawdownPct: number;  // negative percentage from peak
+  drawdown: number; // negative number, USD
+  drawdownPct: number; // negative percentage from peak
 }
 
 export interface EquitySummary {

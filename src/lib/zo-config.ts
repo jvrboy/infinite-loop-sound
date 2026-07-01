@@ -22,7 +22,7 @@ export const ZO_CONFIG = {
     automations: "/automations",
     files: "/files",
     user: "/user",
-  }
+  },
 };
 
 // Auto-configure on import

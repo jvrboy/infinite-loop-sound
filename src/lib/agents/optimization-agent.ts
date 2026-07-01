@@ -21,7 +21,8 @@ import {
 const OPTIMIZATION_AGENT_CONFIG: AgentConfig = {
   id: "optimization-agent",
   name: "Optimization Agent",
-  description: "Analyzes SL-hit patterns, auto-applies safe parameter fixes, and tracks improvement history across all traded pairs and sessions.",
+  description:
+    "Analyzes SL-hit patterns, auto-applies safe parameter fixes, and tracks improvement history across all traded pairs and sessions.",
   enabled: true,
   priority: "high",
   intervalSec: 60,
@@ -98,11 +99,19 @@ export function runOptimizationAgent(
     if (recentOutcomes && recentOutcomes.length > 0) {
       for (const outcome of recentOutcomes) {
         // Only feed SL-hit outcomes that haven't been analyzed yet
-        if (outcome.outcome === "SL_HIT" && (!outcome.rootCauses || outcome.rootCauses.length === 0)) {
+        if (
+          outcome.outcome === "SL_HIT" &&
+          (!outcome.rootCauses || outcome.rootCauses.length === 0)
+        ) {
           try {
             // The optimizer's analyzeSLHit expects a raw outcome without
             // rootCauses, recommendations, or misleadingConfluence
-            const { rootCauses: _, recommendations: __, misleadingConfluence: ___, ...raw } = outcome;
+            const {
+              rootCauses: _,
+              recommendations: __,
+              misleadingConfluence: ___,
+              ...raw
+            } = outcome;
             signalOptimizer.analyzeSLHit(raw);
             newSLHits++;
           } catch (err) {
@@ -147,8 +156,7 @@ export function runOptimizationAgent(
     } else {
       const slRate = pct(state.slHitCount, state.totalAnalyzed);
       const winRate = pct(state.winCount, state.totalAnalyzed);
-      const otherCount =
-        state.totalAnalyzed - state.slHitCount - state.winCount;
+      const otherCount = state.totalAnalyzed - state.slHitCount - state.winCount;
 
       insights.push(
         `OPTIMIZER: ${state.totalAnalyzed} outcomes analyzed — ${winRate} win rate, ${slRate} SL-hit rate` +
@@ -168,10 +176,7 @@ export function runOptimizationAgent(
     if (state.topRootCauses.length > 0) {
       const topCauses = state.topRootCauses
         .slice(0, 3)
-        .map(
-          (c) =>
-            `${CAUSE_LABELS[c.category] ?? c.category} (${c.severity})`,
-        )
+        .map((c) => `${CAUSE_LABELS[c.category] ?? c.category} (${c.severity})`)
         .join(", ");
       insights.push(`Top SL-hit causes: ${topCauses}.`);
     }
@@ -208,9 +213,7 @@ export function runOptimizationAgent(
     }
 
     // 5g. Active recommendations that need user review
-    const manualRecs = batchRecommendations.filter(
-      (r) => !r.autoApplicable,
-    );
+    const manualRecs = batchRecommendations.filter((r) => !r.autoApplicable);
     if (manualRecs.length > 0) {
       for (const rec of manualRecs.slice(0, 3)) {
         insights.push(

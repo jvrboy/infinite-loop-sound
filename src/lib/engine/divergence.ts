@@ -2,22 +2,31 @@
 
 export type DivType = "regular_bull" | "regular_bear" | "hidden_bull" | "hidden_bear" | null;
 
-export interface Pivot { idx: number; value: number }
+export interface Pivot {
+  idx: number;
+  value: number;
+}
 
 export const findPivots = (
   src: (number | null)[],
   left = 3,
   right = 3,
 ): { highs: Pivot[]; lows: Pivot[] } => {
-  const highs: Pivot[] = [], lows: Pivot[] = [];
+  const highs: Pivot[] = [],
+    lows: Pivot[] = [];
   for (let i = left; i < src.length - right; i++) {
     const v = src[i];
     if (v == null) continue;
-    let isHigh = true, isLow = true;
+    let isHigh = true,
+      isLow = true;
     for (let j = i - left; j <= i + right; j++) {
       if (j === i) continue;
       const w = src[j];
-      if (w == null) { isHigh = false; isLow = false; break; }
+      if (w == null) {
+        isHigh = false;
+        isLow = false;
+        break;
+      }
       if (w >= v) isHigh = false;
       if (w <= v) isLow = false;
     }
@@ -42,12 +51,14 @@ export const detectDivergence = (
   lookbackBars = 60,
 ): DivergenceResult | null => {
   const start = Math.max(0, price.length - lookbackBars);
-  const pricePiv = findPivots(price.slice(start).map(v => v) as (number | null)[]);
+  const pricePiv = findPivots(price.slice(start).map((v) => v) as (number | null)[]);
   const oscPiv = findPivots(osc.slice(start));
   // shift indexes back
-  const shift = (p: Pivot[]): Pivot[] => p.map(x => ({ idx: x.idx + start, value: x.value }));
-  const pH = shift(pricePiv.highs), pL = shift(pricePiv.lows);
-  const oH = shift(oscPiv.highs), oL = shift(oscPiv.lows);
+  const shift = (p: Pivot[]): Pivot[] => p.map((x) => ({ idx: x.idx + start, value: x.value }));
+  const pH = shift(pricePiv.highs),
+    pL = shift(pricePiv.lows);
+  const oH = shift(oscPiv.highs),
+    oL = shift(oscPiv.lows);
 
   const matchOsc = (priceA: Pivot, priceB: Pivot, oscPivots: Pivot[]): [Pivot, Pivot] | null => {
     const findNear = (idx: number) =>
@@ -97,10 +108,15 @@ export const divDirection = (t: DivType): "BUY" | "SELL" | null => {
 
 export const divLabel = (t: DivType): string => {
   switch (t) {
-    case "regular_bull": return "Regular Bullish";
-    case "regular_bear": return "Regular Bearish";
-    case "hidden_bull":  return "Hidden Bullish";
-    case "hidden_bear":  return "Hidden Bearish";
-    default: return "—";
+    case "regular_bull":
+      return "Regular Bullish";
+    case "regular_bear":
+      return "Regular Bearish";
+    case "hidden_bull":
+      return "Hidden Bullish";
+    case "hidden_bear":
+      return "Hidden Bearish";
+    default:
+      return "—";
   }
 };

@@ -21,7 +21,8 @@ import {
 const AUTOMATION_AGENT_CONFIG: AgentConfig = {
   id: "automation-agent",
   name: "Automation Agent",
-  description: "Monitors automation engine health, reports schedule performance, suggests optimal scan times, and detects dispatch issues.",
+  description:
+    "Monitors automation engine health, reports schedule performance, suggests optimal scan times, and detects dispatch issues.",
   enabled: true,
   priority: "medium",
   intervalSec: 60,
@@ -34,8 +35,7 @@ const AUTOMATION_AGENT_CONFIG: AgentConfig = {
 // ═══════════════════════════════════════════════════════════════════
 
 /** Format a timestamp to a human-readable UTC string. */
-const fmtTime = (ts: number): string =>
-  ts > 0 ? new Date(ts).toUTCString() : "never";
+const fmtTime = (ts: number): string => (ts > 0 ? new Date(ts).toUTCString() : "never");
 
 /** Format milliseconds to human-readable duration. */
 const fmtDuration = (ms: number): string => {
@@ -112,30 +112,23 @@ function analyzeSchedulePerformance(
     const total = sigs.length;
     const dispatchRate = total > 0 ? dispatched / total : 0;
 
-    const avgScore =
-      total > 0 ? sigs.reduce((s, sig) => s + sig.scorePct, 0) / total : 0;
-    const avgConfidence =
-      total > 0
-        ? sigs.reduce((s, sig) => s + sig.confidence, 0) / total
-        : 0;
+    const avgScore = total > 0 ? sigs.reduce((s, sig) => s + sig.scorePct, 0) / total : 0;
+    const avgConfidence = total > 0 ? sigs.reduce((s, sig) => s + sig.confidence, 0) / total : 0;
 
     // Find most common pair
     const pairCounts = new Map<string, number>();
     for (const sig of sigs) {
       pairCounts.set(sig.pair, (pairCounts.get(sig.pair) ?? 0) + 1);
     }
-    const topPair =
-      [...pairCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "N/A";
+    const topPair = [...pairCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? "N/A";
 
     // Generate suggestions based on performance
     let suggestion: string | undefined;
 
     if (total > 10 && dispatchRate < 0.3) {
-      suggestion =
-        `Low dispatch rate (${(dispatchRate * 100).toFixed(0)}%). Consider lowering minScore from ${schedule.minScore} to ${Math.max(30, schedule.minScore - 10)} or minConfidence from ${(schedule.minConfidence * 100).toFixed(0)}% to ${Math.max(0.5, schedule.minConfidence - 0.1).toFixed(0)}%.`;
+      suggestion = `Low dispatch rate (${(dispatchRate * 100).toFixed(0)}%). Consider lowering minScore from ${schedule.minScore} to ${Math.max(30, schedule.minScore - 10)} or minConfidence from ${(schedule.minConfidence * 100).toFixed(0)}% to ${Math.max(0.5, schedule.minConfidence - 0.1).toFixed(0)}%.`;
     } else if (total > 10 && avgScore < 45) {
-      suggestion =
-        `Average signal score is low (${avgScore.toFixed(1)}%). Consider switching to a more selective timeframe (H1 instead of M5) or reducing the instrument list.`;
+      suggestion = `Average signal score is low (${avgScore.toFixed(1)}%). Consider switching to a more selective timeframe (H1 instead of M5) or reducing the instrument list.`;
     } else if (total === 0 && schedule.enabled) {
       suggestion =
         "No signals produced yet. The schedule may need more time to accumulate data, or the instrument/timeframe combination may be too restrictive.";
@@ -164,9 +157,7 @@ function analyzeSchedulePerformance(
  * Suggest new schedules based on strategy performance patterns.
  * Looks at hours when signals were highest quality.
  */
-function suggestNewSchedules(
-  signals: AutomationSignal[],
-): Array<{
+function suggestNewSchedules(signals: AutomationSignal[]): Array<{
   name: string;
   hour: number;
   day: string;
@@ -203,7 +194,8 @@ function suggestNewSchedules(
   }
 
   // Find unscheduled high-quality hours
-  const hourPerformance: Array<{ hour: number; avgScore: number; count: number; topPair: string }> = [];
+  const hourPerformance: Array<{ hour: number; avgScore: number; count: number; topPair: string }> =
+    [];
   for (const [hour, sigs] of hourBuckets) {
     if (sigs.length < 3) continue; // need at least 3 signals to be meaningful
     const avgScore = sigs.reduce((s, sig) => s + sig.scorePct, 0) / sigs.length;
@@ -239,9 +231,7 @@ function suggestNewSchedules(
  * Suggest optimal scan times based on historical signal quality.
  * Analyzes which times produced the best risk-adjusted signals.
  */
-function computeOptimalScanTimes(
-  signals: AutomationSignal[],
-): Array<{
+function computeOptimalScanTimes(signals: AutomationSignal[]): Array<{
   hour: number;
   dayOfWeek: string;
   avgScore: number;
@@ -251,10 +241,7 @@ function computeOptimalScanTimes(
   if (signals.length < 5) return [];
 
   // Group by hour + day-of-week
-  const buckets = new Map<
-    string,
-    { hour: number; day: number; sigs: AutomationSignal[] }
-  >();
+  const buckets = new Map<string, { hour: number; day: number; sigs: AutomationSignal[] }>();
 
   for (const sig of signals) {
     const d = new Date(sig.timestamp);
@@ -280,8 +267,7 @@ function computeOptimalScanTimes(
 
   for (const [, bucket] of buckets) {
     if (bucket.sigs.length < 2) continue;
-    const avgScore =
-      bucket.sigs.reduce((s, sig) => s + sig.scorePct, 0) / bucket.sigs.length;
+    const avgScore = bucket.sigs.reduce((s, sig) => s + sig.scorePct, 0) / bucket.sigs.length;
     const dispatched = bucket.sigs.filter((s) => s.dispatched).length;
     results.push({
       hour: bucket.hour,
@@ -292,7 +278,9 @@ function computeOptimalScanTimes(
     });
   }
 
-  return results.sort((a, b) => b.avgScore * b.dispatchRate - a.avgScore * a.dispatchRate).slice(0, 10);
+  return results
+    .sort((a, b) => b.avgScore * b.dispatchRate - a.avgScore * a.dispatchRate)
+    .slice(0, 10);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -328,10 +316,7 @@ export function runAutomationAgent(): AgentResult {
 
     // ── 3. Report on next run ───────────────────────────────────
     if (isRunning && state.stats.nextRun > 0) {
-      const minutesUntil = Math.max(
-        0,
-        Math.round((state.stats.nextRun - Date.now()) / 60_000),
-      );
+      const minutesUntil = Math.max(0, Math.round((state.stats.nextRun - Date.now()) / 60_000));
       insights.push(
         `Next scheduled scan: ${timeLabel(new Date(state.stats.nextRun).getUTCHours(), new Date(state.stats.nextRun).getUTCMinutes())} ` +
           `(${minutesUntil} min from now).`,
@@ -387,7 +372,10 @@ export function runAutomationAgent(): AgentResult {
     if (optimalTimes.length > 0) {
       const topTimes = optimalTimes.slice(0, 3);
       const timeList = topTimes
-        .map((t) => `${t.dayOfWeek} ${timeLabel(t.hour, 0)} (${t.avgScore}% avg, ${t.signalCount} signals)`)
+        .map(
+          (t) =>
+            `${t.dayOfWeek} ${timeLabel(t.hour, 0)} (${t.avgScore}% avg, ${t.signalCount} signals)`,
+        )
         .join("; ");
       insights.push(
         `Best signal quality times: ${timeList}. Consider adding schedules at these times.`,
@@ -398,9 +386,7 @@ export function runAutomationAgent(): AgentResult {
     const scheduleSuggestions = suggestNewSchedules(recentSignals);
     if (scheduleSuggestions.length > 0) {
       for (const sug of scheduleSuggestions) {
-        insights.push(
-          `NEW SCHEDULE CANDIDATE: ${sug.name} — ${sug.reason}`,
-        );
+        insights.push(`NEW SCHEDULE CANDIDATE: ${sug.name} — ${sug.reason}`);
       }
     }
 
@@ -477,9 +463,7 @@ export function runAutomationAgent(): AgentResult {
       totalSignals: state.stats.totalSignals,
       totalDispatched: state.stats.dispatched,
       overallDispatchRate:
-        state.stats.totalSignals > 0
-          ? state.stats.dispatched / state.stats.totalSignals
-          : 0,
+        state.stats.totalSignals > 0 ? state.stats.dispatched / state.stats.totalSignals : 0,
       lastRun: state.stats.lastRun,
       nextRun: state.stats.nextRun,
       lastRunFormatted: fmtTime(state.stats.lastRun),

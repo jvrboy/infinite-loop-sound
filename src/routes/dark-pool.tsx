@@ -48,8 +48,16 @@ function DarkPoolPage() {
     const avgZ = blocks.length > 0 ? blocks.reduce((a, b) => a + b.z, 0) / blocks.length : 0;
     return [
       { label: "Blocks Detected", value: blocks.length.toString(), sub: `Z ≥ ${Z_THRESHOLD}` },
-      { label: "Buy Side", value: buys.toString(), sub: blocks.length ? `${Math.round((buys / blocks.length) * 100)}%` : "—" },
-      { label: "Sell Side", value: sells.toString(), sub: blocks.length ? `${Math.round((sells / blocks.length) * 100)}%` : "—" },
+      {
+        label: "Buy Side",
+        value: buys.toString(),
+        sub: blocks.length ? `${Math.round((buys / blocks.length) * 100)}%` : "—",
+      },
+      {
+        label: "Sell Side",
+        value: sells.toString(),
+        sub: blocks.length ? `${Math.round((sells / blocks.length) * 100)}%` : "—",
+      },
       { label: "Avg Z-Score", value: avgZ.toFixed(2), sub: `${blocks.length} samples` },
     ];
   }, [blocks]);
@@ -85,13 +93,17 @@ function DarkPoolPage() {
               Institutional Block Detection
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Statistically anomalous tick clusters (z ≥ {Z_THRESHOLD}) — public Deriv feed.
-              Not a true dark-pool feed (no public FX source exists).
+              Statistically anomalous tick clusters (z ≥ {Z_THRESHOLD}) — public Deriv feed. Not a
+              true dark-pool feed (no public FX source exists).
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-pink-500/10 border border-pink-500/30">
-            <Activity className={`w-3.5 h-3.5 text-pink-400 ${ready ? "animate-pulse" : "opacity-30"}`} />
-            <span className="text-xs font-mono text-pink-400">{ready ? "LIVE" : "CONNECTING…"}</span>
+            <Activity
+              className={`w-3.5 h-3.5 text-pink-400 ${ready ? "animate-pulse" : "opacity-30"}`}
+            />
+            <span className="text-xs font-mono text-pink-400">
+              {ready ? "LIVE" : "CONNECTING…"}
+            </span>
           </div>
         </div>
 
@@ -132,9 +144,11 @@ function DarkPoolPage() {
                     <td className="p-3 text-muted-foreground">{pool.time}</td>
                     <td className="p-3 font-medium">{pool.display}</td>
                     <td className="p-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 w-fit ${
-                        pool.side === "BUY" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"
-                      }`}>
+                      <span
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 w-fit ${
+                          pool.side === "BUY" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"
+                        }`}
+                      >
                         <Users className="w-3 h-3" />
                         {pool.side}
                       </span>
@@ -160,10 +174,14 @@ function DarkPoolPage() {
                   <div className="font-medium text-sm">{v.venue}</div>
                   <div className="text-xs text-muted-foreground mt-0.5">{v.trades} blocks</div>
                 </div>
-                <TrendingUp className={`w-4 h-4 ${v.bias === "Bullish" ? "text-bull" : "text-bear rotate-180"}`} />
+                <TrendingUp
+                  className={`w-4 h-4 ${v.bias === "Bullish" ? "text-bull" : "text-bear rotate-180"}`}
+                />
               </div>
               <div className="text-xl font-bold font-mono">{v.volume}</div>
-              <div className={`text-xs mt-1 ${v.bias === "Bullish" ? "text-bull" : "text-bear"}`}>{v.bias}</div>
+              <div className={`text-xs mt-1 ${v.bias === "Bullish" ? "text-bull" : "text-bear"}`}>
+                {v.bias}
+              </div>
             </div>
           ))}
           {venues.length === 0 && (

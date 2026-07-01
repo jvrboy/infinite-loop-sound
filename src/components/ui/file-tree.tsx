@@ -57,8 +57,16 @@ function FileItem({ node, depth, isLast, parentPath }: FileItemProps) {
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
         {depth > 0 && (
-          <div className="absolute top-0 bottom-0 flex" style={{ left: `${(depth - 1) * 16 + 16}px` }}>
-            <div className={cn("w-px transition-colors duration-200", isHovered ? "bg-primary/40" : "bg-border/50")} />
+          <div
+            className="absolute top-0 bottom-0 flex"
+            style={{ left: `${(depth - 1) * 16 + 16}px` }}
+          >
+            <div
+              className={cn(
+                "w-px transition-colors duration-200",
+                isHovered ? "bg-primary/40" : "bg-border/50",
+              )}
+            />
           </div>
         )}
 
@@ -69,15 +77,32 @@ function FileItem({ node, depth, isLast, parentPath }: FileItemProps) {
           )}
         >
           {isFolder ? (
-            <svg width="6" height="8" viewBox="0 0 6 8" fill="none" className={isHovered ? "text-primary" : "text-muted-foreground"}>
-              <path d="M1 1L5 4L1 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <svg
+              width="6"
+              height="8"
+              viewBox="0 0 6 8"
+              fill="none"
+              className={isHovered ? "text-primary" : "text-muted-foreground"}
+            >
+              <path
+                d="M1 1L5 4L1 7"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
           ) : (
             <span className={cn("text-[9px] font-bold", fileIcon.color)}>{fileIcon.icon}</span>
           )}
         </div>
 
-        <div className={cn("flex items-center justify-center w-5 h-5 transition-all", isFolder ? "text-amber-400" : fileIcon.color)}>
+        <div
+          className={cn(
+            "flex items-center justify-center w-5 h-5 transition-all",
+            isFolder ? "text-amber-400" : fileIcon.color,
+          )}
+        >
           {isFolder ? (
             <svg width="16" height="14" viewBox="0 0 16 14" fill="currentColor">
               <path d="M1.5 1C0.671573 1 0 1.67157 0 2.5V11.5C0 12.3284 0.671573 13 1.5 13H14.5C15.3284 13 16 12.3284 16 11.5V4.5C16 3.67157 15.3284 3 14.5 3H8L6.5 1H1.5Z" />
@@ -90,18 +115,32 @@ function FileItem({ node, depth, isLast, parentPath }: FileItemProps) {
           )}
         </div>
 
-        <span className={cn("font-mono text-sm transition-colors", isFolder ? "text-foreground" : isHovered ? "text-foreground" : "text-muted-foreground")}>
+        <span
+          className={cn(
+            "font-mono text-sm transition-colors",
+            isFolder ? "text-foreground" : isHovered ? "text-foreground" : "text-muted-foreground",
+          )}
+        >
           {node.name}
         </span>
       </div>
 
       {hasChildren && (
         <div
-          className={cn("overflow-hidden transition-all duration-300 ease-out", isOpen ? "opacity-100" : "opacity-0 h-0")}
+          className={cn(
+            "overflow-hidden transition-all duration-300 ease-out",
+            isOpen ? "opacity-100" : "opacity-0 h-0",
+          )}
           style={{ maxHeight: isOpen ? `${node.children!.length * 200}px` : "0px" }}
         >
           {node.children!.map((child, index) => (
-            <FileItem key={child.name} node={child} depth={depth + 1} isLast={index === node.children!.length - 1} parentPath={[...parentPath, !isLast]} />
+            <FileItem
+              key={child.name}
+              node={child}
+              depth={depth + 1}
+              isLast={index === node.children!.length - 1}
+              parentPath={[...parentPath, !isLast]}
+            />
           ))}
         </div>
       )}
@@ -111,7 +150,12 @@ function FileItem({ node, depth, isLast, parentPath }: FileItemProps) {
 
 export function FileTree({ data, className }: FileTreeProps) {
   return (
-    <div className={cn("bg-card/60 backdrop-blur rounded-lg border border-border p-3 font-mono", className)}>
+    <div
+      className={cn(
+        "bg-card/60 backdrop-blur rounded-lg border border-border p-3 font-mono",
+        className,
+      )}
+    >
       <div className="flex items-center gap-2 pb-3 mb-2 border-b border-border/50">
         <div className="flex gap-1.5">
           <div className="w-2.5 h-2.5 rounded-full bg-red-500/80" />
@@ -122,7 +166,13 @@ export function FileTree({ data, className }: FileTreeProps) {
       </div>
       <div className="space-y-0.5">
         {data.map((node, index) => (
-          <FileItem key={node.name} node={node} depth={0} isLast={index === data.length - 1} parentPath={[]} />
+          <FileItem
+            key={node.name}
+            node={node}
+            depth={0}
+            isLast={index === data.length - 1}
+            parentPath={[]}
+          />
         ))}
       </div>
     </div>

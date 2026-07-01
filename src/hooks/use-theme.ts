@@ -2,15 +2,15 @@ import { useEffect, useState } from "react";
 
 export const THEMES = [
   { id: "midnight", label: "Midnight (default)", swatch: "#0b1020" },
-  { id: "ocean",    label: "Deep Ocean",         swatch: "#0c2340" },
-  { id: "amber",    label: "Trader Amber",       swatch: "#1f1408" },
-  { id: "neon",     label: "Neon Cyber",         swatch: "#1a0833" },
-  { id: "pro",      label: "Pro Trader",         swatch: "#0a0a0a" },
-  { id: "matrix",   label: "Matrix Green",       swatch: "#001a00" },
-  { id: "crimson",  label: "Crimson Dark",       swatch: "#1a0008" },
-  { id: "arctic",   label: "Arctic Blue",        swatch: "#001428" },
-  { id: "void",     label: "Void Black",         swatch: "#000000" },
-  { id: "paper",    label: "Paper (Light)",      swatch: "#f5f3ee" },
+  { id: "ocean", label: "Deep Ocean", swatch: "#0c2340" },
+  { id: "amber", label: "Trader Amber", swatch: "#1f1408" },
+  { id: "neon", label: "Neon Cyber", swatch: "#1a0833" },
+  { id: "pro", label: "Pro Trader", swatch: "#0a0a0a" },
+  { id: "matrix", label: "Matrix Green", swatch: "#001a00" },
+  { id: "crimson", label: "Crimson Dark", swatch: "#1a0008" },
+  { id: "arctic", label: "Arctic Blue", swatch: "#001428" },
+  { id: "void", label: "Void Black", swatch: "#000000" },
+  { id: "paper", label: "Paper (Light)", swatch: "#f5f3ee" },
 ] as const;
 
 export type ThemeId = (typeof THEMES)[number]["id"];

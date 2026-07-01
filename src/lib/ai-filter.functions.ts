@@ -2,11 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 
-const admin = () => createClient(
-  process.env.SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+const admin = () =>
+  createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  });
 
 // Simple neural network for confluence scoring
 class ConfluenceNeuralNet {
@@ -38,10 +37,15 @@ class ConfluenceNeuralNet {
     return Math.max(0, x);
   }
 
-  predict(indicators: number[]): { score: number; confidence: number; breakdown: Record<string, number> } {
+  predict(indicators: number[]): {
+    score: number;
+    confidence: number;
+    breakdown: Record<string, number>;
+  } {
     // Forward pass
     const hidden = this.weights.map((w, i) => {
-      const sum = w.reduce((acc, weight, j) => acc + weight * (indicators[j] || 0), 0) + this.biases[i];
+      const sum =
+        w.reduce((acc, weight, j) => acc + weight * (indicators[j] || 0), 0) + this.biases[i];
       return this.relu(sum);
     });
 
@@ -49,17 +53,26 @@ class ConfluenceNeuralNet {
     const outputWeights = [0.24, 0.31, 0.19, 0.27, 0.22, 0.35, 0.28, 0.21];
     const rawScore = hidden.reduce((acc, h, i) => acc + h * outputWeights[i], 0);
     const score = Math.min(100, Math.max(0, this.sigmoid(rawScore - 1.5) * 120));
-    
+
     // Confidence based on activation variance
     const mean = hidden.reduce((a, b) => a + b, 0) / hidden.length;
     const variance = hidden.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / hidden.length;
     const confidence = Math.min(95, 60 + variance * 40);
 
     const indicatorNames = [
-      "RSI Divergence", "MACD Divergence", "Stochastic", "RVI", "OBV",
-      "EMA Align", "Supertrend", "Ichimoku", "ADX", "Candle", "BB Squeeze"
+      "RSI Divergence",
+      "MACD Divergence",
+      "Stochastic",
+      "RVI",
+      "OBV",
+      "EMA Align",
+      "Supertrend",
+      "Ichimoku",
+      "ADX",
+      "Candle",
+      "BB Squeeze",
     ];
-    
+
     const breakdown: Record<string, number> = {};
     indicators.forEach((val, i) => {
       if (val > 0) breakdown[indicatorNames[i]] = Math.round(val * 100);
@@ -72,10 +85,10 @@ class ConfluenceNeuralNet {
   train(indicators: number[], actualResult: number, learningRate = 0.01) {
     const prediction = this.predict(indicators);
     const error = actualResult - prediction.score / 100;
-    
+
     // Update weights (gradient descent simplified)
     this.weights = this.weights.map((layer, i) =>
-      layer.map((w, j) => w + learningRate * error * (indicators[j] || 0) * 0.1)
+      layer.map((w, j) => w + learningRate * error * (indicators[j] || 0) * 0.1),
     );
   }
 }
@@ -83,13 +96,17 @@ class ConfluenceNeuralNet {
 const neuralNet = new ConfluenceNeuralNet();
 
 export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
-    minTrades: z.number().optional().default(5),
-    timeframe: z.string().optional(),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        minTrades: z.number().optional().default(5),
+        timeframe: z.string().optional(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     const sb = admin();
-    
+
     // Fetch historical signals with results
     const { data: signals, error } = await sb
       .from("signals")
@@ -102,30 +119,45 @@ export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
     if (!signals?.length) return { patterns: [], insights: [] };
 
     // Analyze patterns
-    const patternMap = new Map<string, { wins: number; total: number; avgScore: number; indicators: number[] }>();
-    
-    signals.forEach(s => {
+    const patternMap = new Map<
+      string,
+      { wins: number; total: number; avgScore: number; indicators: number[] }
+    >();
+
+    signals.forEach((s) => {
       const result = (s.result || "").toUpperCase();
       const isWin = result.startsWith("TP") || result === "WIN";
-      const conf = s.confluence as any[] || [];
-      
+      const conf = (s.confluence as any[]) || [];
+
       // Create pattern key from passed indicators
-      const passed = conf.filter(c => c.passed).map(c => c.label).sort().join("+");
+      const passed = conf
+        .filter((c) => c.passed)
+        .map((c) => c.label)
+        .sort()
+        .join("+");
       if (!passed) return;
-      
+
       const entry = patternMap.get(passed) || { wins: 0, total: 0, avgScore: 0, indicators: [] };
       entry.total++;
       if (isWin) entry.wins++;
       entry.avgScore = (entry.avgScore * (entry.total - 1) + s.score) / entry.total;
-      
+
       // Store indicator vector for neural net
       const indicatorVec = [
-        "RSI Divergence", "MACD Divergence", "Stochastic Divergence", "RVI Divergence", "OBV Divergence",
-        "EMA 50/200 Aligned", "Supertrend Aligned", "Ichimoku T/K Aligned", "ADX Trending (>22)",
-        "Candle Pattern Confirm", "BB Squeeze Breakout"
-      ].map(name => conf.find(c => c.label === name)?.passed ? 1 : 0);
+        "RSI Divergence",
+        "MACD Divergence",
+        "Stochastic Divergence",
+        "RVI Divergence",
+        "OBV Divergence",
+        "EMA 50/200 Aligned",
+        "Supertrend Aligned",
+        "Ichimoku T/K Aligned",
+        "ADX Trending (>22)",
+        "Candle Pattern Confirm",
+        "BB Squeeze Breakout",
+      ].map((name) => (conf.find((c) => c.label === name)?.passed ? 1 : 0));
       entry.indicators = indicatorVec;
-      
+
       patternMap.set(passed, entry);
     });
 
@@ -135,7 +167,7 @@ export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
       .map(([pattern, stats]) => {
         const winRate = stats.wins / stats.total;
         const nnPrediction = neuralNet.predict(stats.indicators);
-        
+
         return {
           pattern,
           trades: stats.total,
@@ -151,15 +183,23 @@ export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
       .slice(0, 10);
 
     // Train neural net on recent results
-    signals.slice(0, 50).forEach(s => {
+    signals.slice(0, 50).forEach((s) => {
       const result = (s.result || "").toUpperCase();
       const isWin = result.startsWith("TP") || result === "WIN" ? 1 : 0;
-      const conf = s.confluence as any[] || [];
+      const conf = (s.confluence as any[]) || [];
       const vec = [
-        "RSI Divergence", "MACD Divergence", "Stochastic Divergence", "RVI Divergence", "OBV Divergence",
-        "EMA 50/200 Aligned", "Supertrend Aligned", "Ichimoku T/K Aligned", "ADX Trending (>22)",
-        "Candle Pattern Confirm", "BB Squeeze Breakout"
-      ].map(name => conf.find(c => c.label === name)?.passed ? 1 : 0);
+        "RSI Divergence",
+        "MACD Divergence",
+        "Stochastic Divergence",
+        "RVI Divergence",
+        "OBV Divergence",
+        "EMA 50/200 Aligned",
+        "Supertrend Aligned",
+        "Ichimoku T/K Aligned",
+        "ADX Trending (>22)",
+        "Candle Pattern Confirm",
+        "BB Squeeze Breakout",
+      ].map((name) => (conf.find((c) => c.label === name)?.passed ? 1 : 0));
       neuralNet.train(vec, isWin);
     });
 
@@ -189,40 +229,62 @@ export const analyzeSignalsWithAI = createServerFn({ method: "POST" })
   });
 
 export const predictSignalOutcome = createServerFn({ method: "POST" })
-  .inputValidator((d) => z.object({
-    confluence: z.array(z.object({ label: z.string(), passed: z.boolean() })),
-    pair: z.string(),
-    timeframe: z.string(),
-    score: z.number(),
-  }).parse(d))
+  .inputValidator((d) =>
+    z
+      .object({
+        confluence: z.array(z.object({ label: z.string(), passed: z.boolean() })),
+        pair: z.string(),
+        timeframe: z.string(),
+        score: z.number(),
+      })
+      .parse(d),
+  )
   .handler(async ({ data }) => {
     const indicatorVec = [
-      "RSI Divergence", "MACD Divergence", "Stochastic Divergence", "RVI Divergence", "OBV Divergence",
-      "EMA 50/200 Aligned", "Supertrend Aligned", "Ichimoku T/K Aligned", "ADX Trending (>22)",
-      "Candle Pattern Confirm", "BB Squeeze Breakout"
-    ].map(name => data.confluence.find(c => c.label === name)?.passed ? 1 : 0);
+      "RSI Divergence",
+      "MACD Divergence",
+      "Stochastic Divergence",
+      "RVI Divergence",
+      "OBV Divergence",
+      "EMA 50/200 Aligned",
+      "Supertrend Aligned",
+      "Ichimoku T/K Aligned",
+      "ADX Trending (>22)",
+      "Candle Pattern Confirm",
+      "BB Squeeze Breakout",
+    ].map((name) => (data.confluence.find((c) => c.label === name)?.passed ? 1 : 0));
 
     const prediction = neuralNet.predict(indicatorVec);
-    
+
     // Adjust for pair/timeframe historical performance
     const pairMultipliers: Record<string, number> = {
-      "frxEURUSD": 1.08, "frxGBPUSD": 1.05, "frxUSDJPY": 0.97,
-      "frxXAUUSD": 1.12, "frxBTCUSD": 0.89,
+      frxEURUSD: 1.08,
+      frxGBPUSD: 1.05,
+      frxUSDJPY: 0.97,
+      frxXAUUSD: 1.12,
+      frxBTCUSD: 0.89,
     };
     const tfMultipliers: Record<string, number> = {
-      "15m": 1.05, "1h": 1.12, "4h": 1.08, "1d": 0.95,
+      "15m": 1.05,
+      "1h": 1.12,
+      "4h": 1.08,
+      "1d": 0.95,
     };
 
-    const adjustedScore = Math.min(100, prediction.score * 
-      (pairMultipliers[data.pair] || 1) * 
-      (tfMultipliers[data.timeframe] || 1)
+    const adjustedScore = Math.min(
+      100,
+      prediction.score * (pairMultipliers[data.pair] || 1) * (tfMultipliers[data.timeframe] || 1),
     );
 
     const winProbability = Math.round(adjustedScore * 0.85); // Calibrated
-    const recommendation = 
-      winProbability >= 75 ? "STRONG BUY" :
-      winProbability >= 65 ? "BUY" :
-      winProbability >= 55 ? "NEUTRAL" : "AVOID";
+    const recommendation =
+      winProbability >= 75
+        ? "STRONG BUY"
+        : winProbability >= 65
+          ? "BUY"
+          : winProbability >= 55
+            ? "NEUTRAL"
+            : "AVOID";
 
     return {
       winProbability,

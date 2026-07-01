@@ -3,8 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import {
-  BookOpen, Save, Star, AlertTriangle, CheckCircle2,
-  Brain, Heart, Frown, Meh, Smile, Zap,
+  BookOpen,
+  Save,
+  Star,
+  AlertTriangle,
+  CheckCircle2,
+  Brain,
+  Heart,
+  Frown,
+  Meh,
+  Smile,
+  Zap,
 } from "lucide-react";
 
 export type TradeMood = "confident" | "neutral" | "anxious" | "fomo" | "revenge" | "disciplined";
@@ -36,18 +45,52 @@ interface Props {
 }
 
 const MOODS: { id: TradeMood; label: string; icon: typeof Smile; color: string }[] = [
-  { id: "confident", label: "Confident", icon: Smile, color: "text-bull bg-bull/10 border-bull/30" },
-  { id: "disciplined", label: "Disciplined", icon: CheckCircle2, color: "text-primary bg-primary/10 border-primary/30" },
-  { id: "neutral", label: "Neutral", icon: Meh, color: "text-muted-foreground bg-muted border-border" },
-  { id: "anxious", label: "Anxious", icon: Frown, color: "text-medium bg-medium/10 border-medium/30" },
+  {
+    id: "confident",
+    label: "Confident",
+    icon: Smile,
+    color: "text-bull bg-bull/10 border-bull/30",
+  },
+  {
+    id: "disciplined",
+    label: "Disciplined",
+    icon: CheckCircle2,
+    color: "text-primary bg-primary/10 border-primary/30",
+  },
+  {
+    id: "neutral",
+    label: "Neutral",
+    icon: Meh,
+    color: "text-muted-foreground bg-muted border-border",
+  },
+  {
+    id: "anxious",
+    label: "Anxious",
+    icon: Frown,
+    color: "text-medium bg-medium/10 border-medium/30",
+  },
   { id: "fomo", label: "FOMO", icon: Zap, color: "text-bear bg-bear/10 border-bear/30" },
-  { id: "revenge", label: "Revenge", icon: AlertTriangle, color: "text-bear bg-bear/10 border-bear/30" },
+  {
+    id: "revenge",
+    label: "Revenge",
+    icon: AlertTriangle,
+    color: "text-bear bg-bear/10 border-bear/30",
+  },
 ];
 
 const COMMON_TAGS = [
-  "trend-following", "counter-trend", "breakout", "range-bound",
-  "news-driven", "confluence-setup", "scalp", "swing",
-  "overtraded", "perfect-execution", "early-exit", "late-entry",
+  "trend-following",
+  "counter-trend",
+  "breakout",
+  "range-bound",
+  "news-driven",
+  "confluence-setup",
+  "scalp",
+  "swing",
+  "overtraded",
+  "perfect-execution",
+  "early-exit",
+  "late-entry",
 ];
 
 export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props) {
@@ -61,7 +104,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
   const [saved, setSaved] = useState(false);
 
   const toggleTag = (tag: string) => {
-    setTags(prev => prev.includes(tag) ? prev.filter(t => t !== tag) : [...prev, tag]);
+    setTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
   };
 
   const handleSave = () => {
@@ -107,7 +150,11 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
       <CardHeader className="pb-2">
         <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
           <BookOpen className="w-4 h-4 text-primary" /> Trade Journal Entry
-          {pair && <Badge variant="outline" className="text-[10px] font-mono">{pair} {timeframe}</Badge>}
+          {pair && (
+            <Badge variant="outline" className="text-[10px] font-mono">
+              {pair} {timeframe}
+            </Badge>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0 space-y-4">
@@ -117,7 +164,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
             Pre-Trade Mood
           </label>
           <div className="flex flex-wrap gap-1.5">
-            {MOODS.map(m => {
+            {MOODS.map((m) => {
               const Icon = m.icon;
               const active = mood === m.id;
               return (
@@ -125,7 +172,9 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
                   key={m.id}
                   onClick={() => setMood(m.id)}
                   className={`flex items-center gap-1 px-2 py-1 rounded-md border text-[11px] transition-all ${
-                    active ? m.color + " ring-1 ring-current" : "bg-card border-border text-muted-foreground hover:bg-accent"
+                    active
+                      ? m.color + " ring-1 ring-current"
+                      : "bg-card border-border text-muted-foreground hover:bg-accent"
                   }`}
                 >
                   <Icon className="w-3 h-3" />
@@ -142,7 +191,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
             Setup Quality
           </label>
           <div className="flex gap-1">
-            {([1, 2, 3, 4, 5] as TradeSetupQuality[]).map(q => (
+            {([1, 2, 3, 4, 5] as TradeSetupQuality[]).map((q) => (
               <button
                 key={q}
                 onClick={() => setSetupQuality(q)}
@@ -154,7 +203,15 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
               </button>
             ))}
             <span className="ml-2 text-xs text-muted-foreground self-center">
-              {setupQuality === 5 ? "A+ Setup" : setupQuality === 4 ? "Good Setup" : setupQuality === 3 ? "Average" : setupQuality === 2 ? "Below Average" : "Poor Setup"}
+              {setupQuality === 5
+                ? "A+ Setup"
+                : setupQuality === 4
+                  ? "Good Setup"
+                  : setupQuality === 3
+                    ? "Average"
+                    : setupQuality === 2
+                      ? "Below Average"
+                      : "Poor Setup"}
             </span>
           </div>
         </div>
@@ -169,7 +226,11 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
                 : "bg-bear/10 border-bear/30 text-bear"
             }`}
           >
-            {followedPlan ? <CheckCircle2 className="w-3.5 h-3.5" /> : <AlertTriangle className="w-3.5 h-3.5" />}
+            {followedPlan ? (
+              <CheckCircle2 className="w-3.5 h-3.5" />
+            ) : (
+              <AlertTriangle className="w-3.5 h-3.5" />
+            )}
             {followedPlan ? "Followed Trading Plan" : "Deviated from Plan"}
           </button>
         </div>
@@ -181,7 +242,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
           </label>
           <textarea
             value={preNotes}
-            onChange={e => setPreNotes(e.target.value)}
+            onChange={(e) => setPreNotes(e.target.value)}
             placeholder="Why are you taking this trade? What confluences do you see?"
             className="w-full bg-input border border-border rounded-lg px-3 py-2 text-xs min-h-[60px] resize-y focus:outline-none focus:ring-1 focus:ring-primary/40"
           />
@@ -193,7 +254,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
           </label>
           <textarea
             value={postNotes}
-            onChange={e => setPostNotes(e.target.value)}
+            onChange={(e) => setPostNotes(e.target.value)}
             placeholder="How did the trade play out? What happened?"
             className="w-full bg-input border border-border rounded-lg px-3 py-2 text-xs min-h-[60px] resize-y focus:outline-none focus:ring-1 focus:ring-primary/40"
           />
@@ -205,7 +266,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
           </label>
           <textarea
             value={lessons}
-            onChange={e => setLessons(e.target.value)}
+            onChange={(e) => setLessons(e.target.value)}
             placeholder="What will you do differently next time?"
             className="w-full bg-input border border-border rounded-lg px-3 py-2 text-xs min-h-[50px] resize-y focus:outline-none focus:ring-1 focus:ring-primary/40"
           />
@@ -217,7 +278,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
             Tags
           </label>
           <div className="flex flex-wrap gap-1">
-            {COMMON_TAGS.map(tag => (
+            {COMMON_TAGS.map((tag) => (
               <button
                 key={tag}
                 onClick={() => toggleTag(tag)}
@@ -234,15 +295,15 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
         </div>
 
         {/* Save Button */}
-        <Button
-          onClick={handleSave}
-          className="w-full"
-          variant={saved ? "outline" : "default"}
-        >
+        <Button onClick={handleSave} className="w-full" variant={saved ? "outline" : "default"}>
           {saved ? (
-            <><CheckCircle2 className="w-4 h-4 mr-2" /> Saved!</>
+            <>
+              <CheckCircle2 className="w-4 h-4 mr-2" /> Saved!
+            </>
           ) : (
-            <><Save className="w-4 h-4 mr-2" /> Save Journal Entry</>
+            <>
+              <Save className="w-4 h-4 mr-2" /> Save Journal Entry
+            </>
           )}
         </Button>
       </CardContent>

@@ -15,14 +15,18 @@ export function useNewsMonitor(pollIntervalSec = 60) {
       const res = await fetch("/api/economic-events");
       if (res.ok) {
         const data = await res.json();
-        const mapped: NewsEventAssessment[] = (data.events ?? []).map((e: Record<string, unknown>) => ({
-          title: String(e.title ?? ""),
-          impact: (["high", "medium", "low"].includes(String(e.impact)) ? String(e.impact) : "low") as "high" | "medium" | "low",
-          currency: String(e.currency ?? "USD"),
-          epoch: Number(e.epoch ?? 0),
-          forecast: e.forecast ? String(e.forecast) : undefined,
-          previous: e.previous ? String(e.previous) : undefined,
-        }));
+        const mapped: NewsEventAssessment[] = (data.events ?? []).map(
+          (e: Record<string, unknown>) => ({
+            title: String(e.title ?? ""),
+            impact: (["high", "medium", "low"].includes(String(e.impact))
+              ? String(e.impact)
+              : "low") as "high" | "medium" | "low",
+            currency: String(e.currency ?? "USD"),
+            epoch: Number(e.epoch ?? 0),
+            forecast: e.forecast ? String(e.forecast) : undefined,
+            previous: e.previous ? String(e.previous) : undefined,
+          }),
+        );
         setEvents(mapped);
         setNewsEvents(mapped);
       }
@@ -62,22 +66,25 @@ export function useNewsMonitor(pollIntervalSec = 60) {
   }, []);
 
   // Get news-specific strategy recommendations
-  const getNewsRecommendations = useCallback((currency?: string) => {
-    const relevant = currency
-      ? events.filter(e => e.currency === currency || currency.includes(e.currency))
-      : events.filter(e => e.impact === "high" || e.impact === "medium");
+  const getNewsRecommendations = useCallback(
+    (currency?: string) => {
+      const relevant = currency
+        ? events.filter((e) => e.currency === currency || currency.includes(e.currency))
+        : events.filter((e) => e.impact === "high" || e.impact === "medium");
 
-    return relevant.slice(0, 5).map(e => {
-      const perf = NEWS_PERFORMANCE[`${e.currency}USD`];
-      return {
-        event: e,
-        shouldTrade: perf ? perf.wr > 55 : false,
-        winRate: perf?.wr ?? 0,
-        profitFactor: perf?.pf ?? 0,
-        topPairs: perf ? [`${e.currency}USD`] : [],
-      };
-    });
-  }, [events]);
+      return relevant.slice(0, 5).map((e) => {
+        const perf = NEWS_PERFORMANCE[`${e.currency}USD`];
+        return {
+          event: e,
+          shouldTrade: perf ? perf.wr > 55 : false,
+          winRate: perf?.wr ?? 0,
+          profitFactor: perf?.pf ?? 0,
+          topPairs: perf ? [`${e.currency}USD`] : [],
+        };
+      });
+    },
+    [events],
+  );
 
   return {
     assessment,

@@ -121,7 +121,8 @@ function CalendarPage() {
               Economic Calendar
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Live ForexFactory feed · times in SAST (Africa/Johannesburg) · forecast bands derived from Deriv.
+              Live ForexFactory feed · times in SAST (Africa/Johannesburg) · forecast bands derived
+              from Deriv.
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/10 border border-primary/30">
@@ -166,7 +167,12 @@ function CalendarPage() {
               <HistoryIcon className="w-3 h-3" /> Last update
             </div>
             <div className="text-xl font-bold font-mono mt-1">
-              {fetchedAt ? new Date(fetchedAt).toLocaleTimeString("en-ZA", { timeZone: "Africa/Johannesburg", hour12: false }) : "—"}
+              {fetchedAt
+                ? new Date(fetchedAt).toLocaleTimeString("en-ZA", {
+                    timeZone: "Africa/Johannesburg",
+                    hour12: false,
+                  })
+                : "—"}
             </div>
             <div className="text-[11px] text-muted-foreground">Polled every 60s</div>
           </div>
@@ -197,7 +203,11 @@ function CalendarPage() {
                         1,
                         1 -
                           Math.abs(Math.abs(forecast.expectedMovePct) - Math.abs(realised.pct)) /
-                            Math.max(Math.abs(forecast.expectedMovePct), Math.abs(realised.pct), 1e-9),
+                            Math.max(
+                              Math.abs(forecast.expectedMovePct),
+                              Math.abs(realised.pct),
+                              1e-9,
+                            ),
                       ),
                     )
                   : null;
@@ -219,7 +229,12 @@ function CalendarPage() {
                   </div>
                   <div className="col-span-8 md:col-span-4 font-medium">
                     {raw.url ? (
-                      <a href={raw.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary">
+                      <a
+                        href={raw.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="hover:text-primary"
+                      >
                         {ev.event}
                       </a>
                     ) : (
@@ -276,7 +291,8 @@ function CalendarPage() {
         </div>
 
         <p className="text-[10px] text-muted-foreground text-center">
-          Source: ForexFactory (via faireconomy.media mirror) · polled every 60s · forecast bands &amp; realised moves derived from Deriv pairs · history in localStorage.
+          Source: ForexFactory (via faireconomy.media mirror) · polled every 60s · forecast bands
+          &amp; realised moves derived from Deriv pairs · history in localStorage.
         </p>
       </div>
     </AppShell>

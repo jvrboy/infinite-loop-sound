@@ -12,11 +12,11 @@
  */
 
 export interface MonteCarloInput {
-  trades: number[];          // Array of R-multiples (e.g., [2.1, -1, 1.5, -1, 3.0, ...])
+  trades: number[]; // Array of R-multiples (e.g., [2.1, -1, 1.5, -1, 3.0, ...])
   initialBalance: number;
-  riskPerTrade: number;      // as decimal (0.01 = 1%)
-  numSimulations: number;    // typically 1000-10000
-  numTrades: number;         // trades to simulate forward
+  riskPerTrade: number; // as decimal (0.01 = 1%)
+  numSimulations: number; // typically 1000-10000
+  numTrades: number; // trades to simulate forward
 }
 
 export interface MonteCarloResult {
@@ -109,7 +109,13 @@ function runSingleSimulation(
 
     // Account blown
     if (equity <= 0) {
-      return { finalEquity: 0, maxDrawdown: peak, maxDrawdownPct: 100, peakEquity: peak, trades: i + 1 };
+      return {
+        finalEquity: 0,
+        maxDrawdown: peak,
+        maxDrawdownPct: 100,
+        peakEquity: peak,
+        trades: i + 1,
+      };
     }
   }
 
@@ -121,8 +127,8 @@ function runSingleSimulation(
  */
 function computeKelly(trades: number[]): number {
   if (trades.length === 0) return 0;
-  const wins = trades.filter(t => t > 0);
-  const losses = trades.filter(t => t < 0);
+  const wins = trades.filter((t) => t > 0);
+  const losses = trades.filter((t) => t < 0);
   if (losses.length === 0) return 0.25; // cap at 25%
   if (wins.length === 0) return 0;
 
@@ -157,7 +163,15 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
         profitablePct: 0,
         avgCAGR: 0,
       },
-      percentiles: { p5: initialBalance, p10: initialBalance, p25: initialBalance, p50: initialBalance, p75: initialBalance, p90: initialBalance, p95: initialBalance },
+      percentiles: {
+        p5: initialBalance,
+        p10: initialBalance,
+        p25: initialBalance,
+        p50: initialBalance,
+        p75: initialBalance,
+        p90: initialBalance,
+        p95: initialBalance,
+      },
       ruinProbability: 0,
       optimalKelly: 0,
       halfKelly: 0,
@@ -172,8 +186,8 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
   }
 
   // Sort by final equity for percentile calculations
-  const sortedEquities = simulations.map(s => s.finalEquity).sort((a, b) => a - b);
-  const sortedDrawdowns = simulations.map(s => s.maxDrawdownPct).sort((a, b) => a - b);
+  const sortedEquities = simulations.map((s) => s.finalEquity).sort((a, b) => a - b);
+  const sortedDrawdowns = simulations.map((s) => s.maxDrawdownPct).sort((a, b) => a - b);
 
   // Statistics
   const meanEquity = sortedEquities.reduce((s, v) => s + v, 0) / numSimulations;
@@ -184,8 +198,8 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
   const meanDD = sortedDrawdowns.reduce((s, v) => s + v, 0) / numSimulations;
   const medianDD = percentile(sortedDrawdowns, 50);
 
-  const ruinCount = simulations.filter(s => s.finalEquity <= 0).length;
-  const profitableCount = simulations.filter(s => s.finalEquity > initialBalance).length;
+  const ruinCount = simulations.filter((s) => s.finalEquity <= 0).length;
+  const profitableCount = simulations.filter((s) => s.finalEquity > initialBalance).length;
 
   const optimalKelly = computeKelly(trades);
 
@@ -193,19 +207,29 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
   const ruinProbability = ruinCount / numSimulations;
 
   if (ruinProbability > 0.05) {
-    recommendations.push(`⚠️ High ruin probability (${(ruinProbability * 100).toFixed(1)}%). Reduce position size immediately.`);
+    recommendations.push(
+      `⚠️ High ruin probability (${(ruinProbability * 100).toFixed(1)}%). Reduce position size immediately.`,
+    );
   }
   if (riskPerTrade > optimalKelly) {
-    recommendations.push(`📉 Current risk (${(riskPerTrade * 100).toFixed(1)}%) exceeds Kelly (${(optimalKelly * 100).toFixed(1)}%). Consider reducing to half-Kelly (${(optimalKelly * 50).toFixed(2)}%).`);
+    recommendations.push(
+      `📉 Current risk (${(riskPerTrade * 100).toFixed(1)}%) exceeds Kelly (${(optimalKelly * 100).toFixed(1)}%). Consider reducing to half-Kelly (${(optimalKelly * 50).toFixed(2)}%).`,
+    );
   }
   if (meanDD > 30) {
-    recommendations.push(`🔴 Average max drawdown is ${meanDD.toFixed(1)}%. This may be psychologically difficult to endure.`);
+    recommendations.push(
+      `🔴 Average max drawdown is ${meanDD.toFixed(1)}%. This may be psychologically difficult to endure.`,
+    );
   }
   if (profitableCount / numSimulations > 0.7) {
-    recommendations.push(`✅ ${((profitableCount / numSimulations) * 100).toFixed(0)}% of simulations are profitable. Your edge appears robust.`);
+    recommendations.push(
+      `✅ ${((profitableCount / numSimulations) * 100).toFixed(0)}% of simulations are profitable. Your edge appears robust.`,
+    );
   }
   if (stdDev > meanEquity * 0.5) {
-    recommendations.push(`📊 High variance in outcomes. Consider more conservative sizing for smoother equity growth.`);
+    recommendations.push(
+      `📊 High variance in outcomes. Consider more conservative sizing for smoother equity growth.`,
+    );
   }
 
   return {
@@ -215,12 +239,16 @@ export function runMonteCarlo(input: MonteCarloInput): MonteCarloResult {
       medianFinalEquity: medianEquity,
       stdDevFinalEquity: stdDev,
       meanMaxDrawdown: simulations.reduce((s, sim) => s + sim.maxDrawdown, 0) / numSimulations,
-      medianMaxDrawdown: percentile(simulations.map(s => s.maxDrawdown).sort((a, b) => a - b), 50),
+      medianMaxDrawdown: percentile(
+        simulations.map((s) => s.maxDrawdown).sort((a, b) => a - b),
+        50,
+      ),
       meanMaxDrawdownPct: meanDD,
       worstCase: sortedEquities[0],
       bestCase: sortedEquities[sortedEquities.length - 1],
       profitablePct: (profitableCount / numSimulations) * 100,
-      avgCAGR: meanEquity > 0 ? ((meanEquity / initialBalance) ** (1 / (numTrades / 252)) - 1) * 100 : 0,
+      avgCAGR:
+        meanEquity > 0 ? ((meanEquity / initialBalance) ** (1 / (numTrades / 252)) - 1) * 100 : 0,
     },
     percentiles: {
       p5: percentile(sortedEquities, 5),
@@ -246,9 +274,9 @@ export function quickRiskAssessment(
   avgRR: number,
   riskPct: number,
 ): { expectancy: number; kellyPct: number; ruinEstimate: number; verdict: string } {
-  const expectancy = (winRate * avgRR) - (1 - winRate);
+  const expectancy = winRate * avgRR - (1 - winRate);
   const kellyPct = expectancy > 0 ? ((winRate * avgRR - (1 - winRate)) / avgRR) * 100 : 0;
-  
+
   // Simplified ruin estimate
   const q = 1 - winRate;
   const p = winRate;
@@ -256,7 +284,8 @@ export function quickRiskAssessment(
 
   let verdict = "";
   if (expectancy <= 0) verdict = "Negative expectancy — this strategy loses money long-term.";
-  else if (riskPct > kellyPct) verdict = `Over-leveraged. Risk ${riskPct}% exceeds Kelly ${kellyPct.toFixed(1)}%.`;
+  else if (riskPct > kellyPct)
+    verdict = `Over-leveraged. Risk ${riskPct}% exceeds Kelly ${kellyPct.toFixed(1)}%.`;
   else if (riskPct <= kellyPct / 2) verdict = "Conservative sizing. Good for capital preservation.";
   else verdict = "Balanced risk. Within optimal Kelly range.";
 

@@ -9,9 +9,9 @@ export interface TradeRecord {
   id: string;
   pair: string;
   direction: "BUY" | "SELL";
-  pnl: number;           // in pips or currency
-  openedAt: number;      // epoch ms
-  closedAt: number;      // epoch ms
+  pnl: number; // in pips or currency
+  openedAt: number; // epoch ms
+  closedAt: number; // epoch ms
   session: "night" | "day" | "unknown";
   result: "WIN" | "LOSS";
   rMultiple?: number;
@@ -71,7 +71,7 @@ function formatDuration(ms: number): string {
 
 function computeSessionMetrics(trades: TradeRecord[]): SessionMetrics {
   if (trades.length === 0) return { trades: 0, winRate: 0, netPnl: 0, avgR: 0 };
-  const wins = trades.filter(t => t.result === "WIN").length;
+  const wins = trades.filter((t) => t.result === "WIN").length;
   const netPnl = trades.reduce((s, t) => s + t.pnl, 0);
   const avgR = trades.reduce((s, t) => s + (t.rMultiple ?? 0), 0) / trades.length;
   return { trades: trades.length, winRate: (wins / trades.length) * 100, netPnl, avgR };
@@ -81,24 +81,43 @@ export function usePerformanceAnalytics(trades: TradeRecord[]): PerformanceMetri
   return useMemo(() => {
     if (trades.length === 0) {
       return {
-        totalTrades: 0, wins: 0, losses: 0, winRate: 0,
-        grossProfit: 0, grossLoss: 0, netProfit: 0, profitFactor: 0,
-        expectancy: 0, avgWin: 0, avgLoss: 0, largestWin: 0, largestLoss: 0,
-        maxConsecutiveWins: 0, maxConsecutiveLosses: 0,
-        avgHoldTimeMs: 0, avgHoldTimeFormatted: "0s",
-        sharpeRatio: 0, sortinoRatio: 0,
-        maxDrawdown: 0, maxDrawdownPct: 0, recoveryFactor: 0, calmarRatio: 0,
+        totalTrades: 0,
+        wins: 0,
+        losses: 0,
+        winRate: 0,
+        grossProfit: 0,
+        grossLoss: 0,
+        netProfit: 0,
+        profitFactor: 0,
+        expectancy: 0,
+        avgWin: 0,
+        avgLoss: 0,
+        largestWin: 0,
+        largestLoss: 0,
+        maxConsecutiveWins: 0,
+        maxConsecutiveLosses: 0,
+        avgHoldTimeMs: 0,
+        avgHoldTimeFormatted: "0s",
+        sharpeRatio: 0,
+        sortinoRatio: 0,
+        maxDrawdown: 0,
+        maxDrawdownPct: 0,
+        recoveryFactor: 0,
+        calmarRatio: 0,
         nightSession: { trades: 0, winRate: 0, netPnl: 0, avgR: 0 },
         daySession: { trades: 0, winRate: 0, netPnl: 0, avgR: 0 },
         pairBreakdown: {},
         currentStreak: { type: "WIN", count: 0 },
-        bestDay: null, worstDay: null, tradingDays: 0, avgTradesPerDay: 0,
+        bestDay: null,
+        worstDay: null,
+        tradingDays: 0,
+        avgTradesPerDay: 0,
       };
     }
 
     const sorted = [...trades].sort((a, b) => a.closedAt - b.closedAt);
-    const wins = sorted.filter(t => t.result === "WIN");
-    const losses = sorted.filter(t => t.result === "LOSS");
+    const wins = sorted.filter((t) => t.result === "WIN");
+    const losses = sorted.filter((t) => t.result === "LOSS");
 
     const grossProfit = wins.reduce((s, t) => s + t.pnl, 0);
     const grossLoss = Math.abs(losses.reduce((s, t) => s + t.pnl, 0));
@@ -107,16 +126,27 @@ export function usePerformanceAnalytics(trades: TradeRecord[]): PerformanceMetri
 
     const avgWin = wins.length > 0 ? grossProfit / wins.length : 0;
     const avgLoss = losses.length > 0 ? grossLoss / losses.length : 0;
-    const expectancy = (wins.length / sorted.length) * avgWin - (losses.length / sorted.length) * avgLoss;
+    const expectancy =
+      (wins.length / sorted.length) * avgWin - (losses.length / sorted.length) * avgLoss;
 
-    const largestWin = wins.length > 0 ? Math.max(...wins.map(t => t.pnl)) : 0;
-    const largestLoss = losses.length > 0 ? Math.min(...losses.map(t => t.pnl)) : 0;
+    const largestWin = wins.length > 0 ? Math.max(...wins.map((t) => t.pnl)) : 0;
+    const largestLoss = losses.length > 0 ? Math.min(...losses.map((t) => t.pnl)) : 0;
 
     // Consecutive streaks
-    let maxConsWins = 0, maxConsLosses = 0, curWins = 0, curLosses = 0;
+    let maxConsWins = 0,
+      maxConsLosses = 0,
+      curWins = 0,
+      curLosses = 0;
     for (const t of sorted) {
-      if (t.result === "WIN") { curWins++; curLosses = 0; maxConsWins = Math.max(maxConsWins, curWins); }
-      else { curLosses++; curWins = 0; maxConsLosses = Math.max(maxConsLosses, curLosses); }
+      if (t.result === "WIN") {
+        curWins++;
+        curLosses = 0;
+        maxConsWins = Math.max(maxConsWins, curWins);
+      } else {
+        curLosses++;
+        curWins = 0;
+        maxConsLosses = Math.max(maxConsLosses, curLosses);
+      }
     }
 
     // Current streak
@@ -136,21 +166,22 @@ export function usePerformanceAnalytics(trades: TradeRecord[]): PerformanceMetri
     const avgHoldTimeMs = totalHold / sorted.length;
 
     // Sharpe & Sortino (annualized, assuming daily returns)
-    const returns = sorted.map(t => t.pnl);
+    const returns = sorted.map((t) => t.pnl);
     const meanReturn = returns.reduce((s, r) => s + r, 0) / returns.length;
     const variance = returns.reduce((s, r) => s + (r - meanReturn) ** 2, 0) / returns.length;
     const stdDev = Math.sqrt(variance);
     const sharpeRatio = stdDev > 0 ? (meanReturn / stdDev) * Math.sqrt(252) : 0;
 
-    const downside = returns.filter(r => r < 0);
-    const downsideVariance = downside.length > 0
-      ? downside.reduce((s, r) => s + r ** 2, 0) / downside.length
-      : 0;
+    const downside = returns.filter((r) => r < 0);
+    const downsideVariance =
+      downside.length > 0 ? downside.reduce((s, r) => s + r ** 2, 0) / downside.length : 0;
     const downsideStdDev = Math.sqrt(downsideVariance);
     const sortinoRatio = downsideStdDev > 0 ? (meanReturn / downsideStdDev) * Math.sqrt(252) : 0;
 
     // Max drawdown
-    let peak = 0, equity = 0, maxDrawdown = 0;
+    let peak = 0,
+      equity = 0,
+      maxDrawdown = 0;
     for (const t of sorted) {
       equity += t.pnl;
       if (equity > peak) peak = equity;
@@ -159,11 +190,11 @@ export function usePerformanceAnalytics(trades: TradeRecord[]): PerformanceMetri
     }
     const maxDrawdownPct = peak > 0 ? (maxDrawdown / peak) * 100 : 0;
     const recoveryFactor = maxDrawdown > 0 ? netProfit / maxDrawdown : 0;
-    const calmarRatio = maxDrawdownPct > 0 ? (netProfit / maxDrawdownPct) : 0;
+    const calmarRatio = maxDrawdownPct > 0 ? netProfit / maxDrawdownPct : 0;
 
     // Per-session
-    const nightTrades = sorted.filter(t => t.session === "night");
-    const dayTrades = sorted.filter(t => t.session === "day");
+    const nightTrades = sorted.filter((t) => t.session === "night");
+    const dayTrades = sorted.filter((t) => t.session === "day");
 
     // Per-pair
     const pairBreakdown: Record<string, { trades: number; winRate: number; netPnl: number }> = {};
@@ -173,8 +204,8 @@ export function usePerformanceAnalytics(trades: TradeRecord[]): PerformanceMetri
       pairBreakdown[t.pair].netPnl += t.pnl;
     }
     for (const pair of Object.keys(pairBreakdown)) {
-      const pairTrades = sorted.filter(t => t.pair === pair);
-      const pairWins = pairTrades.filter(t => t.result === "WIN").length;
+      const pairTrades = sorted.filter((t) => t.pair === pair);
+      const pairWins = pairTrades.filter((t) => t.result === "WIN").length;
       pairBreakdown[pair].winRate = (pairWins / pairTrades.length) * 100;
     }
 
@@ -196,19 +227,31 @@ export function usePerformanceAnalytics(trades: TradeRecord[]): PerformanceMetri
       wins: wins.length,
       losses: losses.length,
       winRate: (wins.length / sorted.length) * 100,
-      grossProfit, grossLoss, netProfit, profitFactor, expectancy,
-      avgWin, avgLoss, largestWin, largestLoss,
+      grossProfit,
+      grossLoss,
+      netProfit,
+      profitFactor,
+      expectancy,
+      avgWin,
+      avgLoss,
+      largestWin,
+      largestLoss,
       maxConsecutiveWins: maxConsWins,
       maxConsecutiveLosses: maxConsLosses,
       avgHoldTimeMs,
       avgHoldTimeFormatted: formatDuration(avgHoldTimeMs),
-      sharpeRatio, sortinoRatio,
-      maxDrawdown, maxDrawdownPct, recoveryFactor, calmarRatio,
+      sharpeRatio,
+      sortinoRatio,
+      maxDrawdown,
+      maxDrawdownPct,
+      recoveryFactor,
+      calmarRatio,
       nightSession: computeSessionMetrics(nightTrades),
       daySession: computeSessionMetrics(dayTrades),
       pairBreakdown,
       currentStreak,
-      bestDay, worstDay,
+      bestDay,
+      worstDay,
       tradingDays: dayMap.size,
       avgTradesPerDay: dayMap.size > 0 ? sorted.length / dayMap.size : 0,
     };

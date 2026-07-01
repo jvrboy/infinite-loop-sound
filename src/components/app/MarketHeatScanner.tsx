@@ -11,11 +11,15 @@ interface Props {
 }
 
 const heatColor = (h: number) =>
-  h >= 4 ? "bg-red-500/20 text-red-300 border-red-500/30 animate-pulse" :
-  h === 3 ? "bg-orange-500/20 text-orange-300 border-orange-500/30" :
-  h === 2 ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/30" :
-  h === 1 ? "bg-blue-500/15 text-blue-300 border-blue-500/30" :
-  "";
+  h >= 4
+    ? "bg-red-500/20 text-red-300 border-red-500/30 animate-pulse"
+    : h === 3
+      ? "bg-orange-500/20 text-orange-300 border-orange-500/30"
+      : h === 2
+        ? "bg-yellow-500/20 text-yellow-300 border-yellow-500/30"
+        : h === 1
+          ? "bg-blue-500/15 text-blue-300 border-blue-500/30"
+          : "";
 
 export function MarketHeatScanner({ tf = "M15", limit = 12 }: Props) {
   const [rows, setRows] = useState<HeatRow[]>([]);
@@ -33,7 +37,9 @@ export function MarketHeatScanner({ tf = "M15", limit = 12 }: Props) {
     }
   };
 
-  useEffect(() => { refresh(); /* eslint-disable-next-line */ }, [tf, limit]);
+  useEffect(() => {
+    refresh(); /* eslint-disable-next-line */
+  }, [tf, limit]);
 
   return (
     <Card>
@@ -55,15 +61,21 @@ export function MarketHeatScanner({ tf = "M15", limit = 12 }: Props) {
           <div className="text-sm text-muted-foreground">No data yet. Press Scan.</div>
         )}
         {rows.map((r) => (
-          <div key={r.symbol} className="flex items-center justify-between rounded-md border px-2 py-1.5 text-sm">
+          <div
+            key={r.symbol}
+            className="flex items-center justify-between rounded-md border px-2 py-1.5 text-sm"
+          >
             <span className="flex items-center gap-2">
               <Badge className={heatColor(r.heat)}>{r.heat}</Badge>
               <span className="font-medium">{r.symbol}</span>
             </span>
             <span className="flex items-center gap-3 text-xs text-muted-foreground">
               <span className="font-mono">{r.lastPrice.toFixed(5)}</span>
-              <span className={`font-mono ${r.changePct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                {r.changePct >= 0 ? "+" : ""}{r.changePct.toFixed(2)}%
+              <span
+                className={`font-mono ${r.changePct >= 0 ? "text-emerald-400" : "text-red-400"}`}
+              >
+                {r.changePct >= 0 ? "+" : ""}
+                {r.changePct.toFixed(2)}%
               </span>
             </span>
           </div>

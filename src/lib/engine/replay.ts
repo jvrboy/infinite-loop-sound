@@ -5,7 +5,7 @@
 import type { Candle } from "./indicators";
 
 export interface ReplayState {
-  index: number;          // current bar index (inclusive)
+  index: number; // current bar index (inclusive)
   candle: Candle;
   isPlaying: boolean;
   speedMs: number;
@@ -45,12 +45,22 @@ export function createReplay(
 
   const emit = () => subs.forEach((fn) => fn(snapshot()));
 
-  const stopTimer = () => { if (timer) { clearInterval(timer); timer = null; } };
+  const stopTimer = () => {
+    if (timer) {
+      clearInterval(timer);
+      timer = null;
+    }
+  };
 
   const startTimer = () => {
     stopTimer();
     timer = setInterval(() => {
-      if (index >= candles.length - 1) { isPlaying = false; stopTimer(); emit(); return; }
+      if (index >= candles.length - 1) {
+        isPlaying = false;
+        stopTimer();
+        emit();
+        return;
+      }
       index++;
       emit();
     }, speedMs);
@@ -59,8 +69,17 @@ export function createReplay(
   return {
     state: snapshot,
     visible: () => candles.slice(0, index + 1),
-    play() { if (isPlaying || index >= candles.length - 1) return; isPlaying = true; startTimer(); emit(); },
-    pause() { isPlaying = false; stopTimer(); emit(); },
+    play() {
+      if (isPlaying || index >= candles.length - 1) return;
+      isPlaying = true;
+      startTimer();
+      emit();
+    },
+    pause() {
+      isPlaying = false;
+      stopTimer();
+      emit();
+    },
     step(n = 1) {
       this.pause();
       index = Math.max(0, Math.min(candles.length - 1, index + n));
@@ -71,8 +90,19 @@ export function createReplay(
       index = Math.max(0, Math.min(candles.length - 1, idx));
       emit();
     },
-    setSpeed(ms) { speedMs = Math.max(50, ms); if (isPlaying) startTimer(); emit(); },
-    subscribe(fn) { subs.add(fn); fn(snapshot()); return () => subs.delete(fn); },
-    destroy() { stopTimer(); subs.clear(); },
+    setSpeed(ms) {
+      speedMs = Math.max(50, ms);
+      if (isPlaying) startTimer();
+      emit();
+    },
+    subscribe(fn) {
+      subs.add(fn);
+      fn(snapshot());
+      return () => subs.delete(fn);
+    },
+    destroy() {
+      stopTimer();
+      subs.clear();
+    },
   };
 }

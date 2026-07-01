@@ -53,10 +53,20 @@ export function useMTFScanner() {
 
   const scan = useCallback(async (pair: string, timeframes?: TF[]) => {
     const tfs = timeframes ?? SCAN_TFS;
-    setState(s => ({ ...s, pair, scanning: true, results: tfs.map(tf => ({
-      tf, direction: null, rating: "WEAK" as Rating, scorePct: 0,
-      trendBias: "NEUTRAL" as const, divergences: [], loading: true,
-    })) }));
+    setState((s) => ({
+      ...s,
+      pair,
+      scanning: true,
+      results: tfs.map((tf) => ({
+        tf,
+        direction: null,
+        rating: "WEAK" as Rating,
+        scorePct: 0,
+        trendBias: "NEUTRAL" as const,
+        divergences: [],
+        loading: true,
+      })),
+    }));
 
     const results: MTFTimeframeResult[] = [];
 
@@ -65,8 +75,13 @@ export function useMTFScanner() {
         const candles = await deriv.getCandles(pair, tf, 200);
         if (candles.length < 50) {
           results.push({
-            tf, direction: null, rating: "WEAK", scorePct: 0,
-            trendBias: "NEUTRAL", divergences: [], loading: false,
+            tf,
+            direction: null,
+            rating: "WEAK",
+            scorePct: 0,
+            trendBias: "NEUTRAL",
+            divergences: [],
+            loading: false,
             error: `Insufficient data (${candles.length} candles)`,
           });
           continue;
@@ -78,28 +93,44 @@ export function useMTFScanner() {
           rating: a.rating,
           scorePct: a.scorePct,
           trendBias: a.trendBias,
-          divergences: a.divergences.map(d => `${d.name}: ${d.result.type}`),
+          divergences: a.divergences.map((d) => `${d.name}: ${d.result.type}`),
           loading: false,
         });
       } catch (e: any) {
         results.push({
-          tf, direction: null, rating: "WEAK", scorePct: 0,
-          trendBias: "NEUTRAL", divergences: [], loading: false,
+          tf,
+          direction: null,
+          rating: "WEAK",
+          scorePct: 0,
+          trendBias: "NEUTRAL",
+          divergences: [],
+          loading: false,
           error: e?.message || "scan error",
         });
       }
 
       // Update state progressively
-      setState(s => ({ ...s, results: [...results, ...tfs.slice(results.length).map(tf2 => ({
-        tf: tf2, direction: null, rating: "WEAK" as Rating, scorePct: 0,
-        trendBias: "NEUTRAL" as const, divergences: [], loading: true,
-      }))] }));
+      setState((s) => ({
+        ...s,
+        results: [
+          ...results,
+          ...tfs.slice(results.length).map((tf2) => ({
+            tf: tf2,
+            direction: null,
+            rating: "WEAK" as Rating,
+            scorePct: 0,
+            trendBias: "NEUTRAL" as const,
+            divergences: [],
+            loading: true,
+          })),
+        ],
+      }));
     }
 
     // Compute verdict
-    const validResults = results.filter(r => r.direction !== null);
-    const buyCount = validResults.filter(r => r.direction === "BUY").length;
-    const sellCount = validResults.filter(r => r.direction === "SELL").length;
+    const validResults = results.filter((r) => r.direction !== null);
+    const buyCount = validResults.filter((r) => r.direction === "BUY").length;
+    const sellCount = validResults.filter((r) => r.direction === "SELL").length;
     const neutralCount = results.length - validResults.length;
 
     let overallDirection: Direction | null = null;
@@ -114,15 +145,18 @@ export function useMTFScanner() {
     else if (agreementPct >= 60) confidence = "MEDIUM";
     else if (agreementPct >= 40) confidence = "LOW";
 
-    const scored = results.filter(r => r.scorePct > 0);
-    const avgScore = scored.length > 0 ? scored.reduce((s, r) => s + r.scorePct, 0) / scored.length : 0;
+    const scored = results.filter((r) => r.scorePct > 0);
+    const avgScore =
+      scored.length > 0 ? scored.reduce((s, r) => s + r.scorePct, 0) / scored.length : 0;
 
-    const strongestTF = scored.length > 0
-      ? scored.reduce((best, r) => r.scorePct > best.scorePct ? r : best).tf
-      : null;
-    const weakestTF = scored.length > 0
-      ? scored.reduce((worst, r) => r.scorePct < worst.scorePct ? r : worst).tf
-      : null;
+    const strongestTF =
+      scored.length > 0
+        ? scored.reduce((best, r) => (r.scorePct > best.scorePct ? r : best)).tf
+        : null;
+    const weakestTF =
+      scored.length > 0
+        ? scored.reduce((worst, r) => (r.scorePct < worst.scorePct ? r : worst)).tf
+        : null;
 
     const verdict: MTFVerdict = {
       overallDirection,

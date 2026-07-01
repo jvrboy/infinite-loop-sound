@@ -31,44 +31,57 @@ export function useRealtimeTraining() {
         async (payload) => {
           const oldSignal = payload.old as any;
           const newSignal = payload.new as any;
-          
+
           // Check if result was just added (signal closed)
           const oldResult = oldSignal?.result;
           const newResult = newSignal?.result;
-          
+
           if (!oldResult && newResult) {
             // Signal just closed - train the network!
-            setTrainingStats(s => ({ ...s, isTraining: true }));
-            
+            setTrainingStats((s) => ({ ...s, isTraining: true }));
+
             try {
-              const isWin = newResult.toUpperCase().startsWith("TP") || newResult.toUpperCase() === "WIN";
+              const isWin =
+                newResult.toUpperCase().startsWith("TP") || newResult.toUpperCase() === "WIN";
               const target = isWin ? 1 : 0;
-              
+
               // Convert confluence to input vector
-              const conf = newSignal.confluence as any[] || [];
+              const conf = (newSignal.confluence as any[]) || [];
               const input = [
-                "RSI Divergence", "MACD Divergence", "Stochastic Divergence", "RVI Divergence", "OBV Divergence",
-                "EMA 50/200 Aligned", "Supertrend Aligned", "Ichimoku T/K Aligned", "ADX Trending (>22)",
-                "Candle Pattern Confirm", "BB Squeeze Breakout"
-              ].map(name => conf.find(c => c.label === name)?.passed ? 1 : 0);
-              
+                "RSI Divergence",
+                "MACD Divergence",
+                "Stochastic Divergence",
+                "RVI Divergence",
+                "OBV Divergence",
+                "EMA 50/200 Aligned",
+                "Supertrend Aligned",
+                "Ichimoku T/K Aligned",
+                "ADX Trending (>22)",
+                "Candle Pattern Confirm",
+                "BB Squeeze Breakout",
+              ].map((name) => (conf.find((c) => c.label === name)?.passed ? 1 : 0));
+
               // Train WASM neural net
               wasmNet.train(input, target, 0.02);
-              
+
               // Update stats
-              setTrainingStats(prev => {
+              setTrainingStats((prev) => {
                 const newStats = {
                   totalTrained: prev.totalTrained + 1,
-                  accuracy: Math.min(95, prev.accuracy + (isWin ? 0.15 : -0.05) + Math.random() * 0.1),
+                  accuracy: Math.min(
+                    95,
+                    prev.accuracy + (isWin ? 0.15 : -0.05) + Math.random() * 0.1,
+                  ),
                   lastUpdate: new Date(),
                   isTraining: false,
                 };
                 localStorage.setItem("nn_training_stats", JSON.stringify(newStats));
                 return newStats;
               });
-              
+
               // Show toast for significant updates
-              if (Math.random() < 0.3) { // 30% of the time to avoid spam
+              if (Math.random() < 0.3) {
+                // 30% of the time to avoid spam
                 toast.success(`Neural net learned from ${newSignal.pair}`, {
                   description: `${isWin ? "Win" : "Loss"} • Accuracy now ${trainingStats.accuracy.toFixed(1)}%`,
                   duration: 2000,
@@ -76,10 +89,10 @@ export function useRealtimeTraining() {
               }
             } catch (e) {
               console.error("Training error:", e);
-              setTrainingStats(s => ({ ...s, isTraining: false }));
+              setTrainingStats((s) => ({ ...s, isTraining: false }));
             }
           }
-        }
+        },
       )
       .subscribe();
 
@@ -90,11 +103,19 @@ export function useRealtimeTraining() {
 
   const predict = (confluence: any[]) => {
     const input = [
-      "RSI Divergence", "MACD Divergence", "Stochastic Divergence", "RVI Divergence", "OBV Divergence",
-      "EMA 50/200 Aligned", "Supertrend Aligned", "Ichimoku T/K Aligned", "ADX Trending (>22)",
-      "Candle Pattern Confirm", "BB Squeeze Breakout"
-    ].map(name => confluence.find(c => c.label === name)?.passed ? 1 : 0);
-    
+      "RSI Divergence",
+      "MACD Divergence",
+      "Stochastic Divergence",
+      "RVI Divergence",
+      "OBV Divergence",
+      "EMA 50/200 Aligned",
+      "Supertrend Aligned",
+      "Ichimoku T/K Aligned",
+      "ADX Trending (>22)",
+      "Candle Pattern Confirm",
+      "BB Squeeze Breakout",
+    ].map((name) => (confluence.find((c) => c.label === name)?.passed ? 1 : 0));
+
     return wasmNet.predict(input);
   };
 

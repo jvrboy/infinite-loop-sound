@@ -29,7 +29,9 @@ function pearson(a: number[], b: number[]): number | null {
   const ys = b.slice(-n);
   const mx = xs.reduce((s, v) => s + v, 0) / n;
   const my = ys.reduce((s, v) => s + v, 0) / n;
-  let num = 0, dx2 = 0, dy2 = 0;
+  let num = 0,
+    dx2 = 0,
+    dy2 = 0;
   for (let i = 0; i < n; i++) {
     const dx = xs[i] - mx;
     const dy = ys[i] - my;
@@ -90,7 +92,9 @@ function CorrelationPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-card">
-            <Activity className={`w-3.5 h-3.5 text-primary ${ready ? "animate-pulse" : "opacity-30"}`} />
+            <Activity
+              className={`w-3.5 h-3.5 text-primary ${ready ? "animate-pulse" : "opacity-30"}`}
+            />
             <span className="text-xs font-mono text-primary">{ready ? "LIVE" : "CONNECTING…"}</span>
           </div>
         </div>
@@ -110,9 +114,7 @@ function CorrelationPage() {
             <tbody>
               {matrix.map(({ row, cells }) => (
                 <tr key={row.symbol}>
-                  <td className="p-2 font-mono text-muted-foreground text-right">
-                    {row.display}
-                  </td>
+                  <td className="p-2 font-mono text-muted-foreground text-right">{row.display}</td>
                   {cells.map((c, i) => {
                     const color =
                       c === null
@@ -166,22 +168,35 @@ function CorrelationPage() {
               <AlertTriangle className="w-4 h-4" /> High Correlation Risk
             </h3>
             <div className="space-y-2">
-              {matrix.flatMap(({ row, cells }) =>
-                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
-              ).filter(({ row, col, r }) => r !== null && r > 0.7 && row.symbol < col.symbol)
-              .slice(0, 5)
-              .map(({ row, col, r }, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 rounded bg-bear/5 border border-bear/20">
-                  <span className="text-[11px] font-mono">{row.display} ↔ {col.display}</span>
-                  <Badge className="bg-bear/10 text-bear border-bear/30 text-[9px]">r = {r!.toFixed(2)}</Badge>
-                </div>
-              ))}
-              {matrix.flatMap(({ row, cells }) =>
-                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
-              ).filter(({ row, col, r }) => r !== null && r > 0.7 && row.symbol < col.symbol).length === 0 && (
-                <p className="text-[11px] text-muted-foreground">No strongly correlated pairs detected.</p>
+              {matrix
+                .flatMap(({ row, cells }) => cells.map((c, i) => ({ row, col: WATCH[i], r: c })))
+                .filter(({ row, col, r }) => r !== null && r > 0.7 && row.symbol < col.symbol)
+                .slice(0, 5)
+                .map(({ row, col, r }, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-2 rounded bg-bear/5 border border-bear/20"
+                  >
+                    <span className="text-[11px] font-mono">
+                      {row.display} ↔ {col.display}
+                    </span>
+                    <Badge className="bg-bear/10 text-bear border-bear/30 text-[9px]">
+                      r = {r!.toFixed(2)}
+                    </Badge>
+                  </div>
+                ))}
+              {matrix
+                .flatMap(({ row, cells }) => cells.map((c, i) => ({ row, col: WATCH[i], r: c })))
+                .filter(({ row, col, r }) => r !== null && r > 0.7 && row.symbol < col.symbol)
+                .length === 0 && (
+                <p className="text-[11px] text-muted-foreground">
+                  No strongly correlated pairs detected.
+                </p>
               )}
-              <p className="text-[10px] text-muted-foreground mt-2">⚠️ Avoid same-direction trades on highly correlated pairs — it doubles effective risk.</p>
+              <p className="text-[10px] text-muted-foreground mt-2">
+                ⚠️ Avoid same-direction trades on highly correlated pairs — it doubles effective
+                risk.
+              </p>
             </div>
           </div>
 
@@ -191,22 +206,34 @@ function CorrelationPage() {
               <Shield className="w-4 h-4" /> Hedging Opportunities
             </h3>
             <div className="space-y-2">
-              {matrix.flatMap(({ row, cells }) =>
-                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
-              ).filter(({ row, col, r }) => r !== null && r < -0.5 && row.symbol < col.symbol)
-              .slice(0, 5)
-              .map(({ row, col, r }, idx) => (
-                <div key={idx} className="flex items-center justify-between p-2 rounded bg-bull/5 border border-bull/20">
-                  <span className="text-[11px] font-mono">{row.display} ↔ {col.display}</span>
-                  <Badge className="bg-bull/10 text-bull border-bull/30 text-[9px]">r = {r!.toFixed(2)}</Badge>
-                </div>
-              ))}
-              {matrix.flatMap(({ row, cells }) =>
-                cells.map((c, i) => ({ row, col: WATCH[i], r: c }))
-              ).filter(({ row, col, r }) => r !== null && r < -0.5 && row.symbol < col.symbol).length === 0 && (
-                <p className="text-[11px] text-muted-foreground">No strong inverse correlations detected yet. Wait for more data.</p>
+              {matrix
+                .flatMap(({ row, cells }) => cells.map((c, i) => ({ row, col: WATCH[i], r: c })))
+                .filter(({ row, col, r }) => r !== null && r < -0.5 && row.symbol < col.symbol)
+                .slice(0, 5)
+                .map(({ row, col, r }, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center justify-between p-2 rounded bg-bull/5 border border-bull/20"
+                  >
+                    <span className="text-[11px] font-mono">
+                      {row.display} ↔ {col.display}
+                    </span>
+                    <Badge className="bg-bull/10 text-bull border-bull/30 text-[9px]">
+                      r = {r!.toFixed(2)}
+                    </Badge>
+                  </div>
+                ))}
+              {matrix
+                .flatMap(({ row, cells }) => cells.map((c, i) => ({ row, col: WATCH[i], r: c })))
+                .filter(({ row, col, r }) => r !== null && r < -0.5 && row.symbol < col.symbol)
+                .length === 0 && (
+                <p className="text-[11px] text-muted-foreground">
+                  No strong inverse correlations detected yet. Wait for more data.
+                </p>
               )}
-              <p className="text-[10px] text-muted-foreground mt-2">✅ Inversely correlated pairs can serve as natural hedges to reduce portfolio risk.</p>
+              <p className="text-[10px] text-muted-foreground mt-2">
+                ✅ Inversely correlated pairs can serve as natural hedges to reduce portfolio risk.
+              </p>
             </div>
           </div>
         </div>
@@ -218,13 +245,16 @@ function CorrelationPage() {
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px] text-muted-foreground">
             <div className="p-2 rounded bg-muted/20">
-              <strong className="text-foreground">Risk Stacking:</strong> Trading EUR/USD and GBP/USD in the same direction is essentially doubling your USD exposure.
+              <strong className="text-foreground">Risk Stacking:</strong> Trading EUR/USD and
+              GBP/USD in the same direction is essentially doubling your USD exposure.
             </div>
             <div className="p-2 rounded bg-muted/20">
-              <strong className="text-foreground">Natural Hedge:</strong> If long EUR/USD, a long USD/CAD position acts as a partial hedge due to negative correlation.
+              <strong className="text-foreground">Natural Hedge:</strong> If long EUR/USD, a long
+              USD/CAD position acts as a partial hedge due to negative correlation.
             </div>
             <div className="p-2 rounded bg-muted/20">
-              <strong className="text-foreground">Regime Shifts:</strong> Correlations change during news events and risk-off periods. Review weekly.
+              <strong className="text-foreground">Regime Shifts:</strong> Correlations change during
+              news events and risk-off periods. Review weekly.
             </div>
           </div>
         </div>

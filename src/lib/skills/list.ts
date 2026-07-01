@@ -110,7 +110,8 @@ const exec_skills: Skill[] = [
     id: "confluence-analyze",
     name: "Confluence analyze",
     category: "Signal Engine",
-    description: "Run analyze() over fresh candles for a pair/timeframe and return rating + direction.",
+    description:
+      "Run analyze() over fresh candles for a pair/timeframe and return rating + direction.",
     trigger: "keyword",
     keywords: ["analyze", "analysis", "setup", "confluence"],
     exec: async ({ args }) => {
@@ -128,7 +129,8 @@ const exec_skills: Skill[] = [
     id: "scan-watchlist",
     name: "Scan watchlist",
     category: "Signal Engine",
-    description: "Run analyze() across the entire ALL_ASSETS universe and return top-N rated setups.",
+    description:
+      "Run analyze() across the entire ALL_ASSETS universe and return top-N rated setups.",
     trigger: "keyword",
     keywords: ["scan", "best setups", "top signals"],
     exec: async ({ args }) => {
@@ -140,16 +142,18 @@ const exec_skills: Skill[] = [
       const batchSize = 4;
       for (let i = 0; i < slice.length; i += batchSize) {
         const batch = slice.slice(i, i + batchSize);
-        const results = await Promise.allSettled(batch.map(async (a) => {
-          const candles = await deriv.getCandles(a.symbol, tf, 200);
-          const r = analyze(a.symbol, tf, candles, {});
-          return {
-            symbol: a.display,
-            rating: r.rating,
-            score: r.scorePct,
-            dir: r.direction || "—",
-          };
-        }));
+        const results = await Promise.allSettled(
+          batch.map(async (a) => {
+            const candles = await deriv.getCandles(a.symbol, tf, 200);
+            const r = analyze(a.symbol, tf, candles, {});
+            return {
+              symbol: a.display,
+              rating: r.rating,
+              score: r.scorePct,
+              dir: r.direction || "—",
+            };
+          }),
+        );
         for (const res of results) if (res.status === "fulfilled") rows.push(res.value);
       }
       rows.sort((a, b) => b.score - a.score);
@@ -157,7 +161,10 @@ const exec_skills: Skill[] = [
         ok: true,
         output: rows
           .slice(0, limit)
-          .map((r) => `${r.symbol.padEnd(10)} ${r.rating.padEnd(6)} ${r.score.toFixed(0).padStart(3)}%  ${r.dir}`)
+          .map(
+            (r) =>
+              `${r.symbol.padEnd(10)} ${r.rating.padEnd(6)} ${r.score.toFixed(0).padStart(3)}%  ${r.dir}`,
+          )
           .join("\n"),
       };
     },
@@ -185,7 +192,8 @@ const exec_skills: Skill[] = [
     id: "v3-confluence-scan",
     name: "V3 Confluence Scan",
     category: "Signal Engine",
-    description: "Run all 10 V3 advanced strategies (Ichimoku, SMC, Harmonics, EMA Cross, MACD+ADX, etc.) on a pair.",
+    description:
+      "Run all 10 V3 advanced strategies (Ichimoku, SMC, Harmonics, EMA Cross, MACD+ADX, etc.) on a pair.",
     trigger: "keyword",
     keywords: ["v3", "advanced strategies", "harmonic", "ichimoku", "smc", "order block"],
     exec: async ({ args }) => {
@@ -197,7 +205,12 @@ const exec_skills: Skill[] = [
       if (!hits.length) return { ok: true, output: `${symbol} ${tf}: No V3 strategy hits` };
       return {
         ok: true,
-        output: hits.map(h => `[${h.side}] ${h.name} (w:${h.weight} c:${(h.confidence*100).toFixed(0)}%) ${h.note}`).join("\n"),
+        output: hits
+          .map(
+            (h) =>
+              `[${h.side}] ${h.name} (w:${h.weight} c:${(h.confidence * 100).toFixed(0)}%) ${h.note}`,
+          )
+          .join("\n"),
       };
     },
   },
@@ -205,7 +218,8 @@ const exec_skills: Skill[] = [
     id: "neural-predict",
     name: "Neural Network Prediction",
     category: "Signal Engine",
-    description: "Run the LSTM neural network and multi-asset NN ensemble on a pair for AI-enhanced prediction.",
+    description:
+      "Run the LSTM neural network and multi-asset NN ensemble on a pair for AI-enhanced prediction.",
     trigger: "keyword",
     keywords: ["neural", "neural net", "ai predict", "lstm", "machine learning"],
     exec: async ({ args }) => {
@@ -215,11 +229,11 @@ const exec_skills: Skill[] = [
       const nn = await import("@/lib/engine/neural-networks");
       const result = nn.neuralEnhanceSignal(
         { direction: "BUY", scorePct: 50, pair: symbol, timeframe: tf },
-        candles
+        candles,
       );
       return {
         ok: true,
-        output: `${symbol} Neural: ${result.direction} ${result.scorePct.toFixed(1)}% (boost: +${result.neuralBoost.toFixed(1)}%, confidence: ${(result.neuralConfidence*100).toFixed(0)}%)`,
+        output: `${symbol} Neural: ${result.direction} ${result.scorePct.toFixed(1)}% (boost: +${result.neuralBoost.toFixed(1)}%, confidence: ${(result.neuralConfidence * 100).toFixed(0)}%)`,
       };
     },
   },
@@ -227,20 +241,26 @@ const exec_skills: Skill[] = [
     id: "signal-optimize",
     name: "Signal Optimizer",
     category: "Self-Improvement",
-    description: "Run the signal optimizer to analyze SL-hit patterns and get improvement recommendations.",
+    description:
+      "Run the signal optimizer to analyze SL-hit patterns and get improvement recommendations.",
     trigger: "keyword",
     keywords: ["optimize", "sl hit", "stop loss", "improve signals", "fix signals"],
     exec: async () => {
       const opt = await import("@/lib/engine/signal-optimizer");
       const state = opt.signalOptimizer.getState();
       const recs = opt.signalOptimizer.analyzeBatch();
-      if (!state.totalAnalyzed) return { ok: true, output: "No signal outcomes analyzed yet. Trade signals will be tracked automatically." };
+      if (!state.totalAnalyzed)
+        return {
+          ok: true,
+          output: "No signal outcomes analyzed yet. Trade signals will be tracked automatically.",
+        };
       let output = `Signal Optimizer Report:\n`;
       output += `  Total analyzed: ${state.totalAnalyzed}\n`;
       output += `  SL hits: ${state.slHitCount}\n`;
       output += `  Wins: ${state.winCount}\n`;
-      output += `  Top root causes: ${state.topRootCauses.map(c => `${c.category}(${c.severity})`).join(", ")}\n`;
-      if (recs.length) output += `  Recommendations: ${recs.map(r => `${r.type}: ${r.description}`).join("; ")}`;
+      output += `  Top root causes: ${state.topRootCauses.map((c) => `${c.category}(${c.severity})`).join(", ")}\n`;
+      if (recs.length)
+        output += `  Recommendations: ${recs.map((r) => `${r.type}: ${r.description}`).join("; ")}`;
       return { ok: true, output };
     },
   },
@@ -248,19 +268,23 @@ const exec_skills: Skill[] = [
     id: "automation-status",
     name: "Automation Status",
     category: "Automation",
-    description: "Check the time-based automation engine status, active schedules, and recent automated signals.",
+    description:
+      "Check the time-based automation engine status, active schedules, and recent automated signals.",
     trigger: "keyword",
     keywords: ["automation", "scheduled", "auto scan", "schedule status"],
     exec: async () => {
       const auto = await import("@/lib/engine/automation-engine");
       const state = auto.automationEngine.getState();
       let output = `Automation Engine: ${state.isRunning ? "RUNNING" : "STOPPED"}\n`;
-      output += `  Schedules: ${state.schedules.filter(s => s.enabled).length} active / ${state.schedules.length} total\n`;
+      output += `  Schedules: ${state.schedules.filter((s) => s.enabled).length} active / ${state.schedules.length} total\n`;
       output += `  Total signals: ${state.stats.totalSignals}\n`;
       output += `  Dispatched: ${state.stats.dispatched}\n`;
       output += `  Last run: ${state.stats.lastRun ? new Date(state.stats.lastRun).toISOString() : "never"}\n`;
       if (state.recentSignals.length) {
-        output += `  Recent: ${state.recentSignals.slice(-3).map(s => `${s.pair} ${s.direction} ${s.scorePct.toFixed(0)}%`).join(", ")}`;
+        output += `  Recent: ${state.recentSignals
+          .slice(-3)
+          .map((s) => `${s.pair} ${s.direction} ${s.scorePct.toFixed(0)}%`)
+          .join(", ")}`;
       }
       return { ok: true, output };
     },
@@ -269,7 +293,8 @@ const exec_skills: Skill[] = [
     id: "full-confluence-report",
     name: "Full Confluence Report",
     category: "Signal Engine",
-    description: "Run all 24 strategies (V1+V2+V3) plus confluence agent for comprehensive analysis.",
+    description:
+      "Run all 24 strategies (V1+V2+V3) plus confluence agent for comprehensive analysis.",
     trigger: "keyword",
     keywords: ["full analysis", "full report", "all strategies", "complete analysis", "deep scan"],
     exec: async ({ args }) => {
@@ -282,15 +307,19 @@ const exec_skills: Skill[] = [
       const v2Hits = v2.evaluateStrategiesV2(candles, [], [], Date.now() / 1000);
       const v3Hits = v3.evaluateStrategiesV3(candles);
       const total = v2Hits.length + v3Hits.length;
-      const buys = v2Hits.filter(h => h.side === "BUY").length + v3Hits.filter((h: any) => h.side === "BUY").length;
+      const buys =
+        v2Hits.filter((h) => h.side === "BUY").length +
+        v3Hits.filter((h: any) => h.side === "BUY").length;
       const sells = total - buys;
       let output = `=== FULL CONFLUENCE REPORT: ${symbol} ${tf} ===\n`;
       output += `Signal Engine: ${a.rating} (${a.scorePct.toFixed(0)}%) ${a.direction}\n`;
       output += `V2 Hits: ${v2Hits.length} | V3 Hits: ${v3Hits.length} | Total: ${total}\n`;
       output += `BUY: ${buys} | SELL: ${sells}\n`;
-      output += `Confluence passed: ${a.confluence.filter(c => c.passed).length}/${a.confluence.length}\n`;
-      if (v2Hits.length) output += `\nV2 Strategies:\n${v2Hits.map(h => `  ${h.side} ${h.name} (w:${h.weight} c:${(h.confidence*100).toFixed(0)}%)`).join("\n")}`;
-      if (v3Hits.length) output += `\nV3 Strategies:\n${v3Hits.map((h: any) => `  ${h.side} ${h.name} (w:${h.weight} c:${(h.confidence*100).toFixed(0)}%)`).join("\n")}`;
+      output += `Confluence passed: ${a.confluence.filter((c) => c.passed).length}/${a.confluence.length}\n`;
+      if (v2Hits.length)
+        output += `\nV2 Strategies:\n${v2Hits.map((h) => `  ${h.side} ${h.name} (w:${h.weight} c:${(h.confidence * 100).toFixed(0)}%)`).join("\n")}`;
+      if (v3Hits.length)
+        output += `\nV3 Strategies:\n${v3Hits.map((h: any) => `  ${h.side} ${h.name} (w:${h.weight} c:${(h.confidence * 100).toFixed(0)}%)`).join("\n")}`;
       return { ok: true, output };
     },
   },
@@ -350,82 +379,352 @@ const decl = (
 
 const declarative_skills: Skill[] = [
   // Market Data
-  decl("orderbook-summary", "Order book summary", "Market Data", "Summarise live bid/ask depth.", ["depth", "order book"]),
-  decl("session-clock", "Session clock", "Market Data", "Active FX sessions (Asia/EU/US) right now.", ["session"]),
-  decl("economic-calendar", "Economic calendar", "Market Data", "Upcoming high-impact releases.", ["calendar", "news"]),
-  decl("currency-strength", "Currency strength", "Market Data", "Live G10 strength ranking.", ["strength"]),
+  decl("orderbook-summary", "Order book summary", "Market Data", "Summarise live bid/ask depth.", [
+    "depth",
+    "order book",
+  ]),
+  decl(
+    "session-clock",
+    "Session clock",
+    "Market Data",
+    "Active FX sessions (Asia/EU/US) right now.",
+    ["session"],
+  ),
+  decl("economic-calendar", "Economic calendar", "Market Data", "Upcoming high-impact releases.", [
+    "calendar",
+    "news",
+  ]),
+  decl("currency-strength", "Currency strength", "Market Data", "Live G10 strength ranking.", [
+    "strength",
+  ]),
 
   // Trading Research
-  decl("divergence-explainer", "Divergence explainer", "Trading Research", "Explain RSI/MACD/Stoch divergence types with examples.", ["divergence", "rsi", "macd"]),
-  decl("fvg-spotter", "Fair-value-gap spotter", "Trading Research", "Find recent FVGs on a pair.", ["fvg", "fair value"]),
-  decl("ob-spotter", "Order block spotter", "Trading Research", "Detect institutional order blocks.", ["order block", "ob"]),
-  decl("liquidity-map", "Liquidity map", "Trading Research", "Map equal-highs/equal-lows liquidity pools.", ["liquidity"]),
-  decl("risk-sizing", "Risk sizing", "Trading Research", "Position size from account, stop, and risk %.", ["risk", "position size"]),
-  decl("rr-calc", "R:R calculator", "Trading Research", "Compute reward:risk from entry/SL/TP.", ["r:r", "reward", "risk reward"]),
-  decl("strategy-critic", "Strategy critic", "Trading Research", "Stress-test a strategy idea for biases.", ["critique", "review strategy"]),
-  decl("backtest-narrate", "Backtest narrator", "Trading Research", "Read a backtest result and summarise findings.", ["backtest"]),
+  decl(
+    "divergence-explainer",
+    "Divergence explainer",
+    "Trading Research",
+    "Explain RSI/MACD/Stoch divergence types with examples.",
+    ["divergence", "rsi", "macd"],
+  ),
+  decl("fvg-spotter", "Fair-value-gap spotter", "Trading Research", "Find recent FVGs on a pair.", [
+    "fvg",
+    "fair value",
+  ]),
+  decl(
+    "ob-spotter",
+    "Order block spotter",
+    "Trading Research",
+    "Detect institutional order blocks.",
+    ["order block", "ob"],
+  ),
+  decl(
+    "liquidity-map",
+    "Liquidity map",
+    "Trading Research",
+    "Map equal-highs/equal-lows liquidity pools.",
+    ["liquidity"],
+  ),
+  decl(
+    "risk-sizing",
+    "Risk sizing",
+    "Trading Research",
+    "Position size from account, stop, and risk %.",
+    ["risk", "position size"],
+  ),
+  decl("rr-calc", "R:R calculator", "Trading Research", "Compute reward:risk from entry/SL/TP.", [
+    "r:r",
+    "reward",
+    "risk reward",
+  ]),
+  decl(
+    "strategy-critic",
+    "Strategy critic",
+    "Trading Research",
+    "Stress-test a strategy idea for biases.",
+    ["critique", "review strategy"],
+  ),
+  decl(
+    "backtest-narrate",
+    "Backtest narrator",
+    "Trading Research",
+    "Read a backtest result and summarise findings.",
+    ["backtest"],
+  ),
 
   // Signal Engine
-  decl("explain-signal", "Explain signal", "Signal Engine", "Walk through why a recent signal fired.", ["why did", "explain signal"]),
-  decl("invalidation", "Invalidation rules", "Signal Engine", "When would the current setup be invalidated?", ["invalidate", "invalidation"]),
+  decl(
+    "explain-signal",
+    "Explain signal",
+    "Signal Engine",
+    "Walk through why a recent signal fired.",
+    ["why did", "explain signal"],
+  ),
+  decl(
+    "invalidation",
+    "Invalidation rules",
+    "Signal Engine",
+    "When would the current setup be invalidated?",
+    ["invalidate", "invalidation"],
+  ),
 
   // File Generation (one entry per output kind — generators live under Code Tooling)
-  decl("export-pdf", "Export PDF", "File Generation", "Render the current analysis to PDF.", ["pdf"]),
-  decl("export-md", "Export markdown", "File Generation", "Save the conversation or analysis as .md.", ["markdown", "md"]),
-  decl("table-to-csv", "Table → CSV", "File Generation", "Convert any chat-rendered table to CSV.", ["csv", "table"]),
-  decl("schema-to-json", "Schema → JSON", "File Generation", "Generate a JSON document from a verbal schema.", ["json schema"]),
-  decl("snippet-to-html", "Snippet → HTML", "File Generation", "Wrap an artifact in a styled HTML page.", ["html page"]),
+  decl("export-pdf", "Export PDF", "File Generation", "Render the current analysis to PDF.", [
+    "pdf",
+  ]),
+  decl(
+    "export-md",
+    "Export markdown",
+    "File Generation",
+    "Save the conversation or analysis as .md.",
+    ["markdown", "md"],
+  ),
+  decl(
+    "table-to-csv",
+    "Table → CSV",
+    "File Generation",
+    "Convert any chat-rendered table to CSV.",
+    ["csv", "table"],
+  ),
+  decl(
+    "schema-to-json",
+    "Schema → JSON",
+    "File Generation",
+    "Generate a JSON document from a verbal schema.",
+    ["json schema"],
+  ),
+  decl(
+    "snippet-to-html",
+    "Snippet → HTML",
+    "File Generation",
+    "Wrap an artifact in a styled HTML page.",
+    ["html page"],
+  ),
 
   // Documentation
-  decl("api-key-guide", "API key guide", "Documentation", "How to get keys for OpenAI/Anthropic/Google/etc.", ["api key", "how to get key"]),
-  decl("route-map", "Route map", "Documentation", "List all routes and their purposes.", ["routes", "what pages"]),
-  decl("env-vars", "Env vars list", "Documentation", "Documented VITE_* env vars.", ["env", "environment"]),
-  decl("deploy-guide", "Deploy guide", "Documentation", "How to deploy to Vercel / Cloudflare.", ["deploy"]),
-  decl("supabase-schema", "Supabase schema", "Documentation", "Summarise current Supabase tables.", ["schema", "supabase tables"]),
+  decl(
+    "api-key-guide",
+    "API key guide",
+    "Documentation",
+    "How to get keys for OpenAI/Anthropic/Google/etc.",
+    ["api key", "how to get key"],
+  ),
+  decl("route-map", "Route map", "Documentation", "List all routes and their purposes.", [
+    "routes",
+    "what pages",
+  ]),
+  decl("env-vars", "Env vars list", "Documentation", "Documented VITE_* env vars.", [
+    "env",
+    "environment",
+  ]),
+  decl("deploy-guide", "Deploy guide", "Documentation", "How to deploy to Vercel / Cloudflare.", [
+    "deploy",
+  ]),
+  decl(
+    "supabase-schema",
+    "Supabase schema",
+    "Documentation",
+    "Summarise current Supabase tables.",
+    ["schema", "supabase tables"],
+  ),
 
   // Debugging
-  decl("stack-explain", "Stack-trace explainer", "Debugging", "Translate any pasted stack trace into plain English + likely fix.", ["stack trace", "error", "exception"]),
-  decl("type-error", "Type-error explainer", "Debugging", "Decode TypeScript compiler errors.", ["ts error", "type"]),
-  decl("ws-debug", "WebSocket debug", "Debugging", "Diagnose Deriv WS connection problems.", ["ws", "websocket", "disconnected"]),
-  decl("net-debug", "Network debug", "Debugging", "Walk through fetch/CORS/401 issues.", ["cors", "fetch failed", "401"]),
-  decl("repro-minimal", "Minimal repro", "Debugging", "Distil a failing case to a minimal reproduction.", ["minimal repro", "isolate"]),
+  decl(
+    "stack-explain",
+    "Stack-trace explainer",
+    "Debugging",
+    "Translate any pasted stack trace into plain English + likely fix.",
+    ["stack trace", "error", "exception"],
+  ),
+  decl("type-error", "Type-error explainer", "Debugging", "Decode TypeScript compiler errors.", [
+    "ts error",
+    "type",
+  ]),
+  decl("ws-debug", "WebSocket debug", "Debugging", "Diagnose Deriv WS connection problems.", [
+    "ws",
+    "websocket",
+    "disconnected",
+  ]),
+  decl("net-debug", "Network debug", "Debugging", "Walk through fetch/CORS/401 issues.", [
+    "cors",
+    "fetch failed",
+    "401",
+  ]),
+  decl(
+    "repro-minimal",
+    "Minimal repro",
+    "Debugging",
+    "Distil a failing case to a minimal reproduction.",
+    ["minimal repro", "isolate"],
+  ),
 
   // Content
-  decl("post-twitter", "Twitter thread", "Content", "Draft a 6-tweet thread from any analysis.", ["tweet", "twitter", "thread"]),
-  decl("youtube-script", "YouTube script", "Content", "Draft a 5-minute trading video script.", ["youtube", "video script"]),
-  decl("blog-post", "Blog post", "Content", "Long-form blog draft on a topic.", ["blog", "article"]),
-  decl("changelog", "Changelog entry", "Content", "Write a clean changelog bullet from a diff/PR.", ["changelog"]),
-  decl("release-notes", "Release notes", "Content", "Customer-facing release notes from commits.", ["release notes"]),
+  decl("post-twitter", "Twitter thread", "Content", "Draft a 6-tweet thread from any analysis.", [
+    "tweet",
+    "twitter",
+    "thread",
+  ]),
+  decl("youtube-script", "YouTube script", "Content", "Draft a 5-minute trading video script.", [
+    "youtube",
+    "video script",
+  ]),
+  decl("blog-post", "Blog post", "Content", "Long-form blog draft on a topic.", [
+    "blog",
+    "article",
+  ]),
+  decl(
+    "changelog",
+    "Changelog entry",
+    "Content",
+    "Write a clean changelog bullet from a diff/PR.",
+    ["changelog"],
+  ),
+  decl("release-notes", "Release notes", "Content", "Customer-facing release notes from commits.", [
+    "release notes",
+  ]),
 
   // Automation
-  decl("schedule-scan", "Schedule daily scan", "Automation", "Set up a daily scan reminder via Supabase cron.", ["schedule", "every day"]),
-  decl("alert-from-text", "Alert from text", "Automation", "Translate a verbal alert into an alerts.tsx rule.", ["alert me", "set alert"]),
-  decl("telegram-bridge", "Telegram bridge", "Automation", "Forward a finding to the user's Telegram bot.", ["telegram"]),
+  decl(
+    "schedule-scan",
+    "Schedule daily scan",
+    "Automation",
+    "Set up a daily scan reminder via Supabase cron.",
+    ["schedule", "every day"],
+  ),
+  decl(
+    "alert-from-text",
+    "Alert from text",
+    "Automation",
+    "Translate a verbal alert into an alerts.tsx rule.",
+    ["alert me", "set alert"],
+  ),
+  decl(
+    "telegram-bridge",
+    "Telegram bridge",
+    "Automation",
+    "Forward a finding to the user's Telegram bot.",
+    ["telegram"],
+  ),
   decl("zo-link", "ZO link", "Automation", "Push a strategy block to the ZO config.", ["zo"]),
 
   // Neural Network & AI
-  decl("nn-explain", "Neural network explainer", "Trading Research", "Explain how the LSTM neural network and multi-asset ensemble work.", ["neural network", "lstm", "ensemble", "how does nn"]),
-  decl("harmonic-explain", "Harmonic pattern guide", "Trading Research", "Explain Gartley, Butterfly, Bat, Crab, Shark harmonic patterns with Fibonacci ratios.", ["harmonic", "gartley", "butterfly", "crab", "bat pattern"]),
-  decl("smc-guide", "SMC trading guide", "Trading Research", "Explain Smart Money Concepts: BOS, CHoCH, FVG, Order Blocks, liquidity.", ["smc", "smart money", "bos", "choch"]),
-  decl("ichimoku-guide", "Ichimoku cloud guide", "Trading Research", "Explain Ichimoku Cloud components: Tenkan, Kijun, Senkou A/B, Chikou.", ["ichimoku", "cloud"]),
+  decl(
+    "nn-explain",
+    "Neural network explainer",
+    "Trading Research",
+    "Explain how the LSTM neural network and multi-asset ensemble work.",
+    ["neural network", "lstm", "ensemble", "how does nn"],
+  ),
+  decl(
+    "harmonic-explain",
+    "Harmonic pattern guide",
+    "Trading Research",
+    "Explain Gartley, Butterfly, Bat, Crab, Shark harmonic patterns with Fibonacci ratios.",
+    ["harmonic", "gartley", "butterfly", "crab", "bat pattern"],
+  ),
+  decl(
+    "smc-guide",
+    "SMC trading guide",
+    "Trading Research",
+    "Explain Smart Money Concepts: BOS, CHoCH, FVG, Order Blocks, liquidity.",
+    ["smc", "smart money", "bos", "choch"],
+  ),
+  decl(
+    "ichimoku-guide",
+    "Ichimoku cloud guide",
+    "Trading Research",
+    "Explain Ichimoku Cloud components: Tenkan, Kijun, Senkou A/B, Chikou.",
+    ["ichimoku", "cloud"],
+  ),
 
   // Advanced Analysis
-  decl("confluence-master", "Confluence master analysis", "Signal Engine", "Run deep multi-strategy confluence analysis across V1+V2+V3 with neural boost.", ["master confluence", "deep confluence", "maximum confluence"]),
-  decl("session-edge", "Session edge analysis", "Trading Research", "Analyze which strategies perform best in current session with specific pair data.", ["session edge", "best strategy now", "session performance"]),
-  decl("sl-diagnostic", "SL diagnostic", "Self-Improvement", "Deep-dive into why a specific signal hit SL with root cause analysis.", ["why sl", "stop loss hit", "diagnose", "sl diagnostic"]),
+  decl(
+    "confluence-master",
+    "Confluence master analysis",
+    "Signal Engine",
+    "Run deep multi-strategy confluence analysis across V1+V2+V3 with neural boost.",
+    ["master confluence", "deep confluence", "maximum confluence"],
+  ),
+  decl(
+    "session-edge",
+    "Session edge analysis",
+    "Trading Research",
+    "Analyze which strategies perform best in current session with specific pair data.",
+    ["session edge", "best strategy now", "session performance"],
+  ),
+  decl(
+    "sl-diagnostic",
+    "SL diagnostic",
+    "Self-Improvement",
+    "Deep-dive into why a specific signal hit SL with root cause analysis.",
+    ["why sl", "stop loss hit", "diagnose", "sl diagnostic"],
+  ),
 
   // Automation
-  decl("auto-schedule", "Create auto schedule", "Automation", "Set up a time-based automation schedule for strategy scanning.", ["auto schedule", "create schedule", "automate scan"]),
-  decl("dispatch-monitor", "Dispatch monitor", "Automation", "Monitor signal dispatch success rates to Telegram, webhooks, and bot.", ["dispatch", "delivery", "signal delivery"]),
+  decl(
+    "auto-schedule",
+    "Create auto schedule",
+    "Automation",
+    "Set up a time-based automation schedule for strategy scanning.",
+    ["auto schedule", "create schedule", "automate scan"],
+  ),
+  decl(
+    "dispatch-monitor",
+    "Dispatch monitor",
+    "Automation",
+    "Monitor signal dispatch success rates to Telegram, webhooks, and bot.",
+    ["dispatch", "delivery", "signal delivery"],
+  ),
 
   // Self-Improvement
-  decl("self-review", "Self-review", "Self-Improvement", "Audit the last response for hallucinations or weak claims.", ["self review", "audit response"]),
-  decl("citation-check", "Citation check", "Self-Improvement", "Flag any unsourced numeric claim and ask for a source.", ["cite", "source"]),
-  decl("simpler-version", "Simpler version", "Self-Improvement", "Rewrite the last response simpler.", ["simpler", "eli5"]),
-  decl("longer-version", "Longer version", "Self-Improvement", "Expand the last response with depth.", ["longer", "more detail"]),
-  decl("opposite-take", "Opposite take", "Self-Improvement", "Argue the opposite side of the last response.", ["opposite", "counter"]),
-  decl("uncertainty-pass", "Uncertainty pass", "Self-Improvement", "Re-state confidence levels per claim.", ["how confident", "uncertainty"]),
-  decl("learn-from-error", "Learn from error", "Self-Improvement", "Save the last failure pattern to a memory file.", ["remember this", "don't make this mistake"]),
+  decl(
+    "self-review",
+    "Self-review",
+    "Self-Improvement",
+    "Audit the last response for hallucinations or weak claims.",
+    ["self review", "audit response"],
+  ),
+  decl(
+    "citation-check",
+    "Citation check",
+    "Self-Improvement",
+    "Flag any unsourced numeric claim and ask for a source.",
+    ["cite", "source"],
+  ),
+  decl(
+    "simpler-version",
+    "Simpler version",
+    "Self-Improvement",
+    "Rewrite the last response simpler.",
+    ["simpler", "eli5"],
+  ),
+  decl(
+    "longer-version",
+    "Longer version",
+    "Self-Improvement",
+    "Expand the last response with depth.",
+    ["longer", "more detail"],
+  ),
+  decl(
+    "opposite-take",
+    "Opposite take",
+    "Self-Improvement",
+    "Argue the opposite side of the last response.",
+    ["opposite", "counter"],
+  ),
+  decl(
+    "uncertainty-pass",
+    "Uncertainty pass",
+    "Self-Improvement",
+    "Re-state confidence levels per claim.",
+    ["how confident", "uncertainty"],
+  ),
+  decl(
+    "learn-from-error",
+    "Learn from error",
+    "Self-Improvement",
+    "Save the last failure pattern to a memory file.",
+    ["remember this", "don't make this mistake"],
+  ),
 ];
 
 // ============================================================================
@@ -449,7 +748,10 @@ const extended_exec_skills: Skill[] = [
       const price = candles[candles.length - 1].close;
       const near = nearestFib(price, res);
       const lines = res.levels
-        .map((l) => `  ${l.kind === "retracement" ? "R" : "E"} ${l.label.padStart(7)}  ${l.price.toFixed(5)}`)
+        .map(
+          (l) =>
+            `  ${l.kind === "retracement" ? "R" : "E"} ${l.label.padStart(7)}  ${l.price.toFixed(5)}`,
+        )
         .join("\n");
       return {
         ok: true,
@@ -470,7 +772,12 @@ const extended_exec_skills: Skill[] = [
       const candles = await deriv.getCandles(symbol, "D1", 2);
       if (candles.length < 2) return { ok: false, error: "need 2 daily candles" };
       const prev = candles[candles.length - 2];
-      const calc = kind === "fibonacci" ? fibonacciPivots : kind === "camarilla" ? camarillaPivots : classicPivots;
+      const calc =
+        kind === "fibonacci"
+          ? fibonacciPivots
+          : kind === "camarilla"
+            ? camarillaPivots
+            : classicPivots;
       const p = calc(prev.high, prev.low, prev.close);
       return {
         ok: true,
@@ -553,7 +860,8 @@ const detector_skills: Skill[] = [
       const z = Number(args?.z ?? 2.5);
       const candles = await deriv.getCandles(symbol, tf, 200);
       const scan = detectSpikes(candles, 50, z);
-      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no spikes detected at z≥${z}` };
+      if (!scan.latest)
+        return { ok: true, output: `${symbol} ${tf}: no spikes detected at z≥${z}` };
       const e = scan.latest;
       return {
         ok: true,
@@ -615,7 +923,11 @@ const detector_skills: Skill[] = [
       const candles = await deriv.getCandles(symbol, tf, 300);
       const scan = detectGaps(candles);
       const unfilled = scan.unfilledGaps.length;
-      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no recent gaps · ${unfilled} unfilled overall` };
+      if (!scan.latest)
+        return {
+          ok: true,
+          output: `${symbol} ${tf}: no recent gaps · ${unfilled} unfilled overall`,
+        };
       const e = scan.latest;
       return {
         ok: true,
@@ -635,7 +947,11 @@ const detector_skills: Skill[] = [
       const tf = (args?.tf as TF) || "M15";
       const candles = await deriv.getCandles(symbol, tf, 200);
       const scan = detectRangeBreaks(candles);
-      if (!scan.latest) return { ok: true, output: `${symbol} ${tf}: no breakouts; ${scan.consolidations.length} consolidations on file` };
+      if (!scan.latest)
+        return {
+          ok: true,
+          output: `${symbol} ${tf}: no breakouts; ${scan.consolidations.length} consolidations on file`,
+        };
       const e = scan.latest;
       return {
         ok: true,
@@ -738,8 +1054,12 @@ const power_skills: Skill[] = [
       const tf = (args?.tf as TF) || "M15";
       const limit = Number(args?.limit ?? 10);
       const rows = await scanHeat({ tf });
-      const top = rows.slice(0, limit)
-        .map((r) => `  ${r.heat}· ${r.symbol.padEnd(12)} ${r.lastPrice.toFixed(5).padStart(10)}  ${r.changePct >= 0 ? "+" : ""}${r.changePct.toFixed(2)}%`)
+      const top = rows
+        .slice(0, limit)
+        .map(
+          (r) =>
+            `  ${r.heat}· ${r.symbol.padEnd(12)} ${r.lastPrice.toFixed(5).padStart(10)}  ${r.changePct >= 0 ? "+" : ""}${r.changePct.toFixed(2)}%`,
+        )
         .join("\n");
       return { ok: true, output: `Heat scan ${tf}\n${top || "  (no hot symbols)"}` };
     },
@@ -761,14 +1081,26 @@ const power_skills: Skill[] = [
       for (let i = 0; i < slice.length; i += 4) {
         const batch = slice.slice(i, i + 4);
         const results = await Promise.allSettled(
-          batch.map(async (a) => ({ sym: a.symbol, candles: await deriv.getCandles(a.symbol, tf, 50) })),
+          batch.map(async (a) => ({
+            sym: a.symbol,
+            candles: await deriv.getCandles(a.symbol, tf, 50),
+          })),
         );
-        for (const r of results) if (r.status === "fulfilled") candlesBySymbol[r.value.sym] = r.value.candles;
+        for (const r of results)
+          if (r.status === "fulfilled") candlesBySymbol[r.value.sym] = r.value.candles;
       }
       const strengths = currencyStrength(candlesBySymbol);
       const top = topPairs(strengths, 3);
-      const rank = strengths.map((s) => `  ${s.rank}. ${s.currency.padEnd(4)} ${s.score >= 0 ? "+" : ""}${s.score.toFixed(2)}`).join("\n");
-      const sugg = top.slice(0, 5).map((p) => `  long ${p.long} / short ${p.short}  (Δ${p.spread.toFixed(2)})`).join("\n");
+      const rank = strengths
+        .map(
+          (s) =>
+            `  ${s.rank}. ${s.currency.padEnd(4)} ${s.score >= 0 ? "+" : ""}${s.score.toFixed(2)}`,
+        )
+        .join("\n");
+      const sugg = top
+        .slice(0, 5)
+        .map((p) => `  long ${p.long} / short ${p.short}  (Δ${p.spread.toFixed(2)})`)
+        .join("\n");
       return { ok: true, output: `Strength ${tf}\n${rank}\nTop pairings:\n${sugg}` };
     },
   },
@@ -797,7 +1129,8 @@ const power_skills: Skill[] = [
     id: "send-alert",
     name: "Send alert",
     category: "Automation",
-    description: "Dispatch a manual alert to configured destinations (telegram / webhook / in-app).",
+    description:
+      "Dispatch a manual alert to configured destinations (telegram / webhook / in-app).",
     trigger: "on-demand",
     keywords: ["send alert", "notify me", "dispatch alert"],
     exec: async ({ args }) => {
@@ -805,7 +1138,9 @@ const power_skills: Skill[] = [
       const body = String(args?.body || "");
       const targets = (args?.targets as any[]) || [{ channel: "in-app" }];
       const results = await dispatchAlert(targets, { title, body, level: "info" });
-      const summary = results.map((r) => `${r.channel}:${r.ok ? "ok" : `err(${r.error || r.status})`}`).join("  ");
+      const summary = results
+        .map((r) => `${r.channel}:${r.ok ? "ok" : `err(${r.error || r.status})`}`)
+        .join("  ");
       return { ok: results.every((r) => r.ok), output: summary };
     },
   },
@@ -907,7 +1242,13 @@ const new_tool_skills: Skill[] = [
       const candles = await deriv.getCandles(symbol, tf, 300);
       const det = runAllDetectors(candles);
       const clusters = clusterAnomalies(det, candles);
-      const top = clusters.slice(0, 3).map((c) => `  cluster idx ${c.startIdx}–${c.endIdx}  size=${c.size}  intensity=${c.intensity.toFixed(2)}`).join("\n");
+      const top = clusters
+        .slice(0, 3)
+        .map(
+          (c) =>
+            `  cluster idx ${c.startIdx}–${c.endIdx}  size=${c.size}  intensity=${c.intensity.toFixed(2)}`,
+        )
+        .join("\n");
       return {
         ok: true,
         output: `${symbol} ${tf}  ${clusters.length} clusters\n${top || "  (no clusters)"}`,

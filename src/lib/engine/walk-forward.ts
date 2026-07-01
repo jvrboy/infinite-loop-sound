@@ -25,20 +25,22 @@ export interface WfoResult {
   folds: WfoFold[];
   avgInSampleAcc: number;
   avgOutOfSampleAcc: number;
-  decay: number;             // (avgIS − avgOOS) ÷ avgIS, can be negative if OOS is better
-  robust: boolean;           // decay < 0.2 and avgOOS ≥ 0.5
+  decay: number; // (avgIS − avgOOS) ÷ avgIS, can be negative if OOS is better
+  robust: boolean; // decay < 0.2 and avgOOS ≥ 0.5
 }
 
 function nextDirection(candles: Candle[], i: number): "BUY" | "SELL" | null {
   if (i + 1 >= candles.length) return null;
-  const c1 = candles[i].close, c2 = candles[i + 1].close;
+  const c1 = candles[i].close,
+    c2 = candles[i + 1].close;
   if (c2 > c1) return "BUY";
   if (c2 < c1) return "SELL";
   return null;
 }
 
 function evaluate(candles: Candle[], start: number, end: number, strat: StrategyFn) {
-  let hits = 0, trades = 0;
+  let hits = 0,
+    trades = 0;
   // Require at least 50 candles of context for the strategy.
   const minCtx = 50;
   for (let i = Math.max(start, minCtx); i < end; i++) {
