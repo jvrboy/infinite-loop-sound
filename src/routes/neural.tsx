@@ -60,7 +60,7 @@ function NeuralPage() {
               score: a.scorePct,
               direction: a.direction,
               rating: a.rating,
-              items: (a.items as any) || [],
+              items: a.confluence || [],
             });
           }
           // simple ensemble: weighted average favouring higher TFs

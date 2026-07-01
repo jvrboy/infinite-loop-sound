@@ -12,7 +12,7 @@ export interface ScanRow {
   rating: AnalysisResult["rating"];
   scorePct: number;
   direction: AnalysisResult["direction"];
-  items: AnalysisResult["items"];
+  items: AnalysisResult["confluence"];
   lastClose: number;
   error?: string;
   updatedAt: number;
@@ -74,7 +74,7 @@ export function useLiveScan(
             rating: a.rating,
             scorePct: a.scorePct,
             direction: a.direction,
-            items: a.items,
+            items: a.confluence,
             lastClose: candles[candles.length - 1].close,
             updatedAt: Date.now(),
           });

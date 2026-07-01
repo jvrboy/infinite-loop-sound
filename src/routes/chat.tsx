@@ -146,7 +146,9 @@ function ChatPage() {
     const messages = [{ role: "system" as const, content: SYSTEM_PROMPT }, ...history];
 
     try {
-      const { content: reply, provider } = await aiChat(messages);
+      const res = await aiChat(messages);
+      if (!res) throw new Error("AI request failed — no API key available or all providers exhausted.");
+      const { text: reply, provider } = res;
       const assistant: Msg = {
         role: "assistant",
         content: reply,
