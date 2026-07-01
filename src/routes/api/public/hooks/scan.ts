@@ -23,26 +23,28 @@ const DEFAULT_DEDUPE_MIN = 30;
 const VALID_TFS: TF[] = ["M1","M5","M15","M30","H1","H4","D1"];
 
 async function openDerivWS(): Promise<WebSocket> {
-  // Cloudflare workerd outbound WebSocket uses fetch(upgrade).
-  const resp = await fetch(DERIV_WS_URL.replace(/^wss?:/, "https:"), {
-    headers: { Upgrade: "websocket" },
-  } as any);
-  // @ts-ignore - workers runtime exposes resp.webSocket
-  const ws: WebSocket | undefined = (resp as any).webSocket;
-  if (!ws) {
-    // Node/dev fallback: use global WebSocket
-    const NodeWS: any = (globalThis as any).WebSocket;
-    if (!NodeWS) throw new Error("WebSocket not available in this runtime");
-    const sock = new NodeWS(DERIV_WS_URL);
-    await new Promise<void>((res, rej) => {
-      sock.onopen = () => res();
-      sock.onerror = (e: any) => rej(e);
-    });
-    return sock;
-  }
-  // @ts-ignore
-  ws.accept();
-  return ws;
+  // Try Cloudflare workerd's fetch(upgrade) path first; fall back to a plain
+  // WebSocket (Node 22+ dev / edge runtimes with global WebSocket).
+  try {
+    const resp = await fetch(DERIV_WS_URL.replace(/^wss?:/, "https:"), {
+      headers: { Upgrade: "websocket" },
+    } as any);
+    // @ts-ignore - workers runtime exposes resp.webSocket
+    const ws: WebSocket | undefined = (resp as any).webSocket;
+    if (ws) {
+      // @ts-ignore
+      ws.accept();
+      return ws;
+    }
+  } catch { /* fall through to global WebSocket */ }
+  const NodeWS: any = (globalThis as any).WebSocket;
+  if (!NodeWS) throw new Error("WebSocket not available in this runtime");
+  const sock = new NodeWS(DERIV_WS_URL);
+  await new Promise<void>((res, rej) => {
+    sock.onopen = () => res();
+    sock.onerror = (e: any) => rej(new Error("ws open failed"));
+  });
+  return sock;
 }
 
 async function fetchCandles(ws: WebSocket, symbol: string, tf: TF, count = 220): Promise<Candle[]> {
