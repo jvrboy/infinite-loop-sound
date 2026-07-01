@@ -10,26 +10,25 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZoRouteImport } from './routes/zo'
-import { Route as StreakRouteImport } from './routes/streak'
-import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
-import { Route as DrawdownShieldRouteImport } from './routes/drawdown-shield'
-import { Route as ChecklistRouteImport } from './routes/checklist'
-import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
+import { Route as VolatilityRouteImport } from './routes/volatility'
 import { Route as UptimeRouteImport } from './routes/uptime'
 import { Route as UltraRouteImport } from './routes/ultra'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as SystemRouteImport } from './routes/system'
+import { Route as StreakRouteImport } from './routes/streak'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SessionsRouteImport } from './routes/sessions'
+import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
 import { Route as SentimentRouteImport } from './routes/sentiment'
 import { Route as ScreenerRouteImport } from './routes/screener'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as ScalingRouteImport } from './routes/scaling'
 import { Route as RiskCalculatorRouteImport } from './routes/risk-calculator'
+import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as RecoveryRouteImport } from './routes/recovery'
 import { Route as PnlRouteImport } from './routes/pnl'
 import { Route as PlanRouteImport } from './routes/plan'
@@ -41,22 +40,24 @@ import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as OptimizationRouteImport } from './routes/optimization'
 import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
 import { Route as LocalAiRouteImport } from './routes/local-ai'
 import { Route as JournalRouteImport } from './routes/journal'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
 import { Route as FibonacciRouteImport } from './routes/fibonacci'
+import { Route as DrawdownShieldRouteImport } from './routes/drawdown-shield'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DlqRouteImport } from './routes/dlq'
+import { Route as DetectorsRouteImport } from './routes/detectors'
 import { Route as DerivRouteImport } from './routes/deriv'
 import { Route as DarkPoolRouteImport } from './routes/dark-pool'
 import { Route as CurrencyStrengthRouteImport } from './routes/currency-strength'
-import { Route as VolatilityRouteImport } from './routes/volatility'
-import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
 import { Route as CorrelationRouteImport } from './routes/correlation'
 import { Route as ConfluenceRouteImport } from './routes/confluence'
 import { Route as CompoundRouteImport } from './routes/compound'
+import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ChartRouteImport } from './routes/chart'
 import { Route as CalendarRouteImport } from './routes/calendar'
@@ -87,31 +88,6 @@ const ZoRoute = ZoRouteImport.update({
   path: '/zo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const StreakRoute = StreakRouteImport.update({
-  id: '/streak',
-  path: '/streak',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SessionOverlapRoute = SessionOverlapRouteImport.update({
-  id: '/session-overlap',
-  path: '/session-overlap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DrawdownShieldRoute = DrawdownShieldRouteImport.update({
-  id: '/drawdown-shield',
-  path: '/drawdown-shield',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChecklistRoute = ChecklistRouteImport.update({
-  id: '/checklist',
-  path: '/checklist',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReplayRoute = ReplayRouteImport.update({
-  id: '/replay',
-  path: '/replay',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
@@ -120,6 +96,11 @@ const WelcomeRoute = WelcomeRouteImport.update({
 const WebhookEventsRoute = WebhookEventsRouteImport.update({
   id: '/webhook-events',
   path: '/webhook-events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolatilityRoute = VolatilityRouteImport.update({
+  id: '/volatility',
+  path: '/volatility',
   getParentRoute: () => rootRouteImport,
 } as any)
 const UptimeRoute = UptimeRouteImport.update({
@@ -147,6 +128,11 @@ const SystemRoute = SystemRouteImport.update({
   path: '/system',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StreakRoute = StreakRouteImport.update({
+  id: '/streak',
+  path: '/streak',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SimulatorRoute = SimulatorRouteImport.update({
   id: '/simulator',
   path: '/simulator',
@@ -160,6 +146,11 @@ const SignalsRoute = SignalsRouteImport.update({
 const SessionsRoute = SessionsRouteImport.update({
   id: '/sessions',
   path: '/sessions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SessionOverlapRoute = SessionOverlapRouteImport.update({
+  id: '/session-overlap',
+  path: '/session-overlap',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SentimentRoute = SentimentRouteImport.update({
@@ -185,6 +176,11 @@ const ScalingRoute = ScalingRouteImport.update({
 const RiskCalculatorRoute = RiskCalculatorRouteImport.update({
   id: '/risk-calculator',
   path: '/risk-calculator',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReplayRoute = ReplayRouteImport.update({
+  id: '/replay',
+  path: '/replay',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RecoveryRoute = RecoveryRouteImport.update({
@@ -242,6 +238,11 @@ const NeuralRoute = NeuralRouteImport.update({
   path: '/neural',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MonteCarloRoute = MonteCarloRouteImport.update({
+  id: '/monte-carlo',
+  path: '/monte-carlo',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketProfileRoute = MarketProfileRouteImport.update({
   id: '/market-profile',
   path: '/market-profile',
@@ -272,6 +273,11 @@ const FibonacciRoute = FibonacciRouteImport.update({
   path: '/fibonacci',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DrawdownShieldRoute = DrawdownShieldRouteImport.update({
+  id: '/drawdown-shield',
+  path: '/drawdown-shield',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DocsRoute = DocsRouteImport.update({
   id: '/docs',
   path: '/docs',
@@ -280,6 +286,11 @@ const DocsRoute = DocsRouteImport.update({
 const DlqRoute = DlqRouteImport.update({
   id: '/dlq',
   path: '/dlq',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DetectorsRoute = DetectorsRouteImport.update({
+  id: '/detectors',
+  path: '/detectors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DerivRoute = DerivRouteImport.update({
@@ -297,16 +308,6 @@ const CurrencyStrengthRoute = CurrencyStrengthRouteImport.update({
   path: '/currency-strength',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VolatilityRoute = VolatilityRouteImport.update({
-  id: '/volatility',
-  path: '/volatility',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MonteCarloRoute = MonteCarloRouteImport.update({
-  id: '/monte-carlo',
-  path: '/monte-carlo',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const CorrelationRoute = CorrelationRouteImport.update({
   id: '/correlation',
   path: '/correlation',
@@ -320,6 +321,11 @@ const ConfluenceRoute = ConfluenceRouteImport.update({
 const CompoundRoute = CompoundRouteImport.update({
   id: '/compound',
   path: '/compound',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChecklistRoute = ChecklistRouteImport.update({
+  id: '/checklist',
+  path: '/checklist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -461,20 +467,24 @@ export interface FileRoutesByFullPath {
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
+  '/checklist': typeof ChecklistRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/deriv': typeof DerivRoute
+  '/detectors': typeof DetectorsRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
+  '/drawdown-shield': typeof DrawdownShieldRoute
   '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
   '/journal': typeof JournalRoute
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/monte-carlo': typeof MonteCarloRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -486,27 +496,26 @@ export interface FileRoutesByFullPath {
   '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
   '/recovery': typeof RecoveryRoute
+  '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
   '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
   '/screener': typeof ScreenerRoute
   '/sentiment': typeof SentimentRoute
+  '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
+  '/volatility': typeof VolatilityRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
-  '/streak': typeof StreakRoute
-  '/session-overlap': typeof SessionOverlapRoute
-  '/drawdown-shield': typeof DrawdownShieldRoute
-  '/checklist': typeof ChecklistRoute
-  '/replay': typeof ReplayRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
@@ -533,20 +542,24 @@ export interface FileRoutesByTo {
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
+  '/checklist': typeof ChecklistRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/deriv': typeof DerivRoute
+  '/detectors': typeof DetectorsRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
+  '/drawdown-shield': typeof DrawdownShieldRoute
   '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
   '/journal': typeof JournalRoute
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/monte-carlo': typeof MonteCarloRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -558,27 +571,26 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
   '/recovery': typeof RecoveryRoute
+  '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
   '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
   '/screener': typeof ScreenerRoute
   '/sentiment': typeof SentimentRoute
+  '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
+  '/volatility': typeof VolatilityRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
-  '/streak': typeof StreakRoute
-  '/session-overlap': typeof SessionOverlapRoute
-  '/drawdown-shield': typeof DrawdownShieldRoute
-  '/checklist': typeof ChecklistRoute
-  '/replay': typeof ReplayRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
@@ -606,20 +618,24 @@ export interface FileRoutesById {
   '/calendar': typeof CalendarRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
+  '/checklist': typeof ChecklistRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/deriv': typeof DerivRoute
+  '/detectors': typeof DetectorsRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
+  '/drawdown-shield': typeof DrawdownShieldRoute
   '/fibonacci': typeof FibonacciRoute
   '/heatmap': typeof HeatmapRoute
   '/journal': typeof JournalRoute
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/monte-carlo': typeof MonteCarloRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -631,27 +647,26 @@ export interface FileRoutesById {
   '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
   '/recovery': typeof RecoveryRoute
+  '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
   '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
   '/screener': typeof ScreenerRoute
   '/sentiment': typeof SentimentRoute
+  '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
+  '/volatility': typeof VolatilityRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
-  '/streak': typeof StreakRoute
-  '/session-overlap': typeof SessionOverlapRoute
-  '/drawdown-shield': typeof DrawdownShieldRoute
-  '/checklist': typeof ChecklistRoute
-  '/replay': typeof ReplayRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
   '/api/public/hooks/expire-signals': typeof ApiPublicHooksExpireSignalsRoute
@@ -680,20 +695,24 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/chart'
     | '/chat'
+    | '/checklist'
     | '/compound'
     | '/confluence'
     | '/correlation'
     | '/currency-strength'
     | '/dark-pool'
     | '/deriv'
+    | '/detectors'
     | '/dlq'
     | '/docs'
+    | '/drawdown-shield'
     | '/fibonacci'
     | '/heatmap'
     | '/journal'
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/monte-carlo'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -705,27 +724,26 @@ export interface FileRouteTypes {
     | '/plan'
     | '/pnl'
     | '/recovery'
+    | '/replay'
     | '/risk-calculator'
     | '/scaling'
     | '/scanner'
     | '/screener'
     | '/sentiment'
+    | '/session-overlap'
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/streak'
     | '/system'
     | '/telegram'
     | '/tools'
     | '/ultra'
     | '/uptime'
+    | '/volatility'
     | '/webhook-events'
     | '/welcome'
     | '/zo'
-    | '/streak'
-    | '/session-overlap'
-    | '/drawdown-shield'
-    | '/checklist'
-    | '/replay'
     | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/expire-signals'
@@ -752,20 +770,24 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/chart'
     | '/chat'
+    | '/checklist'
     | '/compound'
     | '/confluence'
     | '/correlation'
     | '/currency-strength'
     | '/dark-pool'
     | '/deriv'
+    | '/detectors'
     | '/dlq'
     | '/docs'
+    | '/drawdown-shield'
     | '/fibonacci'
     | '/heatmap'
     | '/journal'
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/monte-carlo'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -777,27 +799,26 @@ export interface FileRouteTypes {
     | '/plan'
     | '/pnl'
     | '/recovery'
+    | '/replay'
     | '/risk-calculator'
     | '/scaling'
     | '/scanner'
     | '/screener'
     | '/sentiment'
+    | '/session-overlap'
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/streak'
     | '/system'
     | '/telegram'
     | '/tools'
     | '/ultra'
     | '/uptime'
+    | '/volatility'
     | '/webhook-events'
     | '/welcome'
     | '/zo'
-    | '/streak'
-    | '/session-overlap'
-    | '/drawdown-shield'
-    | '/checklist'
-    | '/replay'
     | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/expire-signals'
@@ -824,20 +845,24 @@ export interface FileRouteTypes {
     | '/calendar'
     | '/chart'
     | '/chat'
+    | '/checklist'
     | '/compound'
     | '/confluence'
     | '/correlation'
     | '/currency-strength'
     | '/dark-pool'
     | '/deriv'
+    | '/detectors'
     | '/dlq'
     | '/docs'
+    | '/drawdown-shield'
     | '/fibonacci'
     | '/heatmap'
     | '/journal'
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/monte-carlo'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -849,27 +874,26 @@ export interface FileRouteTypes {
     | '/plan'
     | '/pnl'
     | '/recovery'
+    | '/replay'
     | '/risk-calculator'
     | '/scaling'
     | '/scanner'
     | '/screener'
     | '/sentiment'
+    | '/session-overlap'
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/streak'
     | '/system'
     | '/telegram'
     | '/tools'
     | '/ultra'
     | '/uptime'
+    | '/volatility'
     | '/webhook-events'
     | '/welcome'
     | '/zo'
-    | '/streak'
-    | '/session-overlap'
-    | '/drawdown-shield'
-    | '/checklist'
-    | '/replay'
     | '/api/keepalive/zo'
     | '/api/public/health'
     | '/api/public/hooks/expire-signals'
@@ -897,20 +921,24 @@ export interface RootRouteChildren {
   CalendarRoute: typeof CalendarRoute
   ChartRoute: typeof ChartRoute
   ChatRoute: typeof ChatRoute
+  ChecklistRoute: typeof ChecklistRoute
   CompoundRoute: typeof CompoundRoute
   ConfluenceRoute: typeof ConfluenceRoute
   CorrelationRoute: typeof CorrelationRoute
   CurrencyStrengthRoute: typeof CurrencyStrengthRoute
   DarkPoolRoute: typeof DarkPoolRoute
   DerivRoute: typeof DerivRoute
+  DetectorsRoute: typeof DetectorsRoute
   DlqRoute: typeof DlqRoute
   DocsRoute: typeof DocsRoute
+  DrawdownShieldRoute: typeof DrawdownShieldRoute
   FibonacciRoute: typeof FibonacciRoute
   HeatmapRoute: typeof HeatmapRoute
   JournalRoute: typeof JournalRoute
   LocalAiRoute: typeof LocalAiRoute
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
+  MonteCarloRoute: typeof MonteCarloRoute
   NeuralRoute: typeof NeuralRoute
   OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
@@ -922,27 +950,26 @@ export interface RootRouteChildren {
   PlanRoute: typeof PlanRoute
   PnlRoute: typeof PnlRoute
   RecoveryRoute: typeof RecoveryRoute
+  ReplayRoute: typeof ReplayRoute
   RiskCalculatorRoute: typeof RiskCalculatorRoute
   ScalingRoute: typeof ScalingRoute
   ScannerRoute: typeof ScannerRoute
   ScreenerRoute: typeof ScreenerRoute
   SentimentRoute: typeof SentimentRoute
+  SessionOverlapRoute: typeof SessionOverlapRoute
   SessionsRoute: typeof SessionsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
+  StreakRoute: typeof StreakRoute
   SystemRoute: typeof SystemRoute
   TelegramRoute: typeof TelegramRoute
   ToolsRoute: typeof ToolsRoute
   UltraRoute: typeof UltraRoute
   UptimeRoute: typeof UptimeRoute
+  VolatilityRoute: typeof VolatilityRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
   WelcomeRoute: typeof WelcomeRoute
   ZoRoute: typeof ZoRoute
-  StreakRoute: typeof StreakRoute
-  SessionOverlapRoute: typeof SessionOverlapRoute
-  DrawdownShieldRoute: typeof DrawdownShieldRoute
-  ChecklistRoute: typeof ChecklistRoute
-  ReplayRoute: typeof ReplayRoute
   ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
   ApiPublicHooksExpireSignalsRoute: typeof ApiPublicHooksExpireSignalsRoute
@@ -966,41 +993,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/streak': {
-      id: '/streak'
-      path: '/streak'
-      fullPath: '/streak'
-      preLoaderRoute: typeof StreakRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/session-overlap': {
-      id: '/session-overlap'
-      path: '/session-overlap'
-      fullPath: '/session-overlap'
-      preLoaderRoute: typeof SessionOverlapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/drawdown-shield': {
-      id: '/drawdown-shield'
-      path: '/drawdown-shield'
-      fullPath: '/drawdown-shield'
-      preLoaderRoute: typeof DrawdownShieldRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/checklist': {
-      id: '/checklist'
-      path: '/checklist'
-      fullPath: '/checklist'
-      preLoaderRoute: typeof ChecklistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/replay': {
-      id: '/replay'
-      path: '/replay'
-      fullPath: '/replay'
-      preLoaderRoute: typeof ReplayRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/welcome': {
       id: '/welcome'
       path: '/welcome'
@@ -1013,6 +1005,13 @@ declare module '@tanstack/react-router' {
       path: '/webhook-events'
       fullPath: '/webhook-events'
       preLoaderRoute: typeof WebhookEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/volatility': {
+      id: '/volatility'
+      path: '/volatility'
+      fullPath: '/volatility'
+      preLoaderRoute: typeof VolatilityRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/uptime': {
@@ -1050,6 +1049,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SystemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/streak': {
+      id: '/streak'
+      path: '/streak'
+      fullPath: '/streak'
+      preLoaderRoute: typeof StreakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/simulator': {
       id: '/simulator'
       path: '/simulator'
@@ -1069,6 +1075,13 @@ declare module '@tanstack/react-router' {
       path: '/sessions'
       fullPath: '/sessions'
       preLoaderRoute: typeof SessionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/session-overlap': {
+      id: '/session-overlap'
+      path: '/session-overlap'
+      fullPath: '/session-overlap'
+      preLoaderRoute: typeof SessionOverlapRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sentiment': {
@@ -1104,6 +1117,13 @@ declare module '@tanstack/react-router' {
       path: '/risk-calculator'
       fullPath: '/risk-calculator'
       preLoaderRoute: typeof RiskCalculatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/replay': {
+      id: '/replay'
+      path: '/replay'
+      fullPath: '/replay'
+      preLoaderRoute: typeof ReplayRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/recovery': {
@@ -1183,6 +1203,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NeuralRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/monte-carlo': {
+      id: '/monte-carlo'
+      path: '/monte-carlo'
+      fullPath: '/monte-carlo'
+      preLoaderRoute: typeof MonteCarloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/market-profile': {
       id: '/market-profile'
       path: '/market-profile'
@@ -1225,6 +1252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FibonacciRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/drawdown-shield': {
+      id: '/drawdown-shield'
+      path: '/drawdown-shield'
+      fullPath: '/drawdown-shield'
+      preLoaderRoute: typeof DrawdownShieldRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/docs': {
       id: '/docs'
       path: '/docs'
@@ -1237,6 +1271,13 @@ declare module '@tanstack/react-router' {
       path: '/dlq'
       fullPath: '/dlq'
       preLoaderRoute: typeof DlqRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/detectors': {
+      id: '/detectors'
+      path: '/detectors'
+      fullPath: '/detectors'
+      preLoaderRoute: typeof DetectorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/deriv': {
@@ -1279,6 +1320,13 @@ declare module '@tanstack/react-router' {
       path: '/compound'
       fullPath: '/compound'
       preLoaderRoute: typeof CompoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checklist': {
+      id: '/checklist'
+      path: '/checklist'
+      fullPath: '/checklist'
+      preLoaderRoute: typeof ChecklistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -1475,22 +1523,24 @@ const rootRouteChildren: RootRouteChildren = {
   CalendarRoute: CalendarRoute,
   ChartRoute: ChartRoute,
   ChatRoute: ChatRoute,
+  ChecklistRoute: ChecklistRoute,
   CompoundRoute: CompoundRoute,
   ConfluenceRoute: ConfluenceRoute,
   CorrelationRoute: CorrelationRoute,
-  MonteCarloRoute: MonteCarloRoute,
-  VolatilityRoute: VolatilityRoute,
   CurrencyStrengthRoute: CurrencyStrengthRoute,
   DarkPoolRoute: DarkPoolRoute,
   DerivRoute: DerivRoute,
+  DetectorsRoute: DetectorsRoute,
   DlqRoute: DlqRoute,
   DocsRoute: DocsRoute,
+  DrawdownShieldRoute: DrawdownShieldRoute,
   FibonacciRoute: FibonacciRoute,
   HeatmapRoute: HeatmapRoute,
   JournalRoute: JournalRoute,
   LocalAiRoute: LocalAiRoute,
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
+  MonteCarloRoute: MonteCarloRoute,
   NeuralRoute: NeuralRoute,
   OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
@@ -1502,27 +1552,26 @@ const rootRouteChildren: RootRouteChildren = {
   PlanRoute: PlanRoute,
   PnlRoute: PnlRoute,
   RecoveryRoute: RecoveryRoute,
+  ReplayRoute: ReplayRoute,
   RiskCalculatorRoute: RiskCalculatorRoute,
   ScalingRoute: ScalingRoute,
   ScannerRoute: ScannerRoute,
   ScreenerRoute: ScreenerRoute,
   SentimentRoute: SentimentRoute,
+  SessionOverlapRoute: SessionOverlapRoute,
   SessionsRoute: SessionsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
+  StreakRoute: StreakRoute,
   SystemRoute: SystemRoute,
   TelegramRoute: TelegramRoute,
   ToolsRoute: ToolsRoute,
   UltraRoute: UltraRoute,
   UptimeRoute: UptimeRoute,
+  VolatilityRoute: VolatilityRoute,
   WebhookEventsRoute: WebhookEventsRoute,
   WelcomeRoute: WelcomeRoute,
   ZoRoute: ZoRoute,
-  StreakRoute: StreakRoute,
-  SessionOverlapRoute: SessionOverlapRoute,
-  DrawdownShieldRoute: DrawdownShieldRoute,
-  ChecklistRoute: ChecklistRoute,
-  ReplayRoute: ReplayRoute,
   ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
   ApiPublicHooksExpireSignalsRoute: ApiPublicHooksExpireSignalsRoute,
@@ -1539,13 +1588,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
