@@ -17,7 +17,7 @@ import {
   updateScheduleFn,
   triggerAutomationRunFn,
   loadPresetSchedulesFn,
-} from "@/routes/api/public/v1/automation.functions";
+} from "@/routes/api/public/v1/-automation.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/automation")({

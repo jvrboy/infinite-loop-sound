@@ -15,7 +15,7 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   getOptimizerStateFn,
   applyRecommendationFn,
-} from "@/routes/api/public/v1/optimizer.functions";
+} from "@/routes/api/public/v1/-optimizer.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/optimization")({
