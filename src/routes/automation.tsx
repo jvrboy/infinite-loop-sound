@@ -76,7 +76,7 @@ function AutomationPage() {
   const [loadingPresets, setLoadingPresets] = useState(false);
   const [triggering, setTriggering] = useState(false);
   const [nextRunCountdown, setNextRunCountdown] = useState("--:--");
-  const countdownRef = useRef<ReturnType<typeof setInterval>>();
+  const countdownRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined);
 
   const getState = useServerFn(getAutomationStateFn);
   const toggleSchedule = useServerFn(updateScheduleFn);
@@ -159,7 +159,7 @@ function AutomationPage() {
   const handleLoadPresets = async () => {
     setLoadingPresets(true);
     try {
-      const res = await loadPresets({ data: {} });
+      const res = await loadPresets(undefined);
       toast.success(`Loaded ${res.loaded} preset schedules`);
       await loadData();
     } catch (e: any) {

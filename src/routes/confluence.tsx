@@ -525,7 +525,7 @@ function StrategyGroupCard({
   color: string;
   icon: React.ReactNode;
 }) {
-  const colorMap: Record<string, { pass: string; fail: string; border: string }> = {
+  const colorMap: Record<string, { pass: string; fail: string }> = {
     sky: { pass: "bg-sky-500/10 border-sky-500/30 text-sky-400", fail: "bg-muted/20 border-border text-muted-foreground" },
     violet: { pass: "bg-violet-500/10 border-violet-500/30 text-violet-400", fail: "bg-muted/20 border-border text-muted-foreground" },
     emerald: { pass: "bg-emerald-500/10 border-emerald-500/30 text-emerald-400", fail: "bg-muted/20 border-border text-muted-foreground" },
