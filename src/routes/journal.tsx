@@ -136,7 +136,14 @@ function JournalPage() {
       created_at: new Date().toISOString(),
     };
     if (authed) {
-      const { error } = await supabase.from("trade_journal").insert(row);
+      const { error } = await supabase.from("trade_journal").insert({
+        pair: row.pair,
+        note: row.note,
+        outcome: row.outcome,
+        rr: row.rr,
+        tags: row.tags,
+        created_at: row.created_at,
+      });
       if (error) toast.error(`Save failed: ${error.message}`);
     } else {
       const local: JournalEntry = { ...row, id: crypto.randomUUID(), _local: true };
@@ -164,9 +171,18 @@ function JournalPage() {
   };
   const saveEdit = async () => {
     if (!editingId) return;
-    const patch = editDraft as JournalEntry;
+    const patch = editDraft;
     if (authed) {
-      const { error } = await supabase.from("trade_journal").update(patch).eq("id", editingId);
+      const { error } = await supabase
+        .from("trade_journal")
+        .update({
+          pair: patch.pair,
+          note: patch.note,
+          outcome: patch.outcome,
+          rr: patch.rr,
+          tags: patch.tags,
+        })
+        .eq("id", editingId);
       if (error) toast.error(`Update failed: ${error.message}`);
     } else {
       const next = entries.map(e => e.id === editingId ? { ...e, ...patch } : e);
