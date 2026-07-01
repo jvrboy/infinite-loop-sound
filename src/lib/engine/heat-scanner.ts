@@ -32,7 +32,7 @@ async function inBatches<T, R>(items: T[], batch: number, fn: (t: T) => Promise<
 }
 
 export async function scanHeat(opts: HeatScanOpts = {}): Promise<HeatRow[]> {
-  const symbols = opts.symbols ?? ALL_ASSETS;
+  const symbols = opts.symbols ?? ALL_ASSETS.map((a) => a.symbol);
   const tf = opts.tf ?? "M15";
   const bars = opts.bars ?? 300;
   const concurrency = opts.concurrency ?? 4;

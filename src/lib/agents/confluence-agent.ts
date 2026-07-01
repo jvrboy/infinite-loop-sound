@@ -431,7 +431,7 @@ export function runConfluenceAgent(
       if (sources.size === 3) {
         insights.push("All 3 strategy generations (V1, V2, V3) contributed hits — maximum generational diversity.");
       } else if (sources.size === 2) {
-        const missing = ["V1", "V2", "V3"].find((s) => !sources.has(s));
+        const missing = (["V1", "V2", "V3"] as const).find((s) => !sources.has(s));
         insights.push(`Hits from ${sources.size}/3 generations (${[...sources].join(", ")}). ${missing} strategies did not fire.`);
       } else {
         insights.push(`Hits from only 1 generation (${[...sources][0]}). Cross-generational validation is weak.`);

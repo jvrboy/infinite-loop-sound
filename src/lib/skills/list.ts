@@ -279,7 +279,7 @@ const exec_skills: Skill[] = [
       const a = analyze(symbol, tf, candles, {});
       const v2 = await import("@/lib/engine/strategies-v2");
       const v3 = await import("@/lib/engine/strategies-v3");
-      const v2Hits = v2.evaluateStrategiesV2(candles, [], Date.now() / 1000);
+      const v2Hits = v2.evaluateStrategiesV2(candles, [], [], Date.now() / 1000);
       const v3Hits = v3.evaluateStrategiesV3(candles);
       const total = v2Hits.length + v3Hits.length;
       const buys = v2Hits.filter(h => h.side === "BUY").length + v3Hits.filter((h: any) => h.side === "BUY").length;

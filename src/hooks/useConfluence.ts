@@ -38,7 +38,7 @@ export function useConfluence() {
       }
 
       const v1Hits = v1.evaluateStrategies(candles, []);
-      const v2Hits = v2.evaluateStrategiesV2(candles, [], Date.now() / 1000);
+      const v2Hits = v2.evaluateStrategiesV2(candles, [], [], Date.now() / 1000);
       const allHits = [...v1Hits, ...v2Hits, ...v3Hits];
       const buyCount = allHits.filter((h: any) => h.side === "BUY").length;
       const sellCount = allHits.length - buyCount;

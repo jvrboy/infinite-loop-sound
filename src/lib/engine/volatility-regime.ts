@@ -149,7 +149,7 @@ export function analyzeVolatilityRegime(candles: Candle[], atrLen = 14, bbLen = 
   for (let i = 0; i < bb.upper.length; i++) {
     const upper = bb.upper[i];
     const lower = bb.lower[i];
-    const mid = bb.middle[i];
+    const mid = bb.mid[i];
     if (upper !== null && lower !== null && mid !== null && mid > 0) {
       bbWidths.push((upper - lower) / mid);
     }
@@ -185,7 +185,7 @@ export function analyzeVolatilityRegime(candles: Candle[], atrLen = 14, bbLen = 
     const subBB = bbands(subClose, bbLen);
     const subBBWidths: number[] = [];
     for (let j = 0; j < subBB.upper.length; j++) {
-      const u = subBB.upper[j], l = subBB.lower[j], m = subBB.middle[j];
+      const u = subBB.upper[j], l = subBB.lower[j], m = subBB.mid[j];
       if (u !== null && l !== null && m !== null && m > 0) subBBWidths.push((u - l) / m);
     }
     if (subATR.length > 0 && subBBWidths.length > 0) {

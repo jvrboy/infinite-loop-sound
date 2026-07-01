@@ -653,7 +653,8 @@ export class AutomationEngine {
           // to invoke it gracefully.
           try {
             // Dynamic import to avoid hard dependency
-            const { botRunner } = await import("../bot/runner").catch(() => null);
+            const botModule = await import("../bot/runner").catch(() => null);
+            const botRunner = botModule?.botRunner;
             if (botRunner && typeof botRunner.executeSignal === "function") {
               await botRunner.executeSignal({
                 pair: signal.pair,

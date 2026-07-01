@@ -18,7 +18,8 @@ export const Route = createFileRoute("/volatility")({
 
 // Generate sample candle data for demonstration
 function generateSampleCandles(count = 100) {
-  const candles: { high: number; low: number; close: number; open: number }[] = [];
+  const candles: { epoch: number; high: number; low: number; close: number; open: number }[] = [];
+  const baseEpoch = Math.floor(Date.now() / 1000) - count * 3600;
   let price = 1.1000;
   let volatility = 0.001;
 
@@ -33,7 +34,7 @@ function generateSampleCandles(count = 100) {
     price += change;
     const high = Math.max(open, price) + Math.random() * volatility * 0.5;
     const low = Math.min(open, price) - Math.random() * volatility * 0.5;
-    candles.push({ open, high, low, close: price });
+    candles.push({ epoch: baseEpoch + i * 3600, open, high, low, close: price });
   }
   return candles;
 }
