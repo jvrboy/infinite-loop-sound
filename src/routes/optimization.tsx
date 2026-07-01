@@ -54,6 +54,16 @@ interface PairStat {
   topCause: string;
 }
 
+interface OptimizerState {
+  totalAnalyzed: number;
+  slHitCount: number;
+  winCount: number;
+  topRootCauses: RootCause[];
+  activeRecommendations: Recommendation[];
+  appliedAdjustments: Record<string, unknown>;
+  pairStats: Record<string, PairStat>;
+}
+
 function OptimizationPage() {
   const [state, setState] = useState<any>(null);
   const [loading, setLoading] = useState(true);

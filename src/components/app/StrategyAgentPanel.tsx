@@ -4,7 +4,8 @@ import { Badge } from "../ui/badge";
 import { Progress } from "../ui/progress";
 import { ALL_AGENT_CONFIGS } from "../../lib/agents/orchestrator";
 import { STRATEGY_CATALOG } from "../../lib/engine/strategies-v2";
-import type { OrchestratorState, AgentResult } from "../../lib/agents/types";
+import type { OrchestratorState } from "../../lib/agents/orchestrator";
+import type { AgentResult } from "../../lib/agents/types";
 import type { StrategyRecommendation } from "../../lib/agents/types";
 
 interface Props {
@@ -51,6 +52,16 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
 
   const assessment = newsResult?.output?.assessment as { impactLevel: string; recommendedAction: string; affectedPairs: string[] } | undefined;
 
+  const sOut = (strategyResult?.output ?? {}) as {
+    direction?: string;
+    buyScore?: number;
+    sellScore?: number;
+    hitCount?: number;
+  };
+  const buyScore = sOut.buyScore ?? 0;
+  const sellScore = sOut.sellScore ?? 0;
+  const hitCount = sOut.hitCount ?? 0;
+
   return (
     <div className="space-y-4">
       {/* Agent Status Row */}
@@ -83,20 +94,20 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
                 <div className="flex items-center gap-4">
                   <div className="text-center">
                     <div className={`text-2xl font-bold ${
-                      strategyResult.output.direction === "BUY" ? "text-emerald-400" :
-                      strategyResult.output.direction === "SELL" ? "text-red-400" : "text-muted-foreground"
+                      sOut.direction === "BUY" ? "text-emerald-400" :
+                      sOut.direction === "SELL" ? "text-red-400" : "text-muted-foreground"
                     }`}>
-                      {strategyResult.output.direction ?? "FLAT"}
+                      {sOut.direction ?? "FLAT"}
                     </div>
                     <div className="text-[10px] text-muted-foreground">Direction</div>
                   </div>
                   <div className="flex-1 space-y-2">
                     <ConfidenceBar
-                      value={strategyResult.output.buyScore / (strategyResult.output.buyScore + strategyResult.output.sellScore + 1)}
+                      value={buyScore / (buyScore + sellScore + 1)}
                       label="BUY Score"
                     />
                     <ConfidenceBar
-                      value={strategyResult.output.sellScore / (strategyResult.output.buyScore + strategyResult.output.sellScore + 1)}
+                      value={sellScore / (buyScore + sellScore + 1)}
                       label="SELL Score"
                     />
                   </div>
@@ -105,9 +116,9 @@ export function StrategyAgentPanel({ state, isRunning }: Props) {
                     <div className="text-[10px] text-muted-foreground">Active Hits</div>
                   </div>
                 </div>
-                {strategyResult.output.hitCount > 0 && (
+                {hitCount > 0 && (
                   <div className="text-xs text-muted-foreground">
-                    {strategyResult.output.hitCount} strategies analyzed, {recommendations.length} recommendations
+                    {hitCount} strategies analyzed, {recommendations.length} recommendations
                   </div>
                 )}
               </>

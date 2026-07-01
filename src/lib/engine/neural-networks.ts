@@ -1098,7 +1098,7 @@ export class MultiAssetNeuralNetwork {
       this.learningRate = (data.learningRate as number) ?? 0.004;
       this.lastTrained = (data.lastTrained as number) ?? 0;
       this.trainingHistory = (data.trainingHistory as Array<{ predicted: number; actual: number }>) ?? [];
-      this.correlationAccum = (data.correlationAccum as typeof this.correlationAccum) ?? this.correlationAccum;
+      this.correlationAccum = (data.correlationAccum as Record<string, Record<string, { xy: number; xx: number; yy: number; count: number }>>) ?? this.correlationAccum;
     } catch {
       // Corrupt data — keep defaults
     }

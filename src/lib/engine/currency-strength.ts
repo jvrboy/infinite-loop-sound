@@ -4,7 +4,7 @@
 // available pairs that contain it. EUR strength = mean of EUR vs everything
 // else, where each pair's normalised score is its % change over the window.
 
-import type { Candle } from "../indicators";
+import type { Candle } from "./indicators";
 
 export interface CurrencyStrength {
   currency: string;

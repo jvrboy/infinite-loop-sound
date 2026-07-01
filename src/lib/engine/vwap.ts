@@ -4,7 +4,7 @@
 // from a user-chosen index (e.g. a swing low or news event) and accumulates
 // from there — useful for institutional reference levels.
 
-import type { Candle } from "../indicators";
+import type { Candle } from "./indicators";
 
 export interface VWAPPoint {
   vwap: number;

@@ -93,7 +93,7 @@ export const getOptimizerStateFn = createServerFn({ method: "GET" })
         .slice(0, 10)
         .map(([category, data]) => ({ category, count: data.count, severity: data.severity })),
       activeRecommendations: recs ?? [],
-      appliedAdjustments: (adjustments ?? []).reduce<Record<string, unknown>>((acc, a: any) => {
+      appliedAdjustments: (adjustments ?? []).reduce<Record<string, any>>((acc, a: any) => {
         acc[a.key] = a.value;
         return acc;
       }, {}),
