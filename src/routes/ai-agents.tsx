@@ -38,24 +38,24 @@ function AIAgentsPage() {
 
   return (
     <AppShell>
-      <div className=\"p-6 max-w-6xl mx-auto space-y-6\">
-        <h1 className=\"text-3xl font-bold flex items-center gap-2\">
-          <Brain className=\"w-8 h-8 text-primary\" /> AI Multi-Agent System
+      <div className="p-6 max-w-6xl mx-auto space-y-6">
+        <h1 className="text-3xl font-bold flex items-center gap-2">
+          <Brain className="w-8 h-8 text-primary" /> AI Multi-Agent System
         </h1>
 
-        <div className=\"flex gap-2\">
-          <Button onClick={handleRunAllAgents} disabled={running} className=\"gap-2\">
-            <Activity className=\"w-4 h-4\" /> Run All Agents
+        <div className="flex gap-2">
+          <Button onClick={handleRunAllAgents} disabled={running} className="gap-2">
+            <Activity className="w-4 h-4" /> Run All Agents
           </Button>
         </div>
 
         {/* Active Agents */}
-        <div className=\"grid grid-cols-2 md:grid-cols-4 gap-3\">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {agents.map(agent => (
-            <div key={agent.id} className=\"rounded-lg border border-border bg-card p-4 space-y-2\">
-              <p className=\"text-sm font-bold\">{agent.name}</p>
-              <p className=\"text-[10px] text-muted-foreground\">{agent.type}</p>
-              <div className=\"flex gap-1 pt-2\">
+            <div key={agent.id} className="rounded-lg border border-border bg-card p-4 space-y-2">
+              <p className="text-sm font-bold">{agent.name}</p>
+              <p className="text-[10px] text-muted-foreground">{agent.type}</p>
+              <div className="flex gap-1 pt-2">
                 <span className={`px-1.5 py-0.5 rounded text-[10px] ${agent.enabled ? 'bg-bull/20 text-bull' : 'bg-muted text-muted-foreground'}`}>
                   {agent.enabled ? 'Active' : 'Inactive'}
                 </span>
@@ -63,9 +63,9 @@ function AIAgentsPage() {
               <Button
                 onClick={() => handleRunAgent(agent.id)}
                 disabled={running}
-                variant=\"outline\"
-                size=\"sm\"
-                className=\"w-full mt-2\"
+                variant="outline"
+                size="sm"
+                className="w-full mt-2"
               >
                 Run
               </Button>
@@ -74,24 +74,41 @@ function AIAgentsPage() {
         </div>
 
         {/* Recent Analyses */}
-        <div className=\"rounded-lg border border-border bg-card p-4\">
-          <h2 className=\"text-lg font-bold mb-4 flex items-center gap-2\">
-            <TrendingUp className=\"w-5 h-5\" /> Recent Agent Analyses
+        <div className="rounded-lg border border-border bg-card p-4">
+          <h2 className="text-lg font-bold mb-4 flex items-center gap-2">
+            <TrendingUp className="w-5 h-5" /> Recent Agent Analyses
           </h2>
-          <div className=\"space-y-3 max-h-96 overflow-auto\">
+          <div className="space-y-3 max-h-96 overflow-auto">
             {agentAnalyses.length === 0 ? (
-              <p className=\"text-sm text-muted-foreground\">Run agents to see analyses</p>
+              <p className="text-sm text-muted-foreground">Run agents to see analyses</p>
             ) : (
               agentAnalyses.map((analysis, idx) => (
-                <div key={idx} className=\"border-l-2 border-primary pl-3 py-2 space-y-1\">
-                  <div className=\"flex items-start justify-between\">
-                    <p className=\"text-sm font-bold\">{analysis.agentId}</p>
-                    <span className=\"text-[10px] text-muted-foreground\">Confidence: {(analysis.confidence * 100).toFixed(0)}%</span>
+                <div key={idx} className="border-l-2 border-primary pl-3 py-2 space-y-1">
+                  <div className="flex items-start justify-between">
+                    <p className="text-sm font-bold">{analysis.agentId}</p>
+                    <span className="text-[10px] text-muted-foreground">Confidence: {(analysis.confidence * 100).toFixed(0)}%</span>
                   </div>
-                  <div className=\"space-y-0.5\">
+                  <div className="space-y-0.5">
                     {analysis.insights.map((insight: string, i: number) => (
-                      <p key={i} className=\"text-xs text-muted-foreground flex items-start gap-1\">
-                        <AlertCircle className=\"w-3 h-3 mt-0.5 flex-shrink-0\" /> {insight}
+                      <p key={i} className="text-xs text-muted-foreground flex items-start gap-1">
+                        <AlertCircle className="w-3 h-3 mt-0.5 flex-shrink-0" /> {insight}
                       </p>
                     ))}
-                  </div>\n                  {analysis.recommendations.length > 0 && (\n                    <div className=\"mt-2 space-y-0.5\">\n                      <p className=\"text-xs font-medium\">Recommendations:</p>\n                      {analysis.recommendations.map((rec: string, i: number) => (\n                        <p key={i} className=\"text-xs text-primary\">• {rec}</p>\n                      ))}\n                    </div>\n                  )}\n                </div>\n              ))\n            )}\n          </div>\n        </div>\n      </div>\n    </AppShell>\n  );\n}
+                  </div>
+                  {analysis.recommendations.length > 0 && (
+                    <div className="mt-2 space-y-0.5">
+                      <p className="text-xs font-medium">Recommendations:</p>
+                      {analysis.recommendations.map((rec: string, i: number) => (
+                        <p key={i} className="text-xs text-primary">• {rec}</p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </AppShell>
+  );
+}
