@@ -16,9 +16,19 @@ import {
   TrendingUp,
   Wallet,
   Zap,
+  AlignJustify,
+  ArrowUpFromLine,
+  Dice5,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";
+import {
+  classicPivots,
+  fibonacciPivots,
+  camarillaPivots,
+  type PivotLevels,
+} from "@/lib/engine/pivots";
+import { riskOfRuin, type RiskOfRuinResult } from "@/lib/engine/risk-of-ruin";
 
 export const Route = createFileRoute("/tools")({
   head: () => ({
@@ -73,6 +83,14 @@ function ToolsPage() {
   const [toCurrency, setToCurrency] = useState("USD");
   const [convertAmount, setConvertAmount] = useState(1000);
   const [clock, setClock] = useState<Date | null>(null);
+  const [pivotKind, setPivotKind] = useState<"classic" | "fibonacci" | "camarilla">("classic");
+  const [pivotH, setPivotH] = useState(1.085);
+  const [pivotL, setPivotL] = useState(1.072);
+  const [pivotC, setPivotC] = useState(1.079);
+  const [rorWin, setRorWin] = useState(55);
+  const [rorPayoff, setRorPayoff] = useState(1.5);
+  const [rorRisk, setRorRisk] = useState(1);
+  const [rorUnits, setRorUnits] = useState(100);
   const unsubRef = useRef<(() => void)[]>([]);
 
   useEffect(() => {
@@ -146,6 +164,21 @@ function ToolsPage() {
   const convertedAmount = conversionRate ? convertAmount * conversionRate : null;
   const strength = useMemo(() => buildCurrencyStrength(quotes), [quotes]);
   const sessions = useMemo(() => buildSessions(clock), [clock]);
+  const pivotResult = useMemo<PivotLevels | null>(() => {
+    if (!pivotH || !pivotL || !pivotC) return null;
+    if (pivotKind === "fibonacci") return fibonacciPivots(pivotH, pivotL, pivotC);
+    if (pivotKind === "camarilla") return camarillaPivots(pivotH, pivotL, pivotC);
+    return classicPivots(pivotH, pivotL, pivotC);
+  }, [pivotH, pivotL, pivotC, pivotKind]);
+  const rorResult = useMemo<RiskOfRuinResult | null>(() => {
+    if (!rorWin || !rorPayoff || !rorRisk) return null;
+    return riskOfRuin({
+      winRate: rorWin / 100,
+      payoffRatio: rorPayoff,
+      riskPerTradePct: rorRisk,
+      bankrollUnits: rorUnits,
+    });
+  }, [rorWin, rorPayoff, rorRisk, rorUnits]);
   const volatilityRows = WATCHLIST.map((asset) => ({
     asset,
     quote: quotes[asset.symbol],
@@ -476,6 +509,115 @@ function ToolsPage() {
             </div>
           </Panel>
         </section>
+
+        <section className="grid gap-4 md:grid-cols-2">
+          <Panel title="Pivot Points" icon={ArrowUpFromLine}>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <SelectField
+                  label="Method"
+                  value={pivotKind}
+                  onChange={(v) => setPivotKind(v as "classic" | "fibonacci" | "camarilla")}
+                  options={["classic", "fibonacci", "camarilla"]}
+                />
+                <NumberField
+                  label="Prev High"
+                  value={pivotH}
+                  onChange={setPivotH}
+                  step={0.0001}
+                />
+                <NumberField
+                  label="Prev Low"
+                  value={pivotL}
+                  onChange={setPivotL}
+                  step={0.0001}
+                />
+                <NumberField
+                  label="Prev Close"
+                  value={pivotC}
+                  onChange={setPivotC}
+                  step={0.0001}
+                />
+              </div>
+              {pivotResult && (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <PivotRow label="R3" value={pivotResult.r3} tone="bear" />
+                  <PivotRow label="R2" value={pivotResult.r2} tone="bear" />
+                  <PivotRow label="R1" value={pivotResult.r1} tone="bear" />
+                  <PivotRow label="PP" value={pivotResult.pp} tone="neutral" />
+                  <PivotRow label="S1" value={pivotResult.s1} tone="bull" />
+                  <PivotRow label="S2" value={pivotResult.s2} tone="bull" />
+                  <PivotRow label="S3" value={pivotResult.s3} tone="bull" />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {pivotResult?.kind.toUpperCase()} pivots from the previous session's H/L/C.
+                Resistance above PP, support below.
+              </p>
+            </div>
+          </Panel>
+
+          <Panel title="Risk of Ruin" icon={Dice5}>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-3">
+                <NumberField
+                  label="Win Rate %"
+                  value={rorWin}
+                  onChange={setRorWin}
+                  suffix="%"
+                  step={1}
+                />
+                <NumberField
+                  label="Payoff Ratio"
+                  value={rorPayoff}
+                  onChange={setRorPayoff}
+                  step={0.1}
+                />
+                <NumberField
+                  label="Risk / Trade %"
+                  value={rorRisk}
+                  onChange={setRorRisk}
+                  suffix="%"
+                  step={0.1}
+                />
+                <NumberField
+                  label="Bankroll Units"
+                  value={rorUnits}
+                  onChange={setRorUnits}
+                  step={10}
+                />
+              </div>
+              {rorResult && (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  <Result
+                    label="Risk of Ruin"
+                    value={`${(rorResult.ror * 100).toFixed(2)}%`}
+                    tone={rorResult.ror < 0.01 ? "bull" : rorResult.ror > 0.5 ? "bear" : "neutral"}
+                  />
+                  <Result
+                    label="Edge (R/trade)"
+                    value={rorResult.edge.toFixed(3)}
+                    tone={rorResult.isProfitable ? "bull" : "bear"}
+                  />
+                  <Result
+                    label="Kelly Fraction"
+                    value={`${(rorResult.kellyFraction * 100).toFixed(1)}%`}
+                  />
+                  <Result
+                    label="Half-Kelly Risk"
+                    value={`${rorResult.recommendedRiskPct.toFixed(2)}%`}
+                    tone="bull"
+                  />
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                {rorResult?.isProfitable
+                  ? "System has a positive edge. Half-Kelly is the recommended max risk per trade."
+                  : "System is NOT profitable at these inputs — edge must be positive for ruin probability to be meaningful."}
+              </p>
+            </div>
+          </Panel>
+        </section>
       </main>
     </AppShell>
   );
@@ -619,6 +761,27 @@ function Result({
         className={`mt-1 text-lg font-semibold tabular ${tone === "bull" ? "text-bull" : tone === "bear" ? "text-bear" : "text-foreground"}`}
       >
         {value}
+      </div>
+    </div>
+  );
+}
+
+function PivotRow({
+  label,
+  value,
+  tone = "neutral",
+}: {
+  label: string;
+  value: number;
+  tone?: "bull" | "bear" | "neutral";
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-background p-2.5">
+      <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</div>
+      <div
+        className={`mt-0.5 text-sm font-semibold tabular ${tone === "bull" ? "text-bull" : tone === "bear" ? "text-bear" : "text-foreground"}`}
+      >
+        {value.toFixed(5)}
       </div>
     </div>
   );

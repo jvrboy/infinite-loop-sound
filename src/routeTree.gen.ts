@@ -46,6 +46,7 @@ import { Route as OptimizationRouteImport } from './routes/optimization'
 import { Route as NeuralRouteImport } from './routes/neural'
 import { Route as MtfRouteImport } from './routes/mtf'
 import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
+import { Route as McpServersRouteImport } from './routes/mcp-servers'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
 import { Route as LocalAiRouteImport } from './routes/local-ai'
@@ -274,6 +275,11 @@ const MtfRoute = MtfRouteImport.update({
 const MonteCarloRoute = MonteCarloRouteImport.update({
   id: '/monte-carlo',
   path: '/monte-carlo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const McpServersRoute = McpServersRouteImport.update({
+  id: '/mcp-servers',
+  path: '/mcp-servers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketProfileRoute = MarketProfileRouteImport.update({
@@ -535,6 +541,7 @@ export interface FileRoutesByFullPath {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/mcp-servers': typeof McpServersRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
@@ -618,6 +625,7 @@ export interface FileRoutesByTo {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/mcp-servers': typeof McpServersRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
@@ -702,6 +710,7 @@ export interface FileRoutesById {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
+  '/mcp-servers': typeof McpServersRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
@@ -787,6 +796,7 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/mcp-servers'
     | '/monte-carlo'
     | '/mtf'
     | '/neural'
@@ -870,6 +880,7 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/mcp-servers'
     | '/monte-carlo'
     | '/mtf'
     | '/neural'
@@ -953,6 +964,7 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-profile'
+    | '/mcp-servers'
     | '/monte-carlo'
     | '/mtf'
     | '/neural'
@@ -1037,6 +1049,7 @@ export interface RootRouteChildren {
   LocalAiRoute: typeof LocalAiRoute
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
+  McpServersRoute: typeof McpServersRoute
   MonteCarloRoute: typeof MonteCarloRoute
   MtfRoute: typeof MtfRoute
   NeuralRoute: typeof NeuralRoute
@@ -1347,6 +1360,13 @@ declare module '@tanstack/react-router' {
       path: '/monte-carlo'
       fullPath: '/monte-carlo'
       preLoaderRoute: typeof MonteCarloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mcp-servers': {
+      id: '/mcp-servers'
+      path: '/mcp-servers'
+      fullPath: '/mcp-servers'
+      preLoaderRoute: typeof McpServersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market-profile': {
@@ -1703,6 +1723,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocalAiRoute: LocalAiRoute,
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
+  McpServersRoute: McpServersRoute,
   MonteCarloRoute: MonteCarloRoute,
   MtfRoute: MtfRoute,
   NeuralRoute: NeuralRoute,
@@ -1756,3 +1777,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
