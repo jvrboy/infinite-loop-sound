@@ -828,6 +828,36 @@ export class SignalOptimizer {
     }
   }
 
+  /**
+   * Adjust confluence weights based on signal outcome
+   */
+  public adjustWeights(signal: AnalyzedSignal) {
+    const learningRate = 0.02;
+    const decayRate = 0.001;
+
+    if (!this.state.confluenceWeights) {
+      this.state.confluenceWeights = {};
+    }
+
+    signal.confluence.forEach(c => {
+      if (c.passed) {
+        const currentWeight = this.state.confluenceWeights[c.label] ?? 1.0;
+        if (signal.outcome === "WIN") {
+          this.state.confluenceWeights[c.label] = Math.min(2.0, currentWeight + learningRate);
+        } else if (signal.outcome === "SL_HIT") {
+          this.state.confluenceWeights[c.label] = Math.max(0.1, currentWeight - learningRate * 1.5);
+        }
+      }
+    });
+
+    // Apply periodic decay towards 1.0
+    Object.keys(this.state.confluenceWeights).forEach(key => {
+      const w = this.state.confluenceWeights[key];
+      if (w > 1.0) this.state.confluenceWeights[key] = Math.max(1.0, w - decayRate);
+      else if (w < 1.0) this.state.confluenceWeights[key] = Math.min(1.0, w + decayRate);
+    });
+  }
+
   // ────────────────────────────────────────────────────────────────
   //  Get adjusted parameters for a pair/timeframe
   // ────────────────────────────────────────────────────────────────

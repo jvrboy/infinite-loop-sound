@@ -245,6 +245,293 @@ export const adx = (candles: Candle[], len = 14) => {
   return { adx: adxOut, plusDI, minusDI };
 };
 
+// 1. Keltner Channels: mid (EMA), upper/lower based on ATR.
+export const keltner = (candles: Candle[], len = 20, atrLen = 10, mult = 2) => {
+  const mid = ema(candles.map(c => c.close), len);
+  const a = atr(candles, atrLen);
+  const upper: (number | null)[] = new Array(candles.length).fill(null);
+  const lower: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = 0; i < candles.length; i++) {
+    if (mid[i] != null && a[i] != null) {
+      upper[i] = (mid[i] as number) + mult * (a[i] as number);
+      lower[i] = (mid[i] as number) - mult * (a[i] as number);
+    }
+  }
+  return { mid, upper, lower };
+};
+
+// 2. Donchian Channels: highest high and lowest low of the last n periods.
+export const donchian = (candles: Candle[], len = 20) => {
+  const upper: (number | null)[] = new Array(candles.length).fill(null);
+  const lower: (number | null)[] = new Array(candles.length).fill(null);
+  const mid: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = len - 1; i < candles.length; i++) {
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - len + 1; j <= i; j++) {
+      if (candles[j].high > hh) hh = candles[j].high;
+      if (candles[j].low < ll) ll = candles[j].low;
+    }
+    upper[i] = hh;
+    lower[i] = ll;
+    mid[i] = (hh + ll) / 2;
+  }
+  return { upper, lower, mid };
+};
+
+// 3. Awesome Oscillator: SMA(Median Price, 5) - SMA(Median Price, 34).
+export const awesomeOscillator = (candles: Candle[]) => {
+  const median = candles.map(c => (c.high + c.low) / 2);
+  const sma5 = sma(median, 5);
+  const sma34 = sma(median, 34);
+  return candles.map((_, i) => (sma5[i] != null && sma34[i] != null ? (sma5[i] as number) - (sma34[i] as number) : null));
+};
+
+// 4. Rate of Change (ROC): ((current - prev) / prev) * 100.
+export const roc = (src: number[], len = 12) => {
+  const out: (number | null)[] = new Array(src.length).fill(null);
+  for (let i = len; i < src.length; i++) {
+    out[i] = ((src[i] - src[i - len]) / (src[i - len] || 1)) * 100;
+  }
+  return out;
+};
+
+// 5. Commodity Channel Index (CCI): (Typical Price - SMA(TP)) / (0.015 * Mean Deviation).
+export const cci = (candles: Candle[], len = 20) => {
+  const tp = candles.map(c => (c.high + c.low + c.close) / 3);
+  const s = sma(tp, len);
+  const out: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = len - 1; i < candles.length; i++) {
+    let md = 0;
+    const avg = s[i] as number;
+    for (let j = i - len + 1; j <= i; j++) md += Math.abs(tp[j] - avg);
+    md /= len;
+    out[i] = (tp[i] - avg) / (0.015 * md || 0.001);
+  }
+  return out;
+};
+
+// 6. Williams %R: (Highest High - Close) / (Highest High - Lowest Low) * -100.
+export const williamsR = (candles: Candle[], len = 14) => {
+  const out: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = len - 1; i < candles.length; i++) {
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - len + 1; j <= i; j++) {
+      if (candles[j].high > hh) hh = candles[j].high;
+      if (candles[j].low < ll) ll = candles[j].low;
+    }
+    out[i] = ((hh - candles[i].close) / (hh - ll || 1)) * -100;
+  }
+  return out;
+};
+
+// 7. Money Flow Index (MFI): RSI-like indicator using Typical Price and Volume.
+export const mfi = (candles: Candle[], len = 14) => {
+  const tp = candles.map(c => (c.high + c.low + c.close) / 3);
+  const mf = tp.map((p, i) => p * (candles[i].volume ?? 1));
+  const out: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = len; i < candles.length; i++) {
+    let pos = 0, neg = 0;
+    for (let j = i - len + 1; j <= i; j++) {
+      if (tp[j] > tp[j - 1]) pos += mf[j];
+      else if (tp[j] < tp[j - 1]) neg += mf[j];
+    }
+    const mfr = pos / (neg || 1);
+    out[i] = 100 - (100 / (1 + mfr));
+  }
+  return out;
+};
+
+// 8. Supertrend: Based on ATR and Median Price.
+export const supertrend = (candles: Candle[], len = 10, mult = 3) => {
+  const a = atr(candles, len);
+  const upper: (number | null)[] = new Array(candles.length).fill(null);
+  const lower: (number | null)[] = new Array(candles.length).fill(null);
+  const trend: (number | null)[] = new Array(candles.length).fill(null); // 1 for up, -1 for down
+  
+  let currTrend = 1;
+  for (let i = 1; i < candles.length; i++) {
+    if (a[i] == null) continue;
+    const mid = (candles[i].high + candles[i].low) / 2;
+    const basicUpper = mid + mult * (a[i] as number);
+    const basicLower = mid - mult * (a[i] as number);
+    
+    upper[i] = (basicUpper < (upper[i-1] ?? Infinity) || candles[i-1].close > (upper[i-1] ?? Infinity)) ? basicUpper : upper[i-1];
+    lower[i] = (basicLower > (lower[i-1] ?? -Infinity) || candles[i-1].close < (lower[i-1] ?? -Infinity)) ? basicLower : lower[i-1];
+    
+    if (currTrend === 1 && candles[i].close < (lower[i] as number)) currTrend = -1;
+    else if (currTrend === -1 && candles[i].close > (upper[i] as number)) currTrend = 1;
+    trend[i] = currTrend;
+  }
+  return { upper, lower, trend };
+};
+
+// 9. Vortex Indicator: Measures trend strength and direction.
+export const vortex = (candles: Candle[], len = 14) => {
+  const plusVM: number[] = [0];
+  const minusVM: number[] = [0];
+  const tr: number[] = [0];
+  for (let i = 1; i < candles.length; i++) {
+    plusVM.push(Math.abs(candles[i].high - candles[i - 1].low));
+    minusVM.push(Math.abs(candles[i].low - candles[i - 1].high));
+    const h = candles[i].high, l = candles[i].low, pc = candles[i - 1].close;
+    tr.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
+  }
+  const outPlus: (number | null)[] = new Array(candles.length).fill(null);
+  const outMinus: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = len; i < candles.length; i++) {
+    const sumPlus = plusVM.slice(i - len + 1, i + 1).reduce((a, b) => a + b);
+    const sumMinus = minusVM.slice(i - len + 1, i + 1).reduce((a, b) => a + b);
+    const sumTR = tr.slice(i - len + 1, i + 1).reduce((a, b) => a + b);
+    outPlus[i] = sumPlus / (sumTR || 1);
+    outMinus[i] = sumMinus / (sumTR || 1);
+  }
+  return { plus: outPlus, minus: outMinus };
+};
+
+// 10. Ultimate Oscillator: Weighted average of three different timeframes.
+export const ultimateOscillator = (candles: Candle[], s = 7, m = 14, l = 28) => {
+  const bp: number[] = [0];
+  const tr: number[] = [0];
+  for (let i = 1; i < candles.length; i++) {
+    const minLC = Math.min(candles[i].low, candles[i - 1].close);
+    const maxHC = Math.max(candles[i].high, candles[i - 1].close);
+    bp.push(candles[i].close - minLC);
+    tr.push(maxHC - minLC);
+  }
+  const out: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = l; i < candles.length; i++) {
+    const avg = (period: number) => {
+      const sBP = bp.slice(i - period + 1, i + 1).reduce((a, b) => a + b);
+      const sTR = tr.slice(i - period + 1, i + 1).reduce((a, b) => a + b);
+      return sBP / (sTR || 1);
+    };
+    const a1 = avg(s), a2 = avg(m), a3 = avg(l);
+    out[i] = ((4 * a1 + 2 * a2 + a3) / 7) * 100;
+  }
+  return out;
+};
+
+// 11. Fisher Transform: Normalises price to a Gaussian distribution.
+export const fisherTransform = (candles: Candle[], len = 9) => {
+  const fisher: (number | null)[] = new Array(candles.length).fill(null);
+  const trigger: (number | null)[] = new Array(candles.length).fill(null);
+  let val = 0;
+  for (let i = len - 1; i < candles.length; i++) {
+    let hh = -Infinity, ll = Infinity;
+    for (let j = i - len + 1; j <= i; j++) {
+      const mid = (candles[j].high + candles[j].low) / 2;
+      if (mid > hh) hh = mid;
+      if (mid < ll) ll = mid;
+    }
+    const midCurr = (candles[i].high + candles[i].low) / 2;
+    let x = (hh === ll) ? 0 : 0.66 * ((midCurr - ll) / (hh - ll) - 0.5) + 0.67 * val;
+    if (x > 0.99) x = 0.999;
+    if (x < -0.99) x = -0.999;
+    val = x;
+    fisher[i] = 0.5 * Math.log((1 + x) / (1 - x)) + 0.5 * (fisher[i - 1] ?? 0);
+    trigger[i] = fisher[i - 1];
+  }
+  return { fisher, trigger };
+};
+
+// 12. Chaikin Volatility: ROC of the EMA of (High - Low).
+export const chaikinVolatility = (candles: Candle[], emaLen = 10, rocLen = 10) => {
+  const hl = candles.map(c => c.high - c.low);
+  const e = ema(hl, emaLen);
+  const valid = e.map(v => v ?? 0);
+  return roc(valid, rocLen);
+};
+
+// 13. Klinger Oscillator: Volume-based indicator for trend and reversal.
+export const klingerOscillator = (candles: Candle[], fast = 34, slow = 55, sig = 13) => {
+  const dm = candles.map(c => c.high - c.low);
+  const trend = candles.map((c, i) => (i === 0 ? 0 : (c.high + c.low + c.close) / 3 > (candles[i - 1].high + candles[i - 1].low + candles[i - 1].close) / 3 ? 1 : -1));
+  const sv = candles.map((c, i) => (candles[i].volume ?? 1) * trend[i] * 100);
+  const ef = ema(sv, fast);
+  const es = ema(sv, slow);
+  const klinger = ef.map((v, i) => (v != null && es[i] != null ? (v as number) - (es[i] as number) : null));
+  const signal = ema(klinger.map(v => v ?? 0), sig);
+  return { klinger, signal };
+};
+
+// 14. TRIX: ROC of a triple-smoothed EMA.
+export const trix = (src: number[], len = 15) => {
+  const e1 = ema(src, len);
+  const e2 = ema(e1.map(v => v ?? 0), len);
+  const e3 = ema(e2.map(v => v ?? 0), len);
+  return roc(e3.map(v => v ?? 0), 1);
+};
+
+// 15. Coppock Curve: Long-term momentum indicator.
+export const coppockCurve = (src: number[]) => {
+  const roc14 = roc(src, 14).map(v => v ?? 0);
+  const roc11 = roc(src, 11).map(v => v ?? 0);
+  const sum = roc14.map((v, i) => v + roc11[i]);
+  return wma(sum, 10);
+};
+
+// 16. Weighted Moving Average (WMA)
+export const wma = (src: number[], len: number): (number | null)[] => {
+  const out: (number | null)[] = new Array(src.length).fill(null);
+  const weightSum = (len * (len + 1)) / 2;
+  for (let i = len - 1; i < src.length; i++) {
+    let sum = 0;
+    for (let j = 0; j < len; j++) sum += src[i - j] * (len - j);
+    out[i] = sum / weightSum;
+  }
+  return out;
+};
+
+// 17. Hull Moving Average (HMA): Faster and smoother than EMA.
+export const hma = (src: number[], len: number): (number | null)[] => {
+  const halfLen = Math.floor(len / 2);
+  const sqrtLen = Math.floor(Math.sqrt(len));
+  const w1 = wma(src, halfLen);
+  const w2 = wma(src, len);
+  const diff = w1.map((v, i) => (v != null && w2[i] != null ? 2 * (v as number) - (w2[i] as number) : 0));
+  return wma(diff, sqrtLen);
+};
+
+// 18. Mass Index: Identifies trend reversals based on range expansion.
+export const massIndex = (candles: Candle[], len = 9, sumLen = 25) => {
+  const hl = candles.map(c => c.high - c.low);
+  const e1 = ema(hl, len);
+  const e2 = ema(e1.map(v => v ?? 0), len);
+  const ratio = e1.map((v, i) => (v != null && e2[i] != null && (e2[i] as number) !== 0 ? (v as number) / (e2[i] as number) : 0));
+  const out: (number | null)[] = new Array(candles.length).fill(null);
+  for (let i = sumLen - 1; i < candles.length; i++) {
+    out[i] = ratio.slice(i - sumLen + 1, i + 1).reduce((a, b) => a + b);
+  }
+  return out;
+};
+
+// 19. Donchian Width: Measure of volatility using Donchian Channels.
+export const donchianWidth = (candles: Candle[], len = 20) => {
+  const { upper, lower, mid } = donchian(candles, len);
+  return upper.map((u, i) => (u != null && lower[i] != null && mid[i] != null ? (u - lower[i]!) / mid[i]! : null));
+};
+
+// 20. Elder Ray Index: Bull and Bear Power.
+export const elderRay = (candles: Candle[], len = 13) => {
+  const e = ema(candles.map(c => c.close), len);
+  const bullPower = candles.map((c, i) => (e[i] != null ? c.high - (e[i] as number) : null));
+  const bearPower = candles.map((c, i) => (e[i] != null ? c.low - (e[i] as number) : null));
+  return { bullPower, bearPower };
+};
+
+// 21. True Strength Index (TSI): Double-smoothed ROC.
+export const tsi = (src: number[], r = 25, s = 13) => {
+  const diff = src.map((v, i) => (i === 0 ? 0 : v - src[i - 1]));
+  const absDiff = diff.map(Math.abs);
+  const doubleSmooth = (arr: number[]) => {
+    const e1 = ema(arr, r);
+    return ema(e1.map(v => v ?? 0), s);
+  };
+  const pc = doubleSmooth(diff);
+  const apc = doubleSmooth(absDiff);
+  return pc.map((v, i) => (v != null && apc[i] != null && (apc[i] as number) !== 0 ? 100 * (v as number) / (apc[i] as number) : null));
+};
+
 // Bullish/bearish engulfing on the last closed candle vs the prior candle.
 export const engulfing = (candles: Candle[]): "bull" | "bear" | null => {
   if (candles.length < 2) return null;

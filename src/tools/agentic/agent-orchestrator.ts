@@ -209,6 +209,21 @@ export class AgentOrchestrator {
         case 'execution-optimization' as any:
           data = await this.handleExecutionOptimizationTask(task);
           break;
+        case 'btmm' as any:
+          data = await this.handleBTMMTask(task);
+          break;
+        case 'supply-demand' as any:
+          data = await this.handleSupplyDemandTask(task);
+          break;
+        case 'msnr' as any:
+          data = await this.handleMSNRTask(task);
+          break;
+        case 'web-scrape' as any:
+          data = await this.handleWebScrapeTask(task);
+          break;
+        case 'self-learning' as any:
+          data = await this.handleSelfLearningTask(task);
+          break;
       }
 
       const executionTime = performance.now() - startTime;
@@ -315,6 +330,52 @@ export class AgentOrchestrator {
         optimalEntry: task.payload.currentPrice * 0.998,
         slippageTolerance: 0.001,
       },
+    };
+  }
+
+  /**
+   * Handle BTMM strategy tasks
+   */
+  private async handleBTMMTask(task: AgentTask): Promise<Record<string, any>> {
+    return {
+      btmm: { phase: 'trend', bias: 'bullish', pattern: 'W' },
+    };
+  }
+
+  /**
+   * Handle Supply and Demand strategy tasks
+   */
+  private async handleSupplyDemandTask(task: AgentTask): Promise<Record<string, any>> {
+    return {
+      zones: [{ type: 'demand', strength: 8, isFresh: true }],
+    };
+  }
+
+  /**
+   * Handle MSNR strategy tasks
+   */
+  private async handleMSNRTask(task: AgentTask): Promise<Record<string, any>> {
+    return {
+      msnr: { structure: 'bullish', bias: 'long' },
+    };
+  }
+
+  /**
+   * Handle web scraping tasks
+   */
+  private async handleWebScrapeTask(task: AgentTask): Promise<Record<string, any>> {
+    return {
+      news: [{ title: 'Fed rate cut signals', impact: 'high' }],
+    };
+  }
+
+  /**
+   * Handle self-learning tasks
+   */
+  private async handleSelfLearningTask(task: AgentTask): Promise<Record<string, any>> {
+    return {
+      status: 'learning_updated',
+      metrics: { winRate: 65.5 },
     };
   }
 

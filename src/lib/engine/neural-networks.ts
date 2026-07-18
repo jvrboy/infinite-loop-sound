@@ -135,30 +135,40 @@ function saveJSON(key: string, data: unknown): void {
 
 /** 24 feature names for the LSTM network input */
 const LSTM_FEATURE_NAMES: string[] = [
-  "return_1", // 0  — 1-bar return
-  "return_3", // 1  — 3-bar cumulative return
-  "return_5", // 2  — 5-bar cumulative return
-  "return_10", // 3  — 10-bar cumulative return
-  "return_20", // 4  — 20-bar cumulative return
-  "rsi_14", // 5  — RSI(14) normalised to 0-1
-  "momentum", // 6  — (close - close[10]) / close[10]
-  "volatility", // 7  — rolling std of returns normalised
-  "atr_ratio", // 8  — current ATR / 20-period avg ATR
-  "bb_position", // 9  — position within Bollinger Bands 0-1
-  "ema8_slope", // 10 — slope of 8-EMA
-  "ema21_slope", // 11 — slope of 21-EMA
-  "ema50_slope", // 12 — slope of 50-EMA
-  "macd_signal", // 13 — MACD histogram value
-  "stoch_k", // 14 — Stochastic %K
-  "stoch_d", // 15 — Stochastic %D
-  "session", // 16 — binary: 1=day, 0=night
-  "day_of_week", // 17 — 0-6 (Mon-Sun) normalised
-  "hour_of_day", // 18 — 0-23 normalised to 0-1
-  "trend_consist", // 19 — fraction of up-bars in last 20
-  "mean_revert", // 20 — deviation from 20-SMA normalised
-  "skewness", // 21 — return skewness
-  "kurtosis", // 22 — excess kurtosis of returns
-  "noise", // 23 — small random noise for regularisation
+  "return_1", // 0
+  "return_3", // 1
+  "return_5", // 2
+  "return_10", // 3
+  "return_20", // 4
+  "rsi_14", // 5
+  "momentum", // 6
+  "volatility", // 7
+  "atr_ratio", // 8
+  "bb_position", // 9
+  "ema8_slope", // 10
+  "ema21_slope", // 11
+  "ema50_slope", // 12
+  "macd_signal", // 13
+  "stoch_k", // 14
+  "stoch_d", // 15
+  "session", // 16
+  "day_of_week", // 17
+  "hour_of_day", // 18
+  "trend_consist", // 19
+  "mean_revert", // 20
+  "skewness", // 21
+  "kurtosis", // 22
+  "noise", // 23
+  "awesome_osc", // 24
+  "cci_20", // 25
+  "williams_r", // 26
+  "mfi_14", // 27
+  "vortex_plus", // 28
+  "vortex_minus", // 29
+  "ultimate_osc", // 30
+  "fisher_transform", // 31
+  "tsi", // 32
+  "mass_index", // 33
 ];
 
 /** 12 feature names for the multi-asset per-asset vector */
@@ -195,8 +205,8 @@ const MULTI_ASSET_FEATURE_NAMES: string[] = [
  */
 export class EnhancedLSTMNeuralNetwork {
   // ── Dimensions ──
-  private readonly INPUT_SIZE = 24;
-  private readonly HIDDEN_SIZE = 32;
+  private readonly INPUT_SIZE = 34;
+  private readonly HIDDEN_SIZE = 48;
   private readonly OUTPUT_SIZE = 3;
   private readonly BPTT_STEPS = 10;
 
