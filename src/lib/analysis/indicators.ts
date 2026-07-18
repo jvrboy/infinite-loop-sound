@@ -7,6 +7,9 @@ export interface TechnicalIndicators {
   atr: number;
   adx: number;
   cci: number;
+  ichimoku: { tenkanSen: number; kijunSen: number; senkouSpanA: number; senkouSpanB: number; chikouSpan: number };
+  parabolicSAR: number;
+  vwap: number;
 }
 
 export function calculateRSI(prices: number[], period = 14): number {
@@ -76,6 +79,71 @@ export function calculateCCI(highs: number[], lows: number[], closes: number[], 
   const sma = tp.reduce((a, b) => a + b) / period;
   const mad = tp.reduce((sum, p) => sum + Math.abs(p - sma), 0) / period;
   return (closes[closes.length - 1] - sma) / (0.015 * mad || 0.001);
+}
+
+export function calculateIchimoku(highs: number[], lows: number[], closes: number[]): { tenkanSen: number; kijunSen: number; senkouSpanA: number; senkouSpanB: number; chikouSpan: number } {
+  const calculatePeriodMidpoint = (h: number[], l: number[], period: number) => {
+    const periodHighs = h.slice(-period);
+    const periodLows = l.slice(-period);
+    return (Math.max(...periodHighs) + Math.min(...periodLows)) / 2;
+  };
+
+  const tenkanSen = calculatePeriodMidpoint(highs, lows, 9);
+  const kijunSen = calculatePeriodMidpoint(highs, lows, 26);
+  const senkouSpanA = (tenkanSen + kijunSen) / 2;
+  const senkouSpanB = calculatePeriodMidpoint(highs, lows, 52);
+  const chikouSpan = closes[closes.length - 1];
+
+  return { tenkanSen, kijunSen, senkouSpanA, senkouSpanB, chikouSpan };
+}
+
+export function calculateParabolicSAR(highs: number[], lows: number[], acceleration = 0.02, maximum = 0.2): number {
+  // Simplified Parabolic SAR implementation for demonstration
+  let sar = lows[0];
+  let ep = highs[0];
+  let af = acceleration;
+  let isUp = true;
+
+  for (let i = 1; i < highs.length; i++) {
+    sar = sar + af * (ep - sar);
+    if (isUp) {
+      if (lows[i] < sar) {
+        isUp = false;
+        sar = ep;
+        ep = lows[i];
+        af = acceleration;
+      } else {
+        if (highs[i] > ep) {
+          ep = highs[i];
+          af = Math.min(af + acceleration, maximum);
+        }
+      }
+    } else {
+      if (highs[i] > sar) {
+        isUp = true;
+        sar = ep;
+        ep = highs[i];
+        af = acceleration;
+      } else {
+        if (lows[i] < ep) {
+          ep = lows[i];
+          af = Math.min(af + acceleration, maximum);
+        }
+      }
+    }
+  }
+  return sar;
+}
+
+export function calculateVWAP(prices: number[], volumes: number[]): number {
+  if (prices.length !== volumes.length || prices.length === 0) return 0;
+  let totalPV = 0;
+  let totalVolume = 0;
+  for (let i = 0; i < prices.length; i++) {
+    totalPV += prices[i] * volumes[i];
+    totalVolume += volumes[i];
+  }
+  return totalPV / (totalVolume || 1);
 }
 
 function calculateEMA(prices: number[], period: number): number {

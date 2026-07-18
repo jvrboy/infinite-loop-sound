@@ -84,6 +84,22 @@ export interface NewsAssessment {
   affectedPairs: string[];
 }
 
+export interface SentimentAssessment {
+  overallSentiment: number; // -1 to 1
+  confidence: number;
+  sources: { name: string; sentiment: number; weight: number }[];
+  trendingTopics: string[];
+  recommendedBias: "BULLISH" | "BEARISH" | "NEUTRAL";
+}
+
+export interface PortfolioOptimization {
+  currentAllocation: Record<string, number>;
+  recommendedAllocation: Record<string, number>;
+  rebalanceRequired: boolean;
+  expectedReturn: number;
+  projectedVolatility: number;
+}
+
 export interface NewsEventAssessment {
   title: string;
   impact: "high" | "medium" | "low";

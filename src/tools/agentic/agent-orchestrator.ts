@@ -200,6 +200,15 @@ export class AgentOrchestrator {
         case 'monitoring':
           data = await this.handleMonitoringTask(task);
           break;
+        case 'sentiment' as any:
+          data = await this.handleSentimentTask(task);
+          break;
+        case 'portfolio' as any:
+          data = await this.handlePortfolioTask(task);
+          break;
+        case 'execution-optimization' as any:
+          data = await this.handleExecutionOptimizationTask(task);
+          break;
       }
 
       const executionTime = performance.now() - startTime;
@@ -267,6 +276,45 @@ export class AgentOrchestrator {
     return {
       metrics: {},
       status: 'monitored',
+    };
+  }
+
+  /**
+   * Handle sentiment analysis tasks
+   */
+  private async handleSentimentTask(task: AgentTask): Promise<Record<string, any>> {
+    // In a real implementation, this would call the SentimentAgent
+    return {
+      sentiment: {
+        overallSentiment: 0.45,
+        recommendedBias: 'BULLISH',
+      },
+    };
+  }
+
+  /**
+   * Handle portfolio optimization tasks
+   */
+  private async handlePortfolioTask(task: AgentTask): Promise<Record<string, any>> {
+    // In a real implementation, this would call the PortfolioAgent
+    return {
+      optimization: {
+        rebalanceRequired: true,
+        expectedReturn: 0.12,
+      },
+    };
+  }
+
+  /**
+   * Handle execution optimization tasks
+   */
+  private async handleExecutionOptimizationTask(task: AgentTask): Promise<Record<string, any>> {
+    // In a real implementation, this would call the ExecutionOptimizationAgent
+    return {
+      strategy: {
+        optimalEntry: task.payload.currentPrice * 0.998,
+        slippageTolerance: 0.001,
+      },
     };
   }
 
