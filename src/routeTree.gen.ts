@@ -23,6 +23,7 @@ import { Route as StreakRouteImport } from './routes/streak'
 import { Route as StrategiesRouteImport } from './routes/strategies'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as SignalStatsRouteImport } from './routes/signal-stats'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
 import { Route as SentimentRouteImport } from './routes/sentiment'
@@ -158,6 +159,11 @@ const SimulatorRoute = SimulatorRouteImport.update({
 const SignalsRoute = SignalsRouteImport.update({
   id: '/signals',
   path: '/signals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignalStatsRoute = SignalStatsRouteImport.update({
+  id: '/signal-stats',
+  path: '/signal-stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsRoute = SessionsRouteImport.update({
@@ -551,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
   '/strategies': typeof StrategiesRoute
@@ -633,6 +640,7 @@ export interface FileRoutesByTo {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
   '/strategies': typeof StrategiesRoute
@@ -716,6 +724,7 @@ export interface FileRoutesById {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
   '/strategies': typeof StrategiesRoute
@@ -800,6 +809,7 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/signal-stats'
     | '/signals'
     | '/simulator'
     | '/strategies'
@@ -882,6 +892,7 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/signal-stats'
     | '/signals'
     | '/simulator'
     | '/strategies'
@@ -964,6 +975,7 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/signal-stats'
     | '/signals'
     | '/simulator'
     | '/strategies'
@@ -1047,6 +1059,7 @@ export interface RootRouteChildren {
   SentimentRoute: typeof SentimentRoute
   SessionOverlapRoute: typeof SessionOverlapRoute
   SessionsRoute: typeof SessionsRoute
+  SignalStatsRoute: typeof SignalStatsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
   StrategiesRoute: typeof StrategiesRoute
@@ -1173,6 +1186,13 @@ declare module '@tanstack/react-router' {
       path: '/signals'
       fullPath: '/signals'
       preLoaderRoute: typeof SignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signal-stats': {
+      id: '/signal-stats'
+      path: '/signal-stats'
+      fullPath: '/signal-stats'
+      preLoaderRoute: typeof SignalStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions': {
@@ -1705,6 +1725,7 @@ const rootRouteChildren: RootRouteChildren = {
   SentimentRoute: SentimentRoute,
   SessionOverlapRoute: SessionOverlapRoute,
   SessionsRoute: SessionsRoute,
+  SignalStatsRoute: SignalStatsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
   StrategiesRoute: StrategiesRoute,
