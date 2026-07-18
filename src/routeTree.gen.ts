@@ -18,6 +18,7 @@ import { Route as UptimeRouteImport } from './routes/uptime'
 import { Route as UltraRouteImport } from './routes/ultra'
 import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
+import { Route as TechnicalAnalysisRouteImport } from './routes/technical-analysis'
 import { Route as SystemRouteImport } from './routes/system'
 import { Route as StreakRouteImport } from './routes/streak'
 import { Route as StrategiesRouteImport } from './routes/strategies'
@@ -135,6 +136,11 @@ const ToolsRoute = ToolsRouteImport.update({
 const TelegramRoute = TelegramRouteImport.update({
   id: '/telegram',
   path: '/telegram',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TechnicalAnalysisRoute = TechnicalAnalysisRouteImport.update({
+  id: '/technical-analysis',
+  path: '/technical-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SystemRoute = SystemRouteImport.update({
@@ -570,6 +576,7 @@ export interface FileRoutesByFullPath {
   '/strategies': typeof StrategiesRoute
   '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
+  '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
@@ -654,6 +661,7 @@ export interface FileRoutesByTo {
   '/strategies': typeof StrategiesRoute
   '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
+  '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
@@ -739,6 +747,7 @@ export interface FileRoutesById {
   '/strategies': typeof StrategiesRoute
   '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
+  '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
@@ -825,6 +834,7 @@ export interface FileRouteTypes {
     | '/strategies'
     | '/streak'
     | '/system'
+    | '/technical-analysis'
     | '/telegram'
     | '/tools'
     | '/ultra'
@@ -909,6 +919,7 @@ export interface FileRouteTypes {
     | '/strategies'
     | '/streak'
     | '/system'
+    | '/technical-analysis'
     | '/telegram'
     | '/tools'
     | '/ultra'
@@ -993,6 +1004,7 @@ export interface FileRouteTypes {
     | '/strategies'
     | '/streak'
     | '/system'
+    | '/technical-analysis'
     | '/telegram'
     | '/tools'
     | '/ultra'
@@ -1078,6 +1090,7 @@ export interface RootRouteChildren {
   StrategiesRoute: typeof StrategiesRoute
   StreakRoute: typeof StreakRoute
   SystemRoute: typeof SystemRoute
+  TechnicalAnalysisRoute: typeof TechnicalAnalysisRoute
   TelegramRoute: typeof TelegramRoute
   ToolsRoute: typeof ToolsRoute
   UltraRoute: typeof UltraRoute
@@ -1164,6 +1177,13 @@ declare module '@tanstack/react-router' {
       path: '/telegram'
       fullPath: '/telegram'
       preLoaderRoute: typeof TelegramRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/technical-analysis': {
+      id: '/technical-analysis'
+      path: '/technical-analysis'
+      fullPath: '/technical-analysis'
+      preLoaderRoute: typeof TechnicalAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/system': {
@@ -1752,6 +1772,7 @@ const rootRouteChildren: RootRouteChildren = {
   StrategiesRoute: StrategiesRoute,
   StreakRoute: StreakRoute,
   SystemRoute: SystemRoute,
+  TechnicalAnalysisRoute: TechnicalAnalysisRoute,
   TelegramRoute: TelegramRoute,
   ToolsRoute: ToolsRoute,
   UltraRoute: UltraRoute,

@@ -800,3 +800,80 @@ export const momentumScore = (candles: Candle[]): number => {
   const priceComponent = Math.tanh(priceMomentum) * 10; // -10 to +10
   return Math.max(-100, Math.min(100, rsiComponent + macdComponent + priceComponent));
 };
+
+// Heikin-Ashi candles — smoothed OHLC that filters noise and makes
+// trends easier to read. HA close = (O+H+L+C)/4, HA open = avg of
+// prior HA open and prior HA close.
+export const heikinAshi = (candles: Candle[]): Candle[] => {
+  if (candles.length === 0) return [];
+  const out: Candle[] = [];
+  let prevOpen = candles[0].open;
+  let prevClose = (candles[0].open + candles[0].high + candles[0].low + candles[0].close) / 4;
+  out.push({
+    epoch: candles[0].epoch,
+    open: candles[0].open,
+    high: candles[0].high,
+    low: candles[0].low,
+    close: prevClose,
+    volume: candles[0].volume,
+  });
+  for (let i = 1; i < candles.length; i++) {
+    const c = candles[i];
+    const haClose = (c.open + c.high + c.low + c.close) / 4;
+    const haOpen = (prevOpen + prevClose) / 2;
+    const haHigh = Math.max(c.high, haOpen, haClose);
+    const haLow = Math.min(c.low, haOpen, haClose);
+    out.push({ epoch: c.epoch, open: haOpen, high: haHigh, low: haLow, close: haClose, volume: c.volume });
+    prevOpen = haOpen;
+    prevClose = haClose;
+  }
+  return out;
+};
+
+// Keltner Squeeze — Bollinger Bands inside Keltner Channel = low
+// volatility compression that often precedes a breakout.
+export const keltnerSqueeze = (
+  candles: Candle[],
+  bbLen = 20,
+  bbMult = 2,
+  kcLen = 20,
+  kcAtrLen = 10,
+  kcMult = 1.5,
+): { squeeze: boolean; bbWidth: number; kcWidth: number } | null => {
+  if (candles.length < Math.max(bbLen, kcLen) + 5) return null;
+  const close = candles.map((c) => c.close);
+  const bb = bbands(close, bbLen, bbMult);
+  const kc = keltner(candles, kcLen, kcAtrLen, kcMult);
+  const last = close.length - 1;
+  const bbUpper = bb.upper[last];
+  const bbLower = bb.lower[last];
+  const kcUpper = kc.upper[last];
+  const kcLower = kc.lower[last];
+  if (bbUpper == null || bbLower == null || kcUpper == null || kcLower == null) return null;
+  const bbWidth = bbUpper - bbLower;
+  const kcWidth = kcUpper - kcLower;
+  return { squeeze: bbWidth < kcWidth, bbWidth, kcWidth };
+};
+
+// Three-line strike — three consecutive bars in trend direction
+// followed by a fourth that engulfs them.
+export const threeLineStrike = (candles: Candle[]): "bull" | "bear" | null => {
+  if (candles.length < 4) return null;
+  const [c1, c2, c3, c4] = candles.slice(-4);
+  const bull = c1.close > c1.open && c2.close > c2.open && c3.close > c3.open;
+  const bear = c1.close < c1.open && c2.close < c2.open && c3.close < c3.open;
+  if (bull && c4.close < c1.open && c4.open > c3.close) return "bull";
+  if (bear && c4.close > c1.open && c4.open < c3.close) return "bear";
+  return null;
+};
+
+// Abandoned Baby — rare reversal doji with gaps on both sides.
+export const abandonedBaby = (candles: Candle[]): "bull" | "bear" | null => {
+  if (candles.length < 3) return null;
+  const [c1, c2, c3] = candles.slice(-3);
+  const isDoji = Math.abs(c2.close - c2.open) <= (c2.high - c2.low) * 0.1;
+  if (!isDoji) return null;
+  if (c1.close < c1.open && c2.low > c1.high && c3.close > c3.open && c3.low > c2.high) return "bull";
+  if (c1.close > c1.open && c2.high < c1.low && c3.close < c3.open && c3.high < c2.low) return "bear";
+  return null;
+};

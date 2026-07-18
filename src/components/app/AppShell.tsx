@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown } from "lucide-react";
+import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
 import { ThreeBackground } from "./ThreeBackground";
@@ -76,6 +76,7 @@ const SECTIONS = [
       { to: "/analysis", label: "Analysis", icon: Activity },
       { to: "/chart", label: "Live Chart", icon: LineChart },
       { to: "/heatmap", label: "Heatmap", icon: Flame },
+      { to: "/technical-analysis", label: "Technical Analysis", icon: CandlestickChart },
     ],
   },
   {
