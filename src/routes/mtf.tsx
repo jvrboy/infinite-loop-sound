@@ -212,27 +212,25 @@ function MTFPage() {
               ) : (
                 <div className="space-y-1 text-sm font-mono">
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>Trend: {fib.trend}</span>
+                    <span>Swing: {fib.direction.toUpperCase()}</span>
                     <span>
-                      swing {fib.swingLow.toFixed(5)} → {fib.swingHigh.toFixed(5)}
+                      {fib.swingLow.toFixed(5)} → {fib.swingHigh.toFixed(5)}
                     </span>
                   </div>
-                  {fib.retracements.map((l) => (
+                  {fib.levels.map((l) => (
                     <div
-                      key={l.label}
-                      className="flex items-center justify-between rounded bg-muted/20 px-2 py-1"
+                      key={l.label + l.kind}
+                      className={
+                        "flex items-center justify-between rounded px-2 py-1 " +
+                        (l.kind === "retracement" ? "bg-muted/20" : "bg-muted/10")
+                      }
                     >
-                      <span>{l.label}</span>
-                      <span>{l.price.toFixed(5)}</span>
-                    </div>
-                  ))}
-                  <div className="pt-1 text-xs text-muted-foreground">Extensions</div>
-                  {fib.extensions.map((l) => (
-                    <div
-                      key={l.label}
-                      className="flex items-center justify-between rounded bg-muted/10 px-2 py-1"
-                    >
-                      <span>{l.label}</span>
+                      <span>
+                        {l.label}
+                        <span className="ml-1 text-xs text-muted-foreground">
+                          {l.kind === "extension" ? "ext" : ""}
+                        </span>
+                      </span>
                       <span>{l.price.toFixed(5)}</span>
                     </div>
                   ))}
