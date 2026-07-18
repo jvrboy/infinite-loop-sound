@@ -23,6 +23,7 @@ import { Route as StreakRouteImport } from './routes/streak'
 import { Route as StrategiesRouteImport } from './routes/strategies'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
+import { Route as SignalStatsRouteImport } from './routes/signal-stats'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
 import { Route as SentimentRouteImport } from './routes/sentiment'
@@ -43,6 +44,7 @@ import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as OptimizationRouteImport } from './routes/optimization'
 import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as MtfRouteImport } from './routes/mtf'
 import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
@@ -72,6 +74,7 @@ import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AlertBuilderRouteImport } from './routes/alert-builder'
 import { Route as AiAgentsRouteImport } from './routes/ai-agents'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
@@ -156,6 +159,11 @@ const SimulatorRoute = SimulatorRouteImport.update({
 const SignalsRoute = SignalsRouteImport.update({
   id: '/signals',
   path: '/signals',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignalStatsRoute = SignalStatsRouteImport.update({
+  id: '/signal-stats',
+  path: '/signal-stats',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsRoute = SessionsRouteImport.update({
@@ -256,6 +264,11 @@ const OptimizationRoute = OptimizationRouteImport.update({
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtfRoute = MtfRouteImport.update({
+  id: '/mtf',
+  path: '/mtf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MonteCarloRoute = MonteCarloRouteImport.update({
@@ -403,6 +416,11 @@ const AlertsRoute = AlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlertBuilderRoute = AlertBuilderRouteImport.update({
+  id: '/alert-builder',
+  path: '/alert-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiAgentsRoute = AiAgentsRouteImport.update({
   id: '/ai-agents',
   path: '/ai-agents',
@@ -488,6 +506,7 @@ const ApiPublicV1SignalsIncomingRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
@@ -517,6 +536,7 @@ export interface FileRoutesByFullPath {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/monte-carlo': typeof MonteCarloRoute
+  '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -537,6 +557,7 @@ export interface FileRoutesByFullPath {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
   '/strategies': typeof StrategiesRoute
@@ -568,6 +589,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
@@ -597,6 +619,7 @@ export interface FileRoutesByTo {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/monte-carlo': typeof MonteCarloRoute
+  '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -617,6 +640,7 @@ export interface FileRoutesByTo {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
   '/strategies': typeof StrategiesRoute
@@ -649,6 +673,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
@@ -678,6 +703,7 @@ export interface FileRoutesById {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/monte-carlo': typeof MonteCarloRoute
+  '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -698,6 +724,7 @@ export interface FileRoutesById {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
   '/strategies': typeof StrategiesRoute
@@ -731,6 +758,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-agents'
+    | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
@@ -760,6 +788,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/monte-carlo'
+    | '/mtf'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -780,6 +809,7 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/signal-stats'
     | '/signals'
     | '/simulator'
     | '/strategies'
@@ -811,6 +841,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-agents'
+    | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
@@ -840,6 +871,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/monte-carlo'
+    | '/mtf'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -860,6 +892,7 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/signal-stats'
     | '/signals'
     | '/simulator'
     | '/strategies'
@@ -891,6 +924,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-agents'
+    | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
@@ -920,6 +954,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/monte-carlo'
+    | '/mtf'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -940,6 +975,7 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/signal-stats'
     | '/signals'
     | '/simulator'
     | '/strategies'
@@ -972,6 +1008,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiAgentsRoute: typeof AiAgentsRoute
+  AlertBuilderRoute: typeof AlertBuilderRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
   AnalyticsRoute: typeof AnalyticsRoute
@@ -1001,6 +1038,7 @@ export interface RootRouteChildren {
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
   MonteCarloRoute: typeof MonteCarloRoute
+  MtfRoute: typeof MtfRoute
   NeuralRoute: typeof NeuralRoute
   OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
@@ -1021,6 +1059,7 @@ export interface RootRouteChildren {
   SentimentRoute: typeof SentimentRoute
   SessionOverlapRoute: typeof SessionOverlapRoute
   SessionsRoute: typeof SessionsRoute
+  SignalStatsRoute: typeof SignalStatsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
   StrategiesRoute: typeof StrategiesRoute
@@ -1147,6 +1186,13 @@ declare module '@tanstack/react-router' {
       path: '/signals'
       fullPath: '/signals'
       preLoaderRoute: typeof SignalsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signal-stats': {
+      id: '/signal-stats'
+      path: '/signal-stats'
+      fullPath: '/signal-stats'
+      preLoaderRoute: typeof SignalStatsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions': {
@@ -1287,6 +1333,13 @@ declare module '@tanstack/react-router' {
       path: '/neural'
       fullPath: '/neural'
       preLoaderRoute: typeof NeuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mtf': {
+      id: '/mtf'
+      path: '/mtf'
+      fullPath: '/mtf'
+      preLoaderRoute: typeof MtfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/monte-carlo': {
@@ -1492,6 +1545,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alert-builder': {
+      id: '/alert-builder'
+      path: '/alert-builder'
+      fullPath: '/alert-builder'
+      preLoaderRoute: typeof AlertBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-agents': {
       id: '/ai-agents'
       path: '/ai-agents'
@@ -1614,6 +1674,7 @@ const ApiPublicV1SignalsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiAgentsRoute: AiAgentsRoute,
+  AlertBuilderRoute: AlertBuilderRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
   AnalyticsRoute: AnalyticsRoute,
@@ -1643,6 +1704,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
   MonteCarloRoute: MonteCarloRoute,
+  MtfRoute: MtfRoute,
   NeuralRoute: NeuralRoute,
   OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
@@ -1663,6 +1725,7 @@ const rootRouteChildren: RootRouteChildren = {
   SentimentRoute: SentimentRoute,
   SessionOverlapRoute: SessionOverlapRoute,
   SessionsRoute: SessionsRoute,
+  SignalStatsRoute: SignalStatsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
   StrategiesRoute: StrategiesRoute,
@@ -1693,13 +1756,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

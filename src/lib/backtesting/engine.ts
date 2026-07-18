@@ -67,18 +67,18 @@ export class BacktestEngine {
         const size = this.calculatePositionSize();
         position = {
           entryPrice: signal.price,
-          entryTime: new Date(currentCandle.time),
+          entryTime: new Date(currentCandle.epoch * 1000),
           size,
         };
       } else if (signal.action === "SELL" && position) {
-        const trade = this.closeTrade(position, signal.price, new Date(currentCandle.time));
+        const trade = this.closeTrade(position, signal.price, new Date(currentCandle.epoch * 1000));
         this.trades.push(trade);
         this.equity += trade.pnl;
         position = null;
       }
 
       this.equityByTime.push({
-        time: new Date(currentCandle.time),
+        time: new Date(currentCandle.epoch * 1000),
         equity: this.equity,
       });
     }
@@ -86,7 +86,7 @@ export class BacktestEngine {
     // Close any open position at end of backtest
     if (position) {
       const lastCandle = candles[candles.length - 1];
-      const trade = this.closeTrade(position, lastCandle.close, new Date(lastCandle.time));
+      const trade = this.closeTrade(position, lastCandle.close, new Date(lastCandle.epoch * 1000));
       this.trades.push(trade);
       this.equity += trade.pnl;
     }

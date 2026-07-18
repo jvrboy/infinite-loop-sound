@@ -96,7 +96,7 @@ function PerformancePage() {
     }
 
     const { data } = await query.order("created_at", { ascending: false });
-    setTrades((data as Trade[]) ?? []);
+    setTrades((data as unknown as Trade[]) ?? []);
     setLoading(false);
   };
 
