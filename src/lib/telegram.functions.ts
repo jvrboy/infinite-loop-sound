@@ -281,3 +281,30 @@ export const getWebhookStatus = createServerFn({ method: "GET" }).handler(async 
     maxConnections: (info.max_connections ?? 40) as number,
   };
 });
+
+// Broadcast an arbitrary alert message to every active subscriber.
+// Used by the /alert-builder route.
+export const broadcastAlertMessage = createServerFn({ method: "POST" })
+  .inputValidator((d) =>
+    z.object({ text: z.string().min(1).max(3500), minScore: z.number().optional() }).parse(d),
+  )
+  .handler(async ({ data }) => {
+    const sb = admin();
+    const { data: subs, error } = await sb
+      .from("telegram_subscribers")
+      .select("chat_id, min_score")
+      .eq("active", true);
+    if (error) throw new Error(error.message);
+    const min = data.minScore ?? 0;
+    const targets = (subs || []).filter((s: any) => min >= (s.min_score ?? 0));
+    let sent = 0;
+    for (const sub of targets) {
+      try {
+        await tgFetch("sendMessage", { chat_id: sub.chat_id, text: data.text });
+        sent++;
+      } catch (e) {
+        console.error("Telegram alert send fail", e);
+      }
+    }
+    return { sent, total: targets.length };
+  });
