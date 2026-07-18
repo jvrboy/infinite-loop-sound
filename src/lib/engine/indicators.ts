@@ -563,54 +563,6 @@ export const pinBar = (candles: Candle[]): "bull" | "bear" | null => {
 
 // ── Additional confluence tools ─────────────────────────────────────────
 
-// Williams %R
-export const williamsR = (candles: Candle[], len = 14): (number | null)[] => {
-  const out: (number | null)[] = new Array(candles.length).fill(null);
-  for (let i = len - 1; i < candles.length; i++) {
-    let hh = -Infinity,
-      ll = Infinity;
-    for (let j = i - len + 1; j <= i; j++) {
-      if (candles[j].high > hh) hh = candles[j].high;
-      if (candles[j].low < ll) ll = candles[j].low;
-    }
-    out[i] = hh === ll ? -50 : ((hh - candles[i].close) / (hh - ll)) * -100;
-  }
-  return out;
-};
-
-// Commodity Channel Index
-export const cci = (candles: Candle[], len = 20): (number | null)[] => {
-  const out: (number | null)[] = new Array(candles.length).fill(null);
-  const tp = candles.map((c) => (c.high + c.low + c.close) / 3);
-  for (let i = len - 1; i < candles.length; i++) {
-    let sum = 0;
-    for (let j = i - len + 1; j <= i; j++) sum += tp[j];
-    const ma = sum / len;
-    let md = 0;
-    for (let j = i - len + 1; j <= i; j++) md += Math.abs(tp[j] - ma);
-    md /= len;
-    out[i] = md === 0 ? 0 : (tp[i] - ma) / (0.015 * md);
-  }
-  return out;
-};
-
-// Money Flow Index
-export const mfi = (candles: Candle[], len = 14): (number | null)[] => {
-  const out: (number | null)[] = new Array(candles.length).fill(null);
-  const tp = candles.map((c) => (c.high + c.low + c.close) / 3);
-  const flow = candles.map((c, i) => tp[i] * (c.volume ?? 1));
-  for (let i = len; i < candles.length; i++) {
-    let pos = 0,
-      neg = 0;
-    for (let j = i - len + 1; j <= i; j++) {
-      if (tp[j] > tp[j - 1]) pos += flow[j];
-      else if (tp[j] < tp[j - 1]) neg += flow[j];
-    }
-    out[i] = neg === 0 ? 100 : 100 - 100 / (1 + pos / neg);
-  }
-  return out;
-};
-
 // VWAP (rolling, since session reset is unknown for forex)
 export const vwap = (candles: Candle[], len = 20): (number | null)[] => {
   const out: (number | null)[] = new Array(candles.length).fill(null);
@@ -626,36 +578,6 @@ export const vwap = (candles: Candle[], len = 20): (number | null)[] => {
     out[i] = vv === 0 ? null : pv / vv;
   }
   return out;
-};
-
-// Supertrend — returns trend (+1 / -1) and line value.
-export const supertrend = (candles: Candle[], len = 10, mult = 3) => {
-  const a = atr(candles, len);
-  const trend: (1 | -1 | null)[] = new Array(candles.length).fill(null);
-  const line: (number | null)[] = new Array(candles.length).fill(null);
-  let prevUpper = 0,
-    prevLower = 0,
-    prevTrend: 1 | -1 = 1;
-  for (let i = 0; i < candles.length; i++) {
-    const _a = a[i];
-    if (_a == null) continue;
-    const hl2 = (candles[i].high + candles[i].low) / 2;
-    let upper = hl2 + mult * _a;
-    let lower = hl2 - mult * _a;
-    if (i > 0 && a[i - 1] != null) {
-      upper = candles[i - 1].close > prevUpper ? Math.min(upper, prevUpper) : upper;
-      lower = candles[i - 1].close < prevLower ? Math.max(lower, prevLower) : lower;
-    }
-    let t: 1 | -1 = prevTrend;
-    if (candles[i].close > prevUpper) t = 1;
-    else if (candles[i].close < prevLower) t = -1;
-    trend[i] = t;
-    line[i] = t === 1 ? lower : upper;
-    prevUpper = upper;
-    prevLower = lower;
-    prevTrend = t;
-  }
-  return { trend, line };
 };
 
 // Parabolic SAR (simplified)
