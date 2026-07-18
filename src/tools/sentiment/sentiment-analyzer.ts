@@ -38,6 +38,7 @@ export interface SocialMetrics {
   trend: 'up' | 'down' | 'stable';
   engagement: number;
   source: string;
+  timestamp: number;
 }
 
 export class SentimentAnalyzer {
