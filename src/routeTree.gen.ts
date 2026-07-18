@@ -73,6 +73,7 @@ import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AlertBuilderRouteImport } from './routes/alert-builder'
 import { Route as AiAgentsRouteImport } from './routes/ai-agents'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
@@ -409,6 +410,11 @@ const AlertsRoute = AlertsRouteImport.update({
   path: '/alerts',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AlertBuilderRoute = AlertBuilderRouteImport.update({
+  id: '/alert-builder',
+  path: '/alert-builder',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiAgentsRoute = AiAgentsRouteImport.update({
   id: '/ai-agents',
   path: '/ai-agents',
@@ -494,6 +500,7 @@ const ApiPublicV1SignalsIncomingRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
@@ -575,6 +582,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
@@ -657,6 +665,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
@@ -740,6 +749,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-agents'
+    | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
@@ -821,6 +831,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-agents'
+    | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
@@ -902,6 +913,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-agents'
+    | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
@@ -984,6 +996,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiAgentsRoute: typeof AiAgentsRoute
+  AlertBuilderRoute: typeof AlertBuilderRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
   AnalyticsRoute: typeof AnalyticsRoute
@@ -1512,6 +1525,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/alert-builder': {
+      id: '/alert-builder'
+      path: '/alert-builder'
+      fullPath: '/alert-builder'
+      preLoaderRoute: typeof AlertBuilderRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-agents': {
       id: '/ai-agents'
       path: '/ai-agents'
@@ -1634,6 +1654,7 @@ const ApiPublicV1SignalsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiAgentsRoute: AiAgentsRoute,
+  AlertBuilderRoute: AlertBuilderRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
   AnalyticsRoute: AnalyticsRoute,
