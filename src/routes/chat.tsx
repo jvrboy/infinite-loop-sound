@@ -2,19 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Bot,
-  Send,
-  Loader2,
-  Plus,
-  MessageSquare,
-  Sparkles,
-  Cpu,
-  Files,
-  Settings2,
-  Activity,
-  CheckCircle2,
-} from "lucide-react";
+import { Bot, Send, Loader as Loader2, Plus, MessageSquare, Sparkles, Cpu, Files, Settings2, Activity, CircleCheck as CheckCircle2 } from "lucide-react";
 import { aiChat, loadKeys, PROVIDER_LABELS } from "@/lib/ai/client";
 import { toast } from "sonner";
 import { useThreads, useUsage, type Msg } from "@/hooks/use-chat-store";
@@ -22,6 +10,8 @@ import { ChatList } from "@/components/chat/ChatList";
 import { ArtifactsPanel } from "@/components/chat/ArtifactsPanel";
 import { CustomizePanel } from "@/components/chat/CustomizePanel";
 import { UsagePanel } from "@/components/chat/UsagePanel";
+import { runSwarm, type SwarmAgentOutput } from "@/lib/agents/swarm";
+import { Users, ChevronDown, ChevronRight } from "lucide-react";
 
 export const Route = createFileRoute("/chat")({
   head: () => ({
@@ -88,6 +78,9 @@ function ChatPage() {
 
   const [pipelineActive, setPipelineActive] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [swarmMode, setSwarmMode] = useState(false);
+  const [swarmOutputs, setSwarmOutputs] = useState<SwarmAgentOutput[]>([]);
+  const [swarmExpanded, setSwarmExpanded] = useState<Record<string, boolean>>({});
 
   // bootstrap: pick first thread, or create one
   useEffect(() => {
@@ -140,32 +133,56 @@ function ChatPage() {
       role: m.role,
       content: m.content,
     }));
-    const messages = [{ role: "system" as const, content: SYSTEM_PROMPT }, ...history];
 
     try {
-      const res = await aiChat(messages);
-      if (!res)
-        throw new Error("AI request failed — no API key available or all providers exhausted.");
-      const { text: reply, provider } = res;
-      const assistant: Msg = {
-        role: "assistant",
-        content: reply,
-        ts: Date.now(),
-        provider,
-      };
-      // refetch active (it may have been updated mid-flight)
-      const cur = threads.find((t) => t.id === active.id);
-      updateThread(active.id, {
-        messages: [...(cur?.messages ?? active.messages), assistant],
-      });
-
-      track({
-        ts: Date.now(),
-        provider,
-        inputTokens: history.reduce((a, m) => a + estimateTokens(m.content), 0),
-        outputTokens: estimateTokens(reply),
-        threadId: active.id,
-      });
+      if (swarmMode) {
+        setSwarmOutputs([]);
+        const result = await runSwarm(user.content, { parallel: true });
+        setSwarmOutputs(result.outputs);
+        const reply =
+          result.synthesized ??
+          result.outputs.map((o) => `### ${o.name}\n${o.ok ? o.text : `[failed: ${o.error}]`}`).join("\n\n");
+        const assistant: Msg = {
+          role: "assistant",
+          content: reply,
+          ts: Date.now(),
+          provider: result.synthProvider,
+        };
+        const cur = threads.find((t) => t.id === active.id);
+        updateThread(active.id, {
+          messages: [...(cur?.messages ?? active.messages), assistant],
+        });
+        track({
+          ts: Date.now(),
+          provider: result.synthProvider,
+          inputTokens: history.reduce((a, m) => a + estimateTokens(m.content), 0),
+          outputTokens: estimateTokens(reply),
+          threadId: active.id,
+        });
+      } else {
+        const messages = [{ role: "system" as const, content: SYSTEM_PROMPT }, ...history];
+        const res = await aiChat(messages);
+        if (!res)
+          throw new Error("AI request failed — no API key available or all providers exhausted.");
+        const { text: reply, provider } = res;
+        const assistant: Msg = {
+          role: "assistant",
+          content: reply,
+          ts: Date.now(),
+          provider,
+        };
+        const cur = threads.find((t) => t.id === active.id);
+        updateThread(active.id, {
+          messages: [...(cur?.messages ?? active.messages), assistant],
+        });
+        track({
+          ts: Date.now(),
+          provider,
+          inputTokens: history.reduce((a, m) => a + estimateTokens(m.content), 0),
+          outputTokens: estimateTokens(reply),
+          threadId: active.id,
+        });
+      }
     } catch (e: any) {
       const err: Msg = {
         role: "assistant",
@@ -265,9 +282,26 @@ function ChatPage() {
               <Bot className="w-4 h-4 text-primary shrink-0" />
               <span className="text-sm font-medium truncate">{active?.title ?? "New chat"}</span>
             </div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
-              {active?.messages.length ?? 0} msgs
-            </span>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => {
+                  setSwarmMode((v) => !v);
+                  setSwarmOutputs([]);
+                }}
+                title="Toggle agent swarm pipeline"
+                className={`flex items-center gap-1.5 rounded-md border px-2 py-1 text-[10px] font-mono uppercase tracking-wider transition ${
+                  swarmMode
+                    ? "border-primary bg-primary/10 text-primary"
+                    : "border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                <Users className="w-3.5 h-3.5" />
+                Swarm
+              </button>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+                {active?.messages.length ?? 0} msgs
+              </span>
+            </div>
           </header>
 
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
@@ -327,6 +361,48 @@ function ChatPage() {
                 ))}
               </div>
             )}
+
+            {swarmMode && swarmOutputs.length > 0 && (
+              <div className="space-y-2 ml-2 mt-3 border-t border-border pt-3">
+                <div className="flex items-center gap-1.5 text-[10px] font-mono uppercase tracking-wider text-primary">
+                  <Users className="w-3.5 h-3.5" /> Agent Swarm Outputs
+                </div>
+                {swarmOutputs.map((o) => {
+                  const key = `${o.role}-${o.name}`;
+                  const expanded = swarmExpanded[key] ?? false;
+                  return (
+                    <div key={key} className="rounded-md border border-border bg-card/60">
+                      <button
+                        onClick={() => setSwarmExpanded((s) => ({ ...s, [key]: !expanded }))}
+                        className="flex w-full items-center gap-2 px-3 py-1.5 text-left"
+                      >
+                        {expanded ? (
+                          <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                        ) : (
+                          <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                        )}
+                        <span className="text-xs font-medium">{o.name}</span>
+                        {o.ok ? (
+                          <span className="ml-auto text-[9px] font-mono uppercase text-bull">ok</span>
+                        ) : (
+                          <span className="ml-auto text-[9px] font-mono uppercase text-bear">fail</span>
+                        )}
+                        {o.provider && (
+                          <span className="text-[9px] font-mono uppercase text-muted-foreground">
+                            {PROVIDER_LABELS[o.provider] || o.provider}
+                          </span>
+                        )}
+                      </button>
+                      {expanded && (
+                        <div className="px-3 pb-2 text-xs whitespace-pre-wrap text-muted-foreground">
+                          {o.ok ? o.text : `Error: ${o.error}`}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           <div className="border-t border-border p-3">
@@ -350,6 +426,7 @@ function ChatPage() {
             </div>
             <p className="text-[10px] text-muted-foreground mt-1.5 px-1">
               Shift+Enter for newline · Enter to send
+              {swarmMode && " · Swarm pipeline active"}
             </p>
           </div>
         </section>
