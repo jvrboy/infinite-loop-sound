@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZoRouteImport } from './routes/zo'
 import { Route as WelcomeRouteImport } from './routes/welcome'
+import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
 import { Route as VolatilityRouteImport } from './routes/volatility'
 import { Route as UptimeRouteImport } from './routes/uptime'
@@ -19,6 +20,7 @@ import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as SystemRouteImport } from './routes/system'
 import { Route as StreakRouteImport } from './routes/streak'
+import { Route as StrategiesRouteImport } from './routes/strategies'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SessionsRouteImport } from './routes/sessions'
@@ -35,6 +37,7 @@ import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PivotRouteImport } from './routes/pivot'
 import { Route as PipValueRouteImport } from './routes/pip-value'
 import { Route as PersistenceRouteImport } from './routes/persistence'
+import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as OptionsFlowRouteImport } from './routes/options-flow'
 import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
@@ -66,8 +69,10 @@ import { Route as BoomCrashRouteImport } from './routes/boom-crash'
 import { Route as BacktestRouteImport } from './routes/backtest'
 import { Route as AutomationRouteImport } from './routes/automation'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
+import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
+import { Route as AiAgentsRouteImport } from './routes/ai-agents'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiKeepaliveZoRouteImport } from './routes/api/keepalive/zo'
@@ -91,6 +96,11 @@ const ZoRoute = ZoRouteImport.update({
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WebhooksRoute = WebhooksRouteImport.update({
+  id: '/webhooks',
+  path: '/webhooks',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WebhookEventsRoute = WebhookEventsRouteImport.update({
@@ -131,6 +141,11 @@ const SystemRoute = SystemRouteImport.update({
 const StreakRoute = StreakRouteImport.update({
   id: '/streak',
   path: '/streak',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StrategiesRoute = StrategiesRouteImport.update({
+  id: '/strategies',
+  path: '/strategies',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SimulatorRoute = SimulatorRouteImport.update({
@@ -211,6 +226,11 @@ const PipValueRoute = PipValueRouteImport.update({
 const PersistenceRoute = PersistenceRouteImport.update({
   id: '/persistence',
   path: '/persistence',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PerformanceRoute = PerformanceRouteImport.update({
+  id: '/performance',
+  path: '/performance',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OptionsFlowRoute = OptionsFlowRouteImport.update({
@@ -368,6 +388,11 @@ const ApiKeysRoute = ApiKeysRouteImport.update({
   path: '/api-keys',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AnalyticsRoute = AnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AnalysisRoute = AnalysisRouteImport.update({
   id: '/analysis',
   path: '/analysis',
@@ -376,6 +401,11 @@ const AnalysisRoute = AnalysisRouteImport.update({
 const AlertsRoute = AlertsRouteImport.update({
   id: '/alerts',
   path: '/alerts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiAgentsRoute = AiAgentsRouteImport.update({
+  id: '/ai-agents',
+  path: '/ai-agents',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -457,8 +487,10 @@ const ApiPublicV1SignalsIncomingRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
   '/automation': typeof AutomationRoute
   '/backtest': typeof BacktestRoute
@@ -490,6 +522,7 @@ export interface FileRoutesByFullPath {
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
@@ -506,6 +539,7 @@ export interface FileRoutesByFullPath {
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/strategies': typeof StrategiesRoute
   '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
@@ -514,6 +548,7 @@ export interface FileRoutesByFullPath {
   '/uptime': typeof UptimeRoute
   '/volatility': typeof VolatilityRoute
   '/webhook-events': typeof WebhookEventsRoute
+  '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
@@ -532,8 +567,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
   '/automation': typeof AutomationRoute
   '/backtest': typeof BacktestRoute
@@ -565,6 +602,7 @@ export interface FileRoutesByTo {
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
@@ -581,6 +619,7 @@ export interface FileRoutesByTo {
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/strategies': typeof StrategiesRoute
   '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
@@ -589,6 +628,7 @@ export interface FileRoutesByTo {
   '/uptime': typeof UptimeRoute
   '/volatility': typeof VolatilityRoute
   '/webhook-events': typeof WebhookEventsRoute
+  '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
@@ -608,8 +648,10 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ai-agents': typeof AiAgentsRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
+  '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
   '/automation': typeof AutomationRoute
   '/backtest': typeof BacktestRoute
@@ -641,6 +683,7 @@ export interface FileRoutesById {
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
@@ -657,6 +700,7 @@ export interface FileRoutesById {
   '/sessions': typeof SessionsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/strategies': typeof StrategiesRoute
   '/streak': typeof StreakRoute
   '/system': typeof SystemRoute
   '/telegram': typeof TelegramRoute
@@ -665,6 +709,7 @@ export interface FileRoutesById {
   '/uptime': typeof UptimeRoute
   '/volatility': typeof VolatilityRoute
   '/webhook-events': typeof WebhookEventsRoute
+  '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
@@ -685,8 +730,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/ai-agents'
     | '/alerts'
     | '/analysis'
+    | '/analytics'
     | '/api-keys'
     | '/automation'
     | '/backtest'
@@ -718,6 +765,7 @@ export interface FileRouteTypes {
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/performance'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
@@ -734,6 +782,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/strategies'
     | '/streak'
     | '/system'
     | '/telegram'
@@ -742,6 +791,7 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/volatility'
     | '/webhook-events'
+    | '/webhooks'
     | '/welcome'
     | '/zo'
     | '/api/keepalive/zo'
@@ -760,8 +810,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/ai-agents'
     | '/alerts'
     | '/analysis'
+    | '/analytics'
     | '/api-keys'
     | '/automation'
     | '/backtest'
@@ -793,6 +845,7 @@ export interface FileRouteTypes {
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/performance'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
@@ -809,6 +862,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/strategies'
     | '/streak'
     | '/system'
     | '/telegram'
@@ -817,6 +871,7 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/volatility'
     | '/webhook-events'
+    | '/webhooks'
     | '/welcome'
     | '/zo'
     | '/api/keepalive/zo'
@@ -835,8 +890,10 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/ai-agents'
     | '/alerts'
     | '/analysis'
+    | '/analytics'
     | '/api-keys'
     | '/automation'
     | '/backtest'
@@ -868,6 +925,7 @@ export interface FileRouteTypes {
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/performance'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
@@ -884,6 +942,7 @@ export interface FileRouteTypes {
     | '/sessions'
     | '/signals'
     | '/simulator'
+    | '/strategies'
     | '/streak'
     | '/system'
     | '/telegram'
@@ -892,6 +951,7 @@ export interface FileRouteTypes {
     | '/uptime'
     | '/volatility'
     | '/webhook-events'
+    | '/webhooks'
     | '/welcome'
     | '/zo'
     | '/api/keepalive/zo'
@@ -911,8 +971,10 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AiAgentsRoute: typeof AiAgentsRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
+  AnalyticsRoute: typeof AnalyticsRoute
   ApiKeysRoute: typeof ApiKeysRoute
   AutomationRoute: typeof AutomationRoute
   BacktestRoute: typeof BacktestRoute
@@ -944,6 +1006,7 @@ export interface RootRouteChildren {
   OptimizerRoute: typeof OptimizerRoute
   OptionsCalcRoute: typeof OptionsCalcRoute
   OptionsFlowRoute: typeof OptionsFlowRoute
+  PerformanceRoute: typeof PerformanceRoute
   PersistenceRoute: typeof PersistenceRoute
   PipValueRoute: typeof PipValueRoute
   PivotRoute: typeof PivotRoute
@@ -960,6 +1023,7 @@ export interface RootRouteChildren {
   SessionsRoute: typeof SessionsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
+  StrategiesRoute: typeof StrategiesRoute
   StreakRoute: typeof StreakRoute
   SystemRoute: typeof SystemRoute
   TelegramRoute: typeof TelegramRoute
@@ -968,6 +1032,7 @@ export interface RootRouteChildren {
   UptimeRoute: typeof UptimeRoute
   VolatilityRoute: typeof VolatilityRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
+  WebhooksRoute: typeof WebhooksRoute
   WelcomeRoute: typeof WelcomeRoute
   ZoRoute: typeof ZoRoute
   ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
@@ -998,6 +1063,13 @@ declare module '@tanstack/react-router' {
       path: '/welcome'
       fullPath: '/welcome'
       preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/webhooks': {
+      id: '/webhooks'
+      path: '/webhooks'
+      fullPath: '/webhooks'
+      preLoaderRoute: typeof WebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/webhook-events': {
@@ -1054,6 +1126,13 @@ declare module '@tanstack/react-router' {
       path: '/streak'
       fullPath: '/streak'
       preLoaderRoute: typeof StreakRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strategies': {
+      id: '/strategies'
+      path: '/strategies'
+      fullPath: '/strategies'
+      preLoaderRoute: typeof StrategiesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simulator': {
@@ -1166,6 +1245,13 @@ declare module '@tanstack/react-router' {
       path: '/persistence'
       fullPath: '/persistence'
       preLoaderRoute: typeof PersistenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/performance': {
+      id: '/performance'
+      path: '/performance'
+      fullPath: '/performance'
+      preLoaderRoute: typeof PerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/options-flow': {
@@ -1385,6 +1471,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiKeysRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/analytics': {
+      id: '/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AnalyticsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/analysis': {
       id: '/analysis'
       path: '/analysis'
@@ -1397,6 +1490,13 @@ declare module '@tanstack/react-router' {
       path: '/alerts'
       fullPath: '/alerts'
       preLoaderRoute: typeof AlertsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-agents': {
+      id: '/ai-agents'
+      path: '/ai-agents'
+      fullPath: '/ai-agents'
+      preLoaderRoute: typeof AiAgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1513,8 +1613,10 @@ const ApiPublicV1SignalsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AiAgentsRoute: AiAgentsRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
+  AnalyticsRoute: AnalyticsRoute,
   ApiKeysRoute: ApiKeysRoute,
   AutomationRoute: AutomationRoute,
   BacktestRoute: BacktestRoute,
@@ -1546,6 +1648,7 @@ const rootRouteChildren: RootRouteChildren = {
   OptimizerRoute: OptimizerRoute,
   OptionsCalcRoute: OptionsCalcRoute,
   OptionsFlowRoute: OptionsFlowRoute,
+  PerformanceRoute: PerformanceRoute,
   PersistenceRoute: PersistenceRoute,
   PipValueRoute: PipValueRoute,
   PivotRoute: PivotRoute,
@@ -1562,6 +1665,7 @@ const rootRouteChildren: RootRouteChildren = {
   SessionsRoute: SessionsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
+  StrategiesRoute: StrategiesRoute,
   StreakRoute: StreakRoute,
   SystemRoute: SystemRoute,
   TelegramRoute: TelegramRoute,
@@ -1570,6 +1674,7 @@ const rootRouteChildren: RootRouteChildren = {
   UptimeRoute: UptimeRoute,
   VolatilityRoute: VolatilityRoute,
   WebhookEventsRoute: WebhookEventsRoute,
+  WebhooksRoute: WebhooksRoute,
   WelcomeRoute: WelcomeRoute,
   ZoRoute: ZoRoute,
   ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
@@ -1588,13 +1693,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
