@@ -43,6 +43,7 @@ import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as OptimizationRouteImport } from './routes/optimization'
 import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as MtfRouteImport } from './routes/mtf'
 import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
 import { Route as MarginRouteImport } from './routes/margin'
@@ -256,6 +257,11 @@ const OptimizationRoute = OptimizationRouteImport.update({
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MtfRoute = MtfRouteImport.update({
+  id: '/mtf',
+  path: '/mtf',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MonteCarloRoute = MonteCarloRouteImport.update({
@@ -517,6 +523,7 @@ export interface FileRoutesByFullPath {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/monte-carlo': typeof MonteCarloRoute
+  '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -597,6 +604,7 @@ export interface FileRoutesByTo {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/monte-carlo': typeof MonteCarloRoute
+  '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -678,6 +686,7 @@ export interface FileRoutesById {
   '/margin': typeof MarginRoute
   '/market-profile': typeof MarketProfileRoute
   '/monte-carlo': typeof MonteCarloRoute
+  '/mtf': typeof MtfRoute
   '/neural': typeof NeuralRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
@@ -760,6 +769,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/monte-carlo'
+    | '/mtf'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -840,6 +850,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/monte-carlo'
+    | '/mtf'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -920,6 +931,7 @@ export interface FileRouteTypes {
     | '/margin'
     | '/market-profile'
     | '/monte-carlo'
+    | '/mtf'
     | '/neural'
     | '/optimization'
     | '/optimizer'
@@ -1001,6 +1013,7 @@ export interface RootRouteChildren {
   MarginRoute: typeof MarginRoute
   MarketProfileRoute: typeof MarketProfileRoute
   MonteCarloRoute: typeof MonteCarloRoute
+  MtfRoute: typeof MtfRoute
   NeuralRoute: typeof NeuralRoute
   OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
@@ -1287,6 +1300,13 @@ declare module '@tanstack/react-router' {
       path: '/neural'
       fullPath: '/neural'
       preLoaderRoute: typeof NeuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mtf': {
+      id: '/mtf'
+      path: '/mtf'
+      fullPath: '/mtf'
+      preLoaderRoute: typeof MtfRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/monte-carlo': {
@@ -1643,6 +1663,7 @@ const rootRouteChildren: RootRouteChildren = {
   MarginRoute: MarginRoute,
   MarketProfileRoute: MarketProfileRoute,
   MonteCarloRoute: MonteCarloRoute,
+  MtfRoute: MtfRoute,
   NeuralRoute: NeuralRoute,
   OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
