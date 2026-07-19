@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { deriv, ALL_ASSETS, displayPair, type TF } from "@/lib/engine/deriv";
+import { deriv, ALL_ASSETS, displayPair, type TF } from "@lib/engine/deriv";
 import {
   advancedScore,
   aroon,
@@ -11,6 +11,47 @@ import {
   type AroonResult,
   type TTMSqueezeResult,
 } from "@/lib/engine/advanced-indicators";
+import {
+  keltnerChannels,
+  donchianChannels,
+  williamsR,
+  cci,
+  obv,
+  mfi,
+  cmf,
+  roc,
+  trix,
+  hullMA,
+  fisherTransform,
+  vortex,
+  elderRay,
+  forceIndex,
+  easeOfMovement,
+  massIndex,
+  pvt,
+  nvi,
+  pvi,
+  kst,
+  coppockCurve,
+  heikinAshi,
+  zigZag,
+  chandeKrollStop,
+  starcBands,
+  chaikinOscillator,
+  dpo,
+  extraScore,
+  type KeltnerResult,
+  type DonchianResult,
+  type FisherResult,
+  type VortexResult,
+  type ElderRayResult,
+  type KSTResult,
+  type HeikinAshiResult,
+  type ZigZagPoint,
+  type ChandeKrollResult,
+  type STARCResult,
+  type ExtraScore,
+} from "@/lib/engine/extra-indicators";
 import {
   runPipeline,
   ALL_SUB_AGENTS,
@@ -36,6 +77,10 @@ import {
   Play,
   Sparkles,
   ChevronRight,
+  BarChart3,
+  Waves,
+  LineChart,
+  Target,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +94,7 @@ export const Route = createFileRoute("/advanced-analysis")({
       {
         name: "description",
         content:
-          "Advanced technical analysis with Ichimoku, Supertrend, TTM Squeeze, Aroon, Choppiness, and multi-agent sub-agent pipelines.",
+          "Advanced technical analysis with Ichimoku, Supertrend, TTM Squeeze, Aroon, Choppiness, Keltner, Donchian, Williams %R, CCI, OBV, MFI, Fisher Transform, Vortex, Elder Ray, ZigZag, Heikin Ashi, and multi-agent sub-agent pipelines.",
       },
     ],
   }),
@@ -75,321 +120,122 @@ function AdvancedAnalysisPage() {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("composite");
 
-  const run = useCallback(async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      await deriv.connect();
       const data = await deriv.getCandles(symbol, tf, 300);
-      if (data.length < 60) {
-        setError("Not enough candles for advanced analysis (need 60+).");
-        return;
-      }
-      setCandles(data);
-    } catch (e: any) {
-      setError(e?.message || "Failed to fetch candles.");
+      setCandles(data as Candle[]);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load candles");
     } finally {
       setLoading(false);
     }
   }, [symbol, tf]);
 
   useEffect(() => {
-    run();
-  }, [run]);
+    load();
+  }, [load]);
 
-  const score = useMemo<AdvancedScore | null>(() => {
-    if (candles.length < 60) return null;
-    return advancedScore(candles);
-  }, [candles]);
-
-  const aroonData = useMemo<AroonResult | null>(() => {
-    if (candles.length < 30) return null;
-    return aroon(candles, 25);
-  }, [candles]);
-
-  const squeezeData = useMemo<TTMSqueezeResult | null>(() => {
-    if (candles.length < 25) return null;
-    return ttmSqueeze(candles);
-  }, [candles]);
-
-  const chopData = useMemo(() => {
-    if (candles.length < 20) return null;
-    return choppiness(candles, 14);
-  }, [candles]);
-
-  const pipelineResult = useMemo<PipelineResult | null>(() => {
-    if (candles.length < 60) return null;
-    return runPipeline(candles, DEFAULT_PIPELINE);
-  }, [candles]);
-
-  const smcResult = useMemo<PipelineResult | null>(() => {
-    if (candles.length < 60) return null;
-    return runPipeline(candles, SMC_PIPELINE);
-  }, [candles]);
-
-  const momentumResult = useMemo<PipelineResult | null>(() => {
-    if (candles.length < 60) return null;
-    return runPipeline(candles, MOMENTUM_PIPELINE);
-  }, [candles]);
-
-  const biasColor = (bias: string) =>
-    bias === "bull" ? "text-emerald-400" : bias === "bear" ? "text-red-400" : "text-muted-foreground";
+  const advScore = useMemo(() => (candles.length > 30 ? advancedScore(candles) : null), [candles]);
+  const xScore = useMemo(() => (candles.length > 30 ? extraScore(candles) : null), [candles]);
 
   return (
     <AppShell>
       <div className="p-4 md:p-6 space-y-4 max-w-7xl mx-auto">
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3">
+          <Activity className="w-7 h-7 text-primary" />
           <h1 className="text-2xl font-bold">Advanced Analysis</h1>
-          <select
-            value={symbol}
-            onChange={(e) => setSymbol(e.target.value)}
-            className="bg-card border border-border rounded px-3 py-1.5 text-sm"
-          >
-            {ALL_ASSETS.slice(0, 20).map((a) => (
-              <option key={a.symbol} value={a.symbol}>
-                {a.display}
-              </option>
-            ))}
-          </select>
-          <select
-            value={tf}
-            onChange={(e) => setTf(e.target.value as TF)}
-            className="bg-card border border-border rounded px-3 py-1.5 text-sm"
-          >
-            {TFS.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-          <Button size="sm" variant="outline" onClick={run} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
         </div>
 
-        {error && (
-          <div className="text-sm text-red-400 bg-red-500/10 border border-red-500/20 rounded p-3">
-            {error}
-          </div>
-        )}
+        <Card>
+          <CardContent className="pt-4">
+            <div className="flex flex-wrap items-end gap-3">
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Symbol</label>
+                <select
+                  value={symbol}
+                  onChange={(e) => setSymbol(e.target.value)}
+                  className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm"
+                >
+                  {ALL_ASSETS.map((a) => (
+                    <option key={a.value} value={a.value}>{a.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs text-muted-foreground">Timeframe</label>
+                <select
+                  value={tf}
+                  onChange={(e) => setTf(e.target.value as TF)}
+                  className="bg-card border border-border rounded-lg px-3 py-1.5 text-sm"
+                >
+                  {TFS.map((t) => <option key={t} value={t}>{t}</option>)}
+                </select>
+              </div>
+              <Button size="sm" onClick={load} disabled={loading}>
+                <RefreshCw className={`w-4 h-4 mr-1 ${loading ? "animate-spin" : ""}`} />
+                {loading ? "Loading..." : "Refresh"}
+              </Button>
+              <div className="text-sm text-muted-foreground">
+                {candles.length > 0 ? `${candles.length} candles loaded` : "No data"}
+              </div>
+            </div>
+            {error && <div className="mt-3 text-sm text-destructive">{error}</div>}
+          </CardContent>
+        </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex-wrap h-auto">
-            <TabsTrigger value="composite" className="text-xs">
-              <Sparkles className="w-3.5 h-3.5 mr-1" /> Composite
-            </TabsTrigger>
-            <TabsTrigger value="subagents" className="text-xs">
-              <Cpu className="w-3.5 h-3.5 mr-1" /> Sub-Agents
-            </TabsTrigger>
-            <TabsTrigger value="pipelines" className="text-xs">
-              <Layers className="w-3.5 h-3.5 mr-1" /> Pipelines
-            </TabsTrigger>
-            <TabsTrigger value="aroon" className="text-xs">
-              <Activity className="w-3.5 h-3.5 mr-1" /> Aroon
-            </TabsTrigger>
-            <TabsTrigger value="squeeze" className="text-xs">
-              <Gauge className="w-3.5 h-3.5 mr-1" /> TTM Squeeze
-            </TabsTrigger>
-            <TabsTrigger value="choppiness" className="text-xs">
-              <Brain className="w-3.5 h-3.5 mr-1" /> Choppiness
-            </TabsTrigger>
+            <TabsTrigger value="composite" className="text-xs"><Gauge className="w-3.5 h-3.5 mr-1" /> Composite</TabsTrigger>
+            <TabsTrigger value="sub-agents" className="text-xs"><Brain className="w-3.5 h-3.5 mr-1" /> Sub-Agents</TabsTrigger>
+            <TabsTrigger value="pipelines" className="text-xs"><Layers className="w-3.5 h-3.5 mr-1" /> Pipelines</TabsTrigger>
+            <TabsTrigger value="aroon" className="text-xs"><TrendingUp className="w-3.5 h-3.5 mr-1" /> Aroon</TabsTrigger>
+            <TabsTrigger value="ttm" className="text-xs"><Zap className="w-3.5 h-3.5 mr-1" /> TTM Squeeze</TabsTrigger>
+            <TabsTrigger value="choppiness" className="text-xs"><Waves className="w-3.5 h-3.5 mr-1" /> Choppiness</TabsTrigger>
+            <TabsTrigger value="channels" className="text-xs"><BarChart3 className="w-3.5 h-3.5 mr-1" /> Channels</TabsTrigger>
+            <TabsTrigger value="oscillators" className="text-xs"><Activity className="w-3.5 h-3.5 mr-1" /> Oscillators</TabsTrigger>
+            <TabsTrigger value="volume" className="text-xs"><LineChart className="w-3.5 h-3.5 mr-1" /> Volume</TabsTrigger>
+            <TabsTrigger value="extra-score" className="text-xs"><Target className="w-3.5 h-3.5 mr-1" /> Extra Score</TabsTrigger>
+            <TabsTrigger value="heikin" className="text-xs"><Cpu className="w-3.5 h-3.5 mr-1" /> Heikin Ashi</TabsTrigger>
+            <TabsTrigger value="zigzag" className="text-xs"><Sparkles className="w-3.5 h-3.5 mr-1" /> ZigZag</TabsTrigger>
           </TabsList>
 
-          {/* Composite Score */}
-          <TabsContent value="composite" className="space-y-4">
-            {score ? (
-              <>
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Sparkles className="w-5 h-5 text-primary" />
-                      Composite Advanced Score
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-6">
-                      <div className={`text-5xl font-bold ${biasColor(score.bias)}`}>
-                        {score.score > 0 ? "+" : ""}
-                        {score.score.toFixed(0)}
-                      </div>
-                      <div>
-                        <div className={`text-xl font-semibold ${biasColor(score.bias)}`}>
-                          {score.bias.toUpperCase()}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {score.signals.length} indicators aggregated
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-                <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
-                  {score.signals.map((s, i) => (
-                    <Card key={i}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm font-medium">{s.name}</span>
-                          <span className={`text-xs font-bold ${biasColor(s.signal)}`}>
-                            {s.signal.toUpperCase()}
-                          </span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              </>
-            ) : (
-              <div className="text-muted-foreground text-sm py-8 text-center">
-                {loading ? "Loading..." : "Insufficient data for composite score."}
-              </div>
-            )}
+          <TabsContent value="composite">
+            <CompositeTab candles={candles} advScore={advScore} />
           </TabsContent>
-
-          {/* Sub-Agents */}
-          <TabsContent value="subagents" className="space-y-4">
-            <div className="grid gap-3 md:grid-cols-2">
-              {ALL_SUB_AGENTS.map((agent) => {
-                const result = candles.length >= 60 ? agent.run(candles) : null;
-                return (
-                  <Card key={agent.type}>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-sm flex items-center gap-2">
-                        <Brain className="w-4 h-4 text-primary" />
-                        {agent.name}
-                      </CardTitle>
-                      <p className="text-xs text-muted-foreground">{agent.description}</p>
-                    </CardHeader>
-                    <CardContent>
-                      {result ? (
-                        <>
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`text-lg font-bold ${biasColor(result.bias)}`}>
-                              {result.bias.toUpperCase()}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              Conf: {result.confidence.toFixed(0)}% · Score: {result.score.toFixed(0)}
-                            </span>
-                          </div>
-                          <ul className="space-y-1">
-                            {result.insights.map((ins, j) => (
-                              <li key={j} className="text-xs text-muted-foreground flex gap-1.5">
-                                <ChevronRight className="w-3 h-3 mt-0.5 flex-shrink-0" />
-                                {ins}
-                              </li>
-                            ))}
-                          </ul>
-                        </>
-                      ) : (
-                        <span className="text-xs text-muted-foreground">Waiting for data...</span>
-                      )}
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+          <TabsContent value="sub-agents">
+            <SubAgentsTab candles={candles} />
           </TabsContent>
-
-          {/* Pipelines */}
-          <TabsContent value="pipelines" className="space-y-4">
-            {[
-              { name: "Default Pipeline (All Agents)", result: pipelineResult, steps: DEFAULT_PIPELINE },
-              { name: "SMC Pipeline (Liquidity + OB + FVG + MTF)", result: smcResult, steps: SMC_PIPELINE },
-              { name: "Momentum Pipeline (Momentum + Vol + Trend)", result: momentumResult, steps: MOMENTUM_PIPELINE },
-            ].map((p, idx) => (
-              <Card key={idx}>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Layers className="w-4 h-4 text-primary" />
-                    {p.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  {p.result ? (
-                    <>
-                      <div className="flex items-center gap-4 mb-3">
-                        <span className={`text-2xl font-bold ${biasColor(p.result.compositeBias)}`}>
-                          {p.result.compositeScore > 0 ? "+" : ""}
-                          {p.result.compositeScore.toFixed(0)}
-                        </span>
-                        <span className={`text-sm font-semibold ${biasColor(p.result.compositeBias)}`}>
-                          {p.result.compositeBias.toUpperCase()}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          Avg Confidence: {p.result.compositeConfidence.toFixed(0)}% · {p.result.totalMs}ms
-                        </span>
-                      </div>
-                      <div className="grid gap-2 md:grid-cols-2">
-                        {p.result.results.map((r, i) => (
-                          <div key={i} className="flex items-center justify-between text-xs border border-border/50 rounded p-2">
-                            <span className="font-medium">{r.name}</span>
-                            <span className={biasColor(r.bias)}>
-                              {r.bias.toUpperCase()} ({r.score.toFixed(0)})
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </>
-                  ) : (
-                    <span className="text-xs text-muted-foreground">Waiting for data...</span>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
+          <TabsContent value="pipelines">
+            <PipelinesTab candles={candles} />
           </TabsContent>
-
-          {/* Aroon */}
-          <TabsContent value="aroon" className="space-y-4">
-            {aroonData ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-primary" /> Aroon Indicator (25)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <AroonView data={aroonData} />
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="text-muted-foreground text-sm py-8 text-center">Waiting for data...</div>
-            )}
+          <TabsContent value="aroon">
+            <AroonTab candles={candles} />
           </TabsContent>
-
-          {/* TTM Squeeze */}
-          <TabsContent value="squeeze" className="space-y-4">
-            {squeezeData ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Gauge className="w-4 h-4 text-primary" /> TTM Squeeze
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <SqueezeView data={squeezeData} />
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="text-muted-foreground text-sm py-8 text-center">Waiting for data...</div>
-            )}
+          <TabsContent value="ttm">
+            <TTMTab candles={candles} />
           </TabsContent>
-
-          {/* Choppiness */}
-          <TabsContent value="choppiness" className="space-y-4">
-            {chopData ? (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-sm flex items-center gap-2">
-                    <Brain className="w-4 h-4 text-primary" /> Choppiness Index (14)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ChoppinessView data={chopData} />
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="text-muted-foreground text-sm py-8 text-center">Waiting for data...</div>
-            )}
+          <TabsContent value="choppiness">
+            <ChoppinessTab candles={candles} />
+          </TabsContent>
+          <TabsContent value="channels">
+            <ChannelsTab candles={candles} />
+          </TabsContent>
+          <TabsContent value="oscillators">
+            <OscillatorsTab candles={candles} />
+          </TabsContent>
+          <TabsContent value="volume">
+            <VolumeTab candles={candles} />
+          </TabsContent>
+          <TabsContent value="extra-score">
+            <ExtraScoreTab candles={candles} xScore={xScore} />
+          </TabsContent>
+          <TabsContent value="heikin">
+            <HeikinAshiTab candles={candles} />
+          </TabsContent>
+          <TabsContent value="zigzag">
+            <ZigZagTab candles={candles} />
           </TabsContent>
         </Tabs>
       </div>
@@ -397,84 +243,374 @@ function AdvancedAnalysisPage() {
   );
 }
 
-function AroonView({ data }: { data: AroonResult }) {
-  const n = data.up.length;
-  const up = data.up[n - 1];
-  const down = data.down[n - 1];
-  const osc = data.oscillator[n - 1];
-  if (up == null || down == null || osc == null)
-    return <div className="text-xs text-muted-foreground">Insufficient data</div>;
+// ---------- Composite Tab ----------
+function CompositeTab({ candles, advScore }: { candles: Candle[]; advScore: AdvancedScore | null }) {
+  if (!advScore) return <EmptyState />;
+  const pct = advScore.score;
+  const bias = pct > 60 ? "Bullish" : pct < 40 ? "Bearish" : "Neutral";
+  const Icon = bias === "Bullish" ? TrendingUp : bias === "Bearish" ? TrendingDown : Minus;
+  const color = bias === "Bullish" ? "text-green-500" : bias === "Bearish" ? "text-red-500" : "text-yellow-500";
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-3">
-        <div className="text-center">
-          <div className="text-xs text-muted-foreground">Aroon Up</div>
-          <div className="text-xl font-bold text-emerald-400">{up.toFixed(1)}</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xs text-muted-foreground">Aroon Down</div>
-          <div className="text-xl font-bold text-red-400">{down.toFixed(1)}</div>
-        </div>
-        <div className="text-center">
-          <div className="text-xs text-muted-foreground">Oscillator</div>
-          <div className={`text-xl font-bold ${osc > 0 ? "text-emerald-400" : "text-red-400"}`}>
-            {osc > 0 ? "+" : ""}{osc.toFixed(1)}
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Gauge className="w-4 h-4 text-primary" /> Composite Score</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-4">
+          <div className={`text-5xl font-bold ${color}`}>{pct.toFixed(0)}</div>
+          <div className="flex items-center gap-1">
+            <Icon className={`w-6 h-6 ${color}`} />
+            <span className={`text-lg font-semibold ${color}`}>{bias}</span>
           </div>
         </div>
-      </div>
-      <div className="text-xs text-muted-foreground">
-        {osc > 50 ? "Strong bullish trend" : osc > 0 ? "Bullish bias" : osc < -50 ? "Strong bearish trend" : osc < 0 ? "Bearish bias" : "Neutral"}
-      </div>
-    </div>
+        <div className="space-y-2">
+          {advScore.signals.map((s, i) => (
+            <div key={i} className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{s.name}</span>
+              <span className={s.bullish ? "text-green-500" : "text-red-500"}>{s.bullish ? "Bullish" : "Bearish"} ({s.value.toFixed(2)})</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
-function SqueezeView({ data }: { data: TTMSqueezeResult }) {
-  const n = data.squeezeOn.length;
-  const isSqueezing = data.squeezeOn[n - 1];
-  const mom = data.momentum[n - 1];
+// ---------- Sub-Agents Tab ----------
+function SubAgentsTab({ candles }: { candles: Candle[] }) {
+  const [results, setResults] = useState<SubAgentResult[]>([]);
+  const [running, setRunning] = useState(false);
+
+  const runAll = async () => {
+    if (candles.length < 30) { toast.error("Not enough candle data"); return; }
+    setRunning(true);
+    try {
+      const ctx = { candles, symbol: "EURUSD", tf: "H4" };
+      const rs = await Promise.all(ALL_SUB_AGENTS.map((a) => a.run(ctx)));
+      setResults(rs);
+    } catch { toast.error("Failed to run sub-agents"); }
+    finally { setRunning(false); }
+  };
+
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-3">
-        <div className={`px-3 py-1.5 rounded text-sm font-semibold ${isSqueezing ? "bg-amber-500/20 text-amber-400" : "bg-blue-500/20 text-blue-400"}`}>
-          {isSqueezing ? "SQUEEZE ON" : "SQUEEZE OFF"}
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2"><Brain className="w-4 h-4 text-primary" /> Sub-Agents ({ALL_SUB_AGENTS.length})</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <Button size="sm" onClick={runAll} disabled={running}>
+          <Play className="w-4 h-4 mr-1" /> {running ? "Running..." : "Run All Agents"}
+        </Button>
+        <div className="grid gap-2 md:grid-cols-2">
+          {results.map((r, i) => (
+            <div key={i} className="bg-card border border-border rounded-lg p-3">
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-sm font-semibold">{r.agent}</span>
+                <span className={`text-xs px-2 py-0.5 rounded ${r.signal === "bullish" ? "bg-green-500/20 text-green-500" : r.signal === "bearish" ? "bg-red-500/20 text-red-500" : "bg-yellow-500/20 text-yellow-500"}`}>{r.signal}</span>
+              </div>
+              <div className="text-xs text-muted-foreground">Confidence: {(r.confidence * 100).toFixed(0)}%</div>
+              {r.reason && <div className="text-xs text-muted-foreground mt-1">{r.reason}</div>}
+            </div>
+          ))}
+          {results.length === 0 && <div className="text-sm text-muted-foreground col-span-2">Run agents to see results.</div>}
         </div>
-        {mom != null && (
-          <div className={`text-sm font-medium ${mom > 0 ? "text-emerald-400" : "text-red-400"}`}>
-            Momentum: {mom > 0 ? "Bullish" : "Bearish"} ({mom.toFixed(4)})
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Pipelines Tab ----------
+function PipelinesTab({ candles }: { candles: Candle[] }) {
+  const [result, setResult] = useState<PipelineResult | null>(null);
+  const [running, setRunning] = useState(false);
+  const [pipeline, setPipeline] = useState<PipelineStep[]>(DEFAULT_PIPELINE);
+
+  const run = async () => {
+    if (candles.length < 30) { toast.error("Not enough data"); return; }
+    setRunning(true);
+    try { setResult(await runPipeline(pipeline, { candles, symbol: "EURUSD", tf: "H4" })); }
+    catch { toast.error("Pipeline failed"); }
+    finally { setRunning(false); }
+  };
+
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Layers className="w-4 h-4 text-primary" /> Agent Pipelines</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-wrap gap-2">
+          {[
+            { name: "Default", steps: DEFAULT_PIPELINE },
+            { name: "SMC", steps: SMC_PIPELINE },
+            { name: "Momentum", steps: MOMENTUM_PIPELINE },
+          ].map((p) => (
+            <Button key={p.name} size="sm" variant={pipeline === p.steps ? "default" : "outline"} onClick={() => setPipeline(p.steps)}>{p.name}</Button>
+          ))}
+        </div>
+        <Button size="sm" onClick={run} disabled={running}><Play className="w-4 h-4 mr-1" /> {running ? "Running..." : "Run Pipeline"}</Button>
+        {result && (
+          <div className="space-y-2">
+            {result.steps.map((s, i) => (
+              <div key={i} className="bg-card border border-border rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold">Step {i + 1}: {s.name}</span>
+                  <span className="text-xs text-muted-foreground">{s.duration.toFixed(0)}ms</span>
+                </div>
+                <div className="text-xs text-muted-foreground mt-1">{s.results.length} agent results</div>
+              </div>
+            ))}
           </div>
         )}
-      </div>
-      <div className="text-xs text-muted-foreground">
-        {isSqueezing
-          ? "Bollinger Bands inside Keltner Channels — volatility compression. Breakout imminent."
-          : "Volatility expansion phase. Momentum direction indicates breakout direction."}
-      </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Aroon Tab ----------
+function AroonTab({ candles }: { candles: Candle[] }) {
+  const res = useMemo(() => (candles.length > 30 ? aroon(candles) : null), [candles]);
+  if (!res) return <EmptyState />;
+  const last = candles.length - 1;
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><TrendingUp className="w-4 h-4 text-primary" /> Aroon</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <MetricRow label="Aroon Up" value={res.up[last]?.toFixed(2) ?? "N/A"} />
+        <MetricRow label="Aroon Down" value={res.down[last]?.toFixed(2) ?? "N/A"} />
+        <MetricRow label="Oscillator" value={res.oscillator[last]?.toFixed(2) ?? "N/A"} />
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- TTM Squeeze Tab ----------
+function TTMTab({ candles }: { candles: Candle[] }) {
+  const res = useMemo(() => (candles.length > 30 ? ttmSqueeze(candles) : null), [candles]);
+  if (!res) return <EmptyState />;
+  const last = candles.length - 1;
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Zap className="w-4 h-4 text-primary" /> TTM Squeeze</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${res.squeezeOn[last] ? "bg-yellow-500/20 text-yellow-500" : "bg-green-500/20 text-green-500"}`}>Squeeze: {res.squeezeOn[last] ? "ON (low volatility, breakout pending)" : "OFF (normal volatility)"}</div>
+        <MetricRow label="BB Upper" value={res.bollingerUpper[last]?.toFixed(5) ?? "N/A"} />
+        <MetricRow label="BB Lower" value={res.bollingerLower[last]?.toFixed(5) ?? "N/A"} />
+        <MetricRow label="KC Upper" value={res.keltnerUpper[last]?.toFixed(5) ?? "N/A"} />
+        <MetricRow label="KC Lower" value={res.keltnerLower[last]?.toFixed(5) ?? "N/A"} />
+        <MetricRow label="Momentum" value={res.momentum[last]?.toFixed(5) ?? "N/A"} />
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Choppiness Tab ----------
+function ChoppinessTab({ candles }: { candles: Candle[] }) {
+  const res = useMemo(() => (candles.length > 30 ? choppiness(candles) : null), [candles]);
+  if (!res) return <EmptyState />;
+  const last = candles.length - 1;
+  const val = res[last];
+  const state = val == null ? "N/A" : val > 61.8 ? "Choppy (trendless)" : val < 38.2 ? "Trending" : "Neutral";
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Waves className="w-4 h-4 text-primary" /> Choppiness Index</CardTitle></CardHeader>
+      <CardContent className="space-y-3">
+        <MetricRow label="Choppiness" value={val?.toFixed(2) ?? "N/A"} />
+        <div className="text-sm text-muted-foreground">Market State: {state}</div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Channels Tab (Keltner, Donchian, STARC, Chande Kroll) ----------
+function ChannelsTab({ candles }: { candles: Candle[] }) {
+  const keltner = useMemo(() => (candles.length > 30 ? keltnerChannels(candles) : null), [candles]);
+  const donchian = useMemo(() => (candles.length > 30 ? donchianChannels(candles) : null), [candles]);
+  const starc = useMemo(() => (candles.length > 30 ? starcBands(candles) : null), [candles]);
+  const ck = useMemo(() => (candles.length > 30 ? chandeKrollStop(candles) : null), [candles]);
+  if (!keltner || !donchian || !starc || !ck) return <EmptyState />;
+  const last = candles.length - 1;
+  return (
+    <div className="space-y-4">
+      <Card>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="w-4 h-4 text-primary" /> Keltner Channels</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <MetricRow label="Upper" value={keltner.upper[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Mid (EMA)" value={keltner.mid[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Lower" value={keltner.lower[last]?.toFixed(5) ?? "N/A"} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle className="text-sm">Donchian Channels</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <MetricRow label="Upper" value={donchian.upper[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Mid" value={donchian.mid[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Lower" value={donchian.lower[last]?.toFixed(5) ?? "N/A"} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle className="text-sm">STARC Bands</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <MetricRow label="Upper" value={starc.upper[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Mid" value={starc.mid[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Lower" value={starc.lower[last]?.toFixed(5) ?? "N/A"} />
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle className="text-sm">Chande Kroll Stop</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <MetricRow label="Stop Long" value={ck.stopLong[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Stop Short" value={ck.stopShort[last]?.toFixed(5) ?? "N/A"} />
+        </CardContent>
+      </Card>
     </div>
   );
 }
 
-function ChoppinessView({ data }: { data: (number | null)[] }) {
-  const n = data.length;
-  const val = data[n - 1];
-  if (val == null) return <div className="text-xs text-muted-foreground">Insufficient data</div>;
-  const regime = val < 38.2 ? "Trending" : val > 61.8 ? "Choppy" : "Transitional";
-  const color = val < 38.2 ? "text-emerald-400" : val > 61.8 ? "text-amber-400" : "text-muted-foreground";
+// ---------- Oscillators Tab (Williams %R, CCI, TRIX, Fisher, Vortex, Elder Ray, DPO, KST, Coppock) ----------
+function OscillatorsTab({ candles }: { candles: Candle[] }) {
+  const wr = useMemo(() => (candles.length > 30 ? williamsR(candles) : null), [candles]);
+  const cciArr = useMemo(() => (candles.length > 30 ? cci(candles) : null), [candles]);
+  const trixArr = useMemo(() => (candles.length > 30 ? trix(candles.map((c) => c.close)) : null), [candles]);
+  const fisher = useMemo(() => (candles.length > 30 ? fisherTransform(candles) : null), [candles]);
+  const vortexRes = useMemo(() => (candles.length > 30 ? vortex(candles) : null), [candles]);
+  const elder = useMemo(() => (candles.length > 30 ? elderRay(candles) : null), [candles]);
+  const dpoArr = useMemo(() => (candles.length > 30 ? dpo(candles.map((c) => c.close)) : null), [candles]);
+  const kstRes = useMemo(() => (candles.length > 30 ? kst(candles.map((c) => c.close)) : null), [candles]);
+  const coppock = useMemo(() => (candles.length > 30 ? coppockCurve(candles.map((c) => c.close)) : null), [candles]);
+  if (!wr || !cciArr || !trixArr || !fisher || !vortexRes || !elder || !dpoArr || !kstRes || !coppock) return <EmptyState />;
+  const last = candles.length - 1;
   return (
-    <div className="space-y-3">
-      <div className="flex items-center gap-4">
-        <div className={`text-3xl font-bold ${color}`}>{val.toFixed(1)}</div>
-        <div>
-          <div className={`text-sm font-semibold ${color}`}>{regime}</div>
-          <div className="text-xs text-muted-foreground">CHOP &lt; 38.2 = trend, &gt; 61.8 = chop</div>
-        </div>
-      </div>
-      <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-        <div
-          className="h-full transition-all"
-          style={{ width: `${Math.min(100, val)}%`, background: val < 38.2 ? "#10b981" : val > 61.8 ? "#f59e0b" : "#6b7280" }}
-        />
-      </div>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Activity className="w-4 h-4 text-primary" /> Oscillators</CardTitle></CardHeader>
+        <CardContent className="space-y-2">
+          <MetricRow label="Williams %R" value={wr[last]?.toFixed(2) ?? "N/A"} />
+          <MetricRow label="CCI" value={cciArr[last]?.toFixed(2) ?? "N/A"} />
+          <MetricRow label="TRIX" value={trixArr[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="Fisher" value={fisher.fisher[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="Fisher Signal" value={fisher.signal[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="Vortex +" value={vortexRes.viPlus[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="Vortex -" value={vortexRes.viMinus[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="Elder Bull" value={elder.bullPower[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="Elder Bear" value={elder.bearPower[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="DPO" value={dpoArr[last]?.toFixed(5) ?? "N/A"} />
+          <MetricRow label="KST" value={kstRes.kst[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="KST Signal" value={kstRes.signal[last]?.toFixed(4) ?? "N/A"} />
+          <MetricRow label="Coppock" value={coppock[last]?.toFixed(4) ?? "N/A"} />
+        </CardContent>
+      </Card>
     </div>
   );
+}
+
+// ---------- Volume Tab (OBV, MFI, CMF, Force Index, Ease of Movement, Mass Index, PVT, NVI, PVI, Chaikin Osc) ----------
+function VolumeTab({ candles }: { candles: Candle[] }) {
+  const obvArr = useMemo(() => (candles.length > 30 ? obv(candles) : null), [candles]);
+  const mfiArr = useMemo(() => (candles.length > 30 ? mfi(candles) : null), [candles]);
+  const cmfArr = useMemo(() => (candles.length > 30 ? cmf(candles) : null), [candles]);
+  const fi = useMemo(() => (candles.length > 30 ? forceIndex(candles) : null), [candles]);
+  const eom = useMemo(() => (candles.length > 30 ? easeOfMovement(candles) : null), [candles]);
+  const mi = useMemo(() => (candles.length > 30 ? massIndex(candles) : null), [candles]);
+  const pvtArr = useMemo(() => (candles.length > 30 ? pvt(candles) : null), [candles]);
+  const nviArr = useMemo(() => (candles.length > 30 ? nvi(candles) : null), [candles]);
+  const pviArr = useMemo(() => (candles.length > 30 ? pvi(candles) : null), [candles]);
+  const chaikin = useMemo(() => (candles.length > 30 ? chaikinOscillator(candles) : null), [candles]);
+  if (!obvArr || !mfiArr || !cmfArr || !fi || !eom || !mi || !pvtArr || !nviArr || !pviArr || !chaikin) return <EmptyState />;
+  const last = candles.length - 1;
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><LineChart className="w-4 h-4 text-primary" /> Volume Indicators</CardTitle></CardHeader>
+      <CardContent className="space-y-2">
+        <MetricRow label="OBV" value={obvArr[last].toFixed(0)} />
+        <MetricRow label="MFI" value={mfiArr[last]?.toFixed(2) ?? "N/A"} />
+        <MetricRow label="CMF" value={cmfArr[last]?.toFixed(4) ?? "N/A"} />
+        <MetricRow label="Force Index" value={fi[last]?.toFixed(2) ?? "N/A"} />
+        <MetricRow label="Ease of Movement" value={eom[last]?.toFixed(2) ?? "N/A"} />
+        <MetricRow label="Mass Index" value={mi[last]?.toFixed(2) ?? "N/A"} />
+        <MetricRow label="PVT" value={pvtArr[last].toFixed(0)} />
+        <MetricRow label="NVI" value={nviArr[last].toFixed(0)} />
+        <MetricRow label="PVI" value={pviArr[last].toFixed(0)} />
+        <MetricRow label="Chaikin Osc" value={chaikin[last]?.toFixed(2) ?? "N/A"} />
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Extra Score Tab ----------
+function ExtraScoreTab({ candles, xScore }: { candles: Candle[]; xScore: ExtraScore | null }) {
+  if (!xScore) return <EmptyState />;
+  const pct = xScore.score;
+  const bias = pct > 60 ? "Bullish" : pct < 40 ? "Bearish" : "Neutral";
+  const color = bias === "Bullish" ? "text-green-500" : bias === "Bearish" ? "text-red-500" : "text-yellow-500";
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Target className="w-4 h-4 text-primary" /> Extra Composite Score</CardTitle></CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex items-center gap-4">
+          <div className={`text-5xl font-bold ${color}`}>{pct.toFixed(0)}</div>
+          <span className={`text-lg font-semibold ${color}`}>{bias}</span>
+        </div>
+        <div className="space-y-2">
+          {xScore.signals.map((s, i) => (
+            <div key={i} className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">{s.name}</span>
+              <span className={s.bullish ? "text-green-500" : "text-red-500"}>{s.bullish ? "Bullish" : "Bearish"} ({s.value.toFixed(2)})</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Heikin Ashi Tab ----------
+function HeikinAshiTab({ candles }: { candles: Candle[] }) {
+  const ha = useMemo(() => (candles.length > 0 ? heikinAshi(candles) : null), [candles]);
+  if (!ha) return <EmptyState />;
+  const last = candles.length - 1;
+  const bullish = ha.close[last] >= ha.open[last];
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Cpu className="w-4 h-4 text-primary" /> Heikin Ashi</CardTitle></CardHeader>
+      <CardContent className="space-y-2">
+        <div className={`px-3 py-2 rounded-lg text-sm font-semibold ${bullish ? "bg-green-500/20 text-green-500" : "bg-red-500/20 text-red-500"}`}>Last Candle: {bullish ? "Bullish" : "Bearish"}</div>
+        <MetricRow label="HA Open" value={ha.open[last].toFixed(5)} />
+        <MetricRow label="HA High" value={ha.high[last].toFixed(5)} />
+        <MetricRow label="HA Low" value={ha.low[last].toFixed(5)} />
+        <MetricRow label="HA Close" value={ha.close[last].toFixed(5)} />
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- ZigZag Tab ----------
+function ZigZagTab({ candles }: { candles: Candle[] }) {
+  const points = useMemo(() => (candles.length > 10 ? zigZag(candles, 5) : []), [candles]);
+  return (
+    <Card>
+      <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Sparkles className="w-4 h-4 text-primary" /> ZigZag Pivots</CardTitle></CardHeader>
+      <CardContent className="space-y-2">
+        <div className="text-sm text-muted-foreground">{points.length} pivot points detected</div>
+        <div className="space-y-1 max-h-60 overflow-y-auto">
+          {points.slice(-20).map((p, i) => (
+            <div key={i} className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Candle #{p.index}</span>
+              <span className={p.type === "high" ? "text-green-500" : "text-red-500"}>{p.type.toUpperCase()} @ {p.price.toFixed(5)}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+// ---------- Helpers ----------
+function MetricRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-center justify-between text-sm">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-mono">{value}</span>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return <div className="text-sm text-muted-foreground py-8 text-center">Load candle data to view this indicator.</div>;
 }
