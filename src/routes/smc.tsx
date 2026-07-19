@@ -86,7 +86,6 @@ function detectOrderBlocks(candles: Candle[]): OrderBlock[] {
     const range = c.high - c.low;
     if (range === 0) continue;
 
-    // Bullish order block: last bearish candle before a strong bullish move
     if (c.close > c.open && body > range * 0.6) {
       if (prev.close < prev.open) {
         const ob: OrderBlock = {
@@ -98,7 +97,6 @@ function detectOrderBlocks(candles: Candle[]): OrderBlock[] {
           mitigated: false,
           time: slice[i].epoch,
         };
-        // Check if mitigated (price returned to block)
         for (let j = i + 1; j < slice.length; j++) {
           if (slice[j].low <= ob.top) {
             ob.mitigated = true;
@@ -109,7 +107,6 @@ function detectOrderBlocks(candles: Candle[]): OrderBlock[] {
       }
     }
 
-    // Bearish order block: last bullish candle before a strong bearish move
     if (c.close < c.open && body > range * 0.6) {
       if (prev.close > prev.open) {
         const ob: OrderBlock = {
@@ -140,7 +137,6 @@ function detectStructureBreaks(candles: Candle[]): StructureBreak[] {
   const lookback = Math.min(candles.length, 120);
   const slice = candles.slice(-lookback);
 
-  // Find swing highs and lows (3-bar pattern)
   const swingHighs: { idx: number; price: number }[] = [];
   const swingLows: { idx: number; price: number }[] = [];
 
@@ -163,7 +159,6 @@ function detectStructureBreaks(candles: Candle[]): StructureBreak[] {
     }
   }
 
-  // Detect BOS: price breaks a previous swing high (bullish) or low (bearish)
   let lastBias: "bullish" | "bearish" | null = null as "bullish" | "bearish" | null;
   for (let i = 0; i < swingHighs.length - 1; i++) {
     const sh = swingHighs[i];
@@ -204,7 +199,6 @@ function detectLiquiditySweeps(candles: Candle[]): LiquiditySweep[] {
   const lookback = Math.min(candles.length, 80);
   const slice = candles.slice(-lookback);
 
-  // Find recent swing highs/lows (liquidity pools)
   const highs: { idx: number; price: number }[] = [];
   const lows: { idx: number; price: number }[] = [];
 
@@ -223,7 +217,6 @@ function detectLiquiditySweeps(candles: Candle[]): LiquiditySweep[] {
     }
   }
 
-  // Check if later candles swept those levels and reversed
   for (const h of highs) {
     for (let j = h.idx + 1; j < slice.length; j++) {
       if (slice[j].high > h.price && slice[j].close < h.price) {
@@ -282,13 +275,12 @@ function SMCPage() {
       const breaks = detectStructureBreaks(cs);
       const sweeps = detectLiquiditySweeps(cs);
 
-      // Bias from structure breaks + order block mitigation
       const bullishBreaks = breaks.filter((b) => b.direction === "bullish").length;
       const bearishBreaks = breaks.filter((b) => b.direction === "bearish").length;
       const unmitigatedBull = orderBlocks.filter((o) => o.type === "bullish" && !o.mitigated).length;
       const unmitigatedBear = orderBlocks.filter((o) => o.type === "bearish" && !o.mitigated).length;
       const bullScore = bullishBreaks * 2 + unmitigatedBull;
-      const bearScore = bearishBreaks * 2 + unmitigatedBear;
+      const bearScore = bearBreaks * 2 + unmitigatedBear;
       const biasScore = Math.round(((bullScore - bearScore) / Math.max(1, bullScore + bearScore)) * 100);
       const bias = biasScore > 15 ? "bullish" : biasScore < -15 ? "bearish" : "neutral";
 
@@ -389,7 +381,7 @@ function SMCPage() {
                     : analysis.bias === "bearish"
                       ? "border-bear/30 bg-bear/5"
                       : "border-border bg-card/60"
-                }`
+                }`}
               >
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -410,7 +402,7 @@ function SMCPage() {
                       : analysis.bias === "bearish"
                         ? "text-bear"
                         : "text-muted-foreground"
-                  }`
+                  }`}
                 >
                   {analysis.bias}
                 </div>
@@ -484,7 +476,7 @@ function SMCPage() {
                               ob.type === "bullish"
                                 ? "bg-bull/20 text-bull"
                                 : "bg-bear/20 text-bear"
-                            }`
+                            }`}
                           >
                             {ob.type === "bullish" ? "BULL OB" : "BEAR OB"}
                           </span>
@@ -501,12 +493,12 @@ function SMCPage() {
                           </div>
                           {ob.mitigated ? (
                             <Badge variant="outline" className="text-muted-foreground text-[10px]">
-              mitigated
-            </Badge>
+                              mitigated
+                            </Badge>
                           ) : (
                             <Badge className="bg-amber-500/20 text-amber-400 text-[10px] border-0">
-              fresh
-            </Badge>
+                              fresh
+                            </Badge>
                           )}
                         </div>
                       </div>
@@ -539,7 +531,7 @@ function SMCPage() {
                               z.type === "demand"
                                 ? "bg-bull/20 text-bull"
                                 : "bg-bear/20 text-bear"
-                            }`
+                            }`}
                           >
                             {z.type.toUpperCase()}
                           </span>
@@ -596,7 +588,7 @@ function SMCPage() {
                                 b.type === "CHoCH"
                                   ? "bg-violet-500/20 text-violet-400"
                                   : "bg-cyan-500/20 text-cyan-400"
-                              }`
+                              }`}
                             >
                               {b.type}
                             </span>
@@ -640,7 +632,7 @@ function SMCPage() {
                                 s.type === "buy-side"
                                   ? "bg-bull/20 text-bull"
                                   : "bg-bear/20 text-bear"
-                              }`
+                              }`}
                             >
                               {s.type === "buy-side" ? "BUY-SIDE" : "SELL-SIDE"}
                             </span>

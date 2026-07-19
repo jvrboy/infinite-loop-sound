@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell } from "@components/app/AppShell";
+import { AppShell } from "@/components/app/AppShell";
 import { Wallet, TrendingUp, TrendingDown, Plus, Trash2 } from "lucide-react";
 import { useState, useMemo, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -112,7 +112,7 @@ function PortfolioPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-card border border-border p-4 rounded-lg">
             <div className="text-[10px] text-muted-foreground uppercase">Total PnL</div>
-            <div className={`font-mono font-bold text-2xl mt-1 ${stats.totalPnl >= 0 ? "text-bull" : "text-bear"}">
+            <div className={`font-mono font-bold text-2xl mt-1 ${stats.totalPnl >= 0 ? "text-bull" : "text-bear"}`}>
               {stats.totalPnl >= 0 ? "+" : ""}{stats.totalPnl.toFixed(2)}
             </div>
           </div>
