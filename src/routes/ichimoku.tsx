@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell } from "@components/app/AppShell";
+import { AppShell } from "@/components/app/AppShell";
 import { Cloud, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { useState, useMemo } from "react";
 
