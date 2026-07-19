@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid3x3, Grid, Orbit, Workflow, Network, TrainFront } from "lucide-react";
+import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid3x3, Grid, Orbit, Workflow, Network, TrainFront, Newspaper, FlaskConical } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
 import { ShaderBackground } from "./ShaderRegistry";
@@ -91,6 +91,11 @@ const NAV = [
   { to: "/swarm", label: "Agent Swarm", icon: Orbit },
   { to: "/automation-hub", label: "Automation Hub", icon: Workflow },
   { to: "/shaders", label: "Shaders", icon: Palette },
+  { to: "/ai-agents", label: "AI Agents", icon: Brain },
+  { to: "/portfolio-pro", label: "Portfolio Pro", icon: Wallet },
+  { to: "/risk-manager", label: "Risk Manager", icon: Shield },
+  { to: "/market-news", label: "Market News", icon: Newspaper },
+  { to: "/strategy-lab", label: "Strategy Lab", icon: FlaskConical },
 ] as const;
 
 // Desktop grouped sections
@@ -135,6 +140,7 @@ const SECTIONS = [
       { to: "/bot", label: "Auto-Bot", icon: Rocket },
       { to: "/swarm", label: "Agent Swarm", icon: Orbit },
       { to: "/automation-hub", label: "Automation Hub", icon: Workflow },
+      { to: "/ai-agents", label: "AI Agents", icon: Brain },
     ],
   },
   {
@@ -152,6 +158,7 @@ const SECTIONS = [
       { to: "/fear-greed", label: "Fear & Greed", icon: Flame },
       { to: "/correlation-matrix", label: "Correlation Matrix", icon: Grid },
       { to: "/market-systems", label: "Market Systems", icon: Network },
+      { to: "/market-news", label: "Market News", icon: Newspaper },
     ],
   },
   {
@@ -186,6 +193,7 @@ const SECTIONS = [
       { to: "/volatility", label: "Vol Regime", icon: Flame },
       { to: "/walk-forward", label: "Walk-Forward", icon: Target },
       { to: "/kelly-criterion", label: "Kelly Criterion", icon: Calculator },
+      { to: "/strategy-lab", label: "Strategy Lab", icon: FlaskConical },
     ],
   },
   {
@@ -197,6 +205,7 @@ const SECTIONS = [
       { to: "/checklist", label: "Pre-Trade Checklist", icon: CheckSquare },
       { to: "/session-overlap", label: "Session Overlap", icon: Globe },
       { to: "/replay", label: "Scenario Tester", icon: Play },
+      { to: "/risk-manager", label: "Risk Manager", icon: Shield },
     ],
   },
   {
@@ -204,6 +213,7 @@ const SECTIONS = [
     icon: Wallet,
     items: [
       { to: "/portfolio", label: "Portfolio", icon: Wallet },
+      { to: "/portfolio-pro", label: "Portfolio Pro", icon: Wallet },
       { to: "/watchlist", label: "Watchlist", icon: Eye },
       { to: "/notifications", label: "Notifications", icon: Bell },
       { to: "/strategy-market", label: "Strategy Market", icon: Store },
