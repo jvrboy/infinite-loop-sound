@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { AppShell } from "@components/app/AppShell";
+import { AppShell } from "@/components/app/AppShell";
 import { Eye, Plus, Trash2, Star } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -66,7 +66,7 @@ function WatchlistPage() {
 
   const toggleStar = async (item: WatchItem) => {
     try { await supabase.from("watchlist").update({ starred: !item.starred }).eq("id", item.id); } catch (e) {}
-    setItems(items.map((i) => (i.id === item.id ? { ...i, starred: !i.starred } : i)));
+    setItems(items.map((i) => (i.id === item.id ? { ...i, starred: !item.starred } : i)));
   };
 
   return (
