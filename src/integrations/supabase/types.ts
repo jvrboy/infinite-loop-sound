@@ -605,6 +605,93 @@ export type Database = {
         };
         Relationships: [];
       };
+      signal_outcomes: {
+        Row: {
+          id: string;
+          pair: string;
+          timeframe: string;
+          session: string | null;
+          strategy: string;
+          direction: string;
+          confluence_factors: Json;
+          entry_price: number | null;
+          exit_price: number | null;
+          outcome: string;
+          pnl_pips: number | null;
+          confidence_at_signal: number | null;
+          created_at: string;
+          resolved_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          pair: string;
+          timeframe: string;
+          session?: string | null;
+          strategy: string;
+          direction: string;
+          confluence_factors?: Json;
+          entry_price?: number | null;
+          exit_price?: number | null;
+          outcome?: string;
+          pnl_pips?: number | null;
+          confidence_at_signal?: number | null;
+          created_at?: string;
+          resolved_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          pair?: string;
+          timeframe?: string;
+          session?: string | null;
+          strategy?: string;
+          direction?: string;
+          confluence_factors?: Json;
+          entry_price?: number | null;
+          exit_price?: number | null;
+          outcome?: string;
+          pnl_pips?: number | null;
+          confidence_at_signal?: number | null;
+          created_at?: string;
+          resolved_at?: string | null;
+        };
+        Relationships: [];
+      };
+      confluence_weights: {
+        Row: {
+          id: string;
+          pair: string;
+          session: string;
+          strategy: string;
+          factor: string;
+          weight: number;
+          samples: number;
+          win_count: number;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          pair: string;
+          session: string;
+          strategy: string;
+          factor: string;
+          weight?: number;
+          samples?: number;
+          win_count?: number;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          pair?: string;
+          session?: string;
+          strategy?: string;
+          factor?: string;
+          weight?: number;
+          samples?: number;
+          win_count?: number;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
