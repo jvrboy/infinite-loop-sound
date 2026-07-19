@@ -188,9 +188,7 @@ function StepEditor({ state, setState }: { state: ChannelRackState; setState: Re
       ...prev,
       channels: prev.channels.map((c) =>
         c.id === channel.id
-          ? updateStep(c, selectedStep, patch).steps[selectedStep]
-            ? { ...c, steps: c.steps.map((s, i) => (i === selectedStep ? { ...s, ...patch } : s)) }
-            : c
+          ? { ...c, steps: c.steps.map((s, i) => (i === selectedStep ? { ...s, ...patch } : s)) }
           : c,
       ),
     }));
