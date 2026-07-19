@@ -21,6 +21,25 @@ jobs:
           git init -b main
           git config user.email "actions@github.com"
           git config user.name "github-actions"
+
+          # Remove binary files that Hugging Face rejects.
+          # PDFs, WASM, and other large binaries must use HF Xet storage,
+          # not plain git. We exclude them from the sync.
+          find . -type f \( \
+            -name '*.pdf' \
+            -o -name '*.wasm' \
+            -o -name '*.exe' \
+            -o -name '*.dll' \
+            -o -name '*.so' \
+            -o -name '*.dylib' \
+            -o -name '*.zip' \
+            -o -name '*.tar.gz' \
+            -o -name '*.bin' \
+          \) -delete
+
+          # Also remove empty upload/ directory if it exists
+          rm -rf upload/
+
           git add -A
           git commit -m "Sync from GitHub: ${GITHUB_SHA::7}"
           git push --force "https://Vietrin9:${HF_TOKEN}@huggingface.co/spaces/Vietrin9/infinite-loop-sound" main:main
