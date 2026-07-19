@@ -1,8 +1,8 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid3x3, Grid } from "lucide-react";
+import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid3x3, Grid, Orbit, Workflow, Network, TrainFront } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
-import { ThreeBackground } from "./ThreeBackground";
+import { ShaderBackground } from "./ShaderRegistry";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV = [
@@ -87,6 +87,10 @@ const NAV = [
   { to: "/fear-greed", label: "Fear/Greed", icon: Flame },
   { to: "/correlation-matrix", label: "Corr Matrix", icon: Grid },
   { to: "/chrysalis", label: "CHRYSALIS", icon: Dna },
+  { to: "/market-systems", label: "Market Systems", icon: Network },
+  { to: "/swarm", label: "Agent Swarm", icon: Orbit },
+  { to: "/automation-hub", label: "Automation Hub", icon: Workflow },
+  { to: "/shaders", label: "Shaders", icon: Palette },
 ] as const;
 
 // Desktop grouped sections
@@ -129,6 +133,8 @@ const SECTIONS = [
       { to: "/confluence", label: "Confluence", icon: Crosshair },
       { to: "/automation", label: "Automation", icon: Timer },
       { to: "/bot", label: "Auto-Bot", icon: Rocket },
+      { to: "/swarm", label: "Agent Swarm", icon: Orbit },
+      { to: "/automation-hub", label: "Automation Hub", icon: Workflow },
     ],
   },
   {
@@ -145,6 +151,7 @@ const SECTIONS = [
       { to: "/market-breadth", label: "Market Breadth", icon: BarChart3 },
       { to: "/fear-greed", label: "Fear & Greed", icon: Flame },
       { to: "/correlation-matrix", label: "Correlation Matrix", icon: Grid },
+      { to: "/market-systems", label: "Market Systems", icon: Network },
     ],
   },
   {
@@ -208,6 +215,7 @@ const SECTIONS = [
     items: [
       { to: "/chrysalis", label: "CHRYSALIS", icon: Dna },
       { to: "/music", label: "Music Studio", icon: Music },
+      { to: "/shaders", label: "Shader Gallery", icon: Palette },
     ],
   },
   {
@@ -344,7 +352,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   if (zenMode) {
     return (
       <div className="min-h-screen flex bg-background text-foreground relative">
-        <ThreeBackground />
+        <ShaderBackground />
         <main className="flex-1 w-full h-screen overflow-auto relative z-10">
           {children}
           <button
@@ -361,7 +369,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen flex bg-background text-foreground relative">
-      <ThreeBackground />
+      <ShaderBackground />
       {!isMobile && (
         <aside
           className={`flex ${collapsed ? "w-16" : "w-64"} flex-col glass-sidebar border-r border-sidebar-border relative z-10 h-screen select-none transition-[width] duration-300 ease-out`}
