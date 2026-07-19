@@ -96,6 +96,7 @@ const NAV = [
   { to: "/risk-manager", label: "Risk Manager", icon: Shield },
   { to: "/market-news", label: "Market News", icon: Newspaper },
   { to: "/strategy-lab", label: "Strategy Lab", icon: FlaskConical },
+  { to: "/theme", label: "Theme", icon: Palette },
 ] as const;
 
 // Desktop grouped sections
@@ -226,6 +227,7 @@ const SECTIONS = [
       { to: "/chrysalis", label: "CHRYSALIS", icon: Dna },
       { to: "/music", label: "Music Studio", icon: Music },
       { to: "/shaders", label: "Shader Gallery", icon: Palette },
+      { to: "/theme", label: "Theme Settings", icon: Palette },
     ],
   },
   {
@@ -719,16 +721,14 @@ export function AppShell({ children }: { children: ReactNode }) {
                   </Link>
                 );
               })}
-              <button
-                onClick={() => {
-                  setMoreOpen(false);
-                  setThemeOpen(true);
-                }}
+              <Link
+                to="/theme"
+                onClick={() => setMoreOpen(false)}
                 className="flex flex-col items-center justify-center gap-1 p-3 rounded-lg bg-card text-muted-foreground"
               >
                 <Palette className="w-5 h-5" />
                 <span className="text-[11px] font-mono">Theme</span>
-              </button>
+              </Link>
             </div>
           </div>
         )}

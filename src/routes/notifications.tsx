@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { Bell, BellOff, Check, Trash2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from "react";
+import { store } from "@/lib/store/offline";
 
 type Notification = {
   id: string;
@@ -23,33 +23,36 @@ function NotificationsPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "unread">("all");
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(100);
-      if (error) throw error;
-      setNotifs(data || []);
-    } catch (e) {
+      const data = await store.select<Notification>("notifications", {
+        orderBy: "created_at",
+        ascending: false,
+        limit: 100,
+      });
+      setNotifs(data);
+    } catch {
       setNotifs([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const markRead = async (id: string) => {
-    try { await supabase.from("notifications").update({ read: true }).eq("id", id); } catch (e) {}
+    try { await store.update("notifications", id, { read: true }); } catch {}
     setNotifs(notifs.map((n) => (n.id === id ? { ...n, read: true } : n)));
   };
 
   const markAllRead = async () => {
-    try { await supabase.from("notifications").update({ read: true }).neq("read", true); } catch (e) {}
+    try { await store.updateWhere("notifications", { read: false }, { read: true }); } catch {}
     setNotifs(notifs.map((n) => ({ ...n, read: true })));
   };
 
   const clearAll = async () => {
-    try { await supabase.from("notifications").delete().neq("id", ""); } catch (e) {}
+    try { await store.deleteWhere("notifications", {}); } catch {}
     setNotifs([]);
   };
 

@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { Eye, Plus, Trash2, Star } from "lucide-react";
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState, useEffect, useCallback } from "react";
+import { store } from "@/lib/store/offline";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/watchlist")({
@@ -25,32 +25,33 @@ function WatchlistPage() {
   const [showForm, setShowForm] = useState(false);
   const [newItem, setNewItem] = useState({ symbol: "", notes: "", alert_price: "" });
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.from("watchlist").select("*").order("starred", { ascending: false }).order("created_at", { ascending: false });
-      if (error) throw error;
-      setItems(data || []);
-    } catch (e) {
+      const data = await store.select<WatchItem>("watchlist", {
+        orderBy: "starred",
+        ascending: false,
+      });
+      setItems(data);
+    } catch {
       setItems([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const addItem = async () => {
     if (!newItem.symbol) { toast.error("Symbol required"); return; }
     try {
-      const { data, error } = await supabase.from("watchlist").insert({
+      const row = await store.insert<WatchItem>("watchlist", {
         symbol: newItem.symbol.toUpperCase(),
         notes: newItem.notes,
         alert_price: newItem.alert_price ? Number(newItem.alert_price) : null,
         starred: false,
-      }).select();
-      if (error) throw error;
-      setItems([data[0], ...items]);
+      });
+      setItems([row, ...items]);
       setNewItem({ symbol: "", notes: "", alert_price: "" });
       setShowForm(false);
       toast.success("Added to watchlist");
@@ -60,13 +61,13 @@ function WatchlistPage() {
   };
 
   const removeItem = async (id: string) => {
-    try { await supabase.from("watchlist").delete().eq("id", id); } catch (e) {}
+    try { await store.delete("watchlist", id); } catch {}
     setItems(items.filter((i) => i.id !== id));
   };
 
   const toggleStar = async (item: WatchItem) => {
-    try { await supabase.from("watchlist").update({ starred: !item.starred }).eq("id", item.id); } catch (e) {}
-    setItems(items.map((i) => (i.id === item.id ? { ...i, starred: !item.starred } : i)));
+    try { await store.update("watchlist", item.id, { starred: !item.starred }); } catch {}
+    setItems(items.map((i) => (i.id === item.id ? { ...i, starred: !i.starred } : i)));
   };
 
   return (
