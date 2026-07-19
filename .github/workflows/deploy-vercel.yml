@@ -41,7 +41,7 @@ jobs:
           NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Install Vercel CLI
-n        run: npm i -g vercel@latest
+        run: npm i -g vercel@latest
 
       - name: Pull Vercel Environment
         run: vercel pull --yes --token=${{ secrets.VERCEL_TOKEN }} --environment=production
