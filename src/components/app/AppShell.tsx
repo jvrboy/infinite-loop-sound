@@ -63,6 +63,7 @@ const NAV = [
   { to: "/drawdown-shield", label: "Drawdown Shield", icon: Shield },
   { to: "/checklist", label: "Pre-Trade Checklist", icon: CheckSquare },
   { to: "/replay", label: "Scenario Tester", icon: Play },
+  { to: "/walk-forward", label: "Walk-Forward", icon: Target },
 ] as const;
 
 // Desktop grouped sections
@@ -137,6 +138,7 @@ const SECTIONS = [
       { to: "/monte-carlo", label: "Monte Carlo", icon: Dices },
       { to: "/correlation", label: "Correlation", icon: Activity },
       { to: "/volatility", label: "Vol Regime", icon: Flame },
+      { to: "/walk-forward", label: "Walk-Forward", icon: Target },
     ],
   },
   {
