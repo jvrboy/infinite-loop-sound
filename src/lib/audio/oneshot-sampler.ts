@@ -111,7 +111,7 @@ export function normalizeBuffer(ctx: BaseAudioContext, buffer: AudioBuffer, targ
   for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
     const src = buffer.getChannelData(ch);
     const dst = out.getChannelData(ch);
-    for (let i = 0; i < d.length; i++) dst[i] = src[i] * gain;
+    for (let i = 0; i < src.length; i++) dst[i] = src[i] * gain;
   }
   return out;
 }

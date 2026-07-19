@@ -54,7 +54,7 @@ export interface ChannelRackState {
 
 export function createDefaultStep(): ChannelRackStep {
   return { active: false, velocity: 100, pitch: 0, pan: 0, gain: 1, retrigger: 1, reverse: false };
-};
+}
 
 export function createDefaultChannel(name: string, steps: number): ChannelRackChannel {
   return {
@@ -64,7 +64,7 @@ export function createDefaultChannel(name: string, steps: number): ChannelRackCh
     reverb: 0, delay: 0, filter: 1, filterFreq: 20000, distortion: 0,
     swing: 0, humanize: 0, midiChannel: 0, outputBus: "master",
   };
-};
+}
 
 export function createDefaultChannelRack(): ChannelRackState {
   const steps = 16;
@@ -79,7 +79,7 @@ export function createDefaultChannelRack(): ChannelRackState {
     playing: false, currentStep: 0, swing: 0, masterVolume: 0.8,
     loopMode: true, loopStart: 0, loopEnd: steps - 1,
   };
-};
+}
 
 export function toggleStep(channel: ChannelRackChannel, stepIndex: number): ChannelRackChannel {
   const steps = [...channel.steps];
@@ -158,12 +158,14 @@ export class ChannelRackScheduler {
   stop() { if (this.timer) { clearTimeout(this.timer); this.timer = null; } }
   private schedule = () => {
     const stepDur = stepDurationSec(this.rack);
+    const anySolo = this.rack.channels.some((c) => c.solo);
     while (this.nextStepTime < this.ctx.currentTime + 0.1) {
       const step = this.currentStep;
       const swingOffset = step % 2 === 1 ? stepDur * this.rack.swing * 0.5 : 0;
       const startTime = this.nextStepTime + swingOffset;
       for (const channel of this.rack.channels) {
-        if (channel.solo ? !channel.solo : channel.muted) continue;
+        if (channel.muted) continue;
+        if (anySolo && !channel.solo) continue;
         const stepData = channel.steps[step];
         if (stepData?.active) playStep(this.ctx, channel, stepData, startTime);
       }
