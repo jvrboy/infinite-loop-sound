@@ -46,6 +46,7 @@ import { walkForward } from "@/lib/engine/walk-forward";
 import { simulateSlippage } from "@/lib/engine/slippage";
 import { clusterAnomalies } from "@/lib/engine/anomaly-cluster";
 import type { Candle } from "@/lib/engine/indicators";
+import { DEV_SKILLS } from "@/lib/skills/dev-skills";
 
 export type SkillCategory =
   | "Market Data"
@@ -1268,6 +1269,7 @@ export const SKILLS: Skill[] = [
   ...power_skills,
   ...new_tool_skills,
   ...declarative_skills,
+  ...DEV_SKILLS,
 ];
 
 // Sanity log so you can verify count in dev:
