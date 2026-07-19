@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect, useRef } from "react";
 import {
-  BarChart3,
+  BarChart,
   TrendingUp,
   Activity,
   RefreshCw,

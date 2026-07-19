@@ -5,7 +5,7 @@ import {
   Activity,
   Zap,
   Clock,
-  CheckCircle2,
+  CircleCheck,
   XCircle,
   Radio,
   Server,

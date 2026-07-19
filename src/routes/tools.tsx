@@ -4,7 +4,7 @@ import { FOREX_ASSETS, deriv, displayPair } from "@/lib/engine/deriv";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Activity,
-  BarChart3,
+  BarChart,
   Calculator,
   Clock,
   Gauge,
@@ -18,7 +18,7 @@ import {
   Zap,
   AlignJustify,
   ArrowUpFromLine,
-  Dice5,
+  Dices,
   type LucideIcon,
 } from "lucide-react";
 import type { ReactNode } from "react";

@@ -14,7 +14,7 @@ import {
   Brain,
   Zap,
   Shield,
-  BarChart3,
+  BarChart,
   Settings2,
   ChevronDown,
   ChevronUp,

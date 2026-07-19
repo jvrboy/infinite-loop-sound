@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { useState, useMemo, useEffect } from "react";
 import {
   ListChecks,
-  CheckCircle2,
+  CircleCheck,
   XCircle,
   Circle,
   Plus,

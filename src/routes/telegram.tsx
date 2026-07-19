@@ -12,7 +12,7 @@ import {
 } from "@/lib/telegram.functions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Bot, Send, Copy, Check, Zap, RefreshCw, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Bot, Send, Copy, Check, Zap, RefreshCw, AlertCircle, CircleCheck } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/telegram")({

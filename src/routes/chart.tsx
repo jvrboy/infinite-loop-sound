@@ -31,7 +31,7 @@ import {
   Radio,
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   Eye,
   EyeOff,
   Crosshair,

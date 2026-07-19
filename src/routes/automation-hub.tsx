@@ -16,7 +16,7 @@ import {
   Gauge,
   Cpu,
   Workflow,
-  CheckCircle2,
+  CircleCheck,
   TrendingUp,
   Bell,
 } from "lucide-react";

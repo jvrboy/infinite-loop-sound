@@ -5,7 +5,7 @@ import {
   Cloud,
   Zap,
   Server,
-  Link2,
+  Link,
   Check,
   ExternalLink,
   Cpu,

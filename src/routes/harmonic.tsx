@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { Waves, CheckCircle2, XCircle } from "lucide-react";
+import { Waves, CircleCheck, XCircle } from "lucide-react";
 import { useState, useMemo } from "react";
 
 export const Route = createFileRoute("/harmonic")({

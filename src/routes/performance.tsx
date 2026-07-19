@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import {
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   LineChart,
   PieChart,
   Target,

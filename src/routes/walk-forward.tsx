@@ -3,8 +3,8 @@ import { AppShell } from "@/components/app/AppShell";
 import { useState, useMemo, useCallback } from "react";
 import {
   Activity,
-  BarChart3,
-  CheckCircle2,
+  BarChart,
+  CircleCheck,
   AlertTriangle,
   RefreshCw,
   TrendingDown,

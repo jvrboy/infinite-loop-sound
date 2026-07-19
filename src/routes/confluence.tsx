@@ -11,7 +11,7 @@ import {
   Activity,
   Loader2,
   ChevronDown,
-  BarChart3,
+  BarChart,
   Shield,
   Sparkles,
   ArrowUpCircle,

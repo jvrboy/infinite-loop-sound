@@ -10,10 +10,10 @@ import {
   Trash2,
   RefreshCw,
   Target,
-  BarChart3,
+  BarChart,
   Lock,
   Unlock,
-  CheckCircle2,
+  CircleCheck,
   XCircle,
   DollarSign,
 } from "lucide-react";

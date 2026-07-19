@@ -7,7 +7,7 @@ import {
   Save,
   Star,
   AlertTriangle,
-  CheckCircle2,
+  CircleCheck,
   Brain,
   Heart,
   Frown,

@@ -77,7 +77,7 @@ import {
   Play,
   Sparkles,
   ChevronRight,
-  BarChart3,
+  BarChart,
   Waves,
   LineChart,
   Target,

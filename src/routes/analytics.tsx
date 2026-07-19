@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { AppShell } from '@/components/app/AppShell';
 import { useMemo } from 'react';
-import { BarChart3, TrendingUp, Calendar } from 'lucide-react';
+import { BarChart, TrendingUp, Calendar } from 'lucide-react';
 import { calculateMetrics } from '@/lib/analytics/metrics';
 import { botRunner } from '@/lib/bot/runner';
 

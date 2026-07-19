@@ -7,10 +7,10 @@ import {
   Zap,
   TrendingUp,
   AlertTriangle,
-  CheckCircle2,
+  CircleCheck,
   Activity,
   Target,
-  BarChart3,
+  BarChart,
   Info,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

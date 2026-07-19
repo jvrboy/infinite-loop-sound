@@ -6,7 +6,7 @@ import {
   quickRiskAssessment,
   type MonteCarloResult,
 } from "@/lib/engine/monte-carlo";
-import { Dices, Play, BarChart3, AlertTriangle, TrendingUp, Shield } from "lucide-react";
+import { Dices, Play, BarChart, AlertTriangle, TrendingUp, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

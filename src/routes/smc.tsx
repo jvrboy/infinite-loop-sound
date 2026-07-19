@@ -11,7 +11,7 @@ import {
   RefreshCw,
   DollarSign,
   AlertTriangle,
-  CheckCircle2,
+  CircleCheck,
 } from "lucide-react";
 import { deriv, ALL_ASSETS, displayPair, type TF } from "@/lib/engine/deriv";
 import { findSupplyDemandZones, type SupplyDemandZone } from "@/lib/strategies/advanced/supply-demand-strategy";

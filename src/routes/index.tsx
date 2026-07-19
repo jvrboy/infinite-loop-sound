@@ -9,7 +9,7 @@ import {
   TrendingUp,
   ArrowRight,
   Target,
-  BarChart3,
+  BarChart,
   Clock,
   Volume2,
   VolumeX,

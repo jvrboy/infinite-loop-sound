@@ -2,7 +2,7 @@ import { type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Activity, Zap, CheckCircle2, AlertCircle, Clock } from "lucide-react";
+import { Brain, Activity, Zap, CircleCheck, AlertCircle, Clock } from "lucide-react";
 
 export interface AgentCardProps {
   name: string;

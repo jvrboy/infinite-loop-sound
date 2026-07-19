@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Inbox, RotateCw, CheckCircle2, AlertOctagon, Clock, Download } from "lucide-react";
+import { Inbox, RotateCw, CircleCheck, AlertOctagon, Clock, Download } from "lucide-react";
 
 export const Route = createFileRoute("/dlq")({
   head: () => ({

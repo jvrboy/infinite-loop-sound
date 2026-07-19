@@ -26,7 +26,7 @@ import {
   Move,
   ArrowUpRight,
   ArrowDownRight,
-  BarChart3,
+  BarChart,
   Layers,
   Clock,
   TrendingUp,

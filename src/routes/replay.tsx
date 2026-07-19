@@ -8,7 +8,7 @@ import {
   RotateCcw,
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   Target,
   Shield,
   Zap,

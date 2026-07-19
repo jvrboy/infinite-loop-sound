@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app/AppShell";
 import { loadKeys, PROVIDER_LABELS, seedBuiltinKeys, type AIKey } from "@/lib/ai/client";
-import { Activity, CheckCircle2, XCircle, RefreshCw, Cpu, Zap } from "lucide-react";
+import { Activity, CircleCheck, XCircle, RefreshCw, Cpu, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/system")({ component: SystemPage });
 

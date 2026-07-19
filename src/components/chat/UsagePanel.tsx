@@ -1,6 +1,6 @@
 // Sidebar panel: Usage — token counters, per-provider breakdown.
 import { useUsage } from "@/hooks/use-chat-store";
-import { Cpu, Calendar, BarChart3 } from "lucide-react";
+import { Cpu, Calendar, BarChart } from "lucide-react";
 
 const DEFAULT_QUOTA = 1_000_000; // visual reference cap; non-billing
 

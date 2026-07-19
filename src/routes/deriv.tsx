@@ -10,7 +10,7 @@ import {
   Sparkles,
   Plus,
   Trash2,
-  CheckCircle2,
+  CircleCheck,
   ShieldCheck,
   ShieldAlert,
 } from "lucide-react";

@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { useState, useEffect } from "react";
 import {
   Activity,
-  CheckCircle2,
+  CircleCheck,
   AlertTriangle,
   XCircle,
   RotateCw,

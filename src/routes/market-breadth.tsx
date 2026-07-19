@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { BarChart3 } from "lucide-react";
+import { BarChart } from "lucide-react";
 import { useState, useMemo } from "react";
 
 export const Route = createFileRoute("/market-breadth")({

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { Dices, RefreshCw, History, BarChart3 } from "lucide-react";
+import { Dices, RefreshCw, History, BarChart } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import {
   LineChart,

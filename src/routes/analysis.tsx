@@ -13,7 +13,7 @@ import {
   Zap,
   TrendingUp,
   TrendingDown,
-  BarChart3,
+  BarChart,
   Layers,
   Target,
   ArrowUpRight,

@@ -9,7 +9,7 @@ import {
   Zap,
   Calendar,
   Send,
-  CheckCircle2,
+  CircleCheck,
   XCircle,
   ArrowRight,
   Timer,

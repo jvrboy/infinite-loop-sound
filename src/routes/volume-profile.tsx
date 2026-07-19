@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { BarChart3, TrendingUp, TrendingDown } from "lucide-react";
+import { BarChart, TrendingUp, TrendingDown } from "lucide-react";
 import { useState, useMemo } from "react";
 
 export const Route = createFileRoute("/volume-profile")({
