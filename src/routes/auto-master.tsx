@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState, useRef } from "react";
-import { ProCard, SectionHeader, MeterBar, StatTile, KpiGrid } from "@/components/pro";
+import { ProCard, SectionHeader, StatTile, KpiGrid } from "@/components/pro";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -119,12 +119,12 @@ function AutoMasterPage() {
 
         {result && (
           <ProCard title="Mastering Result" description="Loudness analysis and export." icon={<Activity className="w-4 h-4" />}>
-            <KpiGrid>
-              <StatTile label="Measured LUFS" value={result.measuredLufs.toFixed(1)} />
-              <StatTile label="True Peak" value={`${result.measuredPeak.toFixed(1)} dB`} />
-              <StatTile label="Gain Reduction" value={`${result.gainReduction.toFixed(1)} dB`} />
-              <StatTile label="Processing" value={`${result.durationMs} ms`} />
-            </KpiGrid>
+            <KpiGrid tiles={[
+              { label: "Measured LUFS", value: result.measuredLufs.toFixed(1) },
+              { label: "True Peak", value: `${result.measuredPeak.toFixed(1)} dB` },
+              { label: "Gain Reduction", value: `${result.gainReduction.toFixed(1)} dB` },
+              { label: "Processing", value: `${result.durationMs} ms` },
+            ]} />
             <div className="flex gap-2 mt-4">
               <Button variant="outline" onClick={() => handlePlay(result.buffer)}>
                 <Play className="w-4 h-4" /> Play Mastered

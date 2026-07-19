@@ -153,12 +153,12 @@ function ExportStudioPage() {
 
         {result && (
           <ProCard title="Export Result" description="Ready to download." icon={<FileAudio className="w-4 h-4" />}>
-            <KpiGrid>
-              <StatTile label="Format" value={FORMAT_LABELS[result.format]} />
-              <StatTile label="Size" value={`${(result.size / 1024 / 1024).toFixed(2)} MB`} />
-              <StatTile label="Duration" value={`${result.duration.toFixed(1)}s`} />
-              <StatTile label="Sample Rate" value={`${result.sampleRate} Hz`} />
-            </KpiGrid>
+            <KpiGrid tiles={[
+              { label: "Format", value: FORMAT_LABELS[result.format] },
+              { label: "Size", value: `${(result.size / 1024 / 1024).toFixed(2)} MB` },
+              { label: "Duration", value: `${result.duration.toFixed(1)}s` },
+              { label: "Sample Rate", value: `${result.sampleRate} Hz` },
+            ]} />
             <div className="flex gap-2 mt-4">
               <Button onClick={handleDownload}>
                 <Download className="w-4 h-4" /> Download {result.extension.toUpperCase()}
