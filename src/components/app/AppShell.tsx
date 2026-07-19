@@ -14,13 +14,13 @@ const NAV = [
   { to: "/signals", label: "Signals", icon: Zap },
   { to: "/mtf", label: "MTF Analyzer", icon: Layers },
   { to: "/alert-builder", label: "Alert Builder", icon: Bell },
-  { to: "/signal-stats", label: "Signal Stats", icon: BarChart3 },
+  { to: "/signal-stats", label: "Signal Stats", icon: BarChart },
   { to: "/local-ai", label: "Local AI", icon: Brain },
   { to: "/options-flow", label: "Options", icon: DollarSign },
   { to: "/dark-pool", label: "Dark Pool", icon: Eye },
   { to: "/sentiment", label: "Sentiment", icon: Twitter },
   { to: "/neural", label: "Neural Net", icon: Brain },
-  { to: "/market-profile", label: "Market Profile", icon: BarChart3 },
+  { to: "/market-profile", label: "Market Profile", icon: BarChart },
   { to: "/analysis", label: "Analysis", icon: Activity },
   { to: "/advanced-analysis", label: "Advanced Analysis", icon: Sparkles },
   { to: "/tools", label: "Tools", icon: Wrench },
@@ -70,7 +70,7 @@ const NAV = [
   { to: "/ichimoku", label: "Ichimoku", icon: Cloud },
   { to: "/harmonic", label: "Harmonic", icon: Waves },
   { to: "/order-blocks", label: "Order Blocks", icon: Boxes },
-  { to: "/volume-profile", label: "Volume Profile", icon: BarChart3 },
+  { to: "/volume-profile", label: "Volume Profile", icon: BarChart },
   { to: "/fourier", label: "Fourier", icon: Radio },
   { to: "/hurst", label: "Hurst Exponent", icon: Activity },
   { to: "/portfolio", label: "Portfolio", icon: Wallet },
@@ -80,8 +80,8 @@ const NAV = [
   { to: "/elliott-wave", label: "Elliott Wave", icon: TrendingUp },
   { to: "/vwap", label: "VWAP", icon: Gauge },
   { to: "/wyckoff", label: "Wyckoff", icon: Layers },
-  { to: "/market-breadth", label: "Breadth", icon: BarChart3 },
-  { to: "/renko", label: "Renko", icon: Grid3x3 },
+  { to: "/market-breadth", label: "Breadth", icon: BarChart },
+  { to: "/renko", label: "Renko", icon: Grid },
   { to: "/delta-volume", label: "Delta Vol", icon: Activity },
   { to: "/kelly-criterion", label: "Kelly", icon: Calculator },
   { to: "/fear-greed", label: "Fear/Greed", icon: Flame },
@@ -115,13 +115,13 @@ const SECTIONS = [
       { to: "/ichimoku", label: "Ichimoku Cloud", icon: Cloud },
       { to: "/harmonic", label: "Harmonic Patterns", icon: Waves },
       { to: "/order-blocks", label: "Order Blocks", icon: Boxes },
-      { to: "/volume-profile", label: "Volume Profile", icon: BarChart3 },
+      { to: "/volume-profile", label: "Volume Profile", icon: BarChart },
       { to: "/fourier", label: "Fourier Spectrum", icon: Radio },
       { to: "/hurst", label: "Hurst Exponent", icon: Activity },
       { to: "/elliott-wave", label: "Elliott Wave", icon: TrendingUp },
       { to: "/vwap", label: "VWAP Bands", icon: Gauge },
       { to: "/wyckoff", label: "Wyckoff", icon: Layers },
-      { to: "/renko", label: "Renko Chart", icon: Grid3x3 },
+      { to: "/renko", label: "Renko Chart", icon: Grid },
       { to: "/delta-volume", label: "Delta Volume", icon: Activity },
     ],
   },
@@ -148,14 +148,14 @@ const SECTIONS = [
     title: "Market Insights",
     icon: Globe,
     items: [
-      { to: "/market-profile", label: "Market Profile", icon: BarChart3 },
+      { to: "/market-profile", label: "Market Profile", icon: BarChart },
       { to: "/dark-pool", label: "Dark Pool", icon: Eye },
       { to: "/options-flow", label: "Options", icon: DollarSign },
       { to: "/sentiment", label: "Sentiment", icon: Twitter },
       { to: "/sessions", label: "Sessions", icon: Globe },
       { to: "/currency-strength", label: "Strength", icon: Gauge },
       { to: "/calendar", label: "Calendar", icon: CalIcon },
-      { to: "/market-breadth", label: "Market Breadth", icon: BarChart3 },
+      { to: "/market-breadth", label: "Market Breadth", icon: BarChart },
       { to: "/fear-greed", label: "Fear & Greed", icon: Flame },
       { to: "/correlation-matrix", label: "Correlation Matrix", icon: Grid },
       { to: "/market-systems", label: "Market Systems", icon: Network },
@@ -393,7 +393,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             {!collapsed && (
               <Link to="/" className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded bg-gradient-bull grid place-items-center shadow-glow-bull">
-                  <BarChart3 className="w-4 h-4 text-primary-foreground" />
+                  <BarChart className="w-4 h-4 text-primary-foreground" />
                 </div>
                 <div>
                   <div className="text-sm font-bold tracking-tight">DivergenceIQ</div>
@@ -591,7 +591,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </button>
               <Link to="/" className="font-bold flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-gradient-bull grid place-items-center">
-                  <BarChart3 className="w-3 h-3" />
+                  <BarChart className="w-3 h-3" />
                 </div>
                 DivergenceIQ
               </Link>
@@ -615,7 +615,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                   onClick={() => setMobileNavOpen(false)}
                 >
                   <div className="w-7 h-7 rounded bg-gradient-bull grid place-items-center shadow-glow-bull">
-                    <BarChart3 className="w-3.5 h-3.5 text-primary-foreground" />
+                    <BarChart className="w-3.5 h-3.5 text-primary-foreground" />
                   </div>
                   <div className="text-sm font-bold tracking-tight">DivergenceIQ</div>
                 </Link>

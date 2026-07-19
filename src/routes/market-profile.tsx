@@ -328,7 +328,7 @@ function MarketProfilePage() {
       <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
-            <BarChart3 className="w-6 h-6 text-primary" />
+            <BarChart className="w-6 h-6 text-primary" />
             Market Profile{" "}
             <span className="text-sm font-mono text-muted-foreground">
               (Ultra Real-time + 24/7 Zo)
@@ -352,7 +352,7 @@ function MarketProfilePage() {
             onClick={() => setAudioEnabled(!audioEnabled)}
             className={`p-2 rounded border text-xs flex items-center gap-1 ${audioEnabled ? "bg-primary/20 text-primary" : "bg-card"}`}
           >
-            <Volume2 className="w-3.5 h-3.5" /> {audioEnabled ? "Sound ON" : "Sound OFF"}
+            <Volume className="w-3.5 h-3.5" /> {audioEnabled ? "Sound ON" : "Sound OFF"}
           </button>
           <button
             onClick={refreshProfile}

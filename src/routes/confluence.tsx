@@ -243,7 +243,7 @@ function ConfluencePage() {
 
               <Button onClick={runAnalysis} disabled={loading} className="gap-2">
                 {loading ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <Loader className="w-4 h-4 animate-spin" />
                 ) : (
                   <Zap className="w-4 h-4" />
                 )}
@@ -381,7 +381,7 @@ function ConfluencePage() {
                 <Card className="border-border bg-card">
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-amber-400" />
+                      <BarChart className="w-4 h-4 text-amber-400" />
                       Direction Breakdown
                     </CardTitle>
                   </CardHeader>

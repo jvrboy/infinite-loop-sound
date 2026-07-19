@@ -39,7 +39,7 @@ export function UsagePanel() {
         </div>
         <div className="rounded-lg border border-border p-3">
           <div className="flex items-center gap-1.5 mb-1">
-            <BarChart3 className="w-3 h-3 text-muted-foreground" />
+            <BarChart className="w-3 h-3 text-muted-foreground" />
             <span className="text-[10px] uppercase tracking-wider text-muted-foreground">
               Calls
             </span>

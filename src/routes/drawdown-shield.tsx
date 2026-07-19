@@ -250,7 +250,7 @@ function DrawdownShieldPage() {
           className={`p-4 rounded-lg border flex items-start gap-3 ${statusColors[metrics.status]}`}
         >
           {metrics.status === "SAFE" ? (
-            <CheckCircle2 className="w-5 h-5 mt-0.5 shrink-0" />
+            <CircleCheck className="w-5 h-5 mt-0.5 shrink-0" />
           ) : (
             <AlertTriangle className="w-5 h-5 mt-0.5 shrink-0" />
           )}
@@ -370,7 +370,7 @@ function DrawdownShieldPage() {
             value={`${metrics.maxDD.toFixed(2)}%`}
             sub="All-time peak-to-trough"
             accent={metrics.maxDD > config.maxDrawdownLimit ? "bear" : "neutral"}
-            icon={BarChart3}
+            icon={BarChart}
           />
         </div>
 
@@ -527,7 +527,7 @@ function DrawdownShieldPage() {
                   onClick={clearDay}
                   disabled={!metrics.todayTrades.length}
                 >
-                  <Trash2 className="w-4 h-4" />
+                  <Trash className="w-4 h-4" />
                 </Button>
               </div>
             </CardContent>
@@ -537,7 +537,7 @@ function DrawdownShieldPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-primary" /> Equity Curve
+                <BarChart className="w-4 h-4 text-primary" /> Equity Curve
               </CardTitle>
             </CardHeader>
             <CardContent>

@@ -126,7 +126,7 @@ function MixingConsolePage() {
               {/* Delete */}
               <Button variant="ghost" size="sm" className="w-full h-5 mt-1 text-[10px]"
                 onClick={(e) => { e.stopPropagation(); removeChannel(ch.id); }}>
-                <Trash2 className="w-2.5 h-2.5" />
+                <Trash className="w-2.5 h-2.5" />
               </Button>
             </div>
           ))}
@@ -314,7 +314,7 @@ function MixingConsolePage() {
         )}
 
         {/* Master Settings */}
-        <ProCard title="Master Chain" description="Master EQ, compressor, limiter, and stereo width" icon={<Volume2 className="w-4 h-4" />}>
+        <ProCard title="Master Chain" description="Master EQ, compressor, limiter, and stereo width" icon={<Volume className="w-4 h-4" />}>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <div>
               <Label className="text-xs">Master Volume: {formatDb(gainToDb(state.master.volume))}</Label>
@@ -351,7 +351,7 @@ function MixingConsolePage() {
         <KpiGrid tiles={[
           { label: "Channels", value: state.channels.length, icon: <Layers className="w-4 h-4" />, accent: "primary" },
           { label: "Buses", value: state.buses.length, icon: <Layers className="w-4 h-4" />, accent: "neutral" },
-          { label: "Master Vol", value: formatDb(gainToDb(state.master.volume)), icon: <Volume2 className="w-4 h-4" />, accent: "bull" },
+          { label: "Master Vol", value: formatDb(gainToDb(state.master.volume)), icon: <Volume className="w-4 h-4" />, accent: "bull" },
           { label: "Limiter", value: state.master.limiter.enabled ? "ON" : "OFF", icon: <Zap className="w-4 h-4" />, accent: state.master.limiter.enabled ? "warning" : "neutral" },
         ]} />
       </div>

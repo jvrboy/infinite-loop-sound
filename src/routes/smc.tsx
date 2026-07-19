@@ -636,7 +636,7 @@ function SMCPage() {
                             >
                               {s.type === "buy-side" ? "BUY-SIDE" : "SELL-SIDE"}
                             </span>
-                            <CheckCircle2 className="w-3 h-3 text-amber-400" />
+                            <CircleCheck className="w-3 h-3 text-amber-400" />
                           </div>
                           <span className="font-mono text-muted-foreground">
                             @ {s.level.toFixed(5)}

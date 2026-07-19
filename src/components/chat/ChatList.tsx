@@ -117,7 +117,7 @@ export function ChatList({
             <div className="border-t border-border my-1" />
             <button className="flex items-center gap-2 w-full text-left px-2 py-1.5 text-xs rounded hover:bg-muted text-red-400"
               onClick={() => { if (confirm(`Delete "${t.title}"? This moves it to trash.`)) { onDelete(t.id); } setOpenMenu(null); }}>
-              <Trash2 className="w-3 h-3" /> {showTrash ? "Delete forever" : "Move to trash"}
+              <Trash className="w-3 h-3" /> {showTrash ? "Delete forever" : "Move to trash"}
             </button>
           </div>
         )}
@@ -150,7 +150,7 @@ export function ChatList({
           </Button>
           <Button size="icon" variant="ghost" className="h-5 w-5 opacity-0 group-hover:opacity-100 hover:text-red-400"
             onClick={(e) => { e.stopPropagation(); if (confirm(`Delete folder "${f.name}"? Chats will be moved to no folder.`)) { onDeleteFolder(f.id); } }}>
-            <Trash2 className="w-2.5 h-2.5" />
+            <Trash className="w-2.5 h-2.5" />
           </Button>
         </div>
         {expanded && chats.map(renderRow)}

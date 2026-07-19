@@ -76,7 +76,7 @@ function SystemPage() {
           <Kpi
             label="Last success"
             value={lastSuccess ? rel(lastSuccess.created_at) : "—"}
-            icon={<CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+            icon={<CircleCheck className="w-4 h-4 text-emerald-400" />}
           />
           <Kpi
             label="Last failure"
@@ -207,7 +207,7 @@ function SystemPage() {
                     </td>
                     <td className="px-3 py-2">
                       {r.ok ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <CircleCheck className="w-4 h-4 text-emerald-400" />
                       ) : (
                         <XCircle className="w-4 h-4 text-red-400" />
                       )}
@@ -216,7 +216,7 @@ function SystemPage() {
                       {r.zo_ok === null ? (
                         <span className="text-xs text-muted-foreground">—</span>
                       ) : r.zo_ok ? (
-                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        <CircleCheck className="w-4 h-4 text-emerald-400" />
                       ) : (
                         <XCircle className="w-4 h-4 text-red-400" />
                       )}

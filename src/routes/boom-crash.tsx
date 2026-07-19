@@ -199,13 +199,13 @@ function BoomCrashPage() {
               value: stats.total
                 ? `${((stats.hits / Math.max(1, stats.hits + stats.misses)) * 100).toFixed(0)}%`
                 : "—",
-              icon: CheckCircle2,
+              icon: CircleCheck,
               color: "text-emerald-400",
             },
             {
               label: "Signals",
               value: stats.total.toString(),
-              icon: BarChart3,
+              icon: BarChart,
               color: "text-blue-400",
             },
           ].map((s) => (
@@ -298,7 +298,7 @@ function BoomCrashPage() {
             </h2>
             <div className="flex items-center gap-3 text-xs">
               <span className="text-muted-foreground">
-                <CheckCircle2 className="w-3 h-3 inline mr-1 text-bull" />
+                <CircleCheck className="w-3 h-3 inline mr-1 text-bull" />
                 {stats.hits} hits
               </span>
               <span className="text-muted-foreground">
@@ -376,7 +376,7 @@ function BoomCrashPage() {
                             className="h-7 px-2 text-bull hover:bg-bull/10"
                             onClick={() => markOutcome(signal, true)}
                           >
-                            <CheckCircle2 className="w-3.5 h-3.5 mr-1" /> Hit
+                            <CircleCheck className="w-3.5 h-3.5 mr-1" /> Hit
                           </Button>
                           <Button
                             size="sm"

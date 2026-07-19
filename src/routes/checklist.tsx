@@ -475,7 +475,7 @@ function ChecklistPage() {
                   >
                     <div className="mt-0.5 shrink-0">
                       {item.state === "pass" ? (
-                        <CheckCircle2 className="w-4 h-4 text-bull" />
+                        <CircleCheck className="w-4 h-4 text-bull" />
                       ) : item.state === "fail" ? (
                         <XCircle className="w-4 h-4 text-bear" />
                       ) : item.state === "skip" ? (
@@ -498,7 +498,7 @@ function ChecklistPage() {
                             }}
                             className="ml-auto text-muted-foreground hover:text-bear"
                           >
-                            <Trash2 className="w-3 h-3" />
+                            <Trash className="w-3 h-3" />
                           </button>
                         )}
                       </div>
@@ -608,7 +608,7 @@ function ChecklistPage() {
                         </td>
                         <td className="py-2 pr-4">
                           {h.passed ? (
-                            <CheckCircle2 className="w-4 h-4 text-bull" />
+                            <CircleCheck className="w-4 h-4 text-bull" />
                           ) : (
                             <AlertTriangle className="w-4 h-4 text-amber-400" />
                           )}

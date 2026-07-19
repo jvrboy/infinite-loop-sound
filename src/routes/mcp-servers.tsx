@@ -316,7 +316,7 @@ function McpServersPage() {
                           : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {connected ? <CheckCircle2 className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                    {connected ? <CircleCheck className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
                     {s.status.toUpperCase()}
                   </span>
                 </div>
@@ -364,7 +364,7 @@ function McpServersPage() {
                       title="Remove from catalog"
                       className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition hover:text-bear"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>

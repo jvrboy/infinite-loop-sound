@@ -78,7 +78,7 @@ function ChannelRackPage() {
         <SectionHeader
           title="Channel Rack"
           subtitle="Step sequencer with per-channel samples, velocity, pitch, retrigger, swing, and humanize."
-          icon={<Grid3x3 className="w-5 h-5" />}
+          icon={<Grid className="w-5 h-5" />}
           action={
             <div className="flex gap-2">
               <Badge variant="outline">{state.bpm} BPM</Badge>
@@ -127,7 +127,7 @@ function ChannelRackPage() {
                   <div className="flex gap-1 mt-1">
                     <Button size="icon" variant={channel.muted ? "destructive" : "ghost"} className="h-6 w-6"
                       onClick={() => handleUpdateChannel(channel.id, { muted: !channel.muted })}>
-                      <Volume2 className="w-3 h-3" />
+                      <Volume className="w-3 h-3" />
                     </Button>
                     <Button size="icon" variant={channel.solo ? "default" : "ghost"} className="h-6 w-6"
                       onClick={() => handleUpdateChannel(channel.id, { solo: !channel.solo })}>
@@ -135,7 +135,7 @@ function ChannelRackPage() {
                     </Button>
                     <Button size="icon" variant="ghost" className="h-6 w-6 hover:text-red-400"
                       onClick={() => handleRemoveChannel(channel.id)}>
-                      <Trash2 className="w-3 h-3" />
+                      <Trash className="w-3 h-3" />
                     </Button>
                   </div>
                 </div>

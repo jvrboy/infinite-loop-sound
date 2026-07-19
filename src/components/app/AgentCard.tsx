@@ -17,7 +17,7 @@ export interface AgentCardProps {
 }
 
 const statusConfig = {
-  active: { icon: <CheckCircle2 className="w-3 h-3" />, color: "text-bull", bg: "bg-bull/10", border: "border-bull/30", label: "Active" },
+  active: { icon: <CircleCheck className="w-3 h-3" />, color: "text-bull", bg: "bg-bull/10", border: "border-bull/30", label: "Active" },
   idle: { icon: <Clock className="w-3 h-3" />, color: "text-muted-foreground", bg: "bg-muted/20", border: "border-border", label: "Idle" },
   training: { icon: <Activity className="w-3 h-3 animate-pulse" />, color: "text-amber-400", bg: "bg-amber-400/10", border: "border-amber-400/30", label: "Training" },
   error: { icon: <AlertCircle className="w-3 h-3" />, color: "text-bear", bg: "bg-bear/10", border: "border-bear/30", label: "Error" },

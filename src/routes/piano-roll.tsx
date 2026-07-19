@@ -521,14 +521,14 @@ function PianoRollPage() {
             </div>
             <div className="flex items-center gap-2">
               <Button variant={showScaleGuides ? "secondary" : "outline"} size="sm" onClick={() => setShowScaleGuides((v) => !v)} className="gap-1">
-                <Grid3x3 className="w-3 h-3" /> Scale Guides
+                <Grid className="w-3 h-3" /> Scale Guides
               </Button>
               <Button variant={highlightRoot ? "secondary" : "outline"} size="sm" onClick={() => setHighlightRoot((v) => !v)}>Root</Button>
               <Button variant={scaleLock ? "secondary" : "outline"} size="sm" onClick={() => setScaleLock((v) => !v)} className="gap-1">
                 <Lock className="w-3 h-3" /> Scale Lock
               </Button>
               <Button variant={velocityMode ? "secondary" : "outline"} size="sm" onClick={() => setVelocityMode((v) => !v)} className="gap-1">
-                <Volume2 className="w-3 h-3" /> Vel Edit
+                <Volume className="w-3 h-3" /> Vel Edit
               </Button>
             </div>
           </div>
@@ -537,7 +537,7 @@ function PianoRollPage() {
         <ProCard title="Tools" description="Advanced editing tools for selected notes." icon={<Sliders className="w-4 h-4" />}>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" onClick={() => setState((s) => selectAll(s))} className="gap-1">
-              <Grid3x3 className="w-3 h-3" /> Select All
+              <Grid className="w-3 h-3" /> Select All
             </Button>
             <Button variant="outline" size="sm" onClick={() => setState((s) => deselectAll(s))}>Deselect</Button>
             <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setClipboard(copyNotes(state, state.selectedNoteIds)); }} className="gap-1">
@@ -548,7 +548,7 @@ function PianoRollPage() {
               <Plus className="w-3 h-3" /> Dup
             </Button>
             <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => removeNotes(s, s.selectedNoteIds)); }} className="gap-1">
-              <Trash2 className="w-3 h-3" /> Del
+              <Trash className="w-3 h-3" /> Del
             </Button>
             <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => quantizeNotes(s, s.selectedNoteIds, s.snapMode)); }} className="gap-1">
               <Zap className="w-3 h-3" /> Quantize (Q)
@@ -673,7 +673,7 @@ function PianoRollPage() {
                           {slide.infinite ? "INFINITE SLIDE" : "Slide"}
                         </Badge>
                         <Button variant="ghost" size="sm" onClick={() => setState((s) => removeSlideFromNote(s, selectedNote.id, slide.id))} className="h-6 px-2">
-                          <Trash2 className="w-3 h-3" />
+                          <Trash className="w-3 h-3" />
                         </Button>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -751,7 +751,7 @@ function PianoRollPage() {
 
         <KpiGrid tiles={[
           { label: "Total Notes", value: state.notes.length, icon: <Music className="w-4 h-4" />, accent: "primary" },
-          { label: "Selected", value: state.selectedNoteIds.length, icon: <Grid3x3 className="w-4 h-4" />, accent: "neutral" },
+          { label: "Selected", value: state.selectedNoteIds.length, icon: <Grid className="w-4 h-4" />, accent: "neutral" },
           { label: "Total Slides", value: state.notes.reduce((sum, n) => sum + n.slides.length, 0), icon: <ArrowUpDown className="w-4 h-4" />, accent: "bull" },
           { label: "Infinite Slides", value: state.notes.reduce((sum, n) => sum + n.slides.filter((s) => s.infinite).length, 0), icon: <Zap className="w-4 h-4" />, accent: "warning" },
         ]} />

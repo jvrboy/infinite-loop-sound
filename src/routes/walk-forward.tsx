@@ -229,7 +229,7 @@ function WalkForwardPage() {
             {/* Summary Stats */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatCard
-                icon={BarChart3}
+                icon={BarChart}
                 label="Avg IS Accuracy"
                 value={`${(result.avgInSampleAcc * 100).toFixed(1)}%`}
                 color="text-sky-400"
@@ -247,7 +247,7 @@ function WalkForwardPage() {
                 color={result.decay > 0.2 ? "text-bear" : "text-bull"}
               />
               <StatCard
-                icon={result.robust ? CheckCircle2 : AlertTriangle}
+                icon={result.robust ? CircleCheck : AlertTriangle}
                 label="Robustness"
                 value={result.robust ? "ROBUST" : "OVERFIT"}
                 color={result.robust ? "text-bull" : "text-bear"}
@@ -258,7 +258,7 @@ function WalkForwardPage() {
             <Card className="border-border bg-card">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" /> Fold-by-Fold Results
+                  <BarChart className="w-4 h-4 text-primary" /> Fold-by-Fold Results
                 </CardTitle>
                 <CardDescription>
                   In-sample vs out-of-sample accuracy per fold. Large gaps indicate overfitting.

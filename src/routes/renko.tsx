@@ -67,7 +67,7 @@ function RenkoPage() {
       <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <Grid3x3 className="w-6 h-6 text-primary" /> Renko Chart Builder
+            <Grid className="w-6 h-6 text-primary" /> Renko Chart Builder
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Noise-filtering Renko bricks from price data. Auto-calculates brick size from ATR or use custom size.

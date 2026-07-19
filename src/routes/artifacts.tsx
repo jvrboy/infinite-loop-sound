@@ -277,7 +277,7 @@ function ArtifactsPage() {
                       <Download className="w-3 h-3" />
                     </Button>
                     <Button size="icon" variant="ghost" className="h-6 w-6 shrink-0 hover:text-red-400" onClick={(e) => { e.stopPropagation(); handleDelete(a.id); }}>
-                      <Trash2 className="w-3 h-3" />
+                      <Trash className="w-3 h-3" />
                     </Button>
                   </div>
                 ))}

@@ -80,7 +80,7 @@ function WebhooksPage() {
                   <p className="text-muted-foreground text-[10px]">{wh.created.toLocaleString()}</p>
                 </div>
                 <Button onClick={() => setWebhooks(webhooks.filter(w => w.id !== wh.id))} variant="ghost" size="sm">
-                  <Trash2 className="w-4 h-4" />
+                  <Trash className="w-4 h-4" />
                 </Button>
               </div>
             ))}

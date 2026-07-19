@@ -244,7 +244,7 @@ function StreakPage() {
               <RefreshCw className="w-4 h-4 mr-1" /> Undo
             </Button>
             <Button variant="ghost" size="sm" onClick={clearAll} disabled={!trades.length}>
-              <Trash2 className="w-4 h-4 mr-1" /> Clear
+              <Trash className="w-4 h-4 mr-1" /> Clear
             </Button>
           </div>
         </div>
@@ -295,7 +295,7 @@ function StreakPage() {
           <StatCard
             label="Avg R:R"
             value={`${stats.avgRR.toFixed(2)}:1`}
-            icon={BarChart3}
+            icon={BarChart}
             accent="neutral"
           />
           <StatCard
@@ -381,7 +381,7 @@ function StreakPage() {
                   className="bg-bull hover:bg-bull/80 text-white"
                   onClick={() => addTrade("WIN")}
                 >
-                  <CheckCircle2 className="w-4 h-4 mr-1" /> WIN
+                  <CircleCheck className="w-4 h-4 mr-1" /> WIN
                 </Button>
                 <Button
                   className="bg-bear hover:bg-bear/80 text-white"
@@ -400,7 +400,7 @@ function StreakPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-primary" /> Streak Visualizer
+                <BarChart className="w-4 h-4 text-primary" /> Streak Visualizer
               </CardTitle>
             </CardHeader>
             <CardContent>

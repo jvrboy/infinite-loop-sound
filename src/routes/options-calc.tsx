@@ -156,7 +156,7 @@ function OptionsCalcPage() {
 
             <div className="bg-card border border-border rounded-lg p-5">
               <div className="flex items-center gap-2 mb-4">
-                <BarChart2 className="w-4 h-4 text-primary" />
+                <BarChart className="w-4 h-4 text-primary" />
                 <h3 className="font-semibold text-sm">Greeks Estimation</h3>
               </div>
               <div className="space-y-3 font-mono text-sm">

@@ -157,7 +157,7 @@ function AudioToolsPage() {
               {[
                 { id: "bpm", label: "BPM", icon: <Gauge className="w-4 h-4" /> },
                 { id: "key", label: "Key", icon: <Music className="w-4 h-4" /> },
-                { id: "lufs", label: "LUFS", icon: <Volume2 className="w-4 h-4" /> },
+                { id: "lufs", label: "LUFS", icon: <Volume className="w-4 h-4" /> },
                 { id: "spectrum", label: "Spectrum", icon: <Activity className="w-4 h-4" /> },
                 { id: "pitch", label: "Pitch", icon: <Mic className="w-4 h-4" /> },
                 { id: "fingerprint", label: "Fingerprint", icon: <Hash className="w-4 h-4" /> },
@@ -208,7 +208,7 @@ function AudioToolsPage() {
             )}
 
             {lufs && (
-              <ProCard title="LUFS Meter" icon={<Volume2 className="w-4 h-4" />}>
+              <ProCard title="LUFS Meter" icon={<Volume className="w-4 h-4" />}>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <StatTile label="Integrated" value={`${lufs.integrated.toFixed(1)} LUFS`} accent="primary" />
                   <StatTile label="Short-term" value={`${lufs.shortTerm.toFixed(1)} LUFS`} accent="neutral" />

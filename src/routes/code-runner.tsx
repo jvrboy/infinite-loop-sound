@@ -218,7 +218,7 @@ function CodeRunnerPage() {
         <SectionHeader
           title="Code Runner"
           subtitle="Multi-language code execution with analysis, formatting, minification, and transformation tools."
-          icon={<Code2 className="w-5 h-5" />}
+          icon={<Code className="w-5 h-5" />}
           action={
             <div className="flex gap-2">
               <Button onClick={handleRun} disabled={busy}>
@@ -275,7 +275,7 @@ function CodeRunnerPage() {
                 {language === "ts" && <Button size="sm" variant="outline" onClick={handleTsToJs}>TS → JS</Button>}
                 {language === "js" && <Button size="sm" variant="outline" onClick={handleJsToTs}>JS → TS</Button>}
                 <Button size="sm" variant="outline" onClick={() => navigator.clipboard.writeText(code)}><Copy className="w-3 h-3" /> Copy</Button>
-                <Button size="sm" variant="outline" onClick={() => setCode("")}><Trash2 className="w-3 h-3" /> Clear</Button>
+                <Button size="sm" variant="outline" onClick={() => setCode("")}><Trash className="w-3 h-3" /> Clear</Button>
               </div>
             </div>
           </ProCard>

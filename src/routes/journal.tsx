@@ -501,7 +501,7 @@ function JournalPage() {
                           onClick={() => remove(e.id)}
                           className="text-muted-foreground hover:text-red-400 p-1"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </div>

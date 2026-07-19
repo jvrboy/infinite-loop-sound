@@ -22,7 +22,7 @@ import { Visualizer } from "@/lib/audio/visualizer";
 import { VinnyPlugin } from "@/components/app/VinnyPlugin";
 import {
   Music, Piano, Waves, Sparkles, Sliders, Volume, Play, Square, Upload, Mic,
-  Radio, Disc, AudioWaveform as WaveIcon, Grid, Music, Activity, Settings, Zap,
+  Radio, Disc, AudioWaveform as WaveIcon, Grid, Activity, Settings, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -58,21 +58,21 @@ function MusicPage() {
         <div className="flex items-center gap-3">
           <Music className="w-7 h-7 text-primary" />
           <h1 className="text-2xl font-bold">Music Studio</h1>
-          {!unlocked && <Button size="sm" onClick={unlock}><Volume2 className="w-4 h-4 mr-1" /> Enable Audio</Button>}
+          {!unlocked && <Button size="sm" onClick={unlock}><Volume className="w-4 h-4 mr-1" /> Enable Audio</Button>}
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="flex-wrap h-auto">
             <TabsTrigger value="synth" className="text-xs"><Piano className="w-3.5 h-3.5 mr-1" /> Synthesizer</TabsTrigger>
-            <TabsTrigger value="sampler" className="text-xs"><Disc3 className="w-3.5 h-3.5 mr-1" /> Sampler</TabsTrigger>
+            <TabsTrigger value="sampler" className="text-xs"><Disc className="w-3.5 h-3.5 mr-1" /> Sampler</TabsTrigger>
             <TabsTrigger value="granular" className="text-xs"><Sparkles className="w-3.5 h-3.5 mr-1" /> Granular</TabsTrigger>
             <TabsTrigger value="sounddesign" className="text-xs"><WaveIcon className="w-3.5 h-3.5 mr-1" /> Sound Design</TabsTrigger>
             <TabsTrigger value="effects" className="text-xs"><Sliders className="w-3.5 h-3.5 mr-1" /> Effects</TabsTrigger>
-            <TabsTrigger value="sequencer" className="text-xs"><Grid3x3 className="w-3.5 h-3.5 mr-1" /> Sequencer</TabsTrigger>
-            <TabsTrigger value="midi" className="text-xs"><Midi className="w-3.5 h-3.5 mr-1" /> MIDI</TabsTrigger>
+            <TabsTrigger value="sequencer" className="text-xs"><Grid className="w-3.5 h-3.5 mr-1" /> Sequencer</TabsTrigger>
+            <TabsTrigger value="midi" className="text-xs"><Music className="w-3.5 h-3.5 mr-1" /> MIDI</TabsTrigger>
             <TabsTrigger value="vinny" className="text-xs"><Zap className="w-3.5 h-3.5 mr-1" /> VINNY</TabsTrigger>
             <TabsTrigger value="visualizer" className="text-xs"><Activity className="w-3.5 h-3.5 mr-1" /> Visualizer</TabsTrigger>
             <TabsTrigger value="recorder" className="text-xs"><Mic className="w-3.5 h-3.5 mr-1" /> Recorder</TabsTrigger>
-            <TabsTrigger value="modulation" className="text-xs"><Settings2 className="w-3.5 h-3.5 mr-1" /> Modulation</TabsTrigger>
+            <TabsTrigger value="modulation" className="text-xs"><Settings className="w-3.5 h-3.5 mr-1" /> Modulation</TabsTrigger>
           </TabsList>
           <TabsContent value="synth"><SynthesizerTab /></TabsContent>
           <TabsContent value="sampler"><SamplerTab /></TabsContent>
@@ -198,7 +198,7 @@ function SamplerTab() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Disc3 className="w-4 h-4 text-primary" /> Sampler</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Disc className="w-4 h-4 text-primary" /> Sampler</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2">
             <label className="cursor-pointer">
@@ -346,7 +346,7 @@ function SequencerTab() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Grid3x3 className="w-4 h-4 text-primary" /> Step Sequencer</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Grid className="w-4 h-4 text-primary" /> Step Sequencer</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-2">
             <Button size="sm" onClick={toggle}>{playing ? <><Square className="w-4 h-4 mr-1" /> Stop</> : <><Play className="w-4 h-4 mr-1" /> Play</>}</Button>
@@ -393,7 +393,7 @@ function MIDITab() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Midi className="w-4 h-4 text-primary" /> MIDI Input</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Music className="w-4 h-4 text-primary" /> MIDI Input</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <Button size="sm" onClick={connect}><Radio className="w-4 h-4 mr-1" /> Connect MIDI</Button>
           <div className="text-sm text-muted-foreground">Status: {status}</div>
@@ -491,7 +491,7 @@ function ModulationTab() {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Settings2 className="w-4 h-4 text-primary" /> Modulation Matrix</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><Settings className="w-4 h-4 text-primary" /> Modulation Matrix</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div className="grid gap-3 md:grid-cols-3">
             <ParamControl label={`LFO Rate (${lfoRate.toFixed(1)}Hz)`}><Slider value={lfoRate} min={0.1} max={20} step={0.1} onChange={setLfoRate} /></ParamControl>

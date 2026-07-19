@@ -242,7 +242,7 @@ function AlertsPage() {
             className="w-full flex items-center justify-between px-4 py-3 text-sm font-semibold"
           >
             <span className="flex items-center gap-2">
-              <Settings2 className="w-4 h-4" /> Alert Rules ({rules.length})
+              <Settings className="w-4 h-4" /> Alert Rules ({rules.length})
             </span>
             <span className="text-xs text-muted-foreground">{showRules ? "Hide" : "Show"}</span>
           </button>
@@ -313,7 +313,7 @@ function AlertsPage() {
                       onClick={() => deleteRule(r.id)}
                       className="text-muted-foreground hover:text-bear"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}

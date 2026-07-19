@@ -359,7 +359,7 @@ function HeatmapPage() {
               ))}
             </select>
             <Button size="sm" variant="outline" onClick={() => setShowWeights(!showWeights)}>
-              <Grid3x3 className="w-3.5 h-3.5 mr-1" /> Weights
+              <Grid className="w-3.5 h-3.5 mr-1" /> Weights
             </Button>
             <Button size="sm" variant="outline" onClick={exportHeatmap}>
               <Download className="w-3.5 h-3.5 mr-1" /> Export

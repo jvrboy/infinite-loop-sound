@@ -372,7 +372,7 @@ function ToolsPage() {
         </section>
 
         <section className="grid gap-4 xl:grid-cols-3">
-          <Panel title="Live Watchlist" icon={BarChart3} className="xl:col-span-2">
+          <Panel title="Live Watchlist" icon={BarChart} className="xl:col-span-2">
             <div className="overflow-x-auto">
               <table className="w-full min-w-[620px] text-sm">
                 <thead className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -557,7 +557,7 @@ function ToolsPage() {
             </div>
           </Panel>
 
-          <Panel title="Risk of Ruin" icon={Dice5}>
+          <Panel title="Risk of Ruin" icon={Dices}>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <NumberField

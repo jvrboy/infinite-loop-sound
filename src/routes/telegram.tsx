@@ -223,7 +223,7 @@ function TelegramPage() {
                   className={`flex items-center gap-1 text-xs font-mono ${isRegistered && !hasError ? "text-bull" : hasError ? "text-bear" : "text-muted-foreground"}`}
                 >
                   {isRegistered && !hasError ? (
-                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <CircleCheck className="w-3.5 h-3.5" />
                   ) : (
                     <AlertCircle className="w-3.5 h-3.5" />
                   )}

@@ -116,7 +116,7 @@ function PersistencePage() {
                 System Status
               </span>
               {isActive ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <CircleCheck className="w-5 h-5 text-emerald-400" />
               ) : (
                 <XCircle className="w-5 h-5 text-muted-foreground" />
               )}
@@ -251,7 +251,7 @@ function PersistencePage() {
                 "WebSocket streams",
               ].map((item) => (
                 <li key={item} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3 h-3 text-violet-400" />
+                  <CircleCheck className="w-3 h-3 text-violet-400" />
                   <span className="text-muted-foreground">{item}</span>
                 </li>
               ))}

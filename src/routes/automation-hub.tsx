@@ -153,7 +153,7 @@ function AutomationHubPage() {
               <button key={p.id} onClick={() => applyPreset(p.id)} className={`text-left rounded-lg border p-4 transition-all hover:border-primary/60 ${activePreset === p.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"}`}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold">{p.name}</span>
-                  {activePreset === p.id && <Badge className="text-[10px]"><CheckCircle2 className="w-3 h-3 mr-1" />active</Badge>}
+                  {activePreset === p.id && <Badge className="text-[10px]"><CircleCheck className="w-3 h-3 mr-1" />active</Badge>}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{p.desc}</p>
               </button>

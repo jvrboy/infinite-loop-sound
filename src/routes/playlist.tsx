@@ -181,7 +181,7 @@ function PlaylistPage() {
               <Button variant="outline" size="sm" onClick={() => setState(s => duplicateClips(s, s.selectedClipIds))} className="gap-1"><Copy className="w-3 h-3" /> Duplicate</Button>
             )}
             {state.selectedClipIds.length > 0 && (
-              <Button variant="outline" size="sm" onClick={() => setState(s => removeClips(s, s.selectedClipIds))} className="gap-1"><Trash2 className="w-3 h-3" /> Delete</Button>
+              <Button variant="outline" size="sm" onClick={() => setState(s => removeClips(s, s.selectedClipIds))} className="gap-1"><Trash className="w-3 h-3" /> Delete</Button>
             )}
           </div>
         </ProCard>
@@ -227,7 +227,7 @@ function PlaylistPage() {
                     <Button variant="ghost" size="sm" className="h-5 px-1 text-[10px]"
                       onClick={() => setState(s => moveTrack(s, track.id, "down"))}>↓</Button>
                     <Button variant="ghost" size="sm" className="h-5 px-1 text-[10px]"
-                      onClick={() => setState(s => removeTrack(s, track.id))}><Trash2 className="w-2.5 h-2.5" /></Button>
+                      onClick={() => setState(s => removeTrack(s, track.id))}><Trash className="w-2.5 h-2.5" /></Button>
                     <Button variant="ghost" size="sm" className="h-5 px-1 text-[10px]"
                       onClick={() => handleAddClip(track.id)}><Plus className="w-2.5 h-2.5" /></Button>
                   </div>
@@ -338,7 +338,7 @@ function PlaylistPage() {
           { label: "Tracks", value: state.tracks.length, icon: <Layers className="w-4 h-4" />, accent: "primary" },
           { label: "Clips", value: state.clips.length, icon: <ListMusic className="w-4 h-4" />, accent: "neutral" },
           { label: "Total Bars", value: state.totalBars, icon: <Music className="w-4 h-4" />, accent: "bull" },
-          { label: "BPM", value: state.bpm, icon: <Volume2 className="w-4 h-4" />, accent: "warning" },
+          { label: "BPM", value: state.bpm, icon: <Volume className="w-4 h-4" />, accent: "warning" },
         ]} />
       </div>
     </AppShell>

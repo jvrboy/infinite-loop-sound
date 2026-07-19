@@ -80,7 +80,7 @@ function VolumeProfilePage() {
       <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-            <BarChart3 className="w-6 h-6 text-primary" /> Volume Profile
+            <BarChart className="w-6 h-6 text-primary" /> Volume Profile
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
             Horizontal volume distribution with Point of Control (POC), Value Area High (VAH) and Value Area Low (VAL).

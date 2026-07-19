@@ -689,7 +689,7 @@ function ChartPage() {
             href="/market-profile"
             className="px-3 py-1 rounded border text-xs font-mono flex items-center gap-1.5 hover:bg-accent"
           >
-            <BarChart3 className="w-3.5 h-3.5" /> Open Market Profile (Real-time POC + Candles)
+            <BarChart className="w-3.5 h-3.5" /> Open Market Profile (Real-time POC + Candles)
           </a>
         </div>
 
@@ -761,14 +761,14 @@ function ChartPage() {
 
         {loading && (
           <div className="text-muted-foreground text-sm flex items-center gap-2">
-            <Loader2 className="w-4 h-4 animate-spin" /> Loading candles...
+            <Loader className="w-4 h-4 animate-spin" /> Loading candles...
           </div>
         )}
 
         {/* Charts */}
         <div className="rounded-lg border border-border bg-card overflow-hidden">
           <div className="px-3 py-1.5 border-b border-border text-[10px] uppercase tracking-wider text-muted-foreground font-mono flex items-center gap-2">
-            <BarChart3 className="w-3 h-3" />
+            <BarChart className="w-3 h-3" />
             {displayPair(pair)} · {tf} · Price + EMA + Indicators
           </div>
           <div ref={priceRef} />

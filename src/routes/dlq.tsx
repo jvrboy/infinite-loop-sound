@@ -146,7 +146,7 @@ function DLQPage() {
   };
 
   const summarize = (r: ReplayResult) => {
-    if (r.deduped) return { tag: "DEDUPED", cls: "text-muted-foreground", icon: CheckCircle2 };
+    if (r.deduped) return { tag: "DEDUPED", cls: "text-muted-foreground", icon: CircleCheck };
     if (r.skipped) return { tag: `SKIPPED (${r.skipped})`, cls: "text-medium", icon: Clock };
     if (r.still_pending) return { tag: "PENDING", cls: "text-medium", icon: Clock };
     if (r.error) return { tag: "ERROR", cls: "text-bear", icon: AlertOctagon };
@@ -159,7 +159,7 @@ function DLQPage() {
             : r.status === "lost"
               ? "text-bear"
               : "text-muted-foreground",
-        icon: CheckCircle2,
+        icon: CircleCheck,
       };
     return { tag: "—", cls: "text-muted-foreground", icon: Clock };
   };

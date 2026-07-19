@@ -35,7 +35,7 @@ export const SAMPLE_CATEGORIES: SampleCategory[] = [
   { id: "kick", name: "Kicks", icon: "Circle" },
   { id: "snare", name: "Snares", icon: "CircleDot" },
   { id: "hihat", name: "Hi-Hats", icon: "Disc" },
-  { id: "perc", name: "Percussion", icon: "Disc3" },
+  { id: "perc", name: "Percussion", icon: "Disc" },
   { id: "bass", name: "Bass", icon: "Activity" },
   { id: "synth", name: "Synths", icon: "WaveSine" },
   { id: "vocal", name: "Vocals", icon: "Mic" },

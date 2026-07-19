@@ -266,7 +266,7 @@ TP3: ${fmt(tp3)}`;
             onClick={onView}
             className="flex-1 hover:bg-primary hover:text-primary-foreground transition-colors"
           >
-            <BarChart3 className="w-3.5 h-3.5 mr-1.5" /> Chart
+            <BarChart className="w-3.5 h-3.5 mr-1.5" /> Chart
           </Button>
         )}
         {onSendTelegram && (

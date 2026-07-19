@@ -55,7 +55,7 @@ function UptimePage() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case "healthy":
-        return <CheckCircle2 className="w-4 h-4 text-bull" />;
+        return <CircleCheck className="w-4 h-4 text-bull" />;
       case "degraded":
         return <AlertTriangle className="w-4 h-4 text-amber-400" />;
       case "down":
@@ -241,7 +241,7 @@ function UptimePage() {
                 "Prevents cascade failures",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-2">
-                  <CheckCircle2 className="w-3 h-3 text-violet-400 mt-0.5 shrink-0" />
+                  <CircleCheck className="w-3 h-3 text-violet-400 mt-0.5 shrink-0" />
                   <span className="text-muted-foreground">{item}</span>
                 </li>
               ))}

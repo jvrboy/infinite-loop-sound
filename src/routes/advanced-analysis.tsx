@@ -193,7 +193,7 @@ function AdvancedAnalysisPage() {
             <TabsTrigger value="aroon" className="text-xs"><TrendingUp className="w-3.5 h-3.5 mr-1" /> Aroon</TabsTrigger>
             <TabsTrigger value="ttm" className="text-xs"><Zap className="w-3.5 h-3.5 mr-1" /> TTM Squeeze</TabsTrigger>
             <TabsTrigger value="choppiness" className="text-xs"><Waves className="w-3.5 h-3.5 mr-1" /> Choppiness</TabsTrigger>
-            <TabsTrigger value="channels" className="text-xs"><BarChart3 className="w-3.5 h-3.5 mr-1" /> Channels</TabsTrigger>
+            <TabsTrigger value="channels" className="text-xs"><BarChart className="w-3.5 h-3.5 mr-1" /> Channels</TabsTrigger>
             <TabsTrigger value="oscillators" className="text-xs"><Activity className="w-3.5 h-3.5 mr-1" /> Oscillators</TabsTrigger>
             <TabsTrigger value="volume" className="text-xs"><LineChart className="w-3.5 h-3.5 mr-1" /> Volume</TabsTrigger>
             <TabsTrigger value="extra-score" className="text-xs"><Target className="w-3.5 h-3.5 mr-1" /> Extra Score</TabsTrigger>
@@ -429,7 +429,7 @@ function ChannelsTab({ candles }: { candles: Candle[] }) {
   return (
     <div className="space-y-4">
       <Card>
-        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="w-4 h-4 text-primary" /> Keltner Channels</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-sm flex items-center gap-2"><BarChart className="w-4 h-4 text-primary" /> Keltner Channels</CardTitle></CardHeader>
         <CardContent className="space-y-2">
           <MetricRow label="Upper" value={keltner.upper[last]?.toFixed(5) ?? "N/A"} />
           <MetricRow label="Mid (EMA)" value={keltner.mid[last]?.toFixed(5) ?? "N/A"} />

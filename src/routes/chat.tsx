@@ -201,7 +201,7 @@ function ChatPage() {
   const TABS: Array<{ id: SidebarTab; label: string; icon: any }> = [
     { id: "chats", label: "Chats", icon: MessageSquare },
     { id: "artifacts", label: "Artifacts", icon: Files },
-    { id: "customize", label: "Customize", icon: Settings2 },
+    { id: "customize", label: "Customize", icon: Settings },
     { id: "usage", label: "Usage", icon: Activity },
   ];
 
@@ -345,9 +345,9 @@ function ChatPage() {
                     }`}
                   >
                     {i < currentStep ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-bull" />
+                      <CircleCheck className="w-3.5 h-3.5 text-bull" />
                     ) : i === currentStep ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                      <Loader className="w-3.5 h-3.5 animate-spin text-primary" />
                     ) : (
                       <div className="w-3.5 h-3.5 rounded-full border border-muted" />
                     )}
@@ -421,7 +421,7 @@ function ChatPage() {
                 rows={1}
               />
               <Button onClick={send} disabled={busy || !input.trim()}>
-                {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {busy ? <Loader className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground mt-1.5 px-1">

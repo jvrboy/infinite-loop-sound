@@ -72,7 +72,7 @@ export function ArtifactsPanel({ threadId }: { threadId?: string | null }) {
             onClick={() => remove(a.id)}
             title="Delete"
           >
-            <Trash2 className="w-3.5 h-3.5" />
+            <Trash className="w-3.5 h-3.5" />
           </Button>
         </div>
       ))}

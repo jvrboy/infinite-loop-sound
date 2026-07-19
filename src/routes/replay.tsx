@@ -544,7 +544,7 @@ function ReplayPage() {
                           ? "amber"
                           : "bear"
                     }
-                    icon={BarChart3}
+                    icon={BarChart}
                   />
                   <StatCard
                     label="Max Drawdown"
@@ -576,7 +576,7 @@ function ReplayPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-primary" /> Equity Curve
+                      <BarChart className="w-4 h-4 text-primary" /> Equity Curve
                     </CardTitle>
                   </CardHeader>
                   <CardContent>

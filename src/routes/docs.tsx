@@ -147,7 +147,7 @@ curl -X POST "${BASE}/api/public/v1/signals/incoming" \\
 
         <Block title="Connecting other apps">
           <p className="flex items-center gap-1">
-            <Code2 className="w-3 h-3" /> Examples — Node, n8n, Make, Zapier, custom bots:
+            <Code className="w-3 h-3" /> Examples — Node, n8n, Make, Zapier, custom bots:
           </p>
           <Code>{`// Node.js (any runtime)
 const r = await fetch("${BASE}/api/public/v1/signals?min_score=80", {

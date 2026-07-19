@@ -232,7 +232,7 @@ function NativeToolsPage() {
                       onClick={() => deleteFile(file)}
                       className="h-7 w-7 p-0 text-bear hover:text-bear"
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 </div>

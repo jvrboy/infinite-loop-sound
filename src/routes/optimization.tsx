@@ -222,7 +222,7 @@ function OptimizationPage() {
         {/* Stats Row */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard
-            icon={BarChart3}
+            icon={BarChart}
             label="Total Analyzed"
             value={state?.totalAnalyzed ?? 0}
             color="text-sky-400"
@@ -312,7 +312,7 @@ function OptimizationPage() {
           <CardContent>
             {!state?.activeRecommendations || state.activeRecommendations.length === 0 ? (
               <div className="flex flex-col items-center py-8 text-center">
-                <CheckCircle2 className="w-8 h-8 text-bull/40 mb-2" />
+                <CircleCheck className="w-8 h-8 text-bull/40 mb-2" />
                 <p className="text-xs text-muted-foreground">
                   All recommendations applied. System is optimized.
                 </p>
@@ -356,7 +356,7 @@ function OptimizationPage() {
                           {applyingId === rec.id ? (
                             <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                           ) : (
-                            <CheckCircle2 className="w-3 h-3 mr-1" />
+                            <CircleCheck className="w-3 h-3 mr-1" />
                           )}
                           Apply
                         </Button>

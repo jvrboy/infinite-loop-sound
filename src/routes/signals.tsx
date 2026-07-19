@@ -367,7 +367,7 @@ function SignalsPage() {
               onClick={() => update({ telegramChartSnapshots: !settings.telegramChartSnapshots })}
             >
               {settings.telegramChartSnapshots ? (
-                <ImageIcon className="w-3.5 h-3.5 mr-1.5" />
+                <Image className="w-3.5 h-3.5 mr-1.5" />
               ) : (
                 <ImageOff className="w-3.5 h-3.5 mr-1.5" />
               )}
@@ -390,7 +390,7 @@ function SignalsPage() {
 
         {/* Stats Bar */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-2">
-          <StatBadge icon={BarChart3} label="Total" value={signals.length} />
+          <StatBadge icon={BarChart} label="Total" value={signals.length} />
           <StatBadge icon={Target} label="Active" value={stats.active} color="text-cyan-400" />
           <StatBadge icon={TrendingUp} label="Wins" value={stats.won} color="text-bull" />
           <StatBadge icon={TrendingDown} label="Losses" value={stats.lost} color="text-bear" />

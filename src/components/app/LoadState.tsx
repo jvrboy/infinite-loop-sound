@@ -25,7 +25,7 @@ export function LoadState({
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
+        <Loader className="w-6 h-6 animate-spin text-primary" />
         <span className="text-xs font-mono uppercase tracking-wider">{loadingMessage}</span>
       </div>
     );

@@ -255,7 +255,7 @@ function PerformancePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-3">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight flex items-center gap-2">
-              <BarChart3 className="w-7 h-7 text-primary" /> Performance Analytics
+              <BarChart className="w-7 h-7 text-primary" /> Performance Analytics
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
               Comprehensive metrics, win rates, risk analysis, and portfolio performance

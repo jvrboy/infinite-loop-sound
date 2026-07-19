@@ -285,7 +285,7 @@ function Dashboard() {
               className={`p-2.5 rounded-md border border-border transition ${audioEnabled ? "bg-primary/20 text-primary" : "bg-card text-muted-foreground hover:bg-accent"}`}
               title="Toggle Elite Signal Audio Alerts"
             >
-              {audioEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+              {audioEnabled ? <Volume className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
             </button>
             <Button size="sm" variant="outline" onClick={loadSignals} disabled={refreshing}>
               <RefreshCw className={`w-3.5 h-3.5 mr-1.5 ${refreshing ? "animate-spin" : ""}`} />{" "}

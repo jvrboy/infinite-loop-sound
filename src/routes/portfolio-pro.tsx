@@ -152,7 +152,7 @@ function PortfolioPage() {
                             </td>
                             <td className="py-2">
                               <Button size="sm" variant="ghost" onClick={() => removePosition(p.id)} className="h-7 px-2">
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash className="w-3.5 h-3.5" />
                               </Button>
                             </td>
                           </tr>

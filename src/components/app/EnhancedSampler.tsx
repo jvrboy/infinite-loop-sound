@@ -314,7 +314,7 @@ export function EnhancedSampler() {
       {cs && selectedChop != null && (
         <div className="border border-border rounded-lg p-4 space-y-3 bg-card/50">
           <div className="flex items-center gap-2 text-sm font-medium">
-            <Disc3 className="w-4 h-4 text-primary" />
+            <Disc className="w-4 h-4 text-primary" />
             Chop {selectedChop + 1} Settings
           </div>
           <div className="grid gap-3 md:grid-cols-3">

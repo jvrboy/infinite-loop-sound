@@ -232,7 +232,7 @@ function AnalysisPage() {
             <AssetSelect value={pair} onChange={setPair} />
             <Button onClick={run} disabled={loading} variant="outline" size="sm">
               {loading ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <Loader className="w-4 h-4 animate-spin" />
               ) : (
                 <RefreshCcw className="w-4 h-4" />
               )}
@@ -510,7 +510,7 @@ function AnalysisPage() {
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-primary" /> EMA Structure (H4)
+                <BarChart className="w-4 h-4 text-primary" /> EMA Structure (H4)
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
@@ -634,7 +634,7 @@ function AnalysisPage() {
                       <div className="flex items-center justify-between mb-1">
                         <span className="font-mono font-bold text-sm">{tf}</span>
                         {l ? (
-                          <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+                          <Loader className="w-3 h-3 animate-spin text-muted-foreground" />
                         ) : v ? (
                           <span className="flex items-center gap-2 font-mono">
                             <span className={cls}>{v.direction}</span>

@@ -129,7 +129,7 @@ function HarmonicPage() {
                         { label: "AD", ok: analysis.best.adOk, target: analysis.best.ad },
                       ].map((r) => (
                         <div key={r.label} className="flex items-center gap-2">
-                          {r.ok ? <CheckCircle2 className="w-4 h-4 text-bull" /> : <XCircle className="w-4 h-4 text-bear" />}
+                          {r.ok ? <CircleCheck className="w-4 h-4 text-bull" /> : <XCircle className="w-4 h-4 text-bear" />}
                           <span className="font-mono text-xs">{r.label} ≈ {r.target}</span>
                         </div>
                       ))}

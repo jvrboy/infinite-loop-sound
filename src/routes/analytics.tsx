@@ -15,7 +15,7 @@ function AnalyticsPage() {
     <AppShell>
       <div className="p-6 max-w-7xl mx-auto space-y-6">
         <h1 className="text-3xl font-bold flex items-center gap-2">
-          <BarChart3 className="w-8 h-8 text-primary" /> Advanced Analytics Dashboard
+          <BarChart className="w-8 h-8 text-primary" /> Advanced Analytics Dashboard
         </h1>
 
         {/* Key Metrics */}

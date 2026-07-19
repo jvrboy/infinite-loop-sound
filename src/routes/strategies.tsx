@@ -112,9 +112,9 @@ function StrategiesPage() {
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <Button variant="ghost" size="sm"><Edit2 className="w-4 h-4" /></Button>
+                  <Button variant="ghost" size="sm"><Edit className="w-4 h-4" /></Button>
                   <Button onClick={() => handleDelete(s.id)} variant="ghost" size="sm" className="text-bear">
-                    <Trash2 className="w-4 h-4" />
+                    <Trash className="w-4 h-4" />
                   </Button>
                 </div>
               </div>

@@ -176,7 +176,7 @@ function DerivPage() {
               <div>
                 <div className="font-medium flex items-center gap-2">
                   {a.label}{" "}
-                  {activeId === a.id && <CheckCircle2 className="w-3.5 h-3.5 text-primary" />}
+                  {activeId === a.id && <CircleCheck className="w-3.5 h-3.5 text-primary" />}
                 </div>
                 <div className="text-[10px] text-muted-foreground font-mono">
                   {a.loginid || "—"} · {a.isVirtual ? "Demo" : "Real"} · {a.currency || ""}
@@ -212,7 +212,7 @@ function DerivPage() {
                     toast.success("Removed");
                   }}
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
@@ -240,7 +240,7 @@ function DerivPage() {
           </div>
           <Button size="sm" onClick={connectAccount} disabled={loading}>
             {loading ? (
-              <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+              <Loader className="w-3.5 h-3.5 mr-1.5 animate-spin" />
             ) : (
               <Plus className="w-3.5 h-3.5 mr-1.5" />
             )}{" "}
@@ -282,7 +282,7 @@ function DerivPage() {
                       {k.disabled ? "Enable" : "Disable"}
                     </Button>
                     <Button size="sm" variant="ghost" onClick={() => removeKey(k.id)}>
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash className="w-3.5 h-3.5" />
                     </Button>
                   </div>
                 </div>

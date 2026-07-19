@@ -166,7 +166,7 @@ function PlanPage() {
                   onClick={() => remove(item.id)}
                   className="text-muted-foreground hover:text-bear opacity-50 hover:opacity-100 transition p-1"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash className="w-3.5 h-3.5" />
                 </button>
               </div>
             ))}

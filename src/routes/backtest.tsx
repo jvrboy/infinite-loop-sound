@@ -233,7 +233,7 @@ function BacktestPage() {
             <Button onClick={run} disabled={busy} size="sm" className="gap-2">
               {busy ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" /> Running...
+                  <Loader className="w-4 h-4 animate-spin" /> Running...
                 </>
               ) : (
                 <>
@@ -369,7 +369,7 @@ function BacktestPage() {
                   />
                 </div>
                 <Button onClick={run} disabled={busy} className="h-9">
-                  {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Run"}
+                  {busy ? <Loader className="w-4 h-4 animate-spin" /> : "Run"}
                 </Button>
               </div>
 
@@ -456,7 +456,7 @@ function BacktestPage() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <MetricCard icon={CheckCircle2} label="Avg R" value={avgR} />
+              <MetricCard icon={CircleCheck} label="Avg R" value={avgR} />
               <MetricCard
                 icon={AlertTriangle}
                 label="Max Drawdown"

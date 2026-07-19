@@ -308,7 +308,7 @@ function AutomationPage() {
                 </div>
                 <Button size="sm" variant="outline" disabled={triggering} onClick={handleTrigger}>
                   {triggering ? (
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    <Loader className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   ) : (
                     <Zap className="w-3.5 h-3.5 mr-1.5" />
                   )}
@@ -462,7 +462,7 @@ function AutomationPage() {
                       </div>
                       <div className="flex items-center gap-1.5">
                         {sig.dispatched ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-bull" />
+                          <CircleCheck className="w-3.5 h-3.5 text-bull" />
                         ) : (
                           <XCircle className="w-3.5 h-3.5 text-muted-foreground/40" />
                         )}
@@ -542,7 +542,7 @@ function AutomationPage() {
                   onClick={handleLoadPresets}
                 >
                   {loadingPresets ? (
-                    <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                    <Loader className="w-3.5 h-3.5 mr-1.5 animate-spin" />
                   ) : (
                     <ArrowRight className="w-3.5 h-3.5 mr-1.5" />
                   )}
@@ -566,7 +566,7 @@ function AutomationPage() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-medium">{preset.name}</span>
-                          {loaded && <CheckCircle2 className="w-3.5 h-3.5 text-bull" />}
+                          {loaded && <CircleCheck className="w-3.5 h-3.5 text-bull" />}
                         </div>
                         <p className="text-[10px] text-muted-foreground mt-0.5">{preset.desc}</p>
                       </div>

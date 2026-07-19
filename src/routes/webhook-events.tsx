@@ -98,7 +98,7 @@ function WebhookEventsPage() {
               Refresh
             </Button>
             <Button size="sm" variant="ghost" onClick={purge}>
-              <Trash2 className="w-3.5 h-3.5" />
+              <Trash className="w-3.5 h-3.5" />
             </Button>
           </div>
         </div>

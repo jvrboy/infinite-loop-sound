@@ -262,7 +262,7 @@ function SessionOverlapPage() {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-base flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-primary" /> Liquidity Score
+                <BarChart className="w-4 h-4 text-primary" /> Liquidity Score
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
@@ -439,7 +439,7 @@ function SessionOverlapPage() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-primary" /> Key Overlap Windows (UTC)
+              <CircleCheck className="w-4 h-4 text-primary" /> Key Overlap Windows (UTC)
             </CardTitle>
           </CardHeader>
           <CardContent>

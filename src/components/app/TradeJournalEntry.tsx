@@ -54,7 +54,7 @@ const MOODS: { id: TradeMood; label: string; icon: typeof Smile; color: string }
   {
     id: "disciplined",
     label: "Disciplined",
-    icon: CheckCircle2,
+    icon: CircleCheck,
     color: "text-primary bg-primary/10 border-primary/30",
   },
   {
@@ -227,7 +227,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
             }`}
           >
             {followedPlan ? (
-              <CheckCircle2 className="w-3.5 h-3.5" />
+              <CircleCheck className="w-3.5 h-3.5" />
             ) : (
               <AlertTriangle className="w-3.5 h-3.5" />
             )}
@@ -298,7 +298,7 @@ export function TradeJournalEntry({ pair, timeframe, direction, onSave }: Props)
         <Button onClick={handleSave} className="w-full" variant={saved ? "outline" : "default"}>
           {saved ? (
             <>
-              <CheckCircle2 className="w-4 h-4 mr-2" /> Saved!
+              <CircleCheck className="w-4 h-4 mr-2" /> Saved!
             </>
           ) : (
             <>

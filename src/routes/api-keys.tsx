@@ -407,7 +407,7 @@ function ApiKeysPage() {
                                 onClick={() => handleRemoveProviderKey(pk.id)}
                                 className="h-7 w-7 p-0 text-destructive hover:bg-destructive/10"
                               >
-                                <Trash2 className="w-3.5 h-3.5" />
+                                <Trash className="w-3.5 h-3.5" />
                               </Button>
                             </div>
                           ))
@@ -491,7 +491,7 @@ function ApiKeysPage() {
                     onClick={() => del(k.id)}
                     className="text-destructive"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash className="w-3.5 h-3.5" />
                   </Button>
                 </div>
               ))}
@@ -540,7 +540,7 @@ function ApiKeysPage() {
                     onClick={() => delHook(h.id)}
                     className="text-destructive"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
+                    <Trash className="w-3.5 h-3.5" />
                   </Button>
                 </div>
               ))}

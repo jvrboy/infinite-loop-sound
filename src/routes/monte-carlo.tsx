@@ -251,7 +251,7 @@ function MonteCarloPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm uppercase tracking-wider flex items-center gap-2">
-                      <BarChart3 className="w-4 h-4 text-primary" /> Equity Distribution
+                      <BarChart className="w-4 h-4 text-primary" /> Equity Distribution
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
