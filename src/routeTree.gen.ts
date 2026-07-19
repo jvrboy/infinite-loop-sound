@@ -78,6 +78,7 @@ import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AlertBuilderRouteImport } from './routes/alert-builder'
 import { Route as AiAgentsRouteImport } from './routes/ai-agents'
+import { Route as WalkForwardRouteImport } from './routes/walk-forward'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiKeepaliveZoRouteImport } from './routes/api/keepalive/zo'
@@ -438,6 +439,11 @@ const AiAgentsRoute = AiAgentsRouteImport.update({
   path: '/ai-agents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WalkForwardRoute = WalkForwardRouteImport.update({
+  id: '/walk-forward',
+  path: '/walk-forward',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -518,6 +524,7 @@ const ApiPublicV1SignalsIncomingRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/walk-forward': typeof WalkForwardRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
@@ -603,6 +610,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/walk-forward': typeof WalkForwardRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
@@ -689,6 +697,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ai-agents': typeof AiAgentsRoute
+  '/walk-forward': typeof WalkForwardRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
@@ -776,6 +785,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ai-agents'
+    | '/walk-forward'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
@@ -861,6 +871,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ai-agents'
+    | '/walk-forward'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
@@ -946,6 +957,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ai-agents'
+    | '/walk-forward'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
@@ -1032,6 +1044,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AiAgentsRoute: typeof AiAgentsRoute
+  WalkForwardRoute: typeof WalkForwardRoute
   AlertBuilderRoute: typeof AlertBuilderRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
@@ -1135,6 +1148,13 @@ declare module '@tanstack/react-router' {
       path: '/webhooks'
       fullPath: '/webhooks'
       preLoaderRoute: typeof WebhooksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/walk-forward': {
+      id: '/walk-forward'
+      path: '/walk-forward'
+      fullPath: '/walk-forward'
+      preLoaderRoute: typeof WalkForwardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/webhook-events': {
@@ -1714,6 +1734,7 @@ const ApiPublicV1SignalsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AiAgentsRoute: AiAgentsRoute,
+  WalkForwardRoute: WalkForwardRoute,
   AlertBuilderRoute: AlertBuilderRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
