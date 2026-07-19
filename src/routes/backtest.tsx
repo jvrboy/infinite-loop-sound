@@ -37,7 +37,7 @@ import {
   Image as ImgIcon,
   Play,
   Pause,
-  BarChart,
+  BarChart as BarChartIcon,
   Target,
   Award,
   AlertTriangle,
@@ -428,7 +428,7 @@ function BacktestPage() {
           <>
             {/* Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <MetricCard icon={BarChart3} label="Signals" value={String(result.signals.length)} />
+              <MetricCard icon={BarChartIcon} label="Signals" value={String(result.signals.length)} />
               <MetricCard
                 icon={TrendingUp}
                 label="Wins"
@@ -484,7 +484,7 @@ function BacktestPage() {
             <Card>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-semibold uppercase tracking-wider flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4 text-primary" /> Price Chart with Trade Signals
+                  <BarChartIcon className="w-4 h-4 text-primary" /> Price Chart with Trade Signals
                 </CardTitle>
               </CardHeader>
               <CardContent className="pt-0">

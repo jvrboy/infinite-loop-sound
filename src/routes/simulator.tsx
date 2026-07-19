@@ -320,7 +320,7 @@ function SimulatorPage() {
           {/* Chart */}
           <div className="md:col-span-3 glass-card p-5 rounded-lg h-[500px] flex flex-col">
             <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-4 flex items-center gap-2">
-              <BarChart3 className="w-4 h-4 text-primary" /> Equity distribution ({N_RUNS} runs)
+              <BarChart className="w-4 h-4 text-primary" /> Equity distribution ({N_RUNS} runs)
             </h3>
             <div className="flex-1 min-h-0 w-full">
               <ResponsiveContainer width="100%" height="100%">
