@@ -21,7 +21,7 @@ export function useStrategyAgent() {
     ) => {
       setIsRunning(true);
       try {
-        const result = runFullAnalysis({
+        const result = await runFullAnalysis({
           ...input,
           ticks: input.ticks.map((t) => ({ quote: t.quote, epoch: t.epoch })),
         });

@@ -8,6 +8,7 @@ import { runConfluenceAgent } from "./confluence-agent";
 import { runOptimizationAgent } from "./optimization-agent";
 import { runAutomationAgent } from "./automation-agent";
 import { scanPatterns } from "./pattern-agent";
+import { getLearnedWeights, getStrategyPerformance } from "./self-learning-agent";
 import type { Candle } from "../engine/indicators";
 import type { Tick } from "../engine/heatmap-analytics";
 import type { NewsEvent } from "../engine/strategies-v2";
@@ -32,6 +33,8 @@ const initialState: OrchestratorState = {
     "confluence-agent",
     "optimization-agent",
     "automation-agent",
+    "pattern-agent",
+    "self-learning-agent",
   ],
 };
 
@@ -53,7 +56,7 @@ export interface FullAnalysisInput {
   maxPositions?: number;
 }
 
-export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
+export async function runFullAnalysis(input: FullAnalysisInput): Promise<OrchestratorState> {
   const {
     pair,
     timeframe,
@@ -180,6 +183,41 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
     content: `Pattern Agent: ${patternScan.patterns.length} patterns, bias=${patternScan.compositeBias} (${patternScan.compositeScore})`,
   });
 
+  // 8. Self-Learning Agent — fetches learned confluence weights and performance
+  const learnedWeights = await getLearnedWeights(pair);
+  const perf = await getStrategyPerformance(pair);
+  const learnedInsights: string[] = [];
+  const weightCount = Object.keys(learnedWeights).length;
+  if (weightCount > 0) {
+    const topFactors = Object.entries(learnedWeights)
+      .sort((a, b) => b[1].weight - a[1].weight)
+      .slice(0, 3)
+      .map(([k, v]) => `${k}=${v.weight.toFixed(2)} (${v.samples}s, ${Math.round(v.winRate * 100)}%WR)`);
+    learnedInsights.push(`Top learned factors: ${topFactors.join(", ")}`);
+  }
+  if (perf.total > 0) {
+    learnedInsights.push(
+      `Historical: ${perf.total} signals, ${Math.round(perf.winRate * 100)}% WR, avg ${perf.avgPnl.toFixed(1)} pips`,
+    );
+  } else {
+    learnedInsights.push("No historical data yet — collecting samples");
+  }
+  const selfLearningResult: AgentResult = {
+    agentId: "self-learning-agent",
+    status: "completed",
+    timestamp: Date.now(),
+    output: { learnedWeights, performance: perf },
+    insights: learnedInsights,
+  };
+  state.results["self-learning-agent"] = selfLearningResult;
+  newMessages.push({
+    id: crypto.randomUUID(),
+    agentId: "orchestrator",
+    type: "info",
+    timestamp: Date.now(),
+    content: `Self-Learning Agent: ${weightCount} learned weights, ${perf.total} historical signals (${Math.round(perf.winRate * 100)}% WR)`,
+  });
+
   // Combine messages
   state.messageLog = [...newMessages, ...state.messageLog].slice(0, 200);
   state.lastRun = Date.now();
@@ -271,6 +309,28 @@ export const ALL_AGENT_CONFIGS: AgentConfig[] = [
     enabled: true,
     priority: "high",
     intervalSec: 30,
+    instruments: ["all"],
+    timeframes: ["all"],
+  },
+  {
+    id: "pattern-agent",
+    name: "Pattern Agent",
+    description:
+      "Candlestick + indicator pattern recognition (engulfing, pin bar, doji, Supertrend, Ichimoku, ADX, RSI, MACD, Keltner squeeze)",
+    enabled: true,
+    priority: "high",
+    intervalSec: 30,
+    instruments: ["all"],
+    timeframes: ["M5", "M15", "M30", "H1", "H4"],
+  },
+  {
+    id: "self-learning-agent",
+    name: "Self-Learning Agent",
+    description:
+      "Tracks signal outcomes, adjusts confluence weights via EMA, provides historical win-rate and per-factor performance",
+    enabled: true,
+    priority: "high",
+    intervalSec: 60,
     instruments: ["all"],
     timeframes: ["all"],
   },
