@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star } from "lucide-react";
+import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid3x3, Grid } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
 import { ThreeBackground } from "./ThreeBackground";
@@ -77,6 +77,16 @@ const NAV = [
   { to: "/notifications", label: "Notifications", icon: Bell },
   { to: "/strategy-market", label: "Strategy Market", icon: Store },
   { to: "/watchlist", label: "Watchlist", icon: Eye },
+  { to: "/elliott-wave", label: "Elliott Wave", icon: TrendingUp },
+  { to: "/vwap", label: "VWAP", icon: Gauge },
+  { to: "/wyckoff", label: "Wyckoff", icon: Layers },
+  { to: "/market-breadth", label: "Breadth", icon: BarChart3 },
+  { to: "/renko", label: "Renko", icon: Grid3x3 },
+  { to: "/delta-volume", label: "Delta Vol", icon: Activity },
+  { to: "/kelly-criterion", label: "Kelly", icon: Calculator },
+  { to: "/fear-greed", label: "Fear/Greed", icon: Flame },
+  { to: "/correlation-matrix", label: "Corr Matrix", icon: Grid },
+  { to: "/chrysalis", label: "CHRYSALIS", icon: Dna },
 ] as const;
 
 // Desktop grouped sections
@@ -98,6 +108,11 @@ const SECTIONS = [
       { to: "/volume-profile", label: "Volume Profile", icon: BarChart3 },
       { to: "/fourier", label: "Fourier Spectrum", icon: Radio },
       { to: "/hurst", label: "Hurst Exponent", icon: Activity },
+      { to: "/elliott-wave", label: "Elliott Wave", icon: TrendingUp },
+      { to: "/vwap", label: "VWAP Bands", icon: Gauge },
+      { to: "/wyckoff", label: "Wyckoff", icon: Layers },
+      { to: "/renko", label: "Renko Chart", icon: Grid3x3 },
+      { to: "/delta-volume", label: "Delta Volume", icon: Activity },
     ],
   },
   {
@@ -127,6 +142,9 @@ const SECTIONS = [
       { to: "/sessions", label: "Sessions", icon: Globe },
       { to: "/currency-strength", label: "Strength", icon: Gauge },
       { to: "/calendar", label: "Calendar", icon: CalIcon },
+      { to: "/market-breadth", label: "Market Breadth", icon: BarChart3 },
+      { to: "/fear-greed", label: "Fear & Greed", icon: Flame },
+      { to: "/correlation-matrix", label: "Correlation Matrix", icon: Grid },
     ],
   },
   {
@@ -160,6 +178,7 @@ const SECTIONS = [
       { to: "/correlation", label: "Correlation", icon: Activity },
       { to: "/volatility", label: "Vol Regime", icon: Flame },
       { to: "/walk-forward", label: "Walk-Forward", icon: Target },
+      { to: "/kelly-criterion", label: "Kelly Criterion", icon: Calculator },
     ],
   },
   {
@@ -184,9 +203,10 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Music & Audio",
-    icon: Music,
+    title: "Creative Studio",
+    icon: Dna,
     items: [
+      { to: "/chrysalis", label: "CHRYSALIS", icon: Dna },
       { to: "/music", label: "Music Studio", icon: Music },
     ],
   },
@@ -259,7 +279,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     Calculators: false,
     "Strategy & Journal": false,
     "Portfolio & Tracking": false,
-    "Music & Audio": false,
+    "Creative Studio": false,
     "System Admin": false,
   });
 
