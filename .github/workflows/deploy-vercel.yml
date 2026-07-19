@@ -13,8 +13,10 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  build-check:
     runs-on: ubuntu-latest
+    outputs:
+      ok: ${{ steps.buildres.outputs.ok }}
     steps:
       - uses: actions/checkout@v4
 
@@ -36,9 +38,37 @@ jobs:
         continue-on-error: true
 
       - name: Build
-        run: npm run build
+        id: buildres
+        run: |
+          npm run build
+          echo "ok=true" >> "$GITHUB_OUTPUT"
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Report build status
+        if: always()
+        run: |
+          echo "::notice title=Build::Build ${{ steps.buildres.outputs.ok == 'true' && 'succeeded' || 'failed' }}"
+          if [ "${{ steps.buildres.outputs.ok }}" != "true" ]; then
+            echo "::error title=Build::Build failed — Vercel deploy will be skipped."
+            exit 1
+          fi
+
+  deploy:
+    needs: build-check
+    if: ${{ needs.build-check.outputs.ok == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
 
       - name: Install Vercel CLI
         run: npm i -g vercel@latest
