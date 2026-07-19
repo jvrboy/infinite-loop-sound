@@ -10,9 +10,14 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ZoRouteImport } from './routes/zo'
+import { Route as WyckoffRouteImport } from './routes/wyckoff'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
+import { Route as WatchlistRouteImport } from './routes/watchlist'
+import { Route as WalkForwardRouteImport } from './routes/walk-forward'
+import { Route as VwapRouteImport } from './routes/vwap'
+import { Route as VolumeProfileRouteImport } from './routes/volume-profile'
 import { Route as VolatilityRouteImport } from './routes/volatility'
 import { Route as UptimeRouteImport } from './routes/uptime'
 import { Route as UltraRouteImport } from './routes/ultra'
@@ -20,11 +25,15 @@ import { Route as ToolsRouteImport } from './routes/tools'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as TechnicalAnalysisRouteImport } from './routes/technical-analysis'
 import { Route as SystemRouteImport } from './routes/system'
+import { Route as SwarmRouteImport } from './routes/swarm'
 import { Route as StreakRouteImport } from './routes/streak'
+import { Route as StrategyMarketRouteImport } from './routes/strategy-market'
 import { Route as StrategiesRouteImport } from './routes/strategies'
+import { Route as SmcRouteImport } from './routes/smc'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SignalStatsRouteImport } from './routes/signal-stats'
+import { Route as ShadersRouteImport } from './routes/shaders'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
 import { Route as SentimentRouteImport } from './routes/sentiment'
@@ -33,37 +42,54 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as ScalingRouteImport } from './routes/scaling'
 import { Route as RiskCalculatorRouteImport } from './routes/risk-calculator'
 import { Route as ReplayRouteImport } from './routes/replay'
+import { Route as RenkoRouteImport } from './routes/renko'
 import { Route as RecoveryRouteImport } from './routes/recovery'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PnlRouteImport } from './routes/pnl'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PivotRouteImport } from './routes/pivot'
 import { Route as PipValueRouteImport } from './routes/pip-value'
 import { Route as PersistenceRouteImport } from './routes/persistence'
 import { Route as PerformanceRouteImport } from './routes/performance'
+import { Route as OrderBlocksRouteImport } from './routes/order-blocks'
 import { Route as OptionsFlowRouteImport } from './routes/options-flow'
 import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as OptimizationRouteImport } from './routes/optimization'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as MusicRouteImport } from './routes/music'
 import { Route as MtfRouteImport } from './routes/mtf'
 import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
 import { Route as McpServersRouteImport } from './routes/mcp-servers'
+import { Route as MarketSystemsRouteImport } from './routes/market-systems'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
+import { Route as MarketBreadthRouteImport } from './routes/market-breadth'
 import { Route as MarginRouteImport } from './routes/margin'
 import { Route as LocalAiRouteImport } from './routes/local-ai'
+import { Route as KellyCriterionRouteImport } from './routes/kelly-criterion'
 import { Route as JournalRouteImport } from './routes/journal'
+import { Route as IchimokuRouteImport } from './routes/ichimoku'
+import { Route as HurstRouteImport } from './routes/hurst'
 import { Route as HeatmapRouteImport } from './routes/heatmap'
+import { Route as HarmonicRouteImport } from './routes/harmonic'
+import { Route as FourierRouteImport } from './routes/fourier'
 import { Route as FibonacciRouteImport } from './routes/fibonacci'
+import { Route as FearGreedRouteImport } from './routes/fear-greed'
+import { Route as ElliottWaveRouteImport } from './routes/elliott-wave'
 import { Route as DrawdownShieldRouteImport } from './routes/drawdown-shield'
 import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DlqRouteImport } from './routes/dlq'
 import { Route as DetectorsRouteImport } from './routes/detectors'
 import { Route as DerivRouteImport } from './routes/deriv'
+import { Route as DeltaVolumeRouteImport } from './routes/delta-volume'
 import { Route as DarkPoolRouteImport } from './routes/dark-pool'
 import { Route as CurrencyStrengthRouteImport } from './routes/currency-strength'
+import { Route as CorrelationMatrixRouteImport } from './routes/correlation-matrix'
 import { Route as CorrelationRouteImport } from './routes/correlation'
 import { Route as ConfluenceRouteImport } from './routes/confluence'
 import { Route as CompoundRouteImport } from './routes/compound'
+import { Route as ChrysalisRouteImport } from './routes/chrysalis'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ChartRouteImport } from './routes/chart'
@@ -71,6 +97,7 @@ import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BotRouteImport } from './routes/bot'
 import { Route as BoomCrashRouteImport } from './routes/boom-crash'
 import { Route as BacktestRouteImport } from './routes/backtest'
+import { Route as AutomationHubRouteImport } from './routes/automation-hub'
 import { Route as AutomationRouteImport } from './routes/automation'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
@@ -78,7 +105,7 @@ import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AlertBuilderRouteImport } from './routes/alert-builder'
 import { Route as AiAgentsRouteImport } from './routes/ai-agents'
-import { Route as WalkForwardRouteImport } from './routes/walk-forward'
+import { Route as AdvancedAnalysisRouteImport } from './routes/advanced-analysis'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
 import { Route as ApiKeepaliveZoRouteImport } from './routes/api/keepalive/zo'
@@ -99,6 +126,11 @@ const ZoRoute = ZoRouteImport.update({
   path: '/zo',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WyckoffRoute = WyckoffRouteImport.update({
+  id: '/wyckoff',
+  path: '/wyckoff',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
   path: '/welcome',
@@ -112,6 +144,26 @@ const WebhooksRoute = WebhooksRouteImport.update({
 const WebhookEventsRoute = WebhookEventsRouteImport.update({
   id: '/webhook-events',
   path: '/webhook-events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchlistRoute = WatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WalkForwardRoute = WalkForwardRouteImport.update({
+  id: '/walk-forward',
+  path: '/walk-forward',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VwapRoute = VwapRouteImport.update({
+  id: '/vwap',
+  path: '/vwap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VolumeProfileRoute = VolumeProfileRouteImport.update({
+  id: '/volume-profile',
+  path: '/volume-profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const VolatilityRoute = VolatilityRouteImport.update({
@@ -149,14 +201,29 @@ const SystemRoute = SystemRouteImport.update({
   path: '/system',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SwarmRoute = SwarmRouteImport.update({
+  id: '/swarm',
+  path: '/swarm',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StreakRoute = StreakRouteImport.update({
   id: '/streak',
   path: '/streak',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StrategyMarketRoute = StrategyMarketRouteImport.update({
+  id: '/strategy-market',
+  path: '/strategy-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StrategiesRoute = StrategiesRouteImport.update({
   id: '/strategies',
   path: '/strategies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SmcRoute = SmcRouteImport.update({
+  id: '/smc',
+  path: '/smc',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SimulatorRoute = SimulatorRouteImport.update({
@@ -172,6 +239,11 @@ const SignalsRoute = SignalsRouteImport.update({
 const SignalStatsRoute = SignalStatsRouteImport.update({
   id: '/signal-stats',
   path: '/signal-stats',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShadersRoute = ShadersRouteImport.update({
+  id: '/shaders',
+  path: '/shaders',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SessionsRoute = SessionsRouteImport.update({
@@ -214,9 +286,19 @@ const ReplayRoute = ReplayRouteImport.update({
   path: '/replay',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RenkoRoute = RenkoRouteImport.update({
+  id: '/renko',
+  path: '/renko',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RecoveryRoute = RecoveryRouteImport.update({
   id: '/recovery',
   path: '/recovery',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PnlRoute = PnlRouteImport.update({
@@ -249,6 +331,11 @@ const PerformanceRoute = PerformanceRouteImport.update({
   path: '/performance',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrderBlocksRoute = OrderBlocksRouteImport.update({
+  id: '/order-blocks',
+  path: '/order-blocks',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OptionsFlowRoute = OptionsFlowRouteImport.update({
   id: '/options-flow',
   path: '/options-flow',
@@ -269,9 +356,19 @@ const OptimizationRoute = OptimizationRouteImport.update({
   path: '/optimization',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MusicRoute = MusicRouteImport.update({
+  id: '/music',
+  path: '/music',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MtfRoute = MtfRouteImport.update({
@@ -289,9 +386,19 @@ const McpServersRoute = McpServersRouteImport.update({
   path: '/mcp-servers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MarketSystemsRoute = MarketSystemsRouteImport.update({
+  id: '/market-systems',
+  path: '/market-systems',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MarketProfileRoute = MarketProfileRouteImport.update({
   id: '/market-profile',
   path: '/market-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketBreadthRoute = MarketBreadthRouteImport.update({
+  id: '/market-breadth',
+  path: '/market-breadth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarginRoute = MarginRouteImport.update({
@@ -304,9 +411,24 @@ const LocalAiRoute = LocalAiRouteImport.update({
   path: '/local-ai',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KellyCriterionRoute = KellyCriterionRouteImport.update({
+  id: '/kelly-criterion',
+  path: '/kelly-criterion',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const JournalRoute = JournalRouteImport.update({
   id: '/journal',
   path: '/journal',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IchimokuRoute = IchimokuRouteImport.update({
+  id: '/ichimoku',
+  path: '/ichimoku',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HurstRoute = HurstRouteImport.update({
+  id: '/hurst',
+  path: '/hurst',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HeatmapRoute = HeatmapRouteImport.update({
@@ -314,9 +436,29 @@ const HeatmapRoute = HeatmapRouteImport.update({
   path: '/heatmap',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HarmonicRoute = HarmonicRouteImport.update({
+  id: '/harmonic',
+  path: '/harmonic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FourierRoute = FourierRouteImport.update({
+  id: '/fourier',
+  path: '/fourier',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FibonacciRoute = FibonacciRouteImport.update({
   id: '/fibonacci',
   path: '/fibonacci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FearGreedRoute = FearGreedRouteImport.update({
+  id: '/fear-greed',
+  path: '/fear-greed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ElliottWaveRoute = ElliottWaveRouteImport.update({
+  id: '/elliott-wave',
+  path: '/elliott-wave',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DrawdownShieldRoute = DrawdownShieldRouteImport.update({
@@ -344,6 +486,11 @@ const DerivRoute = DerivRouteImport.update({
   path: '/deriv',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DeltaVolumeRoute = DeltaVolumeRouteImport.update({
+  id: '/delta-volume',
+  path: '/delta-volume',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DarkPoolRoute = DarkPoolRouteImport.update({
   id: '/dark-pool',
   path: '/dark-pool',
@@ -352,6 +499,11 @@ const DarkPoolRoute = DarkPoolRouteImport.update({
 const CurrencyStrengthRoute = CurrencyStrengthRouteImport.update({
   id: '/currency-strength',
   path: '/currency-strength',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CorrelationMatrixRoute = CorrelationMatrixRouteImport.update({
+  id: '/correlation-matrix',
+  path: '/correlation-matrix',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CorrelationRoute = CorrelationRouteImport.update({
@@ -367,6 +519,11 @@ const ConfluenceRoute = ConfluenceRouteImport.update({
 const CompoundRoute = CompoundRouteImport.update({
   id: '/compound',
   path: '/compound',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChrysalisRoute = ChrysalisRouteImport.update({
+  id: '/chrysalis',
+  path: '/chrysalis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChecklistRoute = ChecklistRouteImport.update({
@@ -404,6 +561,11 @@ const BacktestRoute = BacktestRouteImport.update({
   path: '/backtest',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutomationHubRoute = AutomationHubRouteImport.update({
+  id: '/automation-hub',
+  path: '/automation-hub',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AutomationRoute = AutomationRouteImport.update({
   id: '/automation',
   path: '/automation',
@@ -439,9 +601,9 @@ const AiAgentsRoute = AiAgentsRouteImport.update({
   path: '/ai-agents',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WalkForwardRoute = WalkForwardRouteImport.update({
-  id: '/walk-forward',
-  path: '/walk-forward',
+const AdvancedAnalysisRoute = AdvancedAnalysisRouteImport.update({
+  id: '/advanced-analysis',
+  path: '/advanced-analysis',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -523,14 +685,15 @@ const ApiPublicV1SignalsIncomingRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/advanced-analysis': typeof AdvancedAnalysisRoute
   '/ai-agents': typeof AiAgentsRoute
-  '/walk-forward': typeof WalkForwardRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
   '/automation': typeof AutomationRoute
+  '/automation-hub': typeof AutomationHubRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
@@ -538,37 +701,54 @@ export interface FileRoutesByFullPath {
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/checklist': typeof ChecklistRoute
+  '/chrysalis': typeof ChrysalisRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
+  '/correlation-matrix': typeof CorrelationMatrixRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
+  '/delta-volume': typeof DeltaVolumeRoute
   '/deriv': typeof DerivRoute
   '/detectors': typeof DetectorsRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
   '/drawdown-shield': typeof DrawdownShieldRoute
+  '/elliott-wave': typeof ElliottWaveRoute
+  '/fear-greed': typeof FearGreedRoute
   '/fibonacci': typeof FibonacciRoute
+  '/fourier': typeof FourierRoute
+  '/harmonic': typeof HarmonicRoute
   '/heatmap': typeof HeatmapRoute
+  '/hurst': typeof HurstRoute
+  '/ichimoku': typeof IchimokuRoute
   '/journal': typeof JournalRoute
+  '/kelly-criterion': typeof KellyCriterionRoute
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
+  '/market-breadth': typeof MarketBreadthRoute
   '/market-profile': typeof MarketProfileRoute
+  '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
+  '/music': typeof MusicRoute
   '/neural': typeof NeuralRoute
+  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/order-blocks': typeof OrderBlocksRoute
   '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
   '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
+  '/portfolio': typeof PortfolioRoute
   '/recovery': typeof RecoveryRoute
+  '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
   '/scaling': typeof ScalingRoute
@@ -577,11 +757,15 @@ export interface FileRoutesByFullPath {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/shaders': typeof ShadersRoute
   '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/smc': typeof SmcRoute
   '/strategies': typeof StrategiesRoute
+  '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
+  '/swarm': typeof SwarmRoute
   '/system': typeof SystemRoute
   '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
@@ -589,9 +773,14 @@ export interface FileRoutesByFullPath {
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/volatility': typeof VolatilityRoute
+  '/volume-profile': typeof VolumeProfileRoute
+  '/vwap': typeof VwapRoute
+  '/walk-forward': typeof WalkForwardRoute
+  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
+  '/wyckoff': typeof WyckoffRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -609,14 +798,15 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/advanced-analysis': typeof AdvancedAnalysisRoute
   '/ai-agents': typeof AiAgentsRoute
-  '/walk-forward': typeof WalkForwardRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
   '/automation': typeof AutomationRoute
+  '/automation-hub': typeof AutomationHubRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
@@ -624,37 +814,54 @@ export interface FileRoutesByTo {
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/checklist': typeof ChecklistRoute
+  '/chrysalis': typeof ChrysalisRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
+  '/correlation-matrix': typeof CorrelationMatrixRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
+  '/delta-volume': typeof DeltaVolumeRoute
   '/deriv': typeof DerivRoute
   '/detectors': typeof DetectorsRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
   '/drawdown-shield': typeof DrawdownShieldRoute
+  '/elliott-wave': typeof ElliottWaveRoute
+  '/fear-greed': typeof FearGreedRoute
   '/fibonacci': typeof FibonacciRoute
+  '/fourier': typeof FourierRoute
+  '/harmonic': typeof HarmonicRoute
   '/heatmap': typeof HeatmapRoute
+  '/hurst': typeof HurstRoute
+  '/ichimoku': typeof IchimokuRoute
   '/journal': typeof JournalRoute
+  '/kelly-criterion': typeof KellyCriterionRoute
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
+  '/market-breadth': typeof MarketBreadthRoute
   '/market-profile': typeof MarketProfileRoute
+  '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
+  '/music': typeof MusicRoute
   '/neural': typeof NeuralRoute
+  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/order-blocks': typeof OrderBlocksRoute
   '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
   '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
+  '/portfolio': typeof PortfolioRoute
   '/recovery': typeof RecoveryRoute
+  '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
   '/scaling': typeof ScalingRoute
@@ -663,11 +870,15 @@ export interface FileRoutesByTo {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/shaders': typeof ShadersRoute
   '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/smc': typeof SmcRoute
   '/strategies': typeof StrategiesRoute
+  '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
+  '/swarm': typeof SwarmRoute
   '/system': typeof SystemRoute
   '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
@@ -675,9 +886,14 @@ export interface FileRoutesByTo {
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/volatility': typeof VolatilityRoute
+  '/volume-profile': typeof VolumeProfileRoute
+  '/vwap': typeof VwapRoute
+  '/walk-forward': typeof WalkForwardRoute
+  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
+  '/wyckoff': typeof WyckoffRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -696,14 +912,15 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/advanced-analysis': typeof AdvancedAnalysisRoute
   '/ai-agents': typeof AiAgentsRoute
-  '/walk-forward': typeof WalkForwardRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
   '/automation': typeof AutomationRoute
+  '/automation-hub': typeof AutomationHubRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
@@ -711,37 +928,54 @@ export interface FileRoutesById {
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/checklist': typeof ChecklistRoute
+  '/chrysalis': typeof ChrysalisRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
+  '/correlation-matrix': typeof CorrelationMatrixRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
+  '/delta-volume': typeof DeltaVolumeRoute
   '/deriv': typeof DerivRoute
   '/detectors': typeof DetectorsRoute
   '/dlq': typeof DlqRoute
   '/docs': typeof DocsRoute
   '/drawdown-shield': typeof DrawdownShieldRoute
+  '/elliott-wave': typeof ElliottWaveRoute
+  '/fear-greed': typeof FearGreedRoute
   '/fibonacci': typeof FibonacciRoute
+  '/fourier': typeof FourierRoute
+  '/harmonic': typeof HarmonicRoute
   '/heatmap': typeof HeatmapRoute
+  '/hurst': typeof HurstRoute
+  '/ichimoku': typeof IchimokuRoute
   '/journal': typeof JournalRoute
+  '/kelly-criterion': typeof KellyCriterionRoute
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
+  '/market-breadth': typeof MarketBreadthRoute
   '/market-profile': typeof MarketProfileRoute
+  '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
+  '/music': typeof MusicRoute
   '/neural': typeof NeuralRoute
+  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
   '/options-flow': typeof OptionsFlowRoute
+  '/order-blocks': typeof OrderBlocksRoute
   '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
   '/pip-value': typeof PipValueRoute
   '/pivot': typeof PivotRoute
   '/plan': typeof PlanRoute
   '/pnl': typeof PnlRoute
+  '/portfolio': typeof PortfolioRoute
   '/recovery': typeof RecoveryRoute
+  '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
   '/scaling': typeof ScalingRoute
@@ -750,11 +984,15 @@ export interface FileRoutesById {
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
+  '/shaders': typeof ShadersRoute
   '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/smc': typeof SmcRoute
   '/strategies': typeof StrategiesRoute
+  '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
+  '/swarm': typeof SwarmRoute
   '/system': typeof SystemRoute
   '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
@@ -762,9 +1000,14 @@ export interface FileRoutesById {
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
   '/volatility': typeof VolatilityRoute
+  '/volume-profile': typeof VolumeProfileRoute
+  '/vwap': typeof VwapRoute
+  '/walk-forward': typeof WalkForwardRoute
+  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
+  '/wyckoff': typeof WyckoffRoute
   '/zo': typeof ZoRoute
   '/api/keepalive/zo': typeof ApiKeepaliveZoRoute
   '/api/public/health': typeof ApiPublicHealthRoute
@@ -784,14 +1027,15 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/advanced-analysis'
     | '/ai-agents'
-    | '/walk-forward'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
     | '/api-keys'
     | '/automation'
+    | '/automation-hub'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
@@ -799,37 +1043,54 @@ export interface FileRouteTypes {
     | '/chart'
     | '/chat'
     | '/checklist'
+    | '/chrysalis'
     | '/compound'
     | '/confluence'
     | '/correlation'
+    | '/correlation-matrix'
     | '/currency-strength'
     | '/dark-pool'
+    | '/delta-volume'
     | '/deriv'
     | '/detectors'
     | '/dlq'
     | '/docs'
     | '/drawdown-shield'
+    | '/elliott-wave'
+    | '/fear-greed'
     | '/fibonacci'
+    | '/fourier'
+    | '/harmonic'
     | '/heatmap'
+    | '/hurst'
+    | '/ichimoku'
     | '/journal'
+    | '/kelly-criterion'
     | '/local-ai'
     | '/margin'
+    | '/market-breadth'
     | '/market-profile'
+    | '/market-systems'
     | '/mcp-servers'
     | '/monte-carlo'
     | '/mtf'
+    | '/music'
     | '/neural'
+    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/order-blocks'
     | '/performance'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
     | '/plan'
     | '/pnl'
+    | '/portfolio'
     | '/recovery'
+    | '/renko'
     | '/replay'
     | '/risk-calculator'
     | '/scaling'
@@ -838,11 +1099,15 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/shaders'
     | '/signal-stats'
     | '/signals'
     | '/simulator'
+    | '/smc'
     | '/strategies'
+    | '/strategy-market'
     | '/streak'
+    | '/swarm'
     | '/system'
     | '/technical-analysis'
     | '/telegram'
@@ -850,9 +1115,14 @@ export interface FileRouteTypes {
     | '/ultra'
     | '/uptime'
     | '/volatility'
+    | '/volume-profile'
+    | '/vwap'
+    | '/walk-forward'
+    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
+    | '/wyckoff'
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
@@ -870,14 +1140,15 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/advanced-analysis'
     | '/ai-agents'
-    | '/walk-forward'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
     | '/api-keys'
     | '/automation'
+    | '/automation-hub'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
@@ -885,37 +1156,54 @@ export interface FileRouteTypes {
     | '/chart'
     | '/chat'
     | '/checklist'
+    | '/chrysalis'
     | '/compound'
     | '/confluence'
     | '/correlation'
+    | '/correlation-matrix'
     | '/currency-strength'
     | '/dark-pool'
+    | '/delta-volume'
     | '/deriv'
     | '/detectors'
     | '/dlq'
     | '/docs'
     | '/drawdown-shield'
+    | '/elliott-wave'
+    | '/fear-greed'
     | '/fibonacci'
+    | '/fourier'
+    | '/harmonic'
     | '/heatmap'
+    | '/hurst'
+    | '/ichimoku'
     | '/journal'
+    | '/kelly-criterion'
     | '/local-ai'
     | '/margin'
+    | '/market-breadth'
     | '/market-profile'
+    | '/market-systems'
     | '/mcp-servers'
     | '/monte-carlo'
     | '/mtf'
+    | '/music'
     | '/neural'
+    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/order-blocks'
     | '/performance'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
     | '/plan'
     | '/pnl'
+    | '/portfolio'
     | '/recovery'
+    | '/renko'
     | '/replay'
     | '/risk-calculator'
     | '/scaling'
@@ -924,11 +1212,15 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/shaders'
     | '/signal-stats'
     | '/signals'
     | '/simulator'
+    | '/smc'
     | '/strategies'
+    | '/strategy-market'
     | '/streak'
+    | '/swarm'
     | '/system'
     | '/technical-analysis'
     | '/telegram'
@@ -936,9 +1228,14 @@ export interface FileRouteTypes {
     | '/ultra'
     | '/uptime'
     | '/volatility'
+    | '/volume-profile'
+    | '/vwap'
+    | '/walk-forward'
+    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
+    | '/wyckoff'
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
@@ -956,14 +1253,15 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/advanced-analysis'
     | '/ai-agents'
-    | '/walk-forward'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
     | '/api-keys'
     | '/automation'
+    | '/automation-hub'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
@@ -971,37 +1269,54 @@ export interface FileRouteTypes {
     | '/chart'
     | '/chat'
     | '/checklist'
+    | '/chrysalis'
     | '/compound'
     | '/confluence'
     | '/correlation'
+    | '/correlation-matrix'
     | '/currency-strength'
     | '/dark-pool'
+    | '/delta-volume'
     | '/deriv'
     | '/detectors'
     | '/dlq'
     | '/docs'
     | '/drawdown-shield'
+    | '/elliott-wave'
+    | '/fear-greed'
     | '/fibonacci'
+    | '/fourier'
+    | '/harmonic'
     | '/heatmap'
+    | '/hurst'
+    | '/ichimoku'
     | '/journal'
+    | '/kelly-criterion'
     | '/local-ai'
     | '/margin'
+    | '/market-breadth'
     | '/market-profile'
+    | '/market-systems'
     | '/mcp-servers'
     | '/monte-carlo'
     | '/mtf'
+    | '/music'
     | '/neural'
+    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
     | '/options-flow'
+    | '/order-blocks'
     | '/performance'
     | '/persistence'
     | '/pip-value'
     | '/pivot'
     | '/plan'
     | '/pnl'
+    | '/portfolio'
     | '/recovery'
+    | '/renko'
     | '/replay'
     | '/risk-calculator'
     | '/scaling'
@@ -1010,11 +1325,15 @@ export interface FileRouteTypes {
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
+    | '/shaders'
     | '/signal-stats'
     | '/signals'
     | '/simulator'
+    | '/smc'
     | '/strategies'
+    | '/strategy-market'
     | '/streak'
+    | '/swarm'
     | '/system'
     | '/technical-analysis'
     | '/telegram'
@@ -1022,9 +1341,14 @@ export interface FileRouteTypes {
     | '/ultra'
     | '/uptime'
     | '/volatility'
+    | '/volume-profile'
+    | '/vwap'
+    | '/walk-forward'
+    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
+    | '/wyckoff'
     | '/zo'
     | '/api/keepalive/zo'
     | '/api/public/health'
@@ -1043,14 +1367,15 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdvancedAnalysisRoute: typeof AdvancedAnalysisRoute
   AiAgentsRoute: typeof AiAgentsRoute
-  WalkForwardRoute: typeof WalkForwardRoute
   AlertBuilderRoute: typeof AlertBuilderRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
   AnalyticsRoute: typeof AnalyticsRoute
   ApiKeysRoute: typeof ApiKeysRoute
   AutomationRoute: typeof AutomationRoute
+  AutomationHubRoute: typeof AutomationHubRoute
   BacktestRoute: typeof BacktestRoute
   BoomCrashRoute: typeof BoomCrashRoute
   BotRoute: typeof BotRoute
@@ -1058,37 +1383,54 @@ export interface RootRouteChildren {
   ChartRoute: typeof ChartRoute
   ChatRoute: typeof ChatRoute
   ChecklistRoute: typeof ChecklistRoute
+  ChrysalisRoute: typeof ChrysalisRoute
   CompoundRoute: typeof CompoundRoute
   ConfluenceRoute: typeof ConfluenceRoute
   CorrelationRoute: typeof CorrelationRoute
+  CorrelationMatrixRoute: typeof CorrelationMatrixRoute
   CurrencyStrengthRoute: typeof CurrencyStrengthRoute
   DarkPoolRoute: typeof DarkPoolRoute
+  DeltaVolumeRoute: typeof DeltaVolumeRoute
   DerivRoute: typeof DerivRoute
   DetectorsRoute: typeof DetectorsRoute
   DlqRoute: typeof DlqRoute
   DocsRoute: typeof DocsRoute
   DrawdownShieldRoute: typeof DrawdownShieldRoute
+  ElliottWaveRoute: typeof ElliottWaveRoute
+  FearGreedRoute: typeof FearGreedRoute
   FibonacciRoute: typeof FibonacciRoute
+  FourierRoute: typeof FourierRoute
+  HarmonicRoute: typeof HarmonicRoute
   HeatmapRoute: typeof HeatmapRoute
+  HurstRoute: typeof HurstRoute
+  IchimokuRoute: typeof IchimokuRoute
   JournalRoute: typeof JournalRoute
+  KellyCriterionRoute: typeof KellyCriterionRoute
   LocalAiRoute: typeof LocalAiRoute
   MarginRoute: typeof MarginRoute
+  MarketBreadthRoute: typeof MarketBreadthRoute
   MarketProfileRoute: typeof MarketProfileRoute
+  MarketSystemsRoute: typeof MarketSystemsRoute
   McpServersRoute: typeof McpServersRoute
   MonteCarloRoute: typeof MonteCarloRoute
   MtfRoute: typeof MtfRoute
+  MusicRoute: typeof MusicRoute
   NeuralRoute: typeof NeuralRoute
+  NotificationsRoute: typeof NotificationsRoute
   OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
   OptionsCalcRoute: typeof OptionsCalcRoute
   OptionsFlowRoute: typeof OptionsFlowRoute
+  OrderBlocksRoute: typeof OrderBlocksRoute
   PerformanceRoute: typeof PerformanceRoute
   PersistenceRoute: typeof PersistenceRoute
   PipValueRoute: typeof PipValueRoute
   PivotRoute: typeof PivotRoute
   PlanRoute: typeof PlanRoute
   PnlRoute: typeof PnlRoute
+  PortfolioRoute: typeof PortfolioRoute
   RecoveryRoute: typeof RecoveryRoute
+  RenkoRoute: typeof RenkoRoute
   ReplayRoute: typeof ReplayRoute
   RiskCalculatorRoute: typeof RiskCalculatorRoute
   ScalingRoute: typeof ScalingRoute
@@ -1097,11 +1439,15 @@ export interface RootRouteChildren {
   SentimentRoute: typeof SentimentRoute
   SessionOverlapRoute: typeof SessionOverlapRoute
   SessionsRoute: typeof SessionsRoute
+  ShadersRoute: typeof ShadersRoute
   SignalStatsRoute: typeof SignalStatsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
+  SmcRoute: typeof SmcRoute
   StrategiesRoute: typeof StrategiesRoute
+  StrategyMarketRoute: typeof StrategyMarketRoute
   StreakRoute: typeof StreakRoute
+  SwarmRoute: typeof SwarmRoute
   SystemRoute: typeof SystemRoute
   TechnicalAnalysisRoute: typeof TechnicalAnalysisRoute
   TelegramRoute: typeof TelegramRoute
@@ -1109,9 +1455,14 @@ export interface RootRouteChildren {
   UltraRoute: typeof UltraRoute
   UptimeRoute: typeof UptimeRoute
   VolatilityRoute: typeof VolatilityRoute
+  VolumeProfileRoute: typeof VolumeProfileRoute
+  VwapRoute: typeof VwapRoute
+  WalkForwardRoute: typeof WalkForwardRoute
+  WatchlistRoute: typeof WatchlistRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
   WebhooksRoute: typeof WebhooksRoute
   WelcomeRoute: typeof WelcomeRoute
+  WyckoffRoute: typeof WyckoffRoute
   ZoRoute: typeof ZoRoute
   ApiKeepaliveZoRoute: typeof ApiKeepaliveZoRoute
   ApiPublicHealthRoute: typeof ApiPublicHealthRoute
@@ -1136,6 +1487,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/wyckoff': {
+      id: '/wyckoff'
+      path: '/wyckoff'
+      fullPath: '/wyckoff'
+      preLoaderRoute: typeof WyckoffRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/welcome': {
       id: '/welcome'
       path: '/welcome'
@@ -1150,6 +1508,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WebhooksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/webhook-events': {
+      id: '/webhook-events'
+      path: '/webhook-events'
+      fullPath: '/webhook-events'
+      preLoaderRoute: typeof WebhookEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watchlist': {
+      id: '/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof WatchlistRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/walk-forward': {
       id: '/walk-forward'
       path: '/walk-forward'
@@ -1157,11 +1529,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WalkForwardRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/webhook-events': {
-      id: '/webhook-events'
-      path: '/webhook-events'
-      fullPath: '/webhook-events'
-      preLoaderRoute: typeof WebhookEventsRouteImport
+    '/vwap': {
+      id: '/vwap'
+      path: '/vwap'
+      fullPath: '/vwap'
+      preLoaderRoute: typeof VwapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/volume-profile': {
+      id: '/volume-profile'
+      path: '/volume-profile'
+      fullPath: '/volume-profile'
+      preLoaderRoute: typeof VolumeProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/volatility': {
@@ -1213,6 +1592,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SystemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/swarm': {
+      id: '/swarm'
+      path: '/swarm'
+      fullPath: '/swarm'
+      preLoaderRoute: typeof SwarmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/streak': {
       id: '/streak'
       path: '/streak'
@@ -1220,11 +1606,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StreakRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/strategy-market': {
+      id: '/strategy-market'
+      path: '/strategy-market'
+      fullPath: '/strategy-market'
+      preLoaderRoute: typeof StrategyMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/strategies': {
       id: '/strategies'
       path: '/strategies'
       fullPath: '/strategies'
       preLoaderRoute: typeof StrategiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/smc': {
+      id: '/smc'
+      path: '/smc'
+      fullPath: '/smc'
+      preLoaderRoute: typeof SmcRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simulator': {
@@ -1246,6 +1646,13 @@ declare module '@tanstack/react-router' {
       path: '/signal-stats'
       fullPath: '/signal-stats'
       preLoaderRoute: typeof SignalStatsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shaders': {
+      id: '/shaders'
+      path: '/shaders'
+      fullPath: '/shaders'
+      preLoaderRoute: typeof ShadersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/sessions': {
@@ -1304,11 +1711,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReplayRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/renko': {
+      id: '/renko'
+      path: '/renko'
+      fullPath: '/renko'
+      preLoaderRoute: typeof RenkoRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/recovery': {
       id: '/recovery'
       path: '/recovery'
       fullPath: '/recovery'
       preLoaderRoute: typeof RecoveryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pnl': {
@@ -1353,6 +1774,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PerformanceRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/order-blocks': {
+      id: '/order-blocks'
+      path: '/order-blocks'
+      fullPath: '/order-blocks'
+      preLoaderRoute: typeof OrderBlocksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/options-flow': {
       id: '/options-flow'
       path: '/options-flow'
@@ -1381,11 +1809,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OptimizationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/neural': {
       id: '/neural'
       path: '/neural'
       fullPath: '/neural'
       preLoaderRoute: typeof NeuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/music': {
+      id: '/music'
+      path: '/music'
+      fullPath: '/music'
+      preLoaderRoute: typeof MusicRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mtf': {
@@ -1409,11 +1851,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof McpServersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/market-systems': {
+      id: '/market-systems'
+      path: '/market-systems'
+      fullPath: '/market-systems'
+      preLoaderRoute: typeof MarketSystemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/market-profile': {
       id: '/market-profile'
       path: '/market-profile'
       fullPath: '/market-profile'
       preLoaderRoute: typeof MarketProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-breadth': {
+      id: '/market-breadth'
+      path: '/market-breadth'
+      fullPath: '/market-breadth'
+      preLoaderRoute: typeof MarketBreadthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/margin': {
@@ -1430,11 +1886,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LocalAiRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/kelly-criterion': {
+      id: '/kelly-criterion'
+      path: '/kelly-criterion'
+      fullPath: '/kelly-criterion'
+      preLoaderRoute: typeof KellyCriterionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/journal': {
       id: '/journal'
       path: '/journal'
       fullPath: '/journal'
       preLoaderRoute: typeof JournalRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ichimoku': {
+      id: '/ichimoku'
+      path: '/ichimoku'
+      fullPath: '/ichimoku'
+      preLoaderRoute: typeof IchimokuRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/hurst': {
+      id: '/hurst'
+      path: '/hurst'
+      fullPath: '/hurst'
+      preLoaderRoute: typeof HurstRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/heatmap': {
@@ -1444,11 +1921,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HeatmapRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/harmonic': {
+      id: '/harmonic'
+      path: '/harmonic'
+      fullPath: '/harmonic'
+      preLoaderRoute: typeof HarmonicRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fourier': {
+      id: '/fourier'
+      path: '/fourier'
+      fullPath: '/fourier'
+      preLoaderRoute: typeof FourierRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/fibonacci': {
       id: '/fibonacci'
       path: '/fibonacci'
       fullPath: '/fibonacci'
       preLoaderRoute: typeof FibonacciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fear-greed': {
+      id: '/fear-greed'
+      path: '/fear-greed'
+      fullPath: '/fear-greed'
+      preLoaderRoute: typeof FearGreedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/elliott-wave': {
+      id: '/elliott-wave'
+      path: '/elliott-wave'
+      fullPath: '/elliott-wave'
+      preLoaderRoute: typeof ElliottWaveRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/drawdown-shield': {
@@ -1486,6 +1991,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DerivRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/delta-volume': {
+      id: '/delta-volume'
+      path: '/delta-volume'
+      fullPath: '/delta-volume'
+      preLoaderRoute: typeof DeltaVolumeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dark-pool': {
       id: '/dark-pool'
       path: '/dark-pool'
@@ -1498,6 +2010,13 @@ declare module '@tanstack/react-router' {
       path: '/currency-strength'
       fullPath: '/currency-strength'
       preLoaderRoute: typeof CurrencyStrengthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/correlation-matrix': {
+      id: '/correlation-matrix'
+      path: '/correlation-matrix'
+      fullPath: '/correlation-matrix'
+      preLoaderRoute: typeof CorrelationMatrixRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/correlation': {
@@ -1519,6 +2038,13 @@ declare module '@tanstack/react-router' {
       path: '/compound'
       fullPath: '/compound'
       preLoaderRoute: typeof CompoundRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chrysalis': {
+      id: '/chrysalis'
+      path: '/chrysalis'
+      fullPath: '/chrysalis'
+      preLoaderRoute: typeof ChrysalisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checklist': {
@@ -1570,6 +2096,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BacktestRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/automation-hub': {
+      id: '/automation-hub'
+      path: '/automation-hub'
+      fullPath: '/automation-hub'
+      preLoaderRoute: typeof AutomationHubRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/automation': {
       id: '/automation'
       path: '/automation'
@@ -1617,6 +2150,13 @@ declare module '@tanstack/react-router' {
       path: '/ai-agents'
       fullPath: '/ai-agents'
       preLoaderRoute: typeof AiAgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advanced-analysis': {
+      id: '/advanced-analysis'
+      path: '/advanced-analysis'
+      fullPath: '/advanced-analysis'
+      preLoaderRoute: typeof AdvancedAnalysisRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -1733,14 +2273,15 @@ const ApiPublicV1SignalsRouteWithChildren =
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdvancedAnalysisRoute: AdvancedAnalysisRoute,
   AiAgentsRoute: AiAgentsRoute,
-  WalkForwardRoute: WalkForwardRoute,
   AlertBuilderRoute: AlertBuilderRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
   AnalyticsRoute: AnalyticsRoute,
   ApiKeysRoute: ApiKeysRoute,
   AutomationRoute: AutomationRoute,
+  AutomationHubRoute: AutomationHubRoute,
   BacktestRoute: BacktestRoute,
   BoomCrashRoute: BoomCrashRoute,
   BotRoute: BotRoute,
@@ -1748,37 +2289,54 @@ const rootRouteChildren: RootRouteChildren = {
   ChartRoute: ChartRoute,
   ChatRoute: ChatRoute,
   ChecklistRoute: ChecklistRoute,
+  ChrysalisRoute: ChrysalisRoute,
   CompoundRoute: CompoundRoute,
   ConfluenceRoute: ConfluenceRoute,
   CorrelationRoute: CorrelationRoute,
+  CorrelationMatrixRoute: CorrelationMatrixRoute,
   CurrencyStrengthRoute: CurrencyStrengthRoute,
   DarkPoolRoute: DarkPoolRoute,
+  DeltaVolumeRoute: DeltaVolumeRoute,
   DerivRoute: DerivRoute,
   DetectorsRoute: DetectorsRoute,
   DlqRoute: DlqRoute,
   DocsRoute: DocsRoute,
   DrawdownShieldRoute: DrawdownShieldRoute,
+  ElliottWaveRoute: ElliottWaveRoute,
+  FearGreedRoute: FearGreedRoute,
   FibonacciRoute: FibonacciRoute,
+  FourierRoute: FourierRoute,
+  HarmonicRoute: HarmonicRoute,
   HeatmapRoute: HeatmapRoute,
+  HurstRoute: HurstRoute,
+  IchimokuRoute: IchimokuRoute,
   JournalRoute: JournalRoute,
+  KellyCriterionRoute: KellyCriterionRoute,
   LocalAiRoute: LocalAiRoute,
   MarginRoute: MarginRoute,
+  MarketBreadthRoute: MarketBreadthRoute,
   MarketProfileRoute: MarketProfileRoute,
+  MarketSystemsRoute: MarketSystemsRoute,
   McpServersRoute: McpServersRoute,
   MonteCarloRoute: MonteCarloRoute,
   MtfRoute: MtfRoute,
+  MusicRoute: MusicRoute,
   NeuralRoute: NeuralRoute,
+  NotificationsRoute: NotificationsRoute,
   OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
   OptionsCalcRoute: OptionsCalcRoute,
   OptionsFlowRoute: OptionsFlowRoute,
+  OrderBlocksRoute: OrderBlocksRoute,
   PerformanceRoute: PerformanceRoute,
   PersistenceRoute: PersistenceRoute,
   PipValueRoute: PipValueRoute,
   PivotRoute: PivotRoute,
   PlanRoute: PlanRoute,
   PnlRoute: PnlRoute,
+  PortfolioRoute: PortfolioRoute,
   RecoveryRoute: RecoveryRoute,
+  RenkoRoute: RenkoRoute,
   ReplayRoute: ReplayRoute,
   RiskCalculatorRoute: RiskCalculatorRoute,
   ScalingRoute: ScalingRoute,
@@ -1787,11 +2345,15 @@ const rootRouteChildren: RootRouteChildren = {
   SentimentRoute: SentimentRoute,
   SessionOverlapRoute: SessionOverlapRoute,
   SessionsRoute: SessionsRoute,
+  ShadersRoute: ShadersRoute,
   SignalStatsRoute: SignalStatsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
+  SmcRoute: SmcRoute,
   StrategiesRoute: StrategiesRoute,
+  StrategyMarketRoute: StrategyMarketRoute,
   StreakRoute: StreakRoute,
+  SwarmRoute: SwarmRoute,
   SystemRoute: SystemRoute,
   TechnicalAnalysisRoute: TechnicalAnalysisRoute,
   TelegramRoute: TelegramRoute,
@@ -1799,9 +2361,14 @@ const rootRouteChildren: RootRouteChildren = {
   UltraRoute: UltraRoute,
   UptimeRoute: UptimeRoute,
   VolatilityRoute: VolatilityRoute,
+  VolumeProfileRoute: VolumeProfileRoute,
+  VwapRoute: VwapRoute,
+  WalkForwardRoute: WalkForwardRoute,
+  WatchlistRoute: WatchlistRoute,
   WebhookEventsRoute: WebhookEventsRoute,
   WebhooksRoute: WebhooksRoute,
   WelcomeRoute: WelcomeRoute,
+  WyckoffRoute: WyckoffRoute,
   ZoRoute: ZoRoute,
   ApiKeepaliveZoRoute: ApiKeepaliveZoRoute,
   ApiPublicHealthRoute: ApiPublicHealthRoute,
