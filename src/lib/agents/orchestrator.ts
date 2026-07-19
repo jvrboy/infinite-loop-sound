@@ -7,6 +7,7 @@ import { runBacktestAgent, type BacktestConfig } from "./backtest-agent";
 import { runConfluenceAgent } from "./confluence-agent";
 import { runOptimizationAgent } from "./optimization-agent";
 import { runAutomationAgent } from "./automation-agent";
+import { scanPatterns } from "./pattern-agent";
 import type { Candle } from "../engine/indicators";
 import type { Tick } from "../engine/heatmap-analytics";
 import type { NewsEvent } from "../engine/strategies-v2";
@@ -160,6 +161,24 @@ export function runFullAnalysis(input: FullAnalysisInput): OrchestratorState {
   // 6. Automation Agent — monitors automation engine health
   const automationResult = runAutomationAgent();
   state.results["automation-agent"] = automationResult;
+
+  // 7. Pattern Agent — candlestick + indicator pattern recognition
+  const patternScan = scanPatterns(candles);
+  const patternResult: AgentResult = {
+    agentId: "pattern-agent",
+    status: "completed",
+    timestamp: Date.now(),
+    output: { ...patternScan },
+    insights: patternScan.patterns.slice(0, 5).map((p) => `${p.name} (${p.bias}, ${p.confidence.toFixed(0)}%): ${p.note}`),
+  };
+  state.results["pattern-agent"] = patternResult;
+  newMessages.push({
+    id: crypto.randomUUID(),
+    agentId: "orchestrator",
+    type: "info",
+    timestamp: Date.now(),
+    content: `Pattern Agent: ${patternScan.patterns.length} patterns, bias=${patternScan.compositeBias} (${patternScan.compositeScore})`,
+  });
 
   // Combine messages
   state.messageLog = [...newMessages, ...state.messageLog].slice(0, 200);

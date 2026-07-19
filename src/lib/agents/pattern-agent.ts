@@ -84,7 +84,7 @@ export function scanPatterns(candles: Candle[]): PatternScanResult {
 
   // Trend filters.
   const st = supertrend(candles);
-  const stDir = st[st.length - 1];
+  const stDir = st.trend[st.trend.length - 1];
   if (stDir != null) {
     patterns.push({
       name: "Supertrend",
