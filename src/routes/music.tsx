@@ -16,7 +16,7 @@ import {
 } from "@/lib/audio/engine";
 import { SequencerEngine, createDefaultSequencer } from "@/lib/audio/sequencer";
 import { MIDIInput, midiToNoteName, midiToFreq } from "@/lib/audio/midi";
-import { AudioRecorder, downloadBlob } from "@/lib/audio/recorder";
+import { AudioRecorder } from "@/lib/audio/recorder";
 import { ModulationEngine } from "@/lib/audio/modulation";
 import { Visualizer } from "@/lib/audio/visualizer";
 import { VinnyPlugin } from "@/components/app/VinnyPlugin";
@@ -451,7 +451,7 @@ function RecorderTab() {
     if (recording) {
       const blob = await recorderRef.current?.stop();
       setRecording(false);
-      if (blob) { downloadBlob(blob, `recording-${Date.now()}.wav`); toast.success("Recording saved"); }
+      if (blob) { AudioRecorder.downloadBlob(blob, `recording-${Date.now()}.wav`); toast.success("Recording saved"); }
     } else {
       if (!recorderRef.current) recorderRef.current = new AudioRecorder(AudioEngine.ctx, AudioEngine.master);
       await recorderRef.current.start();
