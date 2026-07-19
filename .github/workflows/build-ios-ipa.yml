@@ -81,6 +81,26 @@ jobs:
 
       - name: Add iOS platform
         run: npx cap add ios
+        continue-on-error: true
+
+      - name: Fix Podfile iOS deployment target
+        run: |
+          PODFILE="ios/App/Podfile"
+          if [ -f "$PODFILE" ]; then
+            echo "Current Podfile platform line:"
+            grep "platform :ios" "$PODFILE" || echo "(not found)"
+            # Update deployment target to 16.0 (required by Capacitor 8)
+            sed -i '' "s/platform :ios, '[0-9.]*/platform :ios, '16.0/" "$PODFILE"
+            # If no platform line exists, add it
+            if ! grep -q "platform :ios" "$PODFILE"; then
+              sed -i '' '1s/^/platform :ios, '"'"'16.0'"'"'\n/' "$PODFILE"
+            fi
+            echo "Updated Podfile platform line:"
+            grep "platform :ios" "$PODFILE"
+          else
+            echo "Podfile not found at $PODFILE"
+            find . -name "Podfile" 2>/dev/null
+          fi
 
       - name: Sync iOS platform
         run: npx cap sync ios
