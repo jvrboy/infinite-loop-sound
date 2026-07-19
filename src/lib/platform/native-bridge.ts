@@ -100,7 +100,7 @@ export function createNativeBridge(): NativeBridge {
         }));
       }
       // Web: File System Access API
-n      if (typeof window !== "undefined" && (window as any).showDirectoryPicker) {
+      if (typeof window !== "undefined" && (window as any).showDirectoryPicker) {
         try {
           const dirHandle = await (window as any).showDirectoryPicker();
           const files: DeviceFile[] = [];
