@@ -83,23 +83,26 @@ jobs:
         run: npx cap add ios
         continue-on-error: true
 
-      - name: Fix Podfile iOS deployment target
+      - name: Fix iOS deployment targets
         run: |
           PODFILE="ios/App/Podfile"
+          PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
+
+          # Fix Podfile deployment target
           if [ -f "$PODFILE" ]; then
-            echo "Current Podfile platform line:"
-            grep "platform :ios" "$PODFILE" || echo "(not found)"
-            # Update deployment target to 16.0 (required by Capacitor 8)
+            echo "Fixing Podfile..."
             sed -i '' "s/platform :ios, '[0-9.]*/platform :ios, '16.0/" "$PODFILE"
-            # If no platform line exists, add it
             if ! grep -q "platform :ios" "$PODFILE"; then
               sed -i '' '1s/^/platform :ios, '"'"'16.0'"'"'\n/' "$PODFILE"
             fi
-            echo "Updated Podfile platform line:"
             grep "platform :ios" "$PODFILE"
-          else
-            echo "Podfile not found at $PODFILE"
-            find . -name "Podfile" 2>/dev/null
+          fi
+
+          # Fix Xcode project deployment target
+          if [ -f "$PBXPROJ" ]; then
+            echo "Fixing Xcode project deployment target..."
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 16.0/g' "$PBXPROJ"
+            grep "IPHONEOS_DEPLOYMENT_TARGET" "$PBXPROJ" | head -5
           fi
 
       - name: Sync iOS platform
