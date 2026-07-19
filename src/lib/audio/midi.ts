@@ -94,7 +94,7 @@ export class MIDIInput {
   disconnect() {
     this.inputs.forEach((i) => (i.onmidimessage = null));
     this.inputs = [];
-    this.access?.onstatechange = null;
+    if (this.access) this.access.onstatechange = null;
     this.connected = false;
   }
 }
