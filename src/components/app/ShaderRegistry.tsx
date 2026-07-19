@@ -1,0 +1,92 @@
+import { useEffect, useState } from "react";
+import { ThreeBackground } from "./ThreeBackground";
+import { WebGPUBackground } from "./WebGPUBackground";
+import { PlasmaBackground } from "./PlasmaBackground";
+import { AuroraBackground } from "./AuroraBackground";
+import { HexFlowBackground } from "./HexFlowBackground";
+
+export type ShaderId =
+  | "three"
+  | "webgpu"
+  | "plasma"
+  | "aurora"
+  | "hexflow"
+  | "none";
+
+const STORAGE_KEY = "diq:shader";
+const ORDER: ShaderId[] = ["three", "webgpu", "plasma", "aurora", "hexflow", "none"];
+
+export const SHADER_REGISTRY: { id: ShaderId; label: string; desc: string }[] = [
+  { id: "three", label: "Liquid Blobs", desc: "Canvas2D liquid deformation" },
+  { id: "webgpu", label: "Neural WebGPU", desc: "WebGPU neural field (if supported)" },
+  { id: "plasma", label: "Plasma Fractal", desc: "WebGL fbm plasma flow" },
+  { id: "aurora", label: "Aurora Flow", desc: "WebGL aurora + starfield" },
+  { id: "hexflow", label: "Hex Matrix", desc: "WebGL animated honeycomb" },
+  { id: "none", label: "None", desc: "Flat background" },
+];
+
+export function getShader(): ShaderId {
+  if (typeof window === "undefined") return "three";
+  const v = localStorage.getItem(STORAGE_KEY) as ShaderId | null;
+  return v && ORDER.includes(v) ? v : "three";
+}
+
+export function setShader(id: ShaderId) {
+  localStorage.setItem(STORAGE_KEY, id);
+  window.dispatchEvent(new CustomEvent("diq:shader-change", { detail: id }));
+}
+
+export function ShaderBackground() {
+  const [id, setId] = useState<ShaderId>(() => getShader());
+  useEffect(() => {
+    const h = (e: Event) => setId((e as CustomEvent<ShaderId>).detail);
+    window.addEventListener("diq:shader-change", h);
+    return () => window.removeEventListener("diq:shader-change", h);
+  }, []);
+
+  switch (id) {
+    case "webgpu":
+      return <WebGPUBackground />;
+    case "plasma":
+      return <PlasmaBackground />;
+    case "aurora":
+      return <AuroraBackground />;
+    case "hexflow":
+      return <HexFlowBackground />;
+    case "none":
+      return null;
+    case "three":
+    default:
+      return <ThreeBackground />;
+  }
+}
+
+export function ShaderPicker() {
+  const [active, setActive] = useState<ShaderId>(() => getShader());
+  useEffect(() => {
+    const h = (e: Event) => setActive((e as CustomEvent<ShaderId>).detail);
+    window.addEventListener("diq:shader-change", h);
+    return () => window.removeEventListener("diq:shader-change", h);
+  }, []);
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      {SHADER_REGISTRY.map((s) => (
+        <button
+          key={s.id}
+          onClick={() => setShader(s.id)}
+          className={`text-left rounded-lg border p-4 transition-all hover:border-primary/60 ${
+            active === s.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold">{s.label}</span>
+            {active === s.id && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">ACTIVE</span>
+            )}
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
+        </button>
+      ))}
+    </div>
+  );
+}
