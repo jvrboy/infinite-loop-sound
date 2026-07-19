@@ -9,24 +9,22 @@ import { StarfieldBackground } from "./StarfieldBackground";
 import { FluidBackground } from "./FluidBackground";
 import { TunnelBackground } from "./TunnelBackground";
 import { GalaxyBackground } from "./GalaxyBackground";
+import { KaleidoscopeBackground } from "./KaleidoscopeBackground";
+import { RaymarchBackground } from "./RaymarchBackground";
+import { NeonGridBackground } from "./NeonGridBackground";
+import { MagmaFlowBackground } from "./MagmaFlowBackground";
+import { CrystalLatticeBackground } from "./CrystalLatticeBackground";
 
 export type ShaderId =
-  | "three"
-  | "webgpu"
-  | "plasma"
-  | "aurora"
-  | "hexflow"
-  | "voronoi"
-  | "starfield"
-  | "fluid"
-  | "tunnel"
-  | "galaxy"
-  | "none";
+  | "three" | "webgpu" | "plasma" | "aurora" | "hexflow"
+  | "voronoi" | "starfield" | "fluid" | "tunnel" | "galaxy"
+  | "kaleidoscope" | "raymarch" | "neongrid" | "magma" | "crystal" | "none";
 
 const STORAGE_KEY = "diq:shader";
 const ORDER: ShaderId[] = [
   "three", "webgpu", "plasma", "aurora", "hexflow",
-  "voronoi", "starfield", "fluid", "tunnel", "galaxy", "none",
+  "voronoi", "starfield", "fluid", "tunnel", "galaxy",
+  "kaleidoscope", "raymarch", "neongrid", "magma", "crystal", "none",
 ];
 
 export const SHADER_REGISTRY: { id: ShaderId; label: string; desc: string }[] = [
@@ -40,6 +38,11 @@ export const SHADER_REGISTRY: { id: ShaderId; label: string; desc: string }[] = 
   { id: "fluid", label: "Fluid Dynamics", desc: "WebGL curl-noise fluid flow" },
   { id: "tunnel", label: "Tunnel Warp", desc: "WebGL depth tunnel with rings" },
   { id: "galaxy", label: "Galaxy Spiral", desc: "WebGL swirling spiral galaxy" },
+  { id: "kaleidoscope", label: "Kaleidoscope", desc: "WebGL 8-fold rotating symmetry" },
+  { id: "raymarch", label: "Raymarch 3D", desc: "WebGL signed distance field raymarching" },
+  { id: "neongrid", label: "Neon Grid", desc: "WebGL synthwave neon grid + sun" },
+  { id: "magma", label: "Magma Flow", desc: "WebGL flowing lava with heat distortion" },
+  { id: "crystal", label: "Crystal Lattice", desc: "WebGL rotating 3D crystal lattice" },
   { id: "none", label: "None", desc: "Flat background" },
 ];
 
@@ -72,6 +75,11 @@ export function ShaderBackground() {
     case "fluid": return <FluidBackground />;
     case "tunnel": return <TunnelBackground />;
     case "galaxy": return <GalaxyBackground />;
+    case "kaleidoscope": return <KaleidoscopeBackground />;
+    case "raymarch": return <RaymarchBackground />;
+    case "neongrid": return <NeonGridBackground />;
+    case "magma": return <MagmaFlowBackground />;
+    case "crystal": return <CrystalLatticeBackground />;
     case "none": return null;
     case "three":
     default: return <ThreeBackground />;
