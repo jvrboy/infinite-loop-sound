@@ -259,6 +259,108 @@ function CorrelationPage() {
           </div>
         </div>
 
+        {/* Correlation Divergence Detection */}
+        <div className="glass-card rounded-xl p-4">
+          <h3 className="text-sm font-semibold flex items-center gap-2 mb-3 text-amber-500">
+            <GitCompare className="w-4 h-4" /> Correlation Divergence Detection
+          </h3>
+          <div className="space-y-2">
+            {(() => {
+              const divergences: Array<{
+                pairA: string;
+                pairB: string;
+                r: number;
+                moveA: number;
+                moveB: number;
+                type: string;
+              }> = [];
+
+              for (let i = 0; i < WATCH.length; i++) {
+                for (let j = i + 1; j < WATCH.length; j++) {
+                  const a = WATCH[i];
+                  const b = WATCH[j];
+                  const r = matrix[i].cells[j] as number | null;
+                  if (r === null || r < 0.5) continue;
+
+                  const retA = returns[a.symbol] ?? [];
+                  const retB = returns[b.symbol] ?? [];
+                  if (retA.length < 20 || retB.length < 20) continue;
+
+                  const recentA = retA.slice(-10).reduce((s, v) => s + v, 0);
+                  const recentB = retB.slice(-10).reduce((s, v) => s + v, 0);
+                  const threshold = 0.0008;
+
+                  if (r > 0.5) {
+                    if (Math.abs(recentA) > threshold && Math.abs(recentB) < threshold * 0.3) {
+                      divergences.push({
+                        pairA: a.display,
+                        pairB: b.display,
+                        r,
+                        moveA: recentA,
+                        moveB: recentB,
+                        type: `${a.display} moved ${recentA > 0 ? "up" : "down"} but ${b.display} stalled`,
+                      });
+                    } else if (Math.abs(recentB) > threshold && Math.abs(recentA) < threshold * 0.3) {
+                      divergences.push({
+                        pairA: a.display,
+                        pairB: b.display,
+                        r,
+                        moveA: recentA,
+                        moveB: recentB,
+                        type: `${b.display} moved ${recentB > 0 ? "up" : "down"} but ${a.display} stalled`,
+                      });
+                    } else if (recentA > threshold && recentB < -threshold * 0.5) {
+                      divergences.push({
+                        pairA: a.display,
+                        pairB: b.display,
+                        r,
+                        moveA: recentA,
+                        moveB: recentB,
+                        type: `${a.display} up while ${b.display} down — correlation breakdown`,
+                      });
+                    } else if (recentB > threshold && recentA < -threshold * 0.5) {
+                      divergences.push({
+                        pairA: a.display,
+                        pairB: b.display,
+                        r,
+                        moveA: recentA,
+                        moveB: recentB,
+                        type: `${b.display} up while ${a.display} down — correlation breakdown`,
+                      });
+                    }
+                  }
+                }
+              }
+
+              if (divergences.length === 0) {
+                return (
+                  <p className="text-[11px] text-muted-foreground">
+                    No divergences detected — correlated pairs are moving in sync.
+                  </p>
+                );
+              }
+
+              return divergences.slice(0, 6).map((d, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center justify-between p-2 rounded bg-amber-500/5 border border-amber-500/20"
+                >
+                  <span className="text-[11px]">{d.type}</span>
+                  <div className="flex items-center gap-2">
+                    <Badge className="bg-amber-500/10 text-amber-500 border-amber-500/30 text-[9px]">
+                      r = {d.r.toFixed(2)}
+                    </Badge>
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            Divergence = normally correlated pairs moving in opposite directions or one stalling
+            while the other moves. Often precedes a catch-up move or regime change.
+          </p>
+        </div>
+
         <p className="text-[10px] text-muted-foreground text-center">
           Pearson r over the rolling 200-tick window per symbol · public Deriv WS.
         </p>
