@@ -8,7 +8,7 @@ on:
 jobs:
   build-ios:
     runs-on: macos-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -25,10 +25,15 @@ jobs:
       - name: Install Capacitor
         run: npm install @capacitor/core @capacitor/cli @capacitor/ios
 
-      - name: Build web app
+      - name: Generate TanStack Router route tree
+        run: npx tsr generate
+        continue-on-error: true
+
+      - name: Build web app (static preset for Capacitor)
         run: npm run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
+          NITRO_PRESET: static
 
       - name: Add iOS platform
         run: npx cap add ios
