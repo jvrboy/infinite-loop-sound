@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { AssetSelect } from "@/components/app/AssetSelect";
 import { deriv } from "@/lib/engine/deriv";
+import { marketProfile as computeProfile, type MarketProfileResult } from "@/lib/engine/market-profile";
 import {
   createChart,
   ColorType,
@@ -94,49 +95,31 @@ function MarketProfilePage() {
     };
   }, [selectedPair]);
 
-  // Enhanced profile builder with more levels + volume imbalance detection (major upgrade)
+  // Real market profile computed from live Deriv candles
   useEffect(() => {
     if (!candles.length) return;
-    const prices: number[] = [];
-    const volumes: number[] = [];
-    const basePrice = selectedPair.includes("JPY")
-      ? 145.5
-      : selectedPair.includes("XAU")
-        ? 2040.5
-        : selectedPair.includes("BTC")
-          ? 65000
-          : 1.085;
-    const step = basePrice > 1000 ? 5.0 : basePrice > 100 ? 0.05 : 0.0005;
-
-    // MAJOR UPGRADE: More granular profile (100 levels) + TPO-style + imbalance detection
-    for (let i = 99; i >= 0; i--) {
-      const price = basePrice + (i - 50) * step;
-      prices.push(price);
-      const dist = Math.abs(i - 50);
-      const vol =
-        Math.exp((-dist * dist) / 80) * 1200 +
-        Math.random() * 300 +
-        (Math.random() > 0.7 ? 800 : 0); // Imbalance spikes
-      volumes.push(vol);
-    }
+    const result = computeProfile(candles, 48, 0.7);
+    if (!result) return;
+    const prices = result.bins.map((b) => b.price);
+    const volumes = result.bins.map((b) => b.volume);
     const maxVol = Math.max(...volumes);
     const pocIndex = volumes.indexOf(maxVol);
-
-    // Multiple POC levels + dynamic VA
     const p = {
       prices,
       volumes,
-      poc: prices[pocIndex],
-      poc2: prices[Math.max(0, pocIndex - 3)], // Secondary POC
-      valueAreaHigh: prices[Math.max(0, pocIndex - 12)],
-      valueAreaLow: prices[Math.min(prices.length - 1, pocIndex + 12)],
-      totalVolume: volumes.reduce((a, b) => a + b, 0),
-      imbalance: volumes.filter((v, i) => v > maxVol * 0.7).length > 5 ? "HIGH" : "NORMAL",
+      poc: result.poc,
+      poc2: prices[Math.max(0, pocIndex - 3)],
+      valueAreaHigh: result.vah,
+      valueAreaLow: result.val,
+      totalVolume: result.totalVolume,
+      imbalance:
+        volumes.filter((v) => v > maxVol * 0.7).length > 5 ? "HIGH" : "NORMAL",
     };
     setProfile(p);
 
-    // MAJOR UPGRADE: Audio alert on VA break or POC touch (infinite loop sound tie-in)
+    // Audio alert on VA break or POC touch
     if (audioEnabled && audioRef.current && livePrice) {
+      const step = (result.vah - result.val) / 24 || 0.0005;
       const vaBreak = livePrice > p.valueAreaHigh || livePrice < p.valueAreaLow;
       const pocTouch = Math.abs(livePrice - p.poc) < step * 2;
       if (vaBreak || pocTouch) {

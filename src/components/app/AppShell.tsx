@@ -8,6 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 const NAV = [
   { to: "/", label: "Dashboard", icon: Gauge },
   { to: "/ultra", label: "Ultra", icon: Sparkles },
+  { to: "/smc", label: "SMC", icon: Layers },
   { to: "/persistence", label: "24/7", icon: InfinityIcon },
   { to: "/scanner", label: "Scanner", icon: Radio },
   { to: "/signals", label: "Signals", icon: Zap },
@@ -88,6 +89,7 @@ const SECTIONS = [
       { to: "/local-ai", label: "Local AI", icon: Brain },
       { to: "/neural", label: "Neural Net", icon: Brain },
       { to: "/ultra", label: "Ultra", icon: Sparkles },
+      { to: "/smc", label: "SMC", icon: Layers },
       { to: "/scanner", label: "Scanner", icon: Radio },
       { to: "/persistence", label: "24/7 Scan", icon: InfinityIcon },
       { to: "/confluence", label: "Confluence", icon: Crosshair },
