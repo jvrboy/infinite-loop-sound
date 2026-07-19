@@ -9,38 +9,26 @@ export interface ChannelStrip {
   id: string;
   name: string;
   type: ChannelType;
-  // Gain staging
-  inputGain: number;        // 0..2 trim
-  volume: number;           // 0..1 fader
-  pan: number;              // -1..1
+  inputGain: number;
+  volume: number;
+  pan: number;
   mute: boolean;
   solo: boolean;
-  // EQ (4-band parametric)
   eq: EQBand[];
-  // Dynamics
   compressor: CompressorSettings;
   gate: GateSettings;
-  // Sends
   sends: SendEntry[];
-  // Insert effects
   inserts: InsertEffect[];
-  // Routing
-  outputBus: string;        // "master" | bus id
-  // Visual
+  outputBus: string;
   color: string;
   height: number;
   width: number;
-  // Metering
   meterLevel: number;
   meterPeak: number;
   meterRms: number;
-  // Recording
   armed: boolean;
-  // Phase
   phaseInvert: boolean;
-  // Stereo
-  stereoWidth: number;      // 0..2
-  // Automation
+  stereoWidth: number;
   volumeAutomation: boolean;
   panAutomation: boolean;
 }
@@ -50,9 +38,9 @@ export type ChannelType = "audio" | "instrument" | "drum" | "bus" | "master" | "
 export interface EQBand {
   id: string;
   type: EQType;
-  frequency: number;       // Hz
-  gain: number;            // dB (-24..+24)
-  q: number;               // Q factor (0.1..10)
+  frequency: number;
+  gain: number;
+  q: number;
   enabled: boolean;
 }
 
@@ -60,29 +48,29 @@ export type EQType = "lowpass" | "highpass" | "bandpass" | "lowshelf" | "highshe
 
 export interface CompressorSettings {
   enabled: boolean;
-  threshold: number;       // dB (-60..0)
-  ratio: number;          // 1..20
-  attack: number;          // ms (0.1..100)
-  release: number;         // ms (10..1000)
-  knee: number;            // dB (0..40)
-  makeupGain: number;      // dB (0..+24)
-  sidechainSource?: string; // Channel ID for sidechain input
+  threshold: number;
+  ratio: number;
+  attack: number;
+  release: number;
+  knee: number;
+  makeupGain: number;
+  sidechainSource?: string;
 }
 
 export interface GateSettings {
   enabled: boolean;
-  threshold: number;       // dB (-80..0)
-  attack: number;          // ms
-  hold: number;            // ms
-  release: number;         // ms
-  range: number;           // dB (0..-80)
+  threshold: number;
+  attack: number;
+  hold: number;
+  release: number;
+  range: number;
 }
 
 export interface SendEntry {
   id: string;
   busId: string;
-  level: number;           // 0..1
-  pre: boolean;             // pre-fader send
+  level: number;
+  pre: boolean;
   enabled: boolean;
 }
 
@@ -93,8 +81,6 @@ export interface InsertEffect {
   params: Record<string, number>;
   mix: number;
 }
-
-// ============= MIXER STATE =============
 
 export interface MixerState {
   channels: ChannelStrip[];
@@ -138,12 +124,10 @@ export interface MasterStrip {
 
 export interface LimiterSettings {
   enabled: boolean;
-  ceiling: number;         // dB (-6..0)
-  release: number;         // ms (1..1000)
-  lookahead: number;       // ms (0..10)
+  ceiling: number;
+  release: number;
+  lookahead: number;
 }
-
-// ============= DEFAULTS =============
 
 let channelIdCounter = 0;
 export function generateChannelId(): string {
@@ -160,116 +144,57 @@ export function createDefaultEQ(): EQBand[] {
 }
 
 export function createDefaultCompressor(): CompressorSettings {
-  return {
-    enabled: false,
-    threshold: -20,
-    ratio: 3,
-    attack: 3,
-    release: 100,
-    knee: 6,
-    makeupGain: 0,
-  };
+  return { enabled: false, threshold: -20, ratio: 3, attack: 3, release: 100, knee: 6, makeupGain: 0 };
 }
 
 export function createDefaultGate(): GateSettings {
-  return {
-    enabled: false,
-    threshold: -40,
-    attack: 1,
-    hold: 50,
-    release: 100,
-    range: -80,
-  };
+  return { enabled: false, threshold: -40, attack: 1, hold: 50, release: 100, range: -80 };
 }
 
 export function createDefaultLimiter(): LimiterSettings {
-  return {
-    enabled: false,
-    ceiling: -0.3,
-    release: 50,
-    lookahead: 3,
-  };
+  return { enabled: false, ceiling: -0.3, release: 50, lookahead: 3 };
 }
 
 export function createDefaultChannel(name: string, type: ChannelType): ChannelStrip {
   const colors: Record<ChannelType, string> = {
-    audio: "#10b981",
-    instrument: "#3b82f6",
-    drum: "#f59e0b",
-    bus: "#ec4899",
-    master: "#ef4444",
-    aux: "#8b5cf6",
-    fx: "#6b7280",
+    audio: "#10b981", instrument: "#3b82f6", drum: "#f59e0b",
+    bus: "#ec4899", master: "#ef4444", aux: "#8b5cf6", fx: "#6b7280",
   };
   return {
-    id: generateChannelId(),
-    name,
-    type,
-    inputGain: 1.0,
-    volume: 0.8,
-    pan: 0,
-    mute: false,
-    solo: false,
-    eq: createDefaultEQ(),
-    compressor: createDefaultCompressor(),
-    gate: createDefaultGate(),
-    sends: [],
-    inserts: [],
-    outputBus: "master",
-    color: colors[type],
-    height: 200,
-    width: 80,
-    meterLevel: 0,
-    meterPeak: 0,
-    meterRms: 0,
-    armed: false,
-    phaseInvert: false,
-    stereoWidth: 1.0,
-    volumeAutomation: false,
-    panAutomation: false,
+    id: generateChannelId(), name, type,
+    inputGain: 1.0, volume: 0.8, pan: 0, mute: false, solo: false,
+    eq: createDefaultEQ(), compressor: createDefaultCompressor(), gate: createDefaultGate(),
+    sends: [], inserts: [], outputBus: "master", color: colors[type],
+    height: 200, width: 80, meterLevel: 0, meterPeak: 0, meterRms: 0,
+    armed: false, phaseInvert: false, stereoWidth: 1.0,
+    volumeAutomation: false, panAutomation: false,
   };
 }
 
 export function createDefaultMixer(): MixerState {
-  const channels: ChannelStrip[] = [
-    createDefaultChannel("Kick", "drum"),
-    createDefaultChannel("Snare", "drum"),
-    createDefaultChannel("Hat", "drum"),
-    createDefaultChannel("Bass", "instrument"),
-    createDefaultChannel("Lead", "instrument"),
-    createDefaultChannel("Pad", "instrument"),
-    createDefaultChannel("Audio 1", "audio"),
-    createDefaultChannel("Audio 2", "audio"),
-  ];
-
   return {
-    channels,
+    channels: [
+      createDefaultChannel("Kick", "drum"),
+      createDefaultChannel("Snare", "drum"),
+      createDefaultChannel("Hat", "drum"),
+      createDefaultChannel("Bass", "instrument"),
+      createDefaultChannel("Lead", "instrument"),
+      createDefaultChannel("Pad", "instrument"),
+      createDefaultChannel("Audio 1", "audio"),
+      createDefaultChannel("Audio 2", "audio"),
+    ],
     buses: [
       { id: "bus1", name: "Reverb Bus", volume: 0.7, pan: 0, mute: false, solo: false, color: "#8b5cf6", sends: [], eq: createDefaultEQ(), compressor: createDefaultCompressor(), outputBus: "master", meterLevel: 0 },
       { id: "bus2", name: "Delay Bus", volume: 0.6, pan: 0, mute: false, solo: false, color: "#ec4899", sends: [], eq: createDefaultEQ(), compressor: createDefaultCompressor(), outputBus: "master", meterLevel: 0 },
     ],
     master: {
-      volume: 0.85,
-      pan: 0,
-      eq: createDefaultEQ(),
-      compressor: createDefaultCompressor(),
-      limiter: createDefaultLimiter(),
-      stereoWidth: 1.0,
-      meterLevel: 0,
-      meterPeak: 0,
-      dithering: false,
-      ditherBits: 16,
+      volume: 0.85, pan: 0, eq: createDefaultEQ(), compressor: createDefaultCompressor(),
+      limiter: createDefaultLimiter(), stereoWidth: 1.0, meterLevel: 0, meterPeak: 0,
+      dithering: false, ditherBits: 16,
     },
-    selectedChannelId: null,
-    showMeters: true,
-    showEQ: true,
-    showSends: true,
-    showDynamics: true,
-    zoom: 1,
+    selectedChannelId: null, showMeters: true, showEQ: true, showSends: true, showDynamics: true, zoom: 1,
   };
 }
-
-// ============= AUDIO NODE MANAGEMENT =============
 
 export class MixerEngine {
   private state: MixerState;
@@ -278,56 +203,36 @@ export class MixerEngine {
   private masterNodes: MasterNodes | null = null;
   private meterInterval: number | null = null;
 
-  constructor(state: MixerState) {
-    this.state = state;
-  }
-
-  updateState(state: MixerState) {
-    this.state = state;
-  }
+  constructor(state: MixerState) { this.state = state; }
+  updateState(state: MixerState) { this.state = state; }
 
   init() {
     AudioEngine.init();
     if (!AudioEngine.ctx) return;
-
-    // Create master chain
     this.masterNodes = this.createMasterChain();
-
-    // Create bus chains
-    for (const bus of this.state.buses) {
-      this.busNodes.set(bus.id, this.createBusChain(bus));
-    }
-
-    // Create channel chains
-    for (const channel of this.state.channels) {
-      this.channelNodes.set(channel.id, this.createChannelChain(channel));
-    }
-
-    // Start metering
+    for (const bus of this.state.buses) this.busNodes.set(bus.id, this.createBusChain(bus));
+    for (const channel of this.state.channels) this.channelNodes.set(channel.id, this.createChannelChain(channel));
     this.startMetering();
   }
 
   private createChannelChain(channel: ChannelStrip): ChannelNodes {
     const ctx = AudioEngine.ctx!;
-    const input = ctx.createGain();
+    let input = ctx.createGain();
     input.gain.value = channel.inputGain;
 
-    // Phase invert
     if (channel.phaseInvert) {
-      const phaseL = ctx.createGain();
-      phaseL.gain.value = -1;
-      input.connect(phaseL);
-      input = phaseL;
+      const phase = ctx.createGain();
+      phase.gain.value = -1;
+      input.connect(phase);
+      input = phase;
     }
 
-    // Gate
     const gate = ctx.createDynamicsCompressor();
     gate.threshold.value = channel.gate.threshold;
     gate.ratio.value = 20;
     gate.attack.value = channel.gate.attack / 1000;
     gate.release.value = channel.gate.release / 1000;
 
-    // EQ bands
     const eqNodes = channel.eq.map((band) => {
       const filter = ctx.createBiquadFilter();
       filter.type = band.type as BiquadFilterType;
@@ -337,7 +242,6 @@ export class MixerEngine {
       return filter;
     });
 
-    // Compressor
     const compressor = ctx.createDynamicsCompressor();
     compressor.threshold.value = channel.compressor.threshold;
     compressor.ratio.value = channel.compressor.ratio;
@@ -348,19 +252,15 @@ export class MixerEngine {
     const makeupGain = ctx.createGain();
     makeupGain.gain.value = channel.compressor.makeupGain > 0 ? Math.pow(10, channel.compressor.makeupGain / 20) : 1;
 
-    // Pan
     const panner = ctx.createStereoPanner();
     panner.pan.value = channel.pan;
 
-    // Volume fader
     const fader = ctx.createGain();
     fader.gain.value = channel.mute ? 0 : channel.volume;
 
-    // Meter
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 256;
 
-    // Connect chain
     let node: AudioNode = input;
     if (channel.gate.enabled) { node.connect(gate); node = gate; }
     for (const eqNode of eqNodes) { node.connect(eqNode); node = eqNode; }
@@ -370,21 +270,16 @@ export class MixerEngine {
     panner.connect(fader);
     fader.connect(analyser);
 
-    // Route to output bus
     const outputBus = channel.outputBus === "master" ? this.masterNodes!.input : this.busNodes.get(channel.outputBus)?.input;
     if (outputBus) fader.connect(outputBus);
 
-    // Sends
     for (const send of channel.sends) {
       if (!send.enabled) continue;
       const sendGain = ctx.createGain();
       sendGain.gain.value = send.level;
       const sendSource = send.pre ? input : fader;
       const busInput = this.busNodes.get(send.busId)?.input;
-      if (busInput) {
-        sendSource.connect(sendGain);
-        sendGain.connect(busInput);
-      }
+      if (busInput) { sendSource.connect(sendGain); sendGain.connect(busInput); }
     }
 
     return { input, gate, eqNodes, compressor, makeupGain, panner, fader, analyser };
@@ -419,7 +314,6 @@ export class MixerEngine {
     if (bus.compressor.enabled) { node.connect(compressor); node = compressor; }
     node.connect(panner);
     panner.connect(analyser);
-
     if (this.masterNodes) analyser.connect(this.masterNodes.input);
 
     return { input, eqNodes, compressor, panner, analyser };
@@ -435,7 +329,6 @@ export class MixerEngine {
 
     const eqNodes = this.state.master.eq.map((band) => {
       const filter = ctx.createBiquadFilter();
-     .type = band.type as BiquadFilterType;
       filter.type = band.type as BiquadFilterType;
       filter.frequency.value = band.frequency;
       filter.gain.value = band.gain;
@@ -470,15 +363,11 @@ export class MixerEngine {
   private startMetering() {
     this.meterInterval = window.setInterval(() => {
       if (!AudioEngine.ctx) return;
-
       for (const [id, nodes] of this.channelNodes) {
         const data = new Uint8Array(nodes.analyser.fftSize);
         nodes.analyser.getByteTimeDomainData(data);
         let sum = 0;
-        for (let i = 0; i < data.length; i++) {
-          const v = (data[i] - 128) / 128;
-          sum += v * v;
-        }
+        for (let i = 0; i < data.length; i++) { const v = (data[i] - 128) / 128; sum += v * v; }
         const rms = Math.sqrt(sum / data.length);
         const channel = this.state.channels.find((c) => c.id === id);
         if (channel) {
@@ -487,15 +376,11 @@ export class MixerEngine {
           if (rms > channel.meterPeak) channel.meterPeak = rms;
         }
       }
-
       if (this.masterNodes) {
         const data = new Uint8Array(this.masterNodes.analyser.fftSize);
-        this.masterNodes.analyser.getByteTimeData(data);
+        this.masterNodes.analyser.getByteTimeDomainData(data);
         let sum = 0;
-        for (let i = 0; i < data.length; i++) {
-          const v = (data[i] - 128) / 128;
-          sum += v * v;
-        }
+        for (let i = 0; i < data.length; i++) { const v = (data[i] - 128) / 128; sum += v * v; }
         const rms = Math.sqrt(sum / data.length);
         this.state.master.meterLevel = rms;
         if (rms > this.state.master.meterPeak) this.state.master.meterPeak = rms;
@@ -503,31 +388,11 @@ export class MixerEngine {
     }, 50);
   }
 
-  stopMetering() {
-    if (this.meterInterval) {
-      clearInterval(this.meterInterval);
-      this.meterInterval = null;
-    }
-  }
-
-  getChannelInput(id: string): GainNode | null {
-    return this.channelNodes.get(id)?.input ?? null;
-  }
-
-  setChannelVolume(id: string, volume: number) {
-    const nodes = this.channelNodes.get(id);
-    if (nodes) nodes.fader.gain.setTargetAtTime(volume, AudioEngine.ctx!.currentTime, 0.02);
-  }
-
-  setChannelPan(id: string, pan: number) {
-    const nodes = this.channelNodes.get(id);
-    if (nodes) nodes.panner.pan.setTargetAtTime(pan, AudioEngine.ctx!.currentTime, 0.02);
-  }
-
-  setChannelMute(id: string, mute: boolean) {
-    const nodes = this.channelNodes.get(id);
-    if (nodes) nodes.fader.gain.setTargetAtTime(mute ? 0 : 1, AudioEngine.ctx!.currentTime, 0.02);
-  }
+  stopMetering() { if (this.meterInterval) { clearInterval(this.meterInterval); this.meterInterval = null; } }
+  getChannelInput(id: string): GainNode | null { return this.channelNodes.get(id)?.input ?? null; }
+  setChannelVolume(id: string, volume: number) { const n = this.channelNodes.get(id); if (n) n.fader.gain.setTargetAtTime(volume, AudioEngine.ctx!.currentTime, 0.02); }
+  setChannelPan(id: string, pan: number) { const n = this.channelNodes.get(id); if (n) n.panner.pan.setTargetAtTime(pan, AudioEngine.ctx!.currentTime, 0.02); }
+  setChannelMute(id: string, mute: boolean) { const n = this.channelNodes.get(id); if (n) n.fader.gain.setTargetAtTime(mute ? 0 : 1, AudioEngine.ctx!.currentTime, 0.02); }
 
   updateEQ(channelId: string, bandIndex: number, freq: number, gain: number, q: number) {
     const nodes = this.channelNodes.get(channelId);
@@ -541,63 +406,16 @@ export class MixerEngine {
 
   disconnect() {
     this.stopMetering();
-    this.channelNodes.forEach((nodes) => {
-      nodes.eqNodes.forEach((n) => n.disconnect());
-      nodes.compressor.disconnect();
-      nodes.fader.disconnect();
-    });
-    this.channelNodes.clear();
-    this.busNodes.clear();
-    this.masterNodes = null;
+    this.channelNodes.forEach((nodes) => { nodes.eqNodes.forEach((n) => n.disconnect()); nodes.compressor.disconnect(); nodes.fader.disconnect(); });
+    this.channelNodes.clear(); this.busNodes.clear(); this.masterNodes = null;
   }
 }
 
-export interface ChannelNodes {
-  input: GainNode;
-  gate: DynamicsCompressorNode;
-  eqNodes: BiquadFilterNode[];
-  compressor: DynamicsCompressorNode;
-  makeupGain: GainNode;
-  panner: StereoPannerNode;
-  fader: GainNode;
-  analyser: AnalyserNode;
-}
+export interface ChannelNodes { input: GainNode; gate: DynamicsCompressorNode; eqNodes: BiquadFilterNode[]; compressor: DynamicsCompressorNode; makeupGain: GainNode; panner: StereoPannerNode; fader: GainNode; analyser: AnalyserNode; }
+export interface BusNodes { input: GainNode; eqNodes: BiquadFilterNode[]; compressor: DynamicsCompressorNode; panner: StereoPannerNode; analyser: AnalyserNode; }
+export interface MasterNodes { input: GainNode; eqNodes: BiquadFilterNode[]; compressor: DynamicsCompressorNode; limiter: DynamicsCompressorNode; panner: StereoPannerNode; analyser: AnalyserNode; }
 
-export interface BusNodes {
-  input: GainNode;
-  eqNodes: BiquadFilterNode[];
-  compressor: DynamicsCompressorNode;
-  panner: StereoPannerNode;
-  analyser: AnalyserNode;
-}
-
-export interface MasterNodes {
-  input: GainNode;
-  eqNodes: BiquadFilterNode[];
-  compressor: DynamicsCompressorNode;
-  limiter: DynamicsCompressorNode;
-  panner: StereoPannerNode;
-  analyser: AnalyserNode;
-}
-
-// ============= UTILITY FUNCTIONS =============
-
-export function dbToGain(db: number): number {
-  return Math.pow(10, db / 20);
-}
-
-export function gainToDb(gain: number): number {
-  return 20 * Math.log10(Math.max(0.0001, gain));
-}
-
-export function getMeterColor(level: number): string {
-  if (level > 0.9) return "#ef4444";
-  if (level > 0.7) return "#f59e0b";
-  if (level > 0.5) return "#10b981";
-  return "#3b82f6";
-}
-
-export function formatDb(db: number): string {
-  const sign = db >= 0 ? "+" : "";
-  return `${sign}${db.toFixed(1)} dB`;
-}
+export function dbToGain(db: number): number { return Math.pow(10, db / 20); }
+export function gainToDb(gain: number): number { return 20 * Math.log10(Math.max(0.0001, gain)); }
+export function getMeterColor(level: number): string { if (level > 0.9) return "#ef4444"; if (level > 0.7) return "#f59e0b"; if (level > 0.5) return "#10b981"; return "#3b82f6"; }
+export function formatDb(db: number): string { const sign = db >= 0 ? "+" : ""; return `${sign}${db.toFixed(1)} dB`; }
