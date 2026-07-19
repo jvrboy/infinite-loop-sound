@@ -4,6 +4,11 @@ import { WebGPUBackground } from "./WebGPUBackground";
 import { PlasmaBackground } from "./PlasmaBackground";
 import { AuroraBackground } from "./AuroraBackground";
 import { HexFlowBackground } from "./HexFlowBackground";
+import { VoronoiBackground } from "./VoronoiBackground";
+import { StarfieldBackground } from "./StarfieldBackground";
+import { FluidBackground } from "./FluidBackground";
+import { TunnelBackground } from "./TunnelBackground";
+import { GalaxyBackground } from "./GalaxyBackground";
 
 export type ShaderId =
   | "three"
@@ -11,10 +16,18 @@ export type ShaderId =
   | "plasma"
   | "aurora"
   | "hexflow"
+  | "voronoi"
+  | "starfield"
+  | "fluid"
+  | "tunnel"
+  | "galaxy"
   | "none";
 
 const STORAGE_KEY = "diq:shader";
-const ORDER: ShaderId[] = ["three", "webgpu", "plasma", "aurora", "hexflow", "none"];
+const ORDER: ShaderId[] = [
+  "three", "webgpu", "plasma", "aurora", "hexflow",
+  "voronoi", "starfield", "fluid", "tunnel", "galaxy", "none",
+];
 
 export const SHADER_REGISTRY: { id: ShaderId; label: string; desc: string }[] = [
   { id: "three", label: "Liquid Blobs", desc: "Canvas2D liquid deformation" },
@@ -22,6 +35,11 @@ export const SHADER_REGISTRY: { id: ShaderId; label: string; desc: string }[] = 
   { id: "plasma", label: "Plasma Fractal", desc: "WebGL fbm plasma flow" },
   { id: "aurora", label: "Aurora Flow", desc: "WebGL aurora + starfield" },
   { id: "hexflow", label: "Hex Matrix", desc: "WebGL animated honeycomb" },
+  { id: "voronoi", label: "Voronoi Cells", desc: "WebGL shifting cellular zones" },
+  { id: "starfield", label: "Starfield Warp", desc: "WebGL 3D hyperspace stars" },
+  { id: "fluid", label: "Fluid Dynamics", desc: "WebGL curl-noise fluid flow" },
+  { id: "tunnel", label: "Tunnel Warp", desc: "WebGL depth tunnel with rings" },
+  { id: "galaxy", label: "Galaxy Spiral", desc: "WebGL swirling spiral galaxy" },
   { id: "none", label: "None", desc: "Flat background" },
 ];
 
@@ -45,19 +63,18 @@ export function ShaderBackground() {
   }, []);
 
   switch (id) {
-    case "webgpu":
-      return <WebGPUBackground />;
-    case "plasma":
-      return <PlasmaBackground />;
-    case "aurora":
-      return <AuroraBackground />;
-    case "hexflow":
-      return <HexFlowBackground />;
-    case "none":
-      return null;
+    case "webgpu": return <WebGPUBackground />;
+    case "plasma": return <PlasmaBackground />;
+    case "aurora": return <AuroraBackground />;
+    case "hexflow": return <HexFlowBackground />;
+    case "voronoi": return <VoronoiBackground />;
+    case "starfield": return <StarfieldBackground />;
+    case "fluid": return <FluidBackground />;
+    case "tunnel": return <TunnelBackground />;
+    case "galaxy": return <GalaxyBackground />;
+    case "none": return null;
     case "three":
-    default:
-      return <ThreeBackground />;
+    default: return <ThreeBackground />;
   }
 }
 
