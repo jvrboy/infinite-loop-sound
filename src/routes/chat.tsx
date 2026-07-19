@@ -154,7 +154,7 @@ function ChatPage() {
         });
         track({
           ts: Date.now(),
-          provider: result.synthProvider,
+          provider: result.synthProvider ?? "unknown",
           inputTokens: history.reduce((a, m) => a + estimateTokens(m.content), 0),
           outputTokens: estimateTokens(reply),
           threadId: active.id,
