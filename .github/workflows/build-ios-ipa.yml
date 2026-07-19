@@ -34,22 +34,56 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
-      - name: Copy web assets to dist/ for Capacitor
+      - name: Prepare dist/ for Capacitor
         run: |
           # The nitro:vercel preset outputs static assets to .vercel/output/static/
-          # Capacitor expects them in dist/ (as configured in capacitor.config.json)
+          # Capacitor expects them in dist/ with an index.html entry point
+          mkdir -p dist
+
           if [ -d ".vercel/output/static" ]; then
-            echo "Copying .vercel/output/static to dist/"
-            cp -r .vercel/output/static dist
-          elif [ -d "dist" ]; then
-            echo "dist/ already exists"
-          else
-            echo "ERROR: No web assets found!"
-            ls -la
-            exit 1
+            echo "Copying .vercel/output/static contents to dist/"
+            cp -r .vercel/output/static/. dist/
           fi
-          echo "Web assets in dist/:"
-          ls dist/ | head -10
+
+          # List what we have
+          echo "=== dist/ contents ==="
+          ls -la dist/
+
+          # If no index.html exists, generate one that bootstraps the SPA
+          if [ ! -f "dist/index.html" ]; then
+            echo "No index.html found, generating SPA bootstrap..."
+            # Find the main JS entry file
+            MAIN_JS=$(ls dist/assets/*.js 2>/dev/null | grep -E "index|main|app" | head -1 || ls dist/assets/*.js 2>/dev/null | tail -1)
+            MAIN_CSS=$(ls dist/assets/*.css 2>/dev/null | head -1 || echo "")
+            echo "Main JS: $MAIN_JS"
+            echo "Main CSS: $MAIN_CSS"
+            
+            JS_FILE=$(basename "$MAIN_JS" 2>/dev/null || echo "")
+            CSS_FILE=$(basename "$MAIN_CSS" 2>/dev/null || echo "")
+            
+            cat > dist/index.html << HTMLEOF
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>Divergence IQ</title>
+    $([ -n "$CSS_FILE" ] && echo "<link rel=\"stylesheet\" href=\"/assets/$CSS_FILE\" />" || echo "")
+  </head>
+  <body class="dark">
+    <div id="app"></div>
+    $([ -n "$JS_FILE" ] && echo "<script type=\"module\" src=\"/assets/$JS_FILE\"></script>" || echo "")
+  </body>
+</html>
+HTMLEOF
+            echo "Generated index.html"
+          fi
+
+          echo "=== Final dist/ contents ==="
+          ls dist/
+          echo "index.html exists: $([ -f dist/index.html ] && echo YES || echo NO)"
 
       - name: Add iOS platform
         run: npx cap add ios
