@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router';
 import { AppShell } from '@/components/app/AppShell';
 import { useState } from 'react';
-import { Layers, Plus, Trash2, Edit } from 'lucide-react';
+import { Layers, Plus, Trash, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Grid3x3, Play, Square, Plus, Trash2, Volume2, Music, Sliders, Zap, Copy, ArrowUpDown } from "lucide-react";
+import { Grid, Play, Square, Plus, Trash, Volume, Music, Sliders, Zap, Copy, ArrowUpDown } from "lucide-react";
 import {
   createDefaultChannelRack, toggleStep, updateStep, addChannel, removeChannel, updateChannel,
   assignSample, resizeSteps, ChannelRackScheduler,

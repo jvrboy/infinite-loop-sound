@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Shield, ShieldAlert, ShieldCheck, RefreshCw, Trash2 } from "lucide-react";
+import { Shield, ShieldAlert, ShieldCheck, RefreshCw, Trash } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/webhook-events")({

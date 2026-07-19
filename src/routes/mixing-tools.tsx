@@ -6,7 +6,7 @@ import { Button } from "@components/ui/button";
 import { Badge } from "@components/ui/badge";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { Sliders, Volume2, Plus, Trash2, Music, Activity, Gauge, Layers, Zap } from "lucide-react";
+import { Sliders, Volume, Plus, Trash, Music, Activity, Gauge, Layers, Zap } from "lucide-react";
 import {
   createDefaultMixer, createDefaultChannel, generateChannelId,
   dbToGain, gainToDb, getMeterColor, formatDb,

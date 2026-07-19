@@ -6,7 +6,7 @@ import {
   TrendingUp,
   Activity,
   RefreshCw,
-  Volume2,
+  Volume,
   Zap,
   Target,
   Infinity as InfinityIcon,

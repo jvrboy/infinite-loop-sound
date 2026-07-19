@@ -7,7 +7,7 @@ import {
   XCircle,
   Circle,
   Plus,
-  Trash2,
+  Trash,
   RefreshCw,
   Target,
   Zap,

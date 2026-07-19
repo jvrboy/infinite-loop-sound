@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bot, Send, Loader as Loader2, Plus, MessageSquare, Sparkles, Cpu, Files, Settings2, Activity, CircleCheck as CircleCheck } from "lucide-react";
+import { Bot, Send, Loader as Loader, Plus, MessageSquare, Sparkles, Cpu, Files, Settings, Activity, CircleCheck as CircleCheck } from "lucide-react";
 import { aiChat, loadKeys, PROVIDER_LABELS } from "@/lib/ai/client";
 import { toast } from "sonner";
 import { useThreads, useUsage, type Msg } from "@/hooks/use-chat-store";

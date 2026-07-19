@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { deriv, TIMEFRAMES, displayPair, type TF } from "@/lib/engine/deriv";
 import { analyze, type AnalysisResult } from "@/lib/engine/signal";
 import {
-  Loader2,
+  Loader,
   Activity,
   Sparkles,
   RefreshCcw,

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FolderOpen, Upload, Play, Music, Layers, Search, Trash2 } from "lucide-react";
+import { FolderOpen, Upload, Play, Music, Layers, Search, Trash } from "lucide-react";
 import {
   createBuiltinPack, importFolder, importFiles, loadSampleFile, guessCategory,
   playOneShot, SAMPLE_CATEGORIES, type SamplePack, type Sample,

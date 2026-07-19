@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   Key,
   Copy,
-  Trash2,
+  Trash,
   Plus,
   ExternalLink,
   Webhook,
@@ -15,7 +15,7 @@ import {
   Zap,
   Shield,
   BarChart,
-  Settings2,
+  Settings,
   ChevronDown,
   ChevronUp,
   Eye,

@@ -12,7 +12,7 @@ import {
   RefreshCw,
   Search,
   Server,
-  Trash2,
+  Trash,
   Webhook,
   XCircle,
   Zap,

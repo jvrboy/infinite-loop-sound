@@ -6,7 +6,7 @@ import { Button } from "@components/ui/button";
 import { Badge } from "@components/ui/badge";
 import { Input } from "@components/ui/input";
 import { Label } from "@components/ui/label";
-import { ListMusic, Play, Square, Plus, Copy, Trash2, Volume2, Music, Layers, Repeat, ZoomIn, ZoomOut } from "lucide-react";
+import { ListMusic, Play, Square, Plus, Copy, Trash, Volume, Music, Layers, Repeat, ZoomIn, ZoomOut } from "lucide-react";
 import {
   createDefaultPlaylist, createDefaultTrack, createDefaultClip, generateTrackId,
   addClip, removeClips, moveClip, resizeClip, duplicateClips, addTrack, removeTrack, moveTrack, updateTrack, updateClip,

@@ -7,7 +7,7 @@ import {
   TrendingDown,
   TrendingUp,
   Plus,
-  Trash2,
+  Trash,
   RefreshCw,
   Target,
   BarChart,

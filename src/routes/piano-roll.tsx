@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Piano as PianoIcon, Play, Square, Plus, Copy, Trash2, Scissors, Volume2,
-  Music, Sliders, Zap, Grid3x3, ArrowUpDown, ZoomIn, ZoomOut, Magnet,
+  Piano as PianoIcon, Play, Square, Plus, Copy, Trash, Scissors, Volume,
+  Music, Sliders, Zap, Grid, ArrowUpDown, ZoomIn, ZoomOut, Magnet,
   Shuffle, ArrowRight, Layers, Lock, Unlock,
 } from "lucide-react";
 import {

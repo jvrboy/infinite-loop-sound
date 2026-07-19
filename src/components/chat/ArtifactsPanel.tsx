@@ -1,6 +1,6 @@
 // Sidebar panel: Artifacts list (JSON/CSV/HTML/etc generated in chat).
 import { useArtifacts } from "@/hooks/use-chat-store";
-import { FileJson, FileText, FileCode, Download, Trash2, FileSpreadsheet } from "lucide-react";
+import { FileJson, FileText, FileCode, Download, Trash, FileSpreadsheet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const iconFor = (kind: string) => {

@@ -2,7 +2,7 @@
 // Extended: folder grouping, create/rename/delete folders, move chats between folders.
 import { useState } from "react";
 import {
-  MessageSquare, MoreVertical, Pin, PinOff, Trash2, Pencil, Archive, ArchiveRestore,
+  MessageSquare, MoreVertical, Pin, PinOff, Trash, Pencil, Archive, ArchiveRestore,
   Copy, FolderPlus, Folder, ChevronRight, ChevronDown, RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";

@@ -6,7 +6,7 @@ import {
   TrendingUp,
   TrendingDown,
   Plus,
-  Trash2,
+  Trash,
   Trophy,
   AlertTriangle,
   Brain,

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Mic, Music, Waves, Activity, Upload, Play, Square, Sliders, AudioWaveform, Volume2 } from "lucide-react";
+import { Mic, Music, Waves, Activity, Upload, Play, Square, Sliders, AudioWaveform, Volume } from "lucide-react";
 import { AudioEngine } from "@lib/audio/engine";
 import {
   SoundPitcher, FormantShifter, AdvancedPitchEngine,

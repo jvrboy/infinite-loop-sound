@@ -11,7 +11,7 @@ import {
   Target,
   BarChart,
   Clock,
-  Volume2,
+  Volume,
   VolumeX,
   TrendingDown,
   ArrowUpRight,

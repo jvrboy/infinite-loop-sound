@@ -11,7 +11,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { AudioEngine } from "@/lib/audio/engine";
-import { Upload, Disc3, Play, Square, Sparkles, RotateCcw } from "lucide-react";
+import { Upload, Disc, Play, Square, Sparkles, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 

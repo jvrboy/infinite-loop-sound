@@ -5,7 +5,7 @@ import { ProCard, SectionHeader, KpiGrid } from "@/components/pro";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { Code2, Play, Copy, Trash2, Activity, Terminal, Zap, FileCode, Hash, Binary, Type, Wrench } from "lucide-react";
+import { Code, Play, Copy, Trash, Activity, Terminal, Zap, FileCode, Hash, Binary, Type, Wrench } from "lucide-react";
 import { runJS, analyzeCode, formatJSON, minifyJS, minifyCSS, minifyHTML, tsToJs, jsToTs, testRegex, encodeBase64, decodeBase64, urlEncode, urlDecode, hashText, generateUUIDs, type RunResponse } from "@/lib/tools/code-runner";
 import { runWithAutoCorrect } from "@/lib/executor";
 import type { Language } from "@/lib/executor/runtimes";

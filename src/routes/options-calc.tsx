@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { Calculator, BarChart2 } from "lucide-react";
+import { Calculator, BarChart } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/options-calc")({

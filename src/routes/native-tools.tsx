@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { ProCard, SectionHeader, StatTile, KpiGrid, MeterBar } from "@/components/pro";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Folder, File, FileText, HardDrive, Wifi, Download, Upload, Trash2, FolderPlus, RefreshCw, ExternalLink, FolderOpen, Cpu, Network, Save } from "lucide-react";
+import { Folder, File, FileText, HardDrive, Wifi, Download, Upload, Trash, FolderPlus, RefreshCw, ExternalLink, FolderOpen, Cpu, Network, Save } from "lucide-react";
 import { getNativeBridge, type DeviceFile, type NetworkInfo, type AppStorageInfo } from "@/lib/platform/native-bridge";
 import { detectPlatform } from "@/lib/platform/model-loader";
 

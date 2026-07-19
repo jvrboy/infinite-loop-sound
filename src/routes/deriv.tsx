@@ -6,10 +6,10 @@ import { Input } from "@/components/ui/input";
 import { deriv, DERIV_APP_ID, ASSETS_BY_CLASS, type AssetClass } from "@/lib/engine/deriv";
 import {
   Wallet,
-  Loader2,
+  Loader,
   Sparkles,
   Plus,
-  Trash2,
+  Trash,
   CircleCheck,
   ShieldCheck,
   ShieldAlert,

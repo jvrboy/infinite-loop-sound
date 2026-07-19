@@ -3,7 +3,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState, useCallback } from "react";
 import { deriv, ALL_ASSETS, displayPair, type TF } from "@/lib/engine/deriv";
 import { scanPatterns, type PatternScanResult, type DetectedPattern } from "@/lib/agents/pattern-agent";
-import { Activity, RefreshCw, Loader as Loader2, TrendingUp, TrendingDown, Gauge, Flame, ChartCandlestick as CandlestickChart, Layers, Sparkles } from "lucide-react";
+import { Activity, RefreshCw, Loader as Loader, TrendingUp, TrendingDown, Gauge, Flame, ChartCandlestick as CandlestickChart, Layers, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/technical-analysis")({
   head: () => ({

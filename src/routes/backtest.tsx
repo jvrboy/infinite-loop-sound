@@ -30,7 +30,7 @@ import {
 } from "recharts";
 import {
   History,
-  Loader2,
+  Loader,
   TrendingUp,
   TrendingDown,
   Download,

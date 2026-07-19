@@ -10,8 +10,8 @@ import {
   RotateCw,
   Search,
   Plus,
-  Trash2,
-  Settings2,
+  Trash,
+  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

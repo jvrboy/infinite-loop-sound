@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback, useRef } from "react";
 import { ProCard, SectionHeader, MeterBar, StatTile, KpiGrid } from "@/components/pro";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Music, Mic, Activity, Gauge, Scissors, Waves, Hash, Radio, Volume2, AudioWaveform, Play, Upload, Zap } from "lucide-react";
+import { Music, Mic, Activity, Gauge, Scissors, Waves, Hash, Radio, Volume, AudioWaveform, Play, Upload, Zap } from "lucide-react";
 import { AudioEngine } from "@/lib/audio/engine";
 import { AudioTools, type BPMResult, type KeyResult, type LUFSResult, type SpectrumResult } from "@/lib/audio/audio-tools";
 

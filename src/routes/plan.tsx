@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { ListChecks, Plus, Trash2 } from "lucide-react";
+import { ListChecks, Plus, Trash } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export const Route = createFileRoute("/plan")({

@@ -10,7 +10,7 @@ import {
   Activity,
   Plus,
   RefreshCw,
-  Trash2,
+  Trash,
   Target,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

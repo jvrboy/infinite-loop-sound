@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
-import { BookOpen, Code2 } from "lucide-react";
+import { BookOpen, Code } from "lucide-react";
 
 export const Route = createFileRoute("/docs")({
   head: () => ({

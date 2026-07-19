@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Plus,
-  Trash2,
+  Trash,
   Pencil,
   Save,
   X,

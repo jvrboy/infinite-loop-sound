@@ -9,7 +9,7 @@ import {
   TrendingUp,
   TrendingDown,
   Activity,
-  Loader2,
+  Loader,
   ChevronDown,
   BarChart,
   Shield,

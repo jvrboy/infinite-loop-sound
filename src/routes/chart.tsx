@@ -24,7 +24,7 @@ import {
 import { Button } from "@/components/ui/button";
 import {
   LineChart as IconChart,
-  Loader2,
+  Loader,
   Pencil,
   X,
   Check,
@@ -38,7 +38,7 @@ import {
   Maximize,
   Minimize,
   Zap,
-  Grid3x3,
+  Grid,
   Activity,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";

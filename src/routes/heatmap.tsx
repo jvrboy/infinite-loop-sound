@@ -33,7 +33,7 @@ import {
   TrendingDown,
   RefreshCw,
   Download,
-  Grid3x3,
+  Grid,
   Eye,
   EyeOff,
 } from "lucide-react";

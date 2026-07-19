@@ -21,8 +21,8 @@ import { ModulationEngine } from "@/lib/audio/modulation";
 import { Visualizer } from "@/lib/audio/visualizer";
 import { VinnyPlugin } from "@/components/app/VinnyPlugin";
 import {
-  Music, Piano, Waves, Sparkles, Sliders, Volume2, Play, Square, Upload, Mic,
-  Radio, Disc3, AudioWaveform as WaveIcon, Grid3x3, Midi, Activity, Settings2, Zap,
+  Music, Piano, Waves, Sparkles, Sliders, Volume, Play, Square, Upload, Mic,
+  Radio, Disc, AudioWaveform as WaveIcon, Grid, Music, Activity, Settings, Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";

@@ -1,6 +1,6 @@
 // Shared loading / error / empty state helper. Standardises the trio of
 // "no data yet" UIs that were diverging across routes during the Phase 3 audit.
-import { Loader2, AlertTriangle, Inbox } from "lucide-react";
+import { Loader, AlertTriangle, Inbox } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface Props {
