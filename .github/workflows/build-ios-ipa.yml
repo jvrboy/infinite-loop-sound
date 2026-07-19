@@ -36,53 +36,47 @@ jobs:
 
       - name: Prepare dist/ for Capacitor
         run: |
-          # The nitro:vercel preset outputs static assets to .vercel/output/static/
-          # Capacitor expects them in dist/ with an index.html entry point
           mkdir -p dist
-
           if [ -d ".vercel/output/static" ]; then
-            echo "Copying .vercel/output/static contents to dist/"
+            echo "Copying .vercel/output/static to dist/"
             cp -r .vercel/output/static/. dist/
           fi
-
-          # List what we have
-          echo "=== dist/ contents ==="
-          ls -la dist/
-
-          # If no index.html exists, generate one that bootstraps the SPA
-          if [ ! -f "dist/index.html" ]; then
-            echo "No index.html found, generating SPA bootstrap..."
-            # Find the main JS entry file
-            MAIN_JS=$(ls dist/assets/*.js 2>/dev/null | grep -E "index|main|app" | head -1 || ls dist/assets/*.js 2>/dev/null | tail -1)
-            MAIN_CSS=$(ls dist/assets/*.css 2>/dev/null | head -1 || echo "")
-            echo "Main JS: $MAIN_JS"
-            echo "Main CSS: $MAIN_CSS"
-            
-            JS_FILE=$(basename "$MAIN_JS" 2>/dev/null || echo "")
-            CSS_FILE=$(basename "$MAIN_CSS" 2>/dev/null || echo "")
-            
-            cat > dist/index.html << HTMLEOF
-<!DOCTYPE html>
-<html lang="en" class="dark">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <title>Divergence IQ</title>
-    $([ -n "$CSS_FILE" ] && echo "<link rel=\"stylesheet\" href=\"/assets/$CSS_FILE\" />" || echo "")
-  </head>
-  <body class="dark">
-    <div id="app"></div>
-    $([ -n "$JS_FILE" ] && echo "<script type=\"module\" src=\"/assets/$JS_FILE\"></script>" || echo "")
-  </body>
-</html>
-HTMLEOF
-            echo "Generated index.html"
-          fi
-
-          echo "=== Final dist/ contents ==="
+          echo "dist/ contents:"
           ls dist/
+          python3 - << 'PYEOF'
+          import os, glob
+          dist = 'dist'
+          if os.path.exists(os.path.join(dist, 'index.html')):
+              print("index.html already exists")
+          else:
+              print("Generating index.html...")
+              js_files = sorted(glob.glob(f'{dist}/assets/*.js'))
+              css_files = sorted(glob.glob(f'{dist}/assets/*.css'))
+              main_js = next((f for f in js_files if any(x in f for x in ['index', 'main', 'app'])), js_files[-1] if js_files else '')
+              main_css = css_files[0] if css_files else ''
+              js_name = os.path.basename(main_js) if main_js else ''
+              css_name = os.path.basename(main_css) if main_css else ''
+              css_tag = f'<link rel="stylesheet" href="/assets/{css_name}" />' if css_name else ''
+              js_tag = f'<script type="module" src="/assets/{js_name}"></script>' if js_name else ''
+              html = f'''<!DOCTYPE html>
+          <html lang="en" class="dark">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+              <meta name="apple-mobile-web-app-capable" content="yes" />
+              <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+              <title>Divergence IQ</title>
+              {css_tag}
+            </head>
+            <body class="dark">
+              <div id="app"></div>
+              {js_tag}
+            </body>
+          </html>'''
+              with open(os.path.join(dist, 'index.html'), 'w') as f:
+                  f.write(html)
+              print(f"Generated index.html (js={js_name}, css={css_name})")
+          PYEOF
           echo "index.html exists: $([ -f dist/index.html ] && echo YES || echo NO)"
 
       - name: Add iOS platform
@@ -94,7 +88,6 @@ HTMLEOF
       - name: Build unsigned IPA
         run: |
           cd ios/App
-          # Build the archive without code signing
           xcodebuild clean archive \
             -workspace App.xcworkspace \
             -scheme App \
@@ -106,8 +99,6 @@ HTMLEOF
             CODE_SIGN_IDENTITY="" \
             PROVISIONING_PROFILE="" \
             PROVISIONING_PROFILE_SPECIFIER=""
-
-          # Package the .app into an IPA
           mkdir -p build/Payload
           cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
           cd build
