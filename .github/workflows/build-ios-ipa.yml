@@ -29,11 +29,27 @@ jobs:
         run: npx tsr generate
         continue-on-error: true
 
-      - name: Build web app (static preset for Capacitor)
+      - name: Build web app (vercel preset)
         run: npm run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-          NITRO_PRESET: static
+
+      - name: Copy web assets to dist/ for Capacitor
+        run: |
+          # The nitro:vercel preset outputs static assets to .vercel/output/static/
+          # Capacitor expects them in dist/ (as configured in capacitor.config.json)
+          if [ -d ".vercel/output/static" ]; then
+            echo "Copying .vercel/output/static to dist/"
+            cp -r .vercel/output/static dist
+          elif [ -d "dist" ]; then
+            echo "dist/ already exists"
+          else
+            echo "ERROR: No web assets found!"
+            ls -la
+            exit 1
+          fi
+          echo "Web assets in dist/:"
+          ls dist/ | head -10
 
       - name: Add iOS platform
         run: npx cap add ios
