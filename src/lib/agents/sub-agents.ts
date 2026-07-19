@@ -15,7 +15,12 @@ export type SubAgentType =
   | "mtf"
   | "momentum"
   | "volatility"
-  | "trend";
+  | "trend"
+  | "scalper"
+  | "swing"
+  | "news-event"
+  | "breakout"
+  | "mean-reversion";
 
 export interface SubAgentResult {
   type: SubAgentType;
@@ -402,6 +407,227 @@ export const trendAgent: SubAgent = {
   },
 };
 
+// ---------- Scalper Agent ----------
+// Fast-paced: EMA 5/13 crossover + tight RSI + ATR for quick entries
+export const scalperAgent: SubAgent = {
+  type: "scalper",
+  name: "Scalper Agent",
+  description: "Fast EMA crossover scalping with tight RSI and ATR filters",
+  run: (candles) => {
+    const n = candles.length;
+    const insights: string[] = [];
+    let score = 0;
+    if (n < 20) return { type: "scalper", name: "Scalper Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    const close = candles.map((c) => c.close);
+    const e5 = ema(close, 5);
+    const e13 = ema(close, 13);
+    const e5v = e5[n - 1];
+    const e13v = e13[n - 1];
+    const e5prev = e5[n - 2];
+    const e13prev = e13[n - 2];
+    if (e5v != null && e13v != null && e5prev != null && e13prev != null) {
+      if (e5v > e13v && e5prev <= e13prev) {
+        score += 30;
+        insights.push("Fast bullish EMA 5/13 crossover — scalping long signal");
+      } else if (e5v < e13v && e5prev >= e13prev) {
+        score -= 30;
+        insights.push("Fast bearish EMA 5/13 crossover — scalping short signal");
+      } else if (e5v > e13v) {
+        score += 10;
+        insights.push("EMA 5 above 13 — short-term bullish bias");
+      } else {
+        score -= 10;
+        insights.push("EMA 5 below 13 — short-term bearish bias");
+      }
+    }
+    const rsiArr = rsi(close, 7);
+    const rsiVal = rsiArr[n - 1];
+    if (rsiVal != null) {
+      if (rsiVal < 25) { score += 15; insights.push(`RSI(7) = ${rsiVal.toFixed(1)} — scalping oversold bounce`); }
+      else if (rsiVal > 75) { score -= 15; insights.push(`RSI(7) = ${rsiVal.toFixed(1)} — scalping overbought reversal`); }
+    }
+    const atrArr = atr(candles, 7);
+    const atrVal = atrArr[n - 1];
+    if (atrVal != null) {
+      const atrPct = (atrVal / close[n - 1]) * 100;
+      if (atrPct > 0.5) insights.push(`ATR(7) = ${atrPct.toFixed(2)}% — high volatility for scalping`);
+      else insights.push(`ATR(7) = ${atrPct.toFixed(2)}% — low volatility, tight stops`);
+    }
+    const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
+    return { type: "scalper", name: "Scalper Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 30), score, insights };
+  },
+};
+
+// ---------- Swing Agent ----------
+// Medium-term: EMA 20/50 + Supertrend + ADX filter
+export const swingAgent: SubAgent = {
+  type: "swing",
+  name: "Swing Agent",
+  description: "Medium-term swing trading with EMA 20/50, Supertrend, and ADX filter",
+  run: (candles) => {
+    const n = candles.length;
+    const insights: string[] = [];
+    let score = 0;
+    if (n < 50) return { type: "swing", name: "Swing Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    const close = candles.map((c) => c.close);
+    const e20 = ema(close, 20);
+    const e50 = ema(close, 50);
+    const e20v = e20[n - 1];
+    const e50v = e50[n - 1];
+    if (e20v != null && e50v != null) {
+      if (e20v > e50v) { score += 20; insights.push("EMA 20 > 50 — swing bullish bias"); }
+      else { score -= 20; insights.push("EMA 20 < 50 — swing bearish bias"); }
+    }
+    const st = supertrend(candles, 10, 3);
+    const stTrend = st.trend[n - 1];
+    score += stTrend * 20;
+    insights.push(`Supertrend: ${stTrend > 0 ? "Bullish" : "Bearish"}`);
+    const adxRes = adx(candles, 14);
+    const adxVal = adxRes.adx[n - 1];
+    if (adxVal != null && adxVal > 20) {
+      insights.push(`ADX = ${adxVal.toFixed(1)} — sufficient trend strength for swing`);
+      score += adxVal > 25 ? 10 : 0;
+    } else {
+      insights.push("ADX weak — swing setup not ideal");
+      score -= 5;
+    }
+    const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
+    return { type: "swing", name: "Swing Agent", bias, confidence: Math.min(100, Math.abs(score) * 1.5 + 25), score, insights };
+  },
+};
+
+// ---------- News Event Agent ----------
+// Adjusts bias based on news event context (placeholder for real news integration)
+export const newsEventAgent: SubAgent = {
+  type: "news-event",
+  name: "News Event Agent",
+  description: "Adjusts analysis bias based on upcoming news events and volatility expectations",
+  run: (candles, ctx) => {
+    const insights: string[] = [];
+    let score = 0;
+    const session = ctx?.session ?? "london";
+    // Simulated news awareness
+    const highImpactTimes: Record<string, boolean> = {
+      london: true,
+      newyork: true,
+    };
+    if (highImpactTimes[session]) {
+      insights.push("High-impact news window — expect increased volatility");
+      score += 5;
+    } else {
+      insights.push("Low news impact window — calmer conditions expected");
+    }
+    const atrArr = atr(candles, 14);
+    const atrVal = atrArr[candles.length - 1];
+    if (atrVal != null) {
+      const atrPct = (atrVal / candles[candles.length - 1].close) * 100;
+      if (atrPct > 1) {
+        insights.push(`Elevated ATR (${atrPct.toFixed(2)}%) — possible news-driven volatility`);
+        score += atrPct > 1.5 ? 10 : 5;
+      }
+    }
+    insights.push("Monitor economic calendar for scheduled releases");
+    const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
+    return { type: "news-event", name: "News Event Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 20), score, insights };
+  },
+};
+
+// ---------- Breakout Agent ----------
+// Detects breakout setups: compression + volume + level approach
+export const breakoutAgent: SubAgent = {
+  type: "breakout",
+  name: "Breakout Agent",
+  description: "Detects breakout setups from volatility compression and key levels",
+  run: (candles) => {
+    const n = candles.length;
+    const insights: string[] = [];
+    let score = 0;
+    if (n < 30) return { type: "breakout", name: "Breakout Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    const sq = ttmSqueeze(candles);
+    const isSqueezing = sq.squeezeOn[n - 1];
+    if (isSqueezing) {
+      insights.push("Squeeze active — breakout setup forming");
+      const mom = sq.momentum[n - 1];
+      if (mom != null) {
+        score += mom > 0 ? 25 : mom < 0 ? -25 : 0;
+        insights.push(`Pre-breakout momentum: ${mom > 0 ? "bullish" : "bearish"}`);
+      }
+    } else {
+      const recent = candles.slice(-10);
+      const range = Math.max(...recent.map((c) => c.high)) - Math.min(...recent.map((c) => c.low));
+      const atrArr = atr(candles, 14);
+      const atrVal = atrArr[n - 1];
+      if (atrVal != null && range > atrVal * 2) {
+        insights.push("Range expansion detected — breakout in progress");
+        const dir = recent[recent.length - 1].close > recent[0].open ? 1 : -1;
+        score += dir * 20;
+      } else {
+        insights.push("No active squeeze or expansion — no breakout setup");
+      }
+    }
+    const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
+    return { type: "breakout", name: "Breakout Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 25), score, insights };
+  },
+};
+
+// ---------- Mean Reversion Agent ----------
+// RSI extremes + Bollinger Band touches + ATR ratio
+export const meanReversionAgent: SubAgent = {
+  type: "mean-reversion",
+  name: "Mean Reversion Agent",
+  description: "RSI extremes + Bollinger Band touches for mean reversion setups",
+  run: (candles) => {
+    const n = candles.length;
+    const insights: string[] = [];
+    let score = 0;
+    if (n < 25) return { type: "mean-reversion", name: "Mean Reversion Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    const close = candles.map((c) => c.close);
+    const rsiArr = rsi(close, 14);
+    const rsiVal = rsiArr[n - 1];
+    if (rsiVal != null) {
+      if (rsiVal < 25) {
+        score += 30;
+        insights.push(`RSI = ${rsiVal.toFixed(1)} — extreme oversold, mean reversion likely`);
+      } else if (rsiVal > 75) {
+        score -= 30;
+        insights.push(`RSI = ${rsiVal.toFixed(1)} — extreme overbought, mean reversion likely`);
+      } else if (rsiVal < 35) {
+        score += 15;
+        insights.push(`RSI = ${rsiVal.toFixed(1)} — approaching oversold`);
+      } else if (rsiVal > 65) {
+        score -= 15;
+        insights.push(`RSI = ${rsiVal.toFixed(1)} — approaching overbought`);
+      }
+    }
+    // Bollinger Band touch
+    const sma20 = sma(close, 20);
+    const smaVal = sma20[n - 1];
+    if (smaVal != null) {
+      let dev = 0;
+      for (let i = n - 20; i < n; i++) dev += (close[i] - smaVal) ** 2;
+      dev = Math.sqrt(dev / 20);
+      const upper = smaVal + 2 * dev;
+      const lower = smaVal - 2 * dev;
+      const lastClose = close[n - 1];
+      if (lastClose <= lower) {
+        score += 20;
+        insights.push("Price at/below lower Bollinger Band — mean reversion buy zone");
+      } else if (lastClose >= upper) {
+        score -= 20;
+        insights.push("Price at/above upper Bollinger Band — mean reversion sell zone");
+      }
+    }
+    const ch = choppiness(candles);
+    const chVal = ch[n - 1];
+    if (chVal != null && chVal > 61.8) {
+      insights.push(`Choppiness = ${chVal.toFixed(1)} — range-bound market, ideal for mean reversion`);
+      score += 10;
+    }
+    const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
+    return { type: "mean-reversion", name: "Mean Reversion Agent", bias, confidence: Math.min(100, Math.abs(score) * 1.5 + 25), score, insights };
+  },
+};
+
 // ---------- Registry ----------
 export const ALL_SUB_AGENTS: SubAgent[] = [
   liquidityAgent,
@@ -412,6 +638,11 @@ export const ALL_SUB_AGENTS: SubAgent[] = [
   momentumAgent,
   volatilityAgent,
   trendAgent,
+  scalperAgent,
+  swingAgent,
+  newsEventAgent,
+  breakoutAgent,
+  meanReversionAgent,
 ];
 
 export function getSubAgent(type: SubAgentType): SubAgent | undefined {
@@ -481,4 +712,29 @@ export const SMC_PIPELINE: PipelineStep[] = [
 // Momentum pipeline: momentum + volatility + trend
 export const MOMENTUM_PIPELINE: PipelineStep[] = [
   { agents: ["momentum", "volatility", "trend"], stage: "parallel" },
+];
+
+// Scalping pipeline: fast EMA + momentum + breakout
+export const SCALPING_PIPELINE: PipelineStep[] = [
+  { agents: ["scalper", "momentum", "breakout", "session"], stage: "parallel" },
+];
+
+// Swing pipeline: trend + MTF + volatility + swing
+export const SWING_PIPELINE: PipelineStep[] = [
+  { agents: ["swing", "trend", "mtf", "volatility"], stage: "parallel" },
+];
+
+// News event pipeline: news + volatility + breakout + session
+export const NEWS_PIPELINE: PipelineStep[] = [
+  { agents: ["news-event", "volatility", "breakout", "session"], stage: "sequential" },
+];
+
+// Mean reversion pipeline: mean-reversion + volatility + session
+export const MEAN_REVERSION_PIPELINE: PipelineStep[] = [
+  { agents: ["mean-reversion", "volatility", "session"], stage: "parallel" },
+];
+
+// Full analysis pipeline: all 13 agents
+export const FULL_PIPELINE: PipelineStep[] = [
+  { agents: ["liquidity", "order-block", "fvg", "session", "mtf", "momentum", "volatility", "trend", "scalper", "swing", "news-event", "breakout", "mean-reversion"], stage: "parallel" },
 ];
