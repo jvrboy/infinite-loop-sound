@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music } from "lucide-react";
+import { Activity, ChartBar as BarChart3, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
 import { ThreeBackground } from "./ThreeBackground";
@@ -67,6 +67,16 @@ const NAV = [
   { to: "/replay", label: "Scenario Tester", icon: Play },
   { to: "/walk-forward", label: "Walk-Forward", icon: Target },
   { to: "/music", label: "Music Studio", icon: Music },
+  { to: "/ichimoku", label: "Ichimoku", icon: Cloud },
+  { to: "/harmonic", label: "Harmonic", icon: Waves },
+  { to: "/order-blocks", label: "Order Blocks", icon: Boxes },
+  { to: "/volume-profile", label: "Volume Profile", icon: BarChart3 },
+  { to: "/fourier", label: "Fourier", icon: Radio },
+  { to: "/hurst", label: "Hurst Exponent", icon: Activity },
+  { to: "/portfolio", label: "Portfolio", icon: Wallet },
+  { to: "/notifications", label: "Notifications", icon: Bell },
+  { to: "/strategy-market", label: "Strategy Market", icon: Store },
+  { to: "/watchlist", label: "Watchlist", icon: Eye },
 ] as const;
 
 // Desktop grouped sections
@@ -82,6 +92,12 @@ const SECTIONS = [
       { to: "/chart", label: "Live Chart", icon: LineChart },
       { to: "/heatmap", label: "Heatmap", icon: Flame },
       { to: "/technical-analysis", label: "Technical Analysis", icon: CandlestickChart },
+      { to: "/ichimoku", label: "Ichimoku Cloud", icon: Cloud },
+      { to: "/harmonic", label: "Harmonic Patterns", icon: Waves },
+      { to: "/order-blocks", label: "Order Blocks", icon: Boxes },
+      { to: "/volume-profile", label: "Volume Profile", icon: BarChart3 },
+      { to: "/fourier", label: "Fourier Spectrum", icon: Radio },
+      { to: "/hurst", label: "Hurst Exponent", icon: Activity },
     ],
   },
   {
@@ -155,6 +171,16 @@ const SECTIONS = [
       { to: "/checklist", label: "Pre-Trade Checklist", icon: CheckSquare },
       { to: "/session-overlap", label: "Session Overlap", icon: Globe },
       { to: "/replay", label: "Scenario Tester", icon: Play },
+    ],
+  },
+  {
+    title: "Portfolio & Tracking",
+    icon: Wallet,
+    items: [
+      { to: "/portfolio", label: "Portfolio", icon: Wallet },
+      { to: "/watchlist", label: "Watchlist", icon: Eye },
+      { to: "/notifications", label: "Notifications", icon: Bell },
+      { to: "/strategy-market", label: "Strategy Market", icon: Store },
     ],
   },
   {
@@ -232,6 +258,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     "Market Insights": false,
     Calculators: false,
     "Strategy & Journal": false,
+    "Portfolio & Tracking": false,
     "Music & Audio": false,
     "System Admin": false,
   });
