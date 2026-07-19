@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { deriv, ALL_ASSETS, displayPair, type TF } from "@lib/engine/deriv";
+import { deriv, ALL_ASSETS, displayPair, type TF } from "@/lib/engine/deriv";
 import {
   advancedScore,
   aroon,
