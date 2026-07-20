@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Activity, ChartBar as BarChart, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid, Grid, Orbit, Workflow, Network, TrainFront, Newspaper, FlaskConical } from "lucide-react";
+import { Activity, ChartBar as BarChart, Bot, Gauge, History, ChartLine as LineChart, Palette, Radio, Wallet, Zap, MoveHorizontal as MoreHorizontal, BookOpen, Key, Rocket, MessageSquare, Shield, TrendingUp, Bell, Flame, Inbox, Server, Cpu, Wrench, Brain, Sparkles, Infinity as InfinityIcon, DollarSign, Eye, Twitter, Calendar as CalIcon, Calculator, Maximize, Minimize, Globe, LifeBuoy, SquareSplitHorizontal as SplitSquareHorizontal, TextAlignJustify as AlignJustify, ArrowUpFromLine, Landmark, ListChecks, Coins, Dices, Percent, ChevronDown, ChevronRight, LayoutDashboard, Settings, Timer, Layers, Target, Crosshair, PanelLeftClose, PanelLeftOpen, Menu, X, Play, SquareCheck as CheckSquare, TrendingDown, ChartCandlestick as CandlestickChart, Music, Cloud, Waves, Boxes, Store, Star, Dna, Grid, Grid, Orbit, Workflow, Network, TrainFront, Newspaper, FlaskConical, Film, Wand2, Camera, Box, GitBranch, LayoutGrid, Video } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { THEMES, useTheme } from "@/hooks/use-theme";
 import { ShaderBackground } from "./ShaderRegistry";
@@ -97,6 +97,18 @@ const NAV = [
   { to: "/market-news", label: "Market News", icon: Newspaper },
   { to: "/strategy-lab", label: "Strategy Lab", icon: FlaskConical },
   { to: "/theme", label: "Theme", icon: Palette },
+  { to: "/media-studio", label: "Media Studio", icon: Film },
+  { to: "/ai-media", label: "AI Media", icon: Sparkles },
+  { to: "/creative-studio", label: "Creative Studio", icon: Palette },
+  { to: "/pro-media", label: "Pro Media", icon: Video },
+  { to: "/smart-editor", label: "Smart Editor", icon: Wand2 },
+  { to: "/automation-canvas", label: "Automation Canvas", icon: Workflow },
+  { to: "/surveillance", label: "Surveillance", icon: Camera },
+  { to: "/screenshot-studio", label: "Screenshot", icon: Camera },
+  { to: "/screen-record", label: "Screen Record", icon: Video },
+  { to: "/three-d-studio", label: "3D Studio", icon: Box },
+  { to: "/pipeline-studio", label: "Pipeline Studio", icon: GitBranch },
+  { to: "/pipeline-gallery", label: "Pipeline Gallery", icon: LayoutGrid },
 ] as const;
 
 // Desktop grouped sections
@@ -228,6 +240,36 @@ const SECTIONS = [
       { to: "/music", label: "Music Studio", icon: Music },
       { to: "/shaders", label: "Shader Gallery", icon: Palette },
       { to: "/theme", label: "Theme Settings", icon: Palette },
+      { to: "/three-d-studio", label: "3D Studio", icon: Box },
+    ],
+  },
+  {
+    title: "Media & Creative",
+    icon: Film,
+    items: [
+      { to: "/media-studio", label: "Media Studio", icon: Film },
+      { to: "/ai-media", label: "AI Media", icon: Sparkles },
+      { to: "/creative-studio", label: "Creative Studio", icon: Palette },
+      { to: "/pro-media", label: "Pro Media", icon: Video },
+      { to: "/smart-editor", label: "Smart Editor", icon: Wand2 },
+    ],
+  },
+  {
+    title: "Automation & Pipelines",
+    icon: Workflow,
+    items: [
+      { to: "/automation-canvas", label: "Automation Canvas", icon: Workflow },
+      { to: "/pipeline-studio", label: "Pipeline Studio", icon: GitBranch },
+      { to: "/pipeline-gallery", label: "Pipeline Gallery", icon: LayoutGrid },
+    ],
+  },
+  {
+    title: "Capture & Recording",
+    icon: Camera,
+    items: [
+      { to: "/surveillance", label: "Surveillance", icon: Camera },
+      { to: "/screenshot-studio", label: "Screenshot", icon: Camera },
+      { to: "/screen-record", label: "Screen Record", icon: Video },
     ],
   },
   {
@@ -300,6 +342,9 @@ export function AppShell({ children }: { children: ReactNode }) {
     "Strategy & Journal": false,
     "Portfolio & Tracking": false,
     "Creative Studio": false,
+    "Media & Creative": false,
+    "Automation & Pipelines": false,
+    "Capture & Recording": false,
     "System Admin": false,
   });
 
@@ -593,7 +638,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 <div className="w-6 h-6 rounded bg-gradient-bull grid place-items-center">
                   <BarChart className="w-3 h-3" />
                 </div>
-                DivergenceIQ
+                Divergence IQ
               </Link>
             </div>
             <span className="pulse-dot text-xs font-mono">LIVE</span>
