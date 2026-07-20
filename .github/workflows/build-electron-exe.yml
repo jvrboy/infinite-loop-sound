@@ -1,0 +1,184 @@
+name: Build Electron EXE
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "electron/**"
+      - "electron-builder.json"
+      - "electron.vite.config.ts"
+      - "package.json"
+      - ".github/workflows/build-electron-exe.yml"
+  workflow_dispatch:
+
+jobs:
+  build-electron:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Electron and electron-builder
+        run: npm install electron electron-builder --save-dev
+
+      - name: Install sharp for icon conversion
+        run: npm install sharp --save-dev
+
+      - name: Generate app icons from SVG
+        run: |
+          node -e "
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          
+          const svgPath = 'public/app-icons/default.svg';
+          if (!fs.existsSync(svgPath)) { console.log('No SVG found, using fallback'); process.exit(0); }
+          
+          const iconDir = 'build-resources';
+          fs.mkdirSync(iconDir, { recursive: true });
+          
+          const svgBuffer = fs.readFileSync(svgPath);
+          
+          async function generate() {
+            // Generate ICO icon (256x256 PNG as base for ICO)
+            await sharp(svgBuffer).resize(256, 256).png().toFile(path.join(iconDir, 'icon.png'));
+            console.log('Generated icon.png');
+            
+            // Generate various sizes
+            const sizes = [16, 32, 48, 64, 128, 256, 512];
+            for (const size of sizes) {
+              await sharp(svgBuffer).resize(size, size).png().toFile(path.join(iconDir, `icon-${size}.png`));
+            }
+            console.log('Generated all icon sizes');
+            
+            // Create a simple ICO file (ICOP header + PNG entries)
+            // ICO header: 6 bytes, then 16 bytes per entry, then PNG data
+            const icon256 = await sharp(svgBuffer).resize(256, 256).png().toBuffer();
+            const icon32 = await sharp(svgBuffer).resize(32, 32).png().toBuffer();
+            const icon16 = await sharp(svgBuffer).resize(16, 16).png().toBuffer();
+            
+            // Build ICO with 3 entries: 256x256, 32x32, 16x16
+            const numEntries = 3;
+            const headerSize = 6 + numEntries * 16;
+            const entries = [
+              { size: 256, data: icon256 },
+              { size: 32, data: icon32 },
+              { size: 16, data: icon16 },
+            ];
+            
+            // Calculate offsets
+            let offset = headerSize;
+            const icoBuffer = Buffer.alloc(headerSize + icon256.length + icon32.length + icon16.length);
+            
+            // ICO header
+            icoBuffer.writeUInt16LE(0, 0); // reserved
+            icoBuffer.writeUInt16LE(1, 2); // type: ICO
+            icoBuffer.writeUInt16LE(numEntries, 4); // count
+            
+            // Entry 0: 256x256
+            let pos = 6;
+            for (const entry of entries) {
+              icoBuffer.writeUInt8(entry.size === 256 ? 0 : entry.size, pos); // width (0 = 256)
+              icoBuffer.writeUInt8(entry.size === 256 ? 0 : entry.size, pos + 1); // height
+              icoBuffer.writeUInt8(0, pos + 2); // palette
+              icoBuffer.writeUInt8(0, pos + 3); // reserved
+              icoBuffer.writeUInt16LE(1, pos + 4); // color planes
+              icoBuffer.writeUInt16LE(32, pos + 6); // bits per pixel
+              icoBuffer.writeUInt32LE(entry.data.length, pos + 8); // size
+              icoBuffer.writeUInt32LE(offset, pos + 12); // offset
+              offset += entry.data.length;
+              pos += 16;
+            }
+            
+            // Copy PNG data
+            let dataPos = headerSize;
+            for (const entry of entries) {
+              entry.data.copy(icoBuffer, dataPos);
+              dataPos += entry.data.length;
+            }
+            
+            fs.writeFileSync(path.join(iconDir, 'icon.ico'), icoBuffer);
+            console.log('Generated icon.ico');
+          }
+          
+          generate().catch(err => { console.error(err); process.exit(1); });
+          "
+
+      - name: Generate TanStack Router route tree
+        run: npx tsr generate
+        continue-on-error: true
+
+      - name: Build web app
+        run: npm run build
+        env:
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Prepare dist for Electron
+        run: |
+          if (Test-Path ".vercel\output\static") {
+            if (Test-Path "dist") { Remove-Item -Recurse -Force "dist" }
+            New-Item -ItemType Directory -Path "dist" -Force
+            Copy-Item -Path ".vercel\output\static\*" -Destination "dist" -Recurse -Force
+          }
+          if (-not (Test-Path "dist\index.html")) {
+            $js = Get-ChildItem -Path "dist\assets\*.js" | Sort-Object Name | Select-Object -First 1
+            $css = Get-ChildItem -Path "dist\assets\*.css" | Sort-Object Name | Select-Object -First 1
+            $jsName = if ($js) { $js.Name } else { "" }
+            $cssName = if ($css) { $css.Name } else { "" }
+            $cssTag = if ($cssName) { "<link rel=`"stylesheet`" href=`"/assets/$cssName`" />" } else { "" }
+            $jsTag = if ($jsName) { "<script type=`"module`" src=`"/assets/$jsName`"></script>" } else { "" }
+            $html = "<!DOCTYPE html>`n<html lang=`"en`" class=`"dark`">`n  <head>`n    <meta charset=`"UTF-8`" />`n    <meta name=`"viewport`" content=`"width=device-width, initial-scale=1.0`" />`n    <title>Divergence IQ</title>`n    $cssTag`n  </head>`n  <body class=`"dark`">`n    <div id=`"app`"></div>`n    $jsTag`n  </body>`n</html>"
+            Set-Content -Path "dist\index.html" -Value $html
+          }
+          Test-Path "dist\index.html"
+        shell: pwsh
+
+      - name: Build Electron main process
+        run: npx vite build --config electron.vite.config.ts
+
+      - name: Build Electron EXE
+        run: npx electron-builder --config electron-builder.json --win --x64
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_OPTIONS: --max-old-space-size=4096
+
+      - name: Verify EXE
+        run: |
+          $exeFiles = Get-ChildItem -Path "release" -Filter "*.exe" -Recurse
+          if ($exeFiles.Count -eq 0) {
+            Write-Error "No EXE files found in release/"
+            exit 1
+          }
+          foreach ($f in $exeFiles) {
+            $sizeMB = [math]::Round($f.Length / 1MB, 1)
+            Write-Host "Found: $($f.FullName) ($sizeMB MB)"
+            if ($sizeMB -lt 5) {
+              Write-Host "WARNING: $($f.Name) is only $sizeMB MB — may be incomplete"
+            }
+          }
+          Write-Host "EXE verification complete"
+        shell: pwsh
+
+      - name: Upload EXE as GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = "electron-exe-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+          $exeFile = Get-ChildItem -Path "release" -Filter "*.exe" -Recurse | Select-Object -First 1
+          gh release create $tag --title "Electron EXE - $(Get-Date -Format 'yyyy-MM-dd')" --notes "Auto-built Electron Windows EXE" $exeFile.FullName
+          Write-Host "Release created: $tag"
+        shell: pwsh
