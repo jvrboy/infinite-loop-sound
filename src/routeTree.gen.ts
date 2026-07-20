@@ -14,22 +14,27 @@ import { Route as WyckoffRouteImport } from './routes/wyckoff'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
-import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as WalkForwardRouteImport } from './routes/walk-forward'
 import { Route as VwapRouteImport } from './routes/vwap'
 import { Route as VolumeProfileRouteImport } from './routes/volume-profile'
 import { Route as VolatilityRouteImport } from './routes/volatility'
+import { Route as VoiceStudioRouteImport } from './routes/voice-studio'
 import { Route as UptimeRouteImport } from './routes/uptime'
 import { Route as UltraRouteImport } from './routes/ultra'
 import { Route as ToolsRouteImport } from './routes/tools'
+import { Route as ThreeDStudioRouteImport } from './routes/three-d-studio'
+import { Route as ThemeRouteImport } from './routes/theme'
 import { Route as TelegramRouteImport } from './routes/telegram'
 import { Route as TechnicalAnalysisRouteImport } from './routes/technical-analysis'
 import { Route as SystemRouteImport } from './routes/system'
 import { Route as SwarmRouteImport } from './routes/swarm'
+import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as StreakRouteImport } from './routes/streak'
 import { Route as StrategyMarketRouteImport } from './routes/strategy-market'
 import { Route as StrategiesRouteImport } from './routes/strategies'
+import { Route as StemSplitterRouteImport } from './routes/stem-splitter'
 import { Route as SmcRouteImport } from './routes/smc'
+import { Route as SmartEditorRouteImport } from './routes/smart-editor'
 import { Route as SimulatorRouteImport } from './routes/simulator'
 import { Route as SignalsRouteImport } from './routes/signals'
 import { Route as SignalStatsRouteImport } from './routes/signal-stats'
@@ -37,18 +42,28 @@ import { Route as ShadersRouteImport } from './routes/shaders'
 import { Route as SessionsRouteImport } from './routes/sessions'
 import { Route as SessionOverlapRouteImport } from './routes/session-overlap'
 import { Route as SentimentRouteImport } from './routes/sentiment'
+import { Route as ScreenshotStudioRouteImport } from './routes/screenshot-studio'
 import { Route as ScreenerRouteImport } from './routes/screener'
+import { Route as ScreenRecordRouteImport } from './routes/screen-record'
 import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as ScalingRouteImport } from './routes/scaling'
+import { Route as SamplerRouteImport } from './routes/sampler'
+import { Route as SamplePacksRouteImport } from './routes/sample-packs'
 import { Route as RiskCalculatorRouteImport } from './routes/risk-calculator'
 import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as RenkoRouteImport } from './routes/renko'
 import { Route as RecoveryRouteImport } from './routes/recovery'
-import { Route as PortfolioRouteImport } from './routes/portfolio'
+import { Route as ProMediaRouteImport } from './routes/pro-media'
+import { Route as PortfolioProRouteImport } from './routes/portfolio-pro'
 import { Route as PnlRouteImport } from './routes/pnl'
+import { Route as PlaylistRouteImport } from './routes/playlist'
 import { Route as PlanRouteImport } from './routes/plan'
 import { Route as PivotRouteImport } from './routes/pivot'
+import { Route as PitchToolsRouteImport } from './routes/pitch-tools'
+import { Route as PipelineStudioRouteImport } from './routes/pipeline-studio'
+import { Route as PipelineGalleryRouteImport } from './routes/pipeline-gallery'
 import { Route as PipValueRouteImport } from './routes/pip-value'
+import { Route as PianoRollRouteImport } from './routes/piano-roll'
 import { Route as PersistenceRouteImport } from './routes/persistence'
 import { Route as PerformanceRouteImport } from './routes/performance'
 import { Route as OrderBlocksRouteImport } from './routes/order-blocks'
@@ -56,11 +71,13 @@ import { Route as OptionsFlowRouteImport } from './routes/options-flow'
 import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as OptimizationRouteImport } from './routes/optimization'
-import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as NeuralRouteImport } from './routes/neural'
+import { Route as NativeToolsRouteImport } from './routes/native-tools'
 import { Route as MusicRouteImport } from './routes/music'
 import { Route as MtfRouteImport } from './routes/mtf'
 import { Route as MonteCarloRouteImport } from './routes/monte-carlo'
+import { Route as MixingToolsRouteImport } from './routes/mixing-tools'
+import { Route as MediaStudioRouteImport } from './routes/media-studio'
 import { Route as McpServersRouteImport } from './routes/mcp-servers'
 import { Route as MarketSystemsRouteImport } from './routes/market-systems'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
@@ -76,6 +93,8 @@ import { Route as HarmonicRouteImport } from './routes/harmonic'
 import { Route as FourierRouteImport } from './routes/fourier'
 import { Route as FibonacciRouteImport } from './routes/fibonacci'
 import { Route as FearGreedRouteImport } from './routes/fear-greed'
+import { Route as ExtendedToolsRouteImport } from './routes/extended-tools'
+import { Route as ExportStudioRouteImport } from './routes/export-studio'
 import { Route as ElliottWaveRouteImport } from './routes/elliott-wave'
 import { Route as DrawdownShieldRouteImport } from './routes/drawdown-shield'
 import { Route as DocsRouteImport } from './routes/docs'
@@ -85,26 +104,34 @@ import { Route as DerivRouteImport } from './routes/deriv'
 import { Route as DeltaVolumeRouteImport } from './routes/delta-volume'
 import { Route as DarkPoolRouteImport } from './routes/dark-pool'
 import { Route as CurrencyStrengthRouteImport } from './routes/currency-strength'
+import { Route as CreativeStudioRouteImport } from './routes/creative-studio'
 import { Route as CorrelationMatrixRouteImport } from './routes/correlation-matrix'
 import { Route as CorrelationRouteImport } from './routes/correlation'
 import { Route as ConfluenceRouteImport } from './routes/confluence'
 import { Route as CompoundRouteImport } from './routes/compound'
+import { Route as CodeRunnerRouteImport } from './routes/code-runner'
 import { Route as ChrysalisRouteImport } from './routes/chrysalis'
 import { Route as ChecklistRouteImport } from './routes/checklist'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as ChartRouteImport } from './routes/chart'
+import { Route as ChannelRackRouteImport } from './routes/channel-rack'
 import { Route as CalendarRouteImport } from './routes/calendar'
 import { Route as BotRouteImport } from './routes/bot'
 import { Route as BoomCrashRouteImport } from './routes/boom-crash'
 import { Route as BacktestRouteImport } from './routes/backtest'
 import { Route as AutomationHubRouteImport } from './routes/automation-hub'
+import { Route as AutomationCanvasRouteImport } from './routes/automation-canvas'
 import { Route as AutomationRouteImport } from './routes/automation'
+import { Route as AutoMasterRouteImport } from './routes/auto-master'
+import { Route as AudioToolsRouteImport } from './routes/audio-tools'
+import { Route as ArtifactsRouteImport } from './routes/artifacts'
 import { Route as ApiKeysRouteImport } from './routes/api-keys'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as AnalysisRouteImport } from './routes/analysis'
 import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AlertBuilderRouteImport } from './routes/alert-builder'
-import { Route as AiAgentsRouteImport } from './routes/ai-agents'
+import { Route as AiMediaRouteImport } from './routes/ai-media'
+import { Route as AiLabRouteImport } from './routes/ai-lab'
 import { Route as AdvancedAnalysisRouteImport } from './routes/advanced-analysis'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
@@ -146,11 +173,6 @@ const WebhookEventsRoute = WebhookEventsRouteImport.update({
   path: '/webhook-events',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WatchlistRoute = WatchlistRouteImport.update({
-  id: '/watchlist',
-  path: '/watchlist',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const WalkForwardRoute = WalkForwardRouteImport.update({
   id: '/walk-forward',
   path: '/walk-forward',
@@ -171,6 +193,11 @@ const VolatilityRoute = VolatilityRouteImport.update({
   path: '/volatility',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VoiceStudioRoute = VoiceStudioRouteImport.update({
+  id: '/voice-studio',
+  path: '/voice-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const UptimeRoute = UptimeRouteImport.update({
   id: '/uptime',
   path: '/uptime',
@@ -184,6 +211,16 @@ const UltraRoute = UltraRouteImport.update({
 const ToolsRoute = ToolsRouteImport.update({
   id: '/tools',
   path: '/tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThreeDStudioRoute = ThreeDStudioRouteImport.update({
+  id: '/three-d-studio',
+  path: '/three-d-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ThemeRoute = ThemeRouteImport.update({
+  id: '/theme',
+  path: '/theme',
   getParentRoute: () => rootRouteImport,
 } as any)
 const TelegramRoute = TelegramRouteImport.update({
@@ -206,6 +243,11 @@ const SwarmRoute = SwarmRouteImport.update({
   path: '/swarm',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SurveillanceRoute = SurveillanceRouteImport.update({
+  id: '/surveillance',
+  path: '/surveillance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const StreakRoute = StreakRouteImport.update({
   id: '/streak',
   path: '/streak',
@@ -221,9 +263,19 @@ const StrategiesRoute = StrategiesRouteImport.update({
   path: '/strategies',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StemSplitterRoute = StemSplitterRouteImport.update({
+  id: '/stem-splitter',
+  path: '/stem-splitter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SmcRoute = SmcRouteImport.update({
   id: '/smc',
   path: '/smc',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SmartEditorRoute = SmartEditorRouteImport.update({
+  id: '/smart-editor',
+  path: '/smart-editor',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SimulatorRoute = SimulatorRouteImport.update({
@@ -261,9 +313,19 @@ const SentimentRoute = SentimentRouteImport.update({
   path: '/sentiment',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ScreenshotStudioRoute = ScreenshotStudioRouteImport.update({
+  id: '/screenshot-studio',
+  path: '/screenshot-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ScreenerRoute = ScreenerRouteImport.update({
   id: '/screener',
   path: '/screener',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScreenRecordRoute = ScreenRecordRouteImport.update({
+  id: '/screen-record',
+  path: '/screen-record',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ScannerRoute = ScannerRouteImport.update({
@@ -274,6 +336,16 @@ const ScannerRoute = ScannerRouteImport.update({
 const ScalingRoute = ScalingRouteImport.update({
   id: '/scaling',
   path: '/scaling',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SamplerRoute = SamplerRouteImport.update({
+  id: '/sampler',
+  path: '/sampler',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SamplePacksRoute = SamplePacksRouteImport.update({
+  id: '/sample-packs',
+  path: '/sample-packs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RiskCalculatorRoute = RiskCalculatorRouteImport.update({
@@ -296,14 +368,24 @@ const RecoveryRoute = RecoveryRouteImport.update({
   path: '/recovery',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PortfolioRoute = PortfolioRouteImport.update({
-  id: '/portfolio',
-  path: '/portfolio',
+const ProMediaRoute = ProMediaRouteImport.update({
+  id: '/pro-media',
+  path: '/pro-media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioProRoute = PortfolioProRouteImport.update({
+  id: '/portfolio-pro',
+  path: '/portfolio-pro',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PnlRoute = PnlRouteImport.update({
   id: '/pnl',
   path: '/pnl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlaylistRoute = PlaylistRouteImport.update({
+  id: '/playlist',
+  path: '/playlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PlanRoute = PlanRouteImport.update({
@@ -316,9 +398,29 @@ const PivotRoute = PivotRouteImport.update({
   path: '/pivot',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PitchToolsRoute = PitchToolsRouteImport.update({
+  id: '/pitch-tools',
+  path: '/pitch-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelineStudioRoute = PipelineStudioRouteImport.update({
+  id: '/pipeline-studio',
+  path: '/pipeline-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PipelineGalleryRoute = PipelineGalleryRouteImport.update({
+  id: '/pipeline-gallery',
+  path: '/pipeline-gallery',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PipValueRoute = PipValueRouteImport.update({
   id: '/pip-value',
   path: '/pip-value',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PianoRollRoute = PianoRollRouteImport.update({
+  id: '/piano-roll',
+  path: '/piano-roll',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PersistenceRoute = PersistenceRouteImport.update({
@@ -356,14 +458,14 @@ const OptimizationRoute = OptimizationRouteImport.update({
   path: '/optimization',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NotificationsRoute = NotificationsRouteImport.update({
-  id: '/notifications',
-  path: '/notifications',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NativeToolsRoute = NativeToolsRouteImport.update({
+  id: '/native-tools',
+  path: '/native-tools',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MusicRoute = MusicRouteImport.update({
@@ -379,6 +481,16 @@ const MtfRoute = MtfRouteImport.update({
 const MonteCarloRoute = MonteCarloRouteImport.update({
   id: '/monte-carlo',
   path: '/monte-carlo',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MixingToolsRoute = MixingToolsRouteImport.update({
+  id: '/mixing-tools',
+  path: '/mixing-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaStudioRoute = MediaStudioRouteImport.update({
+  id: '/media-studio',
+  path: '/media-studio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const McpServersRoute = McpServersRouteImport.update({
@@ -456,6 +568,16 @@ const FearGreedRoute = FearGreedRouteImport.update({
   path: '/fear-greed',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ExtendedToolsRoute = ExtendedToolsRouteImport.update({
+  id: '/extended-tools',
+  path: '/extended-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ExportStudioRoute = ExportStudioRouteImport.update({
+  id: '/export-studio',
+  path: '/export-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ElliottWaveRoute = ElliottWaveRouteImport.update({
   id: '/elliott-wave',
   path: '/elliott-wave',
@@ -501,6 +623,11 @@ const CurrencyStrengthRoute = CurrencyStrengthRouteImport.update({
   path: '/currency-strength',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CreativeStudioRoute = CreativeStudioRouteImport.update({
+  id: '/creative-studio',
+  path: '/creative-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CorrelationMatrixRoute = CorrelationMatrixRouteImport.update({
   id: '/correlation-matrix',
   path: '/correlation-matrix',
@@ -521,6 +648,11 @@ const CompoundRoute = CompoundRouteImport.update({
   path: '/compound',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CodeRunnerRoute = CodeRunnerRouteImport.update({
+  id: '/code-runner',
+  path: '/code-runner',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChrysalisRoute = ChrysalisRouteImport.update({
   id: '/chrysalis',
   path: '/chrysalis',
@@ -539,6 +671,11 @@ const ChatRoute = ChatRouteImport.update({
 const ChartRoute = ChartRouteImport.update({
   id: '/chart',
   path: '/chart',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChannelRackRoute = ChannelRackRouteImport.update({
+  id: '/channel-rack',
+  path: '/channel-rack',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CalendarRoute = CalendarRouteImport.update({
@@ -566,9 +703,29 @@ const AutomationHubRoute = AutomationHubRouteImport.update({
   path: '/automation-hub',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AutomationCanvasRoute = AutomationCanvasRouteImport.update({
+  id: '/automation-canvas',
+  path: '/automation-canvas',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AutomationRoute = AutomationRouteImport.update({
   id: '/automation',
   path: '/automation',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AutoMasterRoute = AutoMasterRouteImport.update({
+  id: '/auto-master',
+  path: '/auto-master',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AudioToolsRoute = AudioToolsRouteImport.update({
+  id: '/audio-tools',
+  path: '/audio-tools',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ArtifactsRoute = ArtifactsRouteImport.update({
+  id: '/artifacts',
+  path: '/artifacts',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiKeysRoute = ApiKeysRouteImport.update({
@@ -596,9 +753,14 @@ const AlertBuilderRoute = AlertBuilderRouteImport.update({
   path: '/alert-builder',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AiAgentsRoute = AiAgentsRouteImport.update({
-  id: '/ai-agents',
-  path: '/ai-agents',
+const AiMediaRoute = AiMediaRouteImport.update({
+  id: '/ai-media',
+  path: '/ai-media',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiLabRoute = AiLabRouteImport.update({
+  id: '/ai-lab',
+  path: '/ai-lab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdvancedAnalysisRoute = AdvancedAnalysisRouteImport.update({
@@ -686,26 +848,34 @@ const ApiPublicV1SignalsIncomingRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/advanced-analysis': typeof AdvancedAnalysisRoute
-  '/ai-agents': typeof AiAgentsRoute
+  '/ai-lab': typeof AiLabRoute
+  '/ai-media': typeof AiMediaRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
+  '/artifacts': typeof ArtifactsRoute
+  '/audio-tools': typeof AudioToolsRoute
+  '/auto-master': typeof AutoMasterRoute
   '/automation': typeof AutomationRoute
+  '/automation-canvas': typeof AutomationCanvasRoute
   '/automation-hub': typeof AutomationHubRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
   '/calendar': typeof CalendarRoute
+  '/channel-rack': typeof ChannelRackRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/checklist': typeof ChecklistRoute
   '/chrysalis': typeof ChrysalisRoute
+  '/code-runner': typeof CodeRunnerRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/correlation-matrix': typeof CorrelationMatrixRoute
+  '/creative-studio': typeof CreativeStudioRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/delta-volume': typeof DeltaVolumeRoute
@@ -715,6 +885,8 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/drawdown-shield': typeof DrawdownShieldRoute
   '/elliott-wave': typeof ElliottWaveRoute
+  '/export-studio': typeof ExportStudioRoute
+  '/extended-tools': typeof ExtendedToolsRoute
   '/fear-greed': typeof FearGreedRoute
   '/fibonacci': typeof FibonacciRoute
   '/fourier': typeof FourierRoute
@@ -730,11 +902,13 @@ export interface FileRoutesByFullPath {
   '/market-profile': typeof MarketProfileRoute
   '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
+  '/media-studio': typeof MediaStudioRoute
+  '/mixing-tools': typeof MixingToolsRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
   '/music': typeof MusicRoute
+  '/native-tools': typeof NativeToolsRoute
   '/neural': typeof NeuralRoute
-  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
@@ -742,18 +916,28 @@ export interface FileRoutesByFullPath {
   '/order-blocks': typeof OrderBlocksRoute
   '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
+  '/piano-roll': typeof PianoRollRoute
   '/pip-value': typeof PipValueRoute
+  '/pipeline-gallery': typeof PipelineGalleryRoute
+  '/pipeline-studio': typeof PipelineStudioRoute
+  '/pitch-tools': typeof PitchToolsRoute
   '/pivot': typeof PivotRoute
   '/plan': typeof PlanRoute
+  '/playlist': typeof PlaylistRoute
   '/pnl': typeof PnlRoute
-  '/portfolio': typeof PortfolioRoute
+  '/portfolio-pro': typeof PortfolioProRoute
+  '/pro-media': typeof ProMediaRoute
   '/recovery': typeof RecoveryRoute
   '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
+  '/sample-packs': typeof SamplePacksRoute
+  '/sampler': typeof SamplerRoute
   '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
+  '/screen-record': typeof ScreenRecordRoute
   '/screener': typeof ScreenerRoute
+  '/screenshot-studio': typeof ScreenshotStudioRoute
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
@@ -761,22 +945,27 @@ export interface FileRoutesByFullPath {
   '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/smart-editor': typeof SmartEditorRoute
   '/smc': typeof SmcRoute
+  '/stem-splitter': typeof StemSplitterRoute
   '/strategies': typeof StrategiesRoute
   '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
+  '/surveillance': typeof SurveillanceRoute
   '/swarm': typeof SwarmRoute
   '/system': typeof SystemRoute
   '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
+  '/theme': typeof ThemeRoute
+  '/three-d-studio': typeof ThreeDStudioRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
+  '/voice-studio': typeof VoiceStudioRoute
   '/volatility': typeof VolatilityRoute
   '/volume-profile': typeof VolumeProfileRoute
   '/vwap': typeof VwapRoute
   '/walk-forward': typeof WalkForwardRoute
-  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
@@ -799,26 +988,34 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advanced-analysis': typeof AdvancedAnalysisRoute
-  '/ai-agents': typeof AiAgentsRoute
+  '/ai-lab': typeof AiLabRoute
+  '/ai-media': typeof AiMediaRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
+  '/artifacts': typeof ArtifactsRoute
+  '/audio-tools': typeof AudioToolsRoute
+  '/auto-master': typeof AutoMasterRoute
   '/automation': typeof AutomationRoute
+  '/automation-canvas': typeof AutomationCanvasRoute
   '/automation-hub': typeof AutomationHubRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
   '/calendar': typeof CalendarRoute
+  '/channel-rack': typeof ChannelRackRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/checklist': typeof ChecklistRoute
   '/chrysalis': typeof ChrysalisRoute
+  '/code-runner': typeof CodeRunnerRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/correlation-matrix': typeof CorrelationMatrixRoute
+  '/creative-studio': typeof CreativeStudioRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/delta-volume': typeof DeltaVolumeRoute
@@ -828,6 +1025,8 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/drawdown-shield': typeof DrawdownShieldRoute
   '/elliott-wave': typeof ElliottWaveRoute
+  '/export-studio': typeof ExportStudioRoute
+  '/extended-tools': typeof ExtendedToolsRoute
   '/fear-greed': typeof FearGreedRoute
   '/fibonacci': typeof FibonacciRoute
   '/fourier': typeof FourierRoute
@@ -843,11 +1042,13 @@ export interface FileRoutesByTo {
   '/market-profile': typeof MarketProfileRoute
   '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
+  '/media-studio': typeof MediaStudioRoute
+  '/mixing-tools': typeof MixingToolsRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
   '/music': typeof MusicRoute
+  '/native-tools': typeof NativeToolsRoute
   '/neural': typeof NeuralRoute
-  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
@@ -855,18 +1056,28 @@ export interface FileRoutesByTo {
   '/order-blocks': typeof OrderBlocksRoute
   '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
+  '/piano-roll': typeof PianoRollRoute
   '/pip-value': typeof PipValueRoute
+  '/pipeline-gallery': typeof PipelineGalleryRoute
+  '/pipeline-studio': typeof PipelineStudioRoute
+  '/pitch-tools': typeof PitchToolsRoute
   '/pivot': typeof PivotRoute
   '/plan': typeof PlanRoute
+  '/playlist': typeof PlaylistRoute
   '/pnl': typeof PnlRoute
-  '/portfolio': typeof PortfolioRoute
+  '/portfolio-pro': typeof PortfolioProRoute
+  '/pro-media': typeof ProMediaRoute
   '/recovery': typeof RecoveryRoute
   '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
+  '/sample-packs': typeof SamplePacksRoute
+  '/sampler': typeof SamplerRoute
   '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
+  '/screen-record': typeof ScreenRecordRoute
   '/screener': typeof ScreenerRoute
+  '/screenshot-studio': typeof ScreenshotStudioRoute
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
@@ -874,22 +1085,27 @@ export interface FileRoutesByTo {
   '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/smart-editor': typeof SmartEditorRoute
   '/smc': typeof SmcRoute
+  '/stem-splitter': typeof StemSplitterRoute
   '/strategies': typeof StrategiesRoute
   '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
+  '/surveillance': typeof SurveillanceRoute
   '/swarm': typeof SwarmRoute
   '/system': typeof SystemRoute
   '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
+  '/theme': typeof ThemeRoute
+  '/three-d-studio': typeof ThreeDStudioRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
+  '/voice-studio': typeof VoiceStudioRoute
   '/volatility': typeof VolatilityRoute
   '/volume-profile': typeof VolumeProfileRoute
   '/vwap': typeof VwapRoute
   '/walk-forward': typeof WalkForwardRoute
-  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
@@ -913,26 +1129,34 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/advanced-analysis': typeof AdvancedAnalysisRoute
-  '/ai-agents': typeof AiAgentsRoute
+  '/ai-lab': typeof AiLabRoute
+  '/ai-media': typeof AiMediaRoute
   '/alert-builder': typeof AlertBuilderRoute
   '/alerts': typeof AlertsRoute
   '/analysis': typeof AnalysisRoute
   '/analytics': typeof AnalyticsRoute
   '/api-keys': typeof ApiKeysRoute
+  '/artifacts': typeof ArtifactsRoute
+  '/audio-tools': typeof AudioToolsRoute
+  '/auto-master': typeof AutoMasterRoute
   '/automation': typeof AutomationRoute
+  '/automation-canvas': typeof AutomationCanvasRoute
   '/automation-hub': typeof AutomationHubRoute
   '/backtest': typeof BacktestRoute
   '/boom-crash': typeof BoomCrashRoute
   '/bot': typeof BotRoute
   '/calendar': typeof CalendarRoute
+  '/channel-rack': typeof ChannelRackRoute
   '/chart': typeof ChartRoute
   '/chat': typeof ChatRoute
   '/checklist': typeof ChecklistRoute
   '/chrysalis': typeof ChrysalisRoute
+  '/code-runner': typeof CodeRunnerRoute
   '/compound': typeof CompoundRoute
   '/confluence': typeof ConfluenceRoute
   '/correlation': typeof CorrelationRoute
   '/correlation-matrix': typeof CorrelationMatrixRoute
+  '/creative-studio': typeof CreativeStudioRoute
   '/currency-strength': typeof CurrencyStrengthRoute
   '/dark-pool': typeof DarkPoolRoute
   '/delta-volume': typeof DeltaVolumeRoute
@@ -942,6 +1166,8 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/drawdown-shield': typeof DrawdownShieldRoute
   '/elliott-wave': typeof ElliottWaveRoute
+  '/export-studio': typeof ExportStudioRoute
+  '/extended-tools': typeof ExtendedToolsRoute
   '/fear-greed': typeof FearGreedRoute
   '/fibonacci': typeof FibonacciRoute
   '/fourier': typeof FourierRoute
@@ -957,11 +1183,13 @@ export interface FileRoutesById {
   '/market-profile': typeof MarketProfileRoute
   '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
+  '/media-studio': typeof MediaStudioRoute
+  '/mixing-tools': typeof MixingToolsRoute
   '/monte-carlo': typeof MonteCarloRoute
   '/mtf': typeof MtfRoute
   '/music': typeof MusicRoute
+  '/native-tools': typeof NativeToolsRoute
   '/neural': typeof NeuralRoute
-  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
@@ -969,18 +1197,28 @@ export interface FileRoutesById {
   '/order-blocks': typeof OrderBlocksRoute
   '/performance': typeof PerformanceRoute
   '/persistence': typeof PersistenceRoute
+  '/piano-roll': typeof PianoRollRoute
   '/pip-value': typeof PipValueRoute
+  '/pipeline-gallery': typeof PipelineGalleryRoute
+  '/pipeline-studio': typeof PipelineStudioRoute
+  '/pitch-tools': typeof PitchToolsRoute
   '/pivot': typeof PivotRoute
   '/plan': typeof PlanRoute
+  '/playlist': typeof PlaylistRoute
   '/pnl': typeof PnlRoute
-  '/portfolio': typeof PortfolioRoute
+  '/portfolio-pro': typeof PortfolioProRoute
+  '/pro-media': typeof ProMediaRoute
   '/recovery': typeof RecoveryRoute
   '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
+  '/sample-packs': typeof SamplePacksRoute
+  '/sampler': typeof SamplerRoute
   '/scaling': typeof ScalingRoute
   '/scanner': typeof ScannerRoute
+  '/screen-record': typeof ScreenRecordRoute
   '/screener': typeof ScreenerRoute
+  '/screenshot-studio': typeof ScreenshotStudioRoute
   '/sentiment': typeof SentimentRoute
   '/session-overlap': typeof SessionOverlapRoute
   '/sessions': typeof SessionsRoute
@@ -988,22 +1226,27 @@ export interface FileRoutesById {
   '/signal-stats': typeof SignalStatsRoute
   '/signals': typeof SignalsRoute
   '/simulator': typeof SimulatorRoute
+  '/smart-editor': typeof SmartEditorRoute
   '/smc': typeof SmcRoute
+  '/stem-splitter': typeof StemSplitterRoute
   '/strategies': typeof StrategiesRoute
   '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
+  '/surveillance': typeof SurveillanceRoute
   '/swarm': typeof SwarmRoute
   '/system': typeof SystemRoute
   '/technical-analysis': typeof TechnicalAnalysisRoute
   '/telegram': typeof TelegramRoute
+  '/theme': typeof ThemeRoute
+  '/three-d-studio': typeof ThreeDStudioRoute
   '/tools': typeof ToolsRoute
   '/ultra': typeof UltraRoute
   '/uptime': typeof UptimeRoute
+  '/voice-studio': typeof VoiceStudioRoute
   '/volatility': typeof VolatilityRoute
   '/volume-profile': typeof VolumeProfileRoute
   '/vwap': typeof VwapRoute
   '/walk-forward': typeof WalkForwardRoute
-  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
@@ -1028,26 +1271,34 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/advanced-analysis'
-    | '/ai-agents'
+    | '/ai-lab'
+    | '/ai-media'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
     | '/api-keys'
+    | '/artifacts'
+    | '/audio-tools'
+    | '/auto-master'
     | '/automation'
+    | '/automation-canvas'
     | '/automation-hub'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
     | '/calendar'
+    | '/channel-rack'
     | '/chart'
     | '/chat'
     | '/checklist'
     | '/chrysalis'
+    | '/code-runner'
     | '/compound'
     | '/confluence'
     | '/correlation'
     | '/correlation-matrix'
+    | '/creative-studio'
     | '/currency-strength'
     | '/dark-pool'
     | '/delta-volume'
@@ -1057,6 +1308,8 @@ export interface FileRouteTypes {
     | '/docs'
     | '/drawdown-shield'
     | '/elliott-wave'
+    | '/export-studio'
+    | '/extended-tools'
     | '/fear-greed'
     | '/fibonacci'
     | '/fourier'
@@ -1072,11 +1325,13 @@ export interface FileRouteTypes {
     | '/market-profile'
     | '/market-systems'
     | '/mcp-servers'
+    | '/media-studio'
+    | '/mixing-tools'
     | '/monte-carlo'
     | '/mtf'
     | '/music'
+    | '/native-tools'
     | '/neural'
-    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
@@ -1084,18 +1339,28 @@ export interface FileRouteTypes {
     | '/order-blocks'
     | '/performance'
     | '/persistence'
+    | '/piano-roll'
     | '/pip-value'
+    | '/pipeline-gallery'
+    | '/pipeline-studio'
+    | '/pitch-tools'
     | '/pivot'
     | '/plan'
+    | '/playlist'
     | '/pnl'
-    | '/portfolio'
+    | '/portfolio-pro'
+    | '/pro-media'
     | '/recovery'
     | '/renko'
     | '/replay'
     | '/risk-calculator'
+    | '/sample-packs'
+    | '/sampler'
     | '/scaling'
     | '/scanner'
+    | '/screen-record'
     | '/screener'
+    | '/screenshot-studio'
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
@@ -1103,22 +1368,27 @@ export interface FileRouteTypes {
     | '/signal-stats'
     | '/signals'
     | '/simulator'
+    | '/smart-editor'
     | '/smc'
+    | '/stem-splitter'
     | '/strategies'
     | '/strategy-market'
     | '/streak'
+    | '/surveillance'
     | '/swarm'
     | '/system'
     | '/technical-analysis'
     | '/telegram'
+    | '/theme'
+    | '/three-d-studio'
     | '/tools'
     | '/ultra'
     | '/uptime'
+    | '/voice-studio'
     | '/volatility'
     | '/volume-profile'
     | '/vwap'
     | '/walk-forward'
-    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
@@ -1141,26 +1411,34 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/advanced-analysis'
-    | '/ai-agents'
+    | '/ai-lab'
+    | '/ai-media'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
     | '/api-keys'
+    | '/artifacts'
+    | '/audio-tools'
+    | '/auto-master'
     | '/automation'
+    | '/automation-canvas'
     | '/automation-hub'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
     | '/calendar'
+    | '/channel-rack'
     | '/chart'
     | '/chat'
     | '/checklist'
     | '/chrysalis'
+    | '/code-runner'
     | '/compound'
     | '/confluence'
     | '/correlation'
     | '/correlation-matrix'
+    | '/creative-studio'
     | '/currency-strength'
     | '/dark-pool'
     | '/delta-volume'
@@ -1170,6 +1448,8 @@ export interface FileRouteTypes {
     | '/docs'
     | '/drawdown-shield'
     | '/elliott-wave'
+    | '/export-studio'
+    | '/extended-tools'
     | '/fear-greed'
     | '/fibonacci'
     | '/fourier'
@@ -1185,11 +1465,13 @@ export interface FileRouteTypes {
     | '/market-profile'
     | '/market-systems'
     | '/mcp-servers'
+    | '/media-studio'
+    | '/mixing-tools'
     | '/monte-carlo'
     | '/mtf'
     | '/music'
+    | '/native-tools'
     | '/neural'
-    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
@@ -1197,18 +1479,28 @@ export interface FileRouteTypes {
     | '/order-blocks'
     | '/performance'
     | '/persistence'
+    | '/piano-roll'
     | '/pip-value'
+    | '/pipeline-gallery'
+    | '/pipeline-studio'
+    | '/pitch-tools'
     | '/pivot'
     | '/plan'
+    | '/playlist'
     | '/pnl'
-    | '/portfolio'
+    | '/portfolio-pro'
+    | '/pro-media'
     | '/recovery'
     | '/renko'
     | '/replay'
     | '/risk-calculator'
+    | '/sample-packs'
+    | '/sampler'
     | '/scaling'
     | '/scanner'
+    | '/screen-record'
     | '/screener'
+    | '/screenshot-studio'
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
@@ -1216,22 +1508,27 @@ export interface FileRouteTypes {
     | '/signal-stats'
     | '/signals'
     | '/simulator'
+    | '/smart-editor'
     | '/smc'
+    | '/stem-splitter'
     | '/strategies'
     | '/strategy-market'
     | '/streak'
+    | '/surveillance'
     | '/swarm'
     | '/system'
     | '/technical-analysis'
     | '/telegram'
+    | '/theme'
+    | '/three-d-studio'
     | '/tools'
     | '/ultra'
     | '/uptime'
+    | '/voice-studio'
     | '/volatility'
     | '/volume-profile'
     | '/vwap'
     | '/walk-forward'
-    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
@@ -1254,26 +1551,34 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/advanced-analysis'
-    | '/ai-agents'
+    | '/ai-lab'
+    | '/ai-media'
     | '/alert-builder'
     | '/alerts'
     | '/analysis'
     | '/analytics'
     | '/api-keys'
+    | '/artifacts'
+    | '/audio-tools'
+    | '/auto-master'
     | '/automation'
+    | '/automation-canvas'
     | '/automation-hub'
     | '/backtest'
     | '/boom-crash'
     | '/bot'
     | '/calendar'
+    | '/channel-rack'
     | '/chart'
     | '/chat'
     | '/checklist'
     | '/chrysalis'
+    | '/code-runner'
     | '/compound'
     | '/confluence'
     | '/correlation'
     | '/correlation-matrix'
+    | '/creative-studio'
     | '/currency-strength'
     | '/dark-pool'
     | '/delta-volume'
@@ -1283,6 +1588,8 @@ export interface FileRouteTypes {
     | '/docs'
     | '/drawdown-shield'
     | '/elliott-wave'
+    | '/export-studio'
+    | '/extended-tools'
     | '/fear-greed'
     | '/fibonacci'
     | '/fourier'
@@ -1298,11 +1605,13 @@ export interface FileRouteTypes {
     | '/market-profile'
     | '/market-systems'
     | '/mcp-servers'
+    | '/media-studio'
+    | '/mixing-tools'
     | '/monte-carlo'
     | '/mtf'
     | '/music'
+    | '/native-tools'
     | '/neural'
-    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
@@ -1310,18 +1619,28 @@ export interface FileRouteTypes {
     | '/order-blocks'
     | '/performance'
     | '/persistence'
+    | '/piano-roll'
     | '/pip-value'
+    | '/pipeline-gallery'
+    | '/pipeline-studio'
+    | '/pitch-tools'
     | '/pivot'
     | '/plan'
+    | '/playlist'
     | '/pnl'
-    | '/portfolio'
+    | '/portfolio-pro'
+    | '/pro-media'
     | '/recovery'
     | '/renko'
     | '/replay'
     | '/risk-calculator'
+    | '/sample-packs'
+    | '/sampler'
     | '/scaling'
     | '/scanner'
+    | '/screen-record'
     | '/screener'
+    | '/screenshot-studio'
     | '/sentiment'
     | '/session-overlap'
     | '/sessions'
@@ -1329,22 +1648,27 @@ export interface FileRouteTypes {
     | '/signal-stats'
     | '/signals'
     | '/simulator'
+    | '/smart-editor'
     | '/smc'
+    | '/stem-splitter'
     | '/strategies'
     | '/strategy-market'
     | '/streak'
+    | '/surveillance'
     | '/swarm'
     | '/system'
     | '/technical-analysis'
     | '/telegram'
+    | '/theme'
+    | '/three-d-studio'
     | '/tools'
     | '/ultra'
     | '/uptime'
+    | '/voice-studio'
     | '/volatility'
     | '/volume-profile'
     | '/vwap'
     | '/walk-forward'
-    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
@@ -1368,26 +1692,34 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvancedAnalysisRoute: typeof AdvancedAnalysisRoute
-  AiAgentsRoute: typeof AiAgentsRoute
+  AiLabRoute: typeof AiLabRoute
+  AiMediaRoute: typeof AiMediaRoute
   AlertBuilderRoute: typeof AlertBuilderRoute
   AlertsRoute: typeof AlertsRoute
   AnalysisRoute: typeof AnalysisRoute
   AnalyticsRoute: typeof AnalyticsRoute
   ApiKeysRoute: typeof ApiKeysRoute
+  ArtifactsRoute: typeof ArtifactsRoute
+  AudioToolsRoute: typeof AudioToolsRoute
+  AutoMasterRoute: typeof AutoMasterRoute
   AutomationRoute: typeof AutomationRoute
+  AutomationCanvasRoute: typeof AutomationCanvasRoute
   AutomationHubRoute: typeof AutomationHubRoute
   BacktestRoute: typeof BacktestRoute
   BoomCrashRoute: typeof BoomCrashRoute
   BotRoute: typeof BotRoute
   CalendarRoute: typeof CalendarRoute
+  ChannelRackRoute: typeof ChannelRackRoute
   ChartRoute: typeof ChartRoute
   ChatRoute: typeof ChatRoute
   ChecklistRoute: typeof ChecklistRoute
   ChrysalisRoute: typeof ChrysalisRoute
+  CodeRunnerRoute: typeof CodeRunnerRoute
   CompoundRoute: typeof CompoundRoute
   ConfluenceRoute: typeof ConfluenceRoute
   CorrelationRoute: typeof CorrelationRoute
   CorrelationMatrixRoute: typeof CorrelationMatrixRoute
+  CreativeStudioRoute: typeof CreativeStudioRoute
   CurrencyStrengthRoute: typeof CurrencyStrengthRoute
   DarkPoolRoute: typeof DarkPoolRoute
   DeltaVolumeRoute: typeof DeltaVolumeRoute
@@ -1397,6 +1729,8 @@ export interface RootRouteChildren {
   DocsRoute: typeof DocsRoute
   DrawdownShieldRoute: typeof DrawdownShieldRoute
   ElliottWaveRoute: typeof ElliottWaveRoute
+  ExportStudioRoute: typeof ExportStudioRoute
+  ExtendedToolsRoute: typeof ExtendedToolsRoute
   FearGreedRoute: typeof FearGreedRoute
   FibonacciRoute: typeof FibonacciRoute
   FourierRoute: typeof FourierRoute
@@ -1412,11 +1746,13 @@ export interface RootRouteChildren {
   MarketProfileRoute: typeof MarketProfileRoute
   MarketSystemsRoute: typeof MarketSystemsRoute
   McpServersRoute: typeof McpServersRoute
+  MediaStudioRoute: typeof MediaStudioRoute
+  MixingToolsRoute: typeof MixingToolsRoute
   MonteCarloRoute: typeof MonteCarloRoute
   MtfRoute: typeof MtfRoute
   MusicRoute: typeof MusicRoute
+  NativeToolsRoute: typeof NativeToolsRoute
   NeuralRoute: typeof NeuralRoute
-  NotificationsRoute: typeof NotificationsRoute
   OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
   OptionsCalcRoute: typeof OptionsCalcRoute
@@ -1424,18 +1760,28 @@ export interface RootRouteChildren {
   OrderBlocksRoute: typeof OrderBlocksRoute
   PerformanceRoute: typeof PerformanceRoute
   PersistenceRoute: typeof PersistenceRoute
+  PianoRollRoute: typeof PianoRollRoute
   PipValueRoute: typeof PipValueRoute
+  PipelineGalleryRoute: typeof PipelineGalleryRoute
+  PipelineStudioRoute: typeof PipelineStudioRoute
+  PitchToolsRoute: typeof PitchToolsRoute
   PivotRoute: typeof PivotRoute
   PlanRoute: typeof PlanRoute
+  PlaylistRoute: typeof PlaylistRoute
   PnlRoute: typeof PnlRoute
-  PortfolioRoute: typeof PortfolioRoute
+  PortfolioProRoute: typeof PortfolioProRoute
+  ProMediaRoute: typeof ProMediaRoute
   RecoveryRoute: typeof RecoveryRoute
   RenkoRoute: typeof RenkoRoute
   ReplayRoute: typeof ReplayRoute
   RiskCalculatorRoute: typeof RiskCalculatorRoute
+  SamplePacksRoute: typeof SamplePacksRoute
+  SamplerRoute: typeof SamplerRoute
   ScalingRoute: typeof ScalingRoute
   ScannerRoute: typeof ScannerRoute
+  ScreenRecordRoute: typeof ScreenRecordRoute
   ScreenerRoute: typeof ScreenerRoute
+  ScreenshotStudioRoute: typeof ScreenshotStudioRoute
   SentimentRoute: typeof SentimentRoute
   SessionOverlapRoute: typeof SessionOverlapRoute
   SessionsRoute: typeof SessionsRoute
@@ -1443,22 +1789,27 @@ export interface RootRouteChildren {
   SignalStatsRoute: typeof SignalStatsRoute
   SignalsRoute: typeof SignalsRoute
   SimulatorRoute: typeof SimulatorRoute
+  SmartEditorRoute: typeof SmartEditorRoute
   SmcRoute: typeof SmcRoute
+  StemSplitterRoute: typeof StemSplitterRoute
   StrategiesRoute: typeof StrategiesRoute
   StrategyMarketRoute: typeof StrategyMarketRoute
   StreakRoute: typeof StreakRoute
+  SurveillanceRoute: typeof SurveillanceRoute
   SwarmRoute: typeof SwarmRoute
   SystemRoute: typeof SystemRoute
   TechnicalAnalysisRoute: typeof TechnicalAnalysisRoute
   TelegramRoute: typeof TelegramRoute
+  ThemeRoute: typeof ThemeRoute
+  ThreeDStudioRoute: typeof ThreeDStudioRoute
   ToolsRoute: typeof ToolsRoute
   UltraRoute: typeof UltraRoute
   UptimeRoute: typeof UptimeRoute
+  VoiceStudioRoute: typeof VoiceStudioRoute
   VolatilityRoute: typeof VolatilityRoute
   VolumeProfileRoute: typeof VolumeProfileRoute
   VwapRoute: typeof VwapRoute
   WalkForwardRoute: typeof WalkForwardRoute
-  WatchlistRoute: typeof WatchlistRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
   WebhooksRoute: typeof WebhooksRoute
   WelcomeRoute: typeof WelcomeRoute
@@ -1515,13 +1866,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WebhookEventsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/watchlist': {
-      id: '/watchlist'
-      path: '/watchlist'
-      fullPath: '/watchlist'
-      preLoaderRoute: typeof WatchlistRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/walk-forward': {
       id: '/walk-forward'
       path: '/walk-forward'
@@ -1550,6 +1894,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VolatilityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/voice-studio': {
+      id: '/voice-studio'
+      path: '/voice-studio'
+      fullPath: '/voice-studio'
+      preLoaderRoute: typeof VoiceStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/uptime': {
       id: '/uptime'
       path: '/uptime'
@@ -1569,6 +1920,20 @@ declare module '@tanstack/react-router' {
       path: '/tools'
       fullPath: '/tools'
       preLoaderRoute: typeof ToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/three-d-studio': {
+      id: '/three-d-studio'
+      path: '/three-d-studio'
+      fullPath: '/three-d-studio'
+      preLoaderRoute: typeof ThreeDStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/theme': {
+      id: '/theme'
+      path: '/theme'
+      fullPath: '/theme'
+      preLoaderRoute: typeof ThemeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/telegram': {
@@ -1599,6 +1964,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SwarmRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/surveillance': {
+      id: '/surveillance'
+      path: '/surveillance'
+      fullPath: '/surveillance'
+      preLoaderRoute: typeof SurveillanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/streak': {
       id: '/streak'
       path: '/streak'
@@ -1620,11 +1992,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StrategiesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/stem-splitter': {
+      id: '/stem-splitter'
+      path: '/stem-splitter'
+      fullPath: '/stem-splitter'
+      preLoaderRoute: typeof StemSplitterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/smc': {
       id: '/smc'
       path: '/smc'
       fullPath: '/smc'
       preLoaderRoute: typeof SmcRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/smart-editor': {
+      id: '/smart-editor'
+      path: '/smart-editor'
+      fullPath: '/smart-editor'
+      preLoaderRoute: typeof SmartEditorRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/simulator': {
@@ -1676,11 +2062,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SentimentRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/screenshot-studio': {
+      id: '/screenshot-studio'
+      path: '/screenshot-studio'
+      fullPath: '/screenshot-studio'
+      preLoaderRoute: typeof ScreenshotStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/screener': {
       id: '/screener'
       path: '/screener'
       fullPath: '/screener'
       preLoaderRoute: typeof ScreenerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/screen-record': {
+      id: '/screen-record'
+      path: '/screen-record'
+      fullPath: '/screen-record'
+      preLoaderRoute: typeof ScreenRecordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/scanner': {
@@ -1695,6 +2095,20 @@ declare module '@tanstack/react-router' {
       path: '/scaling'
       fullPath: '/scaling'
       preLoaderRoute: typeof ScalingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sampler': {
+      id: '/sampler'
+      path: '/sampler'
+      fullPath: '/sampler'
+      preLoaderRoute: typeof SamplerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sample-packs': {
+      id: '/sample-packs'
+      path: '/sample-packs'
+      fullPath: '/sample-packs'
+      preLoaderRoute: typeof SamplePacksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/risk-calculator': {
@@ -1725,11 +2139,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof RecoveryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/portfolio': {
-      id: '/portfolio'
-      path: '/portfolio'
-      fullPath: '/portfolio'
-      preLoaderRoute: typeof PortfolioRouteImport
+    '/pro-media': {
+      id: '/pro-media'
+      path: '/pro-media'
+      fullPath: '/pro-media'
+      preLoaderRoute: typeof ProMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio-pro': {
+      id: '/portfolio-pro'
+      path: '/portfolio-pro'
+      fullPath: '/portfolio-pro'
+      preLoaderRoute: typeof PortfolioProRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pnl': {
@@ -1737,6 +2158,13 @@ declare module '@tanstack/react-router' {
       path: '/pnl'
       fullPath: '/pnl'
       preLoaderRoute: typeof PnlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/playlist': {
+      id: '/playlist'
+      path: '/playlist'
+      fullPath: '/playlist'
+      preLoaderRoute: typeof PlaylistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/plan': {
@@ -1753,11 +2181,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PivotRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pitch-tools': {
+      id: '/pitch-tools'
+      path: '/pitch-tools'
+      fullPath: '/pitch-tools'
+      preLoaderRoute: typeof PitchToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipeline-studio': {
+      id: '/pipeline-studio'
+      path: '/pipeline-studio'
+      fullPath: '/pipeline-studio'
+      preLoaderRoute: typeof PipelineStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pipeline-gallery': {
+      id: '/pipeline-gallery'
+      path: '/pipeline-gallery'
+      fullPath: '/pipeline-gallery'
+      preLoaderRoute: typeof PipelineGalleryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/pip-value': {
       id: '/pip-value'
       path: '/pip-value'
       fullPath: '/pip-value'
       preLoaderRoute: typeof PipValueRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/piano-roll': {
+      id: '/piano-roll'
+      path: '/piano-roll'
+      fullPath: '/piano-roll'
+      preLoaderRoute: typeof PianoRollRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/persistence': {
@@ -1809,18 +2265,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OptimizationRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/notifications': {
-      id: '/notifications'
-      path: '/notifications'
-      fullPath: '/notifications'
-      preLoaderRoute: typeof NotificationsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/neural': {
       id: '/neural'
       path: '/neural'
       fullPath: '/neural'
       preLoaderRoute: typeof NeuralRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/native-tools': {
+      id: '/native-tools'
+      path: '/native-tools'
+      fullPath: '/native-tools'
+      preLoaderRoute: typeof NativeToolsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/music': {
@@ -1842,6 +2298,20 @@ declare module '@tanstack/react-router' {
       path: '/monte-carlo'
       fullPath: '/monte-carlo'
       preLoaderRoute: typeof MonteCarloRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/mixing-tools': {
+      id: '/mixing-tools'
+      path: '/mixing-tools'
+      fullPath: '/mixing-tools'
+      preLoaderRoute: typeof MixingToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media-studio': {
+      id: '/media-studio'
+      path: '/media-studio'
+      fullPath: '/media-studio'
+      preLoaderRoute: typeof MediaStudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/mcp-servers': {
@@ -1949,6 +2419,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FearGreedRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/extended-tools': {
+      id: '/extended-tools'
+      path: '/extended-tools'
+      fullPath: '/extended-tools'
+      preLoaderRoute: typeof ExtendedToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/export-studio': {
+      id: '/export-studio'
+      path: '/export-studio'
+      fullPath: '/export-studio'
+      preLoaderRoute: typeof ExportStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/elliott-wave': {
       id: '/elliott-wave'
       path: '/elliott-wave'
@@ -2012,6 +2496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CurrencyStrengthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/creative-studio': {
+      id: '/creative-studio'
+      path: '/creative-studio'
+      fullPath: '/creative-studio'
+      preLoaderRoute: typeof CreativeStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/correlation-matrix': {
       id: '/correlation-matrix'
       path: '/correlation-matrix'
@@ -2040,6 +2531,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CompoundRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/code-runner': {
+      id: '/code-runner'
+      path: '/code-runner'
+      fullPath: '/code-runner'
+      preLoaderRoute: typeof CodeRunnerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chrysalis': {
       id: '/chrysalis'
       path: '/chrysalis'
@@ -2066,6 +2564,13 @@ declare module '@tanstack/react-router' {
       path: '/chart'
       fullPath: '/chart'
       preLoaderRoute: typeof ChartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/channel-rack': {
+      id: '/channel-rack'
+      path: '/channel-rack'
+      fullPath: '/channel-rack'
+      preLoaderRoute: typeof ChannelRackRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/calendar': {
@@ -2103,11 +2608,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AutomationHubRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/automation-canvas': {
+      id: '/automation-canvas'
+      path: '/automation-canvas'
+      fullPath: '/automation-canvas'
+      preLoaderRoute: typeof AutomationCanvasRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/automation': {
       id: '/automation'
       path: '/automation'
       fullPath: '/automation'
       preLoaderRoute: typeof AutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auto-master': {
+      id: '/auto-master'
+      path: '/auto-master'
+      fullPath: '/auto-master'
+      preLoaderRoute: typeof AutoMasterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/audio-tools': {
+      id: '/audio-tools'
+      path: '/audio-tools'
+      fullPath: '/audio-tools'
+      preLoaderRoute: typeof AudioToolsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/artifacts': {
+      id: '/artifacts'
+      path: '/artifacts'
+      fullPath: '/artifacts'
+      preLoaderRoute: typeof ArtifactsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api-keys': {
@@ -2145,11 +2678,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AlertBuilderRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ai-agents': {
-      id: '/ai-agents'
-      path: '/ai-agents'
-      fullPath: '/ai-agents'
-      preLoaderRoute: typeof AiAgentsRouteImport
+    '/ai-media': {
+      id: '/ai-media'
+      path: '/ai-media'
+      fullPath: '/ai-media'
+      preLoaderRoute: typeof AiMediaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-lab': {
+      id: '/ai-lab'
+      path: '/ai-lab'
+      fullPath: '/ai-lab'
+      preLoaderRoute: typeof AiLabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advanced-analysis': {
@@ -2274,26 +2814,34 @@ const ApiPublicV1SignalsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvancedAnalysisRoute: AdvancedAnalysisRoute,
-  AiAgentsRoute: AiAgentsRoute,
+  AiLabRoute: AiLabRoute,
+  AiMediaRoute: AiMediaRoute,
   AlertBuilderRoute: AlertBuilderRoute,
   AlertsRoute: AlertsRoute,
   AnalysisRoute: AnalysisRoute,
   AnalyticsRoute: AnalyticsRoute,
   ApiKeysRoute: ApiKeysRoute,
+  ArtifactsRoute: ArtifactsRoute,
+  AudioToolsRoute: AudioToolsRoute,
+  AutoMasterRoute: AutoMasterRoute,
   AutomationRoute: AutomationRoute,
+  AutomationCanvasRoute: AutomationCanvasRoute,
   AutomationHubRoute: AutomationHubRoute,
   BacktestRoute: BacktestRoute,
   BoomCrashRoute: BoomCrashRoute,
   BotRoute: BotRoute,
   CalendarRoute: CalendarRoute,
+  ChannelRackRoute: ChannelRackRoute,
   ChartRoute: ChartRoute,
   ChatRoute: ChatRoute,
   ChecklistRoute: ChecklistRoute,
   ChrysalisRoute: ChrysalisRoute,
+  CodeRunnerRoute: CodeRunnerRoute,
   CompoundRoute: CompoundRoute,
   ConfluenceRoute: ConfluenceRoute,
   CorrelationRoute: CorrelationRoute,
   CorrelationMatrixRoute: CorrelationMatrixRoute,
+  CreativeStudioRoute: CreativeStudioRoute,
   CurrencyStrengthRoute: CurrencyStrengthRoute,
   DarkPoolRoute: DarkPoolRoute,
   DeltaVolumeRoute: DeltaVolumeRoute,
@@ -2303,6 +2851,8 @@ const rootRouteChildren: RootRouteChildren = {
   DocsRoute: DocsRoute,
   DrawdownShieldRoute: DrawdownShieldRoute,
   ElliottWaveRoute: ElliottWaveRoute,
+  ExportStudioRoute: ExportStudioRoute,
+  ExtendedToolsRoute: ExtendedToolsRoute,
   FearGreedRoute: FearGreedRoute,
   FibonacciRoute: FibonacciRoute,
   FourierRoute: FourierRoute,
@@ -2318,11 +2868,13 @@ const rootRouteChildren: RootRouteChildren = {
   MarketProfileRoute: MarketProfileRoute,
   MarketSystemsRoute: MarketSystemsRoute,
   McpServersRoute: McpServersRoute,
+  MediaStudioRoute: MediaStudioRoute,
+  MixingToolsRoute: MixingToolsRoute,
   MonteCarloRoute: MonteCarloRoute,
   MtfRoute: MtfRoute,
   MusicRoute: MusicRoute,
+  NativeToolsRoute: NativeToolsRoute,
   NeuralRoute: NeuralRoute,
-  NotificationsRoute: NotificationsRoute,
   OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
   OptionsCalcRoute: OptionsCalcRoute,
@@ -2330,18 +2882,28 @@ const rootRouteChildren: RootRouteChildren = {
   OrderBlocksRoute: OrderBlocksRoute,
   PerformanceRoute: PerformanceRoute,
   PersistenceRoute: PersistenceRoute,
+  PianoRollRoute: PianoRollRoute,
   PipValueRoute: PipValueRoute,
+  PipelineGalleryRoute: PipelineGalleryRoute,
+  PipelineStudioRoute: PipelineStudioRoute,
+  PitchToolsRoute: PitchToolsRoute,
   PivotRoute: PivotRoute,
   PlanRoute: PlanRoute,
+  PlaylistRoute: PlaylistRoute,
   PnlRoute: PnlRoute,
-  PortfolioRoute: PortfolioRoute,
+  PortfolioProRoute: PortfolioProRoute,
+  ProMediaRoute: ProMediaRoute,
   RecoveryRoute: RecoveryRoute,
   RenkoRoute: RenkoRoute,
   ReplayRoute: ReplayRoute,
   RiskCalculatorRoute: RiskCalculatorRoute,
+  SamplePacksRoute: SamplePacksRoute,
+  SamplerRoute: SamplerRoute,
   ScalingRoute: ScalingRoute,
   ScannerRoute: ScannerRoute,
+  ScreenRecordRoute: ScreenRecordRoute,
   ScreenerRoute: ScreenerRoute,
+  ScreenshotStudioRoute: ScreenshotStudioRoute,
   SentimentRoute: SentimentRoute,
   SessionOverlapRoute: SessionOverlapRoute,
   SessionsRoute: SessionsRoute,
@@ -2349,22 +2911,27 @@ const rootRouteChildren: RootRouteChildren = {
   SignalStatsRoute: SignalStatsRoute,
   SignalsRoute: SignalsRoute,
   SimulatorRoute: SimulatorRoute,
+  SmartEditorRoute: SmartEditorRoute,
   SmcRoute: SmcRoute,
+  StemSplitterRoute: StemSplitterRoute,
   StrategiesRoute: StrategiesRoute,
   StrategyMarketRoute: StrategyMarketRoute,
   StreakRoute: StreakRoute,
+  SurveillanceRoute: SurveillanceRoute,
   SwarmRoute: SwarmRoute,
   SystemRoute: SystemRoute,
   TechnicalAnalysisRoute: TechnicalAnalysisRoute,
   TelegramRoute: TelegramRoute,
+  ThemeRoute: ThemeRoute,
+  ThreeDStudioRoute: ThreeDStudioRoute,
   ToolsRoute: ToolsRoute,
   UltraRoute: UltraRoute,
   UptimeRoute: UptimeRoute,
+  VoiceStudioRoute: VoiceStudioRoute,
   VolatilityRoute: VolatilityRoute,
   VolumeProfileRoute: VolumeProfileRoute,
   VwapRoute: VwapRoute,
   WalkForwardRoute: WalkForwardRoute,
-  WatchlistRoute: WatchlistRoute,
   WebhookEventsRoute: WebhookEventsRoute,
   WebhooksRoute: WebhooksRoute,
   WelcomeRoute: WelcomeRoute,
