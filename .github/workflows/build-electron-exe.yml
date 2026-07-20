@@ -3,14 +3,6 @@ name: Build Electron EXE
 on:
   push:
     branches: [main]
-    paths:
-      - "src/**"
-      - "public/**"
-      - "electron/**"
-      - "electron-builder.json"
-      - "electron.vite.config.ts"
-      - "package.json"
-      - ".github/workflows/build-electron-exe.yml"
   workflow_dispatch:
 
 jobs:
@@ -44,26 +36,20 @@ jobs:
           const sharp = require('sharp');
           const fs = require('fs');
           const path = require('path');
-          
           const svgPath = 'public/app-icons/default.svg';
           if (!fs.existsSync(svgPath)) { console.log('No SVG found, using fallback'); process.exit(0); }
-          
           const iconDir = 'build-resources';
           fs.mkdirSync(iconDir, { recursive: true });
-          
           const svgBuffer = fs.readFileSync(svgPath);
-          
           async function generate() {
             await sharp(svgBuffer).resize(256, 256).png().toFile(path.join(iconDir, 'icon.png'));
             const sizes = [16, 32, 48, 64, 128, 256, 512];
             for (const size of sizes) {
               await sharp(svgBuffer).resize(size, size).png().toFile(path.join(iconDir, `icon-${size}.png`));
             }
-            
             const icon256 = await sharp(svgBuffer).resize(256, 256).png().toBuffer();
             const icon32 = await sharp(svgBuffer).resize(32, 32).png().toBuffer();
             const icon16 = await sharp(svgBuffer).resize(16, 16).png().toBuffer();
-            
             const numEntries = 3;
             const headerSize = 6 + numEntries * 16;
             const entries = [
@@ -71,13 +57,11 @@ jobs:
               { size: 32, data: icon32 },
               { size: 16, data: icon16 },
             ];
-            
             let offset = headerSize;
             const icoBuffer = Buffer.alloc(headerSize + icon256.length + icon32.length + icon16.length);
             icoBuffer.writeUInt16LE(0, 0);
             icoBuffer.writeUInt16LE(1, 2);
             icoBuffer.writeUInt16LE(numEntries, 4);
-            
             let pos = 6;
             for (const entry of entries) {
               icoBuffer.writeUInt8(entry.size === 256 ? 0 : entry.size, pos);
@@ -91,17 +75,14 @@ jobs:
               offset += entry.data.length;
               pos += 16;
             }
-            
             let dataPos = headerSize;
             for (const entry of entries) {
               entry.data.copy(icoBuffer, dataPos);
               dataPos += entry.data.length;
             }
-            
             fs.writeFileSync(path.join(iconDir, 'icon.ico'), icoBuffer);
             console.log('Generated icon.ico and icon.png');
           }
-          
           generate().catch(err => { console.error(err); process.exit(1); });
           "
 
@@ -109,13 +90,10 @@ jobs:
         run: npx tsr generate
         continue-on-error: true
 
-      - name: Build web app (static preset for desktop)
-        run: |
-          $env:NITRO_PRESET="static"
-          npm run build
+      - name: Build web app
+        run: npm run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
-        shell: pwsh
 
       - name: Prepare dist for Electron
         run: |
@@ -134,8 +112,9 @@ jobs:
             Remove-Item -Recurse -Force "dist\client"
           }
           if (Test-Path "dist\server") { Remove-Item -Recurse -Force "dist\server" }
-          Write-Host "=== dist contents ==="
-          Get-ChildItem -Path "dist" -Recurse | Measure-Object -Property Length -Sum | Select-Object Sum
+          Write-Host "=== dist size ==="
+          $size = (Get-ChildItem -Path "dist" -Recurse | Measure-Object -Property Length -Sum).Sum
+          Write-Host "dist size: $([math]::Round($size / 1MB, 1)) MB"
           if (-not (Test-Path "dist\index.html")) {
             $js = Get-ChildItem -Path "dist\assets\*.js" -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -First 1
             $css = Get-ChildItem -Path "dist\assets\*.css" -ErrorAction SilentlyContinue | Sort-Object Name | Select-Object -First 1
