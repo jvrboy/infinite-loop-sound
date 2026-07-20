@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Lock } from "lucide-react";
 
 const KEY = "diq.unlocked.v1";
-const PASSWORD = "@Ttsepang123456";
+const PASSWORD = "@Ttsepang1";
 
 export function PasswordGate({ children }: { children: React.ReactNode }) {
   const [ok, setOk] = useState<boolean | null>(null);
