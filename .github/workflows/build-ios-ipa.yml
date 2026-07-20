@@ -3,6 +3,13 @@ name: Build Unsigned iOS IPA
 on:
   push:
     branches: [main]
+    paths:
+      - "src/**"
+      - "public/**"
+      - "electron/**"
+      - "capacitor.config.json"
+      - "package.json"
+      - ".github/workflows/build-ios-ipa.yml"
   workflow_dispatch:
 
 jobs:
@@ -26,6 +33,57 @@ jobs:
 
       - name: Install Capacitor
         run: npm install @capacitor/core @capacitor/cli @capacitor/ios
+
+      - name: Install sharp for icon conversion
+        run: npm install sharp --save-dev
+
+      - name: Generate app icons from SVG
+        run: |
+          node -e "
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          
+          const iconDir = 'build-resources/icons';
+          const publicDir = 'public/app-icons';
+          const defaultSvg = path.join(publicDir, 'default.svg');
+          
+          if (!fs.existsSync(defaultSvg)) {
+            console.log('No default.svg found, skipping icon generation');
+            process.exit(0);
+          }
+          
+          const svgBuffer = fs.readFileSync(defaultSvg);
+          
+          // Generate PNG icons for Capacitor iOS
+          const iosIconDir = 'ios/App/App/Assets.xcassets/AppIcon.appiconset';
+          // We'll create these after cap add ios
+          
+          // Generate build-resources icons
+          fs.mkdirSync(iconDir, { recursive: true });
+          
+          // Generate main PNG icon at various sizes
+          const sizes = [16, 32, 48, 64, 128, 256, 512, 1024];
+          for (const size of sizes) {
+            sharp(svgBuffer)
+              .resize(size, size)
+              .png()
+              .toFile(path.join(iconDir, `icon-${size}.png`))
+              .then(() => console.log('Generated ' + size + 'px icon'))
+              .catch(err => console.error('Error generating ' + size + 'px:', err));
+          }
+          
+          // Also save as icon.png for electron-builder
+          sharp(svgBuffer)
+            .resize(512, 512)
+            .png()
+            .toFile(path.join(iconDir, 'icon.png'))
+            .then(() => console.log('Generated icon.png'))
+            .catch(err => console.error('Error generating icon.png:', err));
+          
+          // Wait for all sharp operations
+          setTimeout(() => process.exit(0), 5000);
+          "
 
       - name: Generate TanStack Router route tree
         run: npx tsr generate
@@ -57,7 +115,7 @@ jobs:
               main_js = next((f for f in js_files if any(x in f for x in ['index', 'main', 'app'])), js_files[-1] if js_files else '')
               main_css = css_files[0] if css_files else ''
               js_name = os.path.basename(main_js) if main_js else ''
-              css_name = os.path.basename(main_css) if main_css else ''
+              css_name = os.path.basename(main_css) if css_css else ''
               css_tag = f'<link rel="stylesheet" href="/assets/{css_name}" />' if css_name else ''
               js_tag = f'<script type="module" src="/assets/{js_name}"></script>' if js_name else ''
               html = f'''<!DOCTYPE html>
@@ -67,6 +125,7 @@ jobs:
               <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
               <meta name="apple-mobile-web-app-capable" content="yes" />
               <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+              <link rel="apple-touch-icon" href="/app-icons/default.svg" />
               <title>Divergence IQ</title>
               {css_tag}
             </head>
@@ -85,25 +144,71 @@ jobs:
         run: npx cap add ios
         continue-on-error: true
 
-      - name: Fix iOS deployment targets
+      - name: Generate iOS app icons
+        run: |
+          node -e "
+          const sharp = require('sharp');
+          const fs = require('fs');
+          const path = require('path');
+          
+          const svgPath = 'public/app-icons/default.svg';
+          if (!fs.existsSync(svgPath)) { console.log('No SVG found'); process.exit(0); }
+          
+          const iconSetDir = 'ios/App/App/Assets.xcassets/AppIcon.appiconset';
+          if (!fs.existsSync(iconSetDir)) fs.mkdirSync(iconSetDir, { recursive: true });
+          
+          const svgBuffer = fs.readFileSync(svgPath);
+          
+          // iOS icon sizes
+          const iosIcons = [
+            { size: 20, name: 'icon-20.png' },
+            { size: 29, name: 'icon-29.png' },
+            { size: 40, name: 'icon-40.png' },
+            { size: 60, name: 'icon-60.png' },
+            { size: 76, name: 'icon-76.png' },
+            { size: 87, name: 'icon-87.png' },
+            { size: 80, name: 'icon-80.png' },
+            { size: 120, name: 'icon-120.png' },
+            { size: 152, name: 'icon-152.png' },
+            { size: 167, name: 'icon-167.png' },
+            { size: 180, name: 'icon-180.png' },
+            { size: 1024, name: 'icon-1024.png' },
+          ];
+          
+          const contents = { images: [], info: { version: 1, author: 'xcode' } };
+          
+          for (const icon of iosIcons) {
+            const outPath = path.join(iconSetDir, icon.name);
+            await sharp(svgBuffer).resize(icon.size, icon.size).png().toFile(outPath);
+            contents.images.push({
+              idiom: 'universal',
+              size: icon.size + 'x' + icon.size,
+              filename: icon.name,
+              platform: 'ios'
+            });
+          }
+          
+          fs.writeFileSync(path.join(iconSetDir, 'Contents.json'), JSON.stringify(contents, null, 2));
+          console.log('Generated iOS app icons');
+          "
+
+      - name: Fix iOS deployment targets (iOS 15+)
         run: |
           PODFILE="ios/App/Podfile"
           PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
 
-          # Fix Podfile deployment target
           if [ -f "$PODFILE" ]; then
             echo "Fixing Podfile..."
-            sed -i '' "s/platform :ios, '[0-9.]*/platform :ios, '16.0/" "$PODFILE"
+            sed -i '' "s/platform :ios, '[0-9.]*/platform :ios, '15.0/" "$PODFILE"
             if ! grep -q "platform :ios" "$PODFILE"; then
-              sed -i '' '1s/^/platform :ios, '"'"'16.0'"'"'\n/' "$PODFILE"
+              sed -i '' '1s/^/platform :ios, '"'"'15.0'"'"'\n/' "$PODFILE"
             fi
             grep "platform :ios" "$PODFILE"
           fi
 
-          # Fix Xcode project deployment target
           if [ -f "$PBXPROJ" ]; then
             echo "Fixing Xcode project deployment target..."
-            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 16.0/g' "$PBXPROJ"
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' "$PBXPROJ"
             grep "IPHONEOS_DEPLOYMENT_TARGET" "$PBXPROJ" | head -5
           fi
 
@@ -129,9 +234,7 @@ jobs:
           cd build
           zip -r App.ipa Payload
 
-      - name: Upload IPA as GitHub Release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Verify IPA
         run: |
           IPA_PATH="ios/App/build/App.ipa"
           if [ ! -f "$IPA_PATH" ]; then
@@ -139,11 +242,22 @@ jobs:
             find ios -name "*.ipa" 2>/dev/null
             exit 1
           fi
-          echo "IPA size: $(du -sh $IPA_PATH)"
+          IPA_SIZE=$(stat -f%z "$IPA_PATH" 2>/dev/null || stat -c%s "$IPA_PATH" 2>/dev/null || echo 0)
+          IPA_SIZE_MB=$((IPA_SIZE / 1024 / 1024))
+          echo "IPA size: ${IPA_SIZE_MB}MB"
+          if [ "$IPA_SIZE_MB" -lt 5 ]; then
+            echo "WARNING: IPA is only ${IPA_SIZE_MB}MB — may be incomplete"
+          fi
+          echo "IPA verified at $IPA_PATH"
+
+      - name: Upload IPA as GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          IPA_PATH="ios/App/build/App.ipa"
           TAG="ios-unsigned-$(date +%Y%m%d-%H%M%S)"
           gh release create "$TAG" \
             --title "Unsigned iOS IPA - $(date +%Y-%m-%d)" \
-            --notes "Auto-built unsigned iOS IPA (Capacitor, no code signing)" \
+            --notes "Auto-built unsigned iOS IPA (Capacitor, iOS 15+, no code signing)" \
             "$IPA_PATH#DivergenceIQ-Unsigned.ipa"
           echo "Release created: $TAG"
-          echo "Download URL: https://github.com/${{ github.repository }}/releases/tag/$TAG"
