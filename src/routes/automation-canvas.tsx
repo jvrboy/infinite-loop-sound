@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Workflow, GitBranch, Clock, AlertTriangle, DollarSign, Api, Plus, Link2, Play } from "lucide-react";
+import { Workflow, GitBranch, Clock, AlertTriangle, DollarSign, Cable as Api, Plus, Link2, Play } from "lucide-react";
 import { createCanvas, addNode, connectNodes, conditionalBranch, scheduleTask, errorHandler, costEstimate, toApiEndpoint, AUTOMATION_CANVAS_TOOLS } from "@/lib/automation/canvas";
 
 export const Route = createFileRoute("/automation-canvas")({
