@@ -3,13 +3,6 @@ name: Build Unsigned iOS IPA
 on:
   push:
     branches: [main]
-    paths:
-      - "src/**"
-      - "public/**"
-      - "electron/**"
-      - "capacitor.config.json"
-      - "package.json"
-      - ".github/workflows/build-ios-ipa.yml"
   workflow_dispatch:
 
 jobs:
@@ -41,53 +34,42 @@ jobs:
         run: npx tsr generate
         continue-on-error: true
 
-      - name: Build web app (static preset for mobile)
-        run: |
-          NITRO_PRESET=static npm run build
+      - name: Build web app
+        run: npm run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Prepare dist/ for Capacitor
         run: |
           mkdir -p dist
-          # Try multiple output locations
           if [ -d ".vercel/output/static" ]; then
-            echo "Found .vercel/output/static"
+            echo "Copying .vercel/output/static to dist/"
             cp -r .vercel/output/static/. dist/
           fi
           if [ -d ".output/public" ]; then
-            echo "Found .output/public"
+            echo "Copying .output/public to dist/"
             cp -r .output/public/. dist/
           fi
-          if [ -d "dist/client" ]; then
-            echo "Found dist/client"
-            cp -r dist/client/. dist/
-          fi
-          if [ -d "dist/server" ]; then
-            echo "Removing dist/server (not needed for mobile)"
-            rm -rf dist/server
-          fi
-          echo "=== dist/ contents ==="
-          ls -la dist/
-          echo "=== dist/assets/ ==="
-          ls -la dist/assets/ 2>/dev/null || echo "No assets dir"
-          echo "=== Total dist size ==="
+          echo "dist/ contents:"
+          ls dist/
+          echo "dist/ size:"
           du -sh dist/
-          # Generate index.html if missing
-          if [ ! -f dist/index.html ]; then
-            echo "Generating index.html..."
-            python3 - << 'PYEOF'
+          python3 - << 'PYEOF'
           import os, glob
           dist = 'dist'
-          js_files = sorted(glob.glob(f'{dist}/assets/*.js'))
-          css_files = sorted(glob.glob(f'{dist}/assets/*.css'))
-          main_js = next((f for f in js_files if any(x in f for x in ['index', 'main', 'app', 'entry'])), js_files[-1] if js_files else '')
-          main_css = css_files[0] if css_files else ''
-          js_name = os.path.basename(main_js) if main_js else ''
-          css_name = os.path.basename(main_css) if main_css else ''
-          css_tag = f'<link rel="stylesheet" href="/assets/{css_name}" />' if css_name else ''
-          js_tag = f'<script type="module" src="/assets/{js_name}"></script>' if js_name else ''
-          html = f'''<!DOCTYPE html>
+          if os.path.exists(os.path.join(dist, 'index.html')):
+              print("index.html already exists")
+          else:
+              print("Generating index.html...")
+              js_files = sorted(glob.glob(f'{dist}/assets/*.js'))
+              css_files = sorted(glob.glob(f'{dist}/assets/*.css'))
+              main_js = next((f for f in js_files if any(x in f for x in ['index', 'main', 'app'])), js_files[-1] if js_files else '')
+              main_css = css_files[0] if css_files else ''
+              js_name = os.path.basename(main_js) if main_js else ''
+              css_name = os.path.basename(main_css) if main_css else ''
+              css_tag = f'<link rel="stylesheet" href="/assets/{css_name}" />' if css_name else ''
+              js_tag = f'<script type="module" src="/assets/{js_name}"></script>' if js_name else ''
+              html = f'''<!DOCTYPE html>
           <html lang="en" class="dark">
             <head>
               <meta charset="UTF-8" />
@@ -107,10 +89,7 @@ jobs:
                   f.write(html)
               print(f"Generated index.html (js={js_name}, css={css_name})")
           PYEOF
-          fi
           echo "index.html exists: $([ -f dist/index.html ] && echo YES || echo NO)"
-          echo "=== Final dist size ==="
-          du -sh dist/
 
       - name: Add iOS platform
         run: npx cap add ios
@@ -122,15 +101,11 @@ jobs:
           const sharp = require('sharp');
           const fs = require('fs');
           const path = require('path');
-          
           const svgPath = 'public/app-icons/default.svg';
           if (!fs.existsSync(svgPath)) { console.log('No SVG found'); process.exit(0); }
-          
           const iconSetDir = 'ios/App/App/Assets.xcassets/AppIcon.appiconset';
           if (!fs.existsSync(iconSetDir)) fs.mkdirSync(iconSetDir, { recursive: true });
-          
           const svgBuffer = fs.readFileSync(svgPath);
-          
           const iosIcons = [
             { size: 20, name: 'icon-20.png' },
             { size: 29, name: 'icon-29.png' },
@@ -145,19 +120,12 @@ jobs:
             { size: 180, name: 'icon-180.png' },
             { size: 1024, name: 'icon-1024.png' },
           ];
-          
           const contents = { images: [], info: { version: 1, author: 'xcode' } };
-          
           (async () => {
             for (const icon of iosIcons) {
               const outPath = path.join(iconSetDir, icon.name);
               await sharp(svgBuffer).resize(icon.size, icon.size).png().toFile(outPath);
-              contents.images.push({
-                idiom: 'universal',
-                size: icon.size + 'x' + icon.size,
-                filename: icon.name,
-                platform: 'ios'
-              });
+              contents.images.push({ idiom: 'universal', size: icon.size + 'x' + icon.size, filename: icon.name, platform: 'ios' });
             }
             fs.writeFileSync(path.join(iconSetDir, 'Contents.json'), JSON.stringify(contents, null, 2));
             console.log('Generated iOS app icons');
@@ -168,7 +136,6 @@ jobs:
         run: |
           PODFILE="ios/App/Podfile"
           PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
-
           if [ -f "$PODFILE" ]; then
             echo "Fixing Podfile..."
             sed -i '' "s/platform :ios, '[0-9.]*/platform :ios, '15.0/" "$PODFILE"
@@ -177,7 +144,6 @@ jobs:
             fi
             grep "platform :ios" "$PODFILE"
           fi
-
           if [ -f "$PBXPROJ" ]; then
             echo "Fixing Xcode project deployment target..."
             sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' "$PBXPROJ"
@@ -186,19 +152,6 @@ jobs:
 
       - name: Sync iOS platform
         run: npx cap sync ios
-
-      - name: Verify web assets in iOS project
-        run: |
-          echo "=== iOS public/www contents ==="
-          ls -la ios/App/App/public/www/ 2>/dev/null || echo "No www dir"
-          du -sh ios/App/App/public/www/ 2>/dev/null || echo "No www dir"
-          if [ -d "ios/App/App/public/www" ]; then
-            ASSET_SIZE=$(du -sm ios/App/App/public/www/ | cut -f1)
-            echo "Web assets size: ${ASSET_SIZE}MB"
-            if [ "$ASSET_SIZE" -lt 5 ]; then
-              echo "WARNING: Web assets are only ${ASSET_SIZE}MB — app may not be production ready"
-            fi
-          fi
 
       - name: Build unsigned IPA
         run: |
@@ -230,11 +183,8 @@ jobs:
           IPA_SIZE=$(stat -f%z "$IPA_PATH" 2>/dev/null || stat -c%s "$IPA_PATH" 2>/dev/null || echo 0)
           IPA_SIZE_MB=$((IPA_SIZE / 1024 / 1024))
           echo "IPA size: ${IPA_SIZE_MB}MB"
-          echo "IPA size (bytes): ${IPA_SIZE}"
           if [ "$IPA_SIZE_MB" -lt 5 ]; then
             echo "WARNING: IPA is only ${IPA_SIZE_MB}MB — may be incomplete"
-            echo "Listing IPA contents..."
-            unzip -l "$IPA_PATH" | head -30
           fi
           echo "IPA verified at $IPA_PATH"
 
