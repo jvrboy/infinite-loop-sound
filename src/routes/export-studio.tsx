@@ -12,6 +12,8 @@ import {
   type ExportFormat, type ExportOptions, type ExportResult,
 } from "@/lib/audio/export-engine";
 import { AudioEngine } from "@/lib/audio/engine";
+import { LoopEditor } from "@/components/audio/LoopEditor";
+import { writeWavWithLoop, downloadWav } from "@/lib/audio/wav-loop";
 
 export const Route = createFileRoute("/export-studio")({
   head: () => ({
@@ -71,6 +73,23 @@ function ExportStudioPage() {
         <ProCard title="Import Audio" description="Load an audio file to export." icon={<Upload className="w-4 h-4" />}>
           <Input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} />
         </ProCard>
+
+        {buffer && (
+          <ProCard
+            title="Loop Point Editor"
+            description="Drag the start and end handles on the waveform to set loop points. Snap to zero-crossings for click-free loops, preview all three loop modes, then export as WAV with embedded smpl loop chunk that any DAW will recognize."
+            icon={<Activity className="w-4 h-4" />}
+          >
+            <LoopEditor
+              buffer={buffer}
+              onExport={({ start, end, mode }) => {
+                const loopType = mode === "ping-pong" ? 1 : 0;
+                const ab = writeWavWithLoop(buffer, start, end, loopType);
+                downloadWav(ab, `loop-${mode}-${Date.now()}.wav`);
+              }}
+            />
+          </ProCard>
+        )}
 
         <ProCard title="Export Settings" description="Choose format, sample rate, and processing options." icon={<Sliders className="w-4 h-4" />}>
           <div className="space-y-4">
