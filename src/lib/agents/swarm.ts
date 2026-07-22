@@ -104,7 +104,11 @@ export const SWARM_AGENTS: SwarmAgent[] = [
 const SYNTH_PROMPT =
   "You are the synthesizer. Below are outputs from specialist agents. Combine them into one concise trade brief with: Bias, Entry, Stop, Target, Key Risks, and a final GO / NO-GO verdict. Under 200 words.\n\n";
 
-function buildUserPrompt(role: SwarmAgentRole, userMessage: string, prior: SwarmAgentOutput[]): string {
+function buildUserPrompt(
+  role: SwarmAgentRole,
+  userMessage: string,
+  prior: SwarmAgentOutput[],
+): string {
   const ctx =
     prior.length === 0
       ? ""
@@ -128,9 +132,23 @@ async function runAgent(
     const res = await aiChat(messages);
     const durationMs = Date.now() - start;
     if (!res) {
-      return { role: agent.role, name: agent.name, ok: false, text: "", durationMs, error: "No AI key available" };
+      return {
+        role: agent.role,
+        name: agent.name,
+        ok: false,
+        text: "",
+        durationMs,
+        error: "No AI key available",
+      };
     }
-    return { role: agent.role, name: agent.name, ok: true, text: res.text, provider: res.provider, durationMs };
+    return {
+      role: agent.role,
+      name: agent.name,
+      ok: true,
+      text: res.text,
+      provider: res.provider,
+      durationMs,
+    };
   } catch (e: any) {
     return {
       role: agent.role,
@@ -182,7 +200,9 @@ export async function runSwarm(
   let synthesized: string | null = null;
   let synthProvider: AIProvider | undefined;
   if (synth) {
-    const ctx = outputs.map((o) => `### ${o.name}\n${o.ok ? o.text : `[failed: ${o.error}]`}`).join("\n\n");
+    const ctx = outputs
+      .map((o) => `### ${o.name}\n${o.ok ? o.text : `[failed: ${o.error}]`}`)
+      .join("\n\n");
     const res = await aiChat([
       { role: "system", content: synth.systemPrompt },
       { role: "user", content: `${SYNTH_PROMPT}${ctx}` },

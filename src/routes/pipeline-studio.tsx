@@ -25,7 +25,16 @@ import {
   budgetGovernor,
   pipelineRunAll,
 } from "@/lib/pipeline/pipeline";
-import { Workflow, Play, Shield, Database, DollarSign, Cpu, ArrowRight, CheckCircle2 } from "lucide-react";
+import {
+  Workflow,
+  Play,
+  Shield,
+  Database,
+  DollarSign,
+  Cpu,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
 
 const STAGES = [
   { id: "intake", label: "Intake", icon: "📥" },
@@ -85,7 +94,10 @@ function Component() {
   const orch = orchestrator("execute", activeStage);
   const mem = memoryStore("short-term", { stage: activeStage });
   const guard = guardrails(prompt);
-  const budget = budgetGovernor({ tokens: 120000, cost: 3.5, time: 120 }, { tokens: 500000, cost: 10, time: 300 });
+  const budget = budgetGovernor(
+    { tokens: 120000, cost: 3.5, time: 120 },
+    { tokens: 500000, cost: 10, time: 300 },
+  );
 
   const handleRun = () => {
     setRunning(true);
@@ -106,8 +118,16 @@ function Component() {
         <KpiGrid>
           <StatTile label="Stages" value="14" icon={<Workflow className="h-4 w-4" />} />
           <StatTile label="Code Files" value={codegen.total} icon={<Cpu className="h-4 w-4" />} />
-          <StatTile label="Test Coverage" value={`${functional.coverage}%`} icon={<CheckCircle2 className="h-4 w-4" />} />
-          <StatTile label="Budget" value={budget.withinBudget ? "OK" : "Exceeded"} icon={<DollarSign className="h-4 w-4" />} />
+          <StatTile
+            label="Test Coverage"
+            value={`${functional.coverage}%`}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <StatTile
+            label="Budget"
+            value={budget.withinBudget ? "OK" : "Exceeded"}
+            icon={<DollarSign className="h-4 w-4" />}
+          />
         </KpiGrid>
 
         <ProCard title="Pipeline Input" icon={<Workflow className="h-4 w-4" />}>
@@ -146,7 +166,10 @@ function Component() {
           </div>
         </ProCard>
 
-        <ProCard title={`Stage: ${STAGES.find((s) => s.id === activeStage)?.label ?? ""}`} icon={<Cpu className="h-4 w-4" />}>
+        <ProCard
+          title={`Stage: ${STAGES.find((s) => s.id === activeStage)?.label ?? ""}`}
+          icon={<Cpu className="h-4 w-4" />}
+        >
           <DataPanel data={stageData[activeStage]} />
         </ProCard>
 
@@ -194,7 +217,10 @@ function Component() {
 
 export const Route = createFileRoute("/pipeline-studio")({
   head: () => ({
-    meta: [{ title: "Pipeline Studio | Infinite Loop Sound" }, { name: "description", content: "14-stage app-generation pipeline" }],
+    meta: [
+      { title: "Pipeline Studio | Infinite Loop Sound" },
+      { name: "description", content: "14-stage app-generation pipeline" },
+    ],
   }),
   component: Component,
 });

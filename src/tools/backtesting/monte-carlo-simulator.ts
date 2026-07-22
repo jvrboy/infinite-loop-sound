@@ -53,12 +53,14 @@ export class MonteCarloSimulator {
     }
 
     const sorted = [...finalBalances].sort((a, b) => a - b);
-    const riskOfRuin = maxDrawdowns.filter((d) => d >= this.config.maxDrawdownLimit).length / this.config.iterations;
+    const riskOfRuin =
+      maxDrawdowns.filter((d) => d >= this.config.maxDrawdownLimit).length / this.config.iterations;
     const median = this.percentile(sorted, 50);
     const mean = finalBalances.reduce((a, b) => a + b, 0) / finalBalances.length;
     const p95 = this.percentile(sorted, 95);
     const p5 = this.percentile(sorted, 5);
-    const profitProb = finalBalances.filter((b) => b > this.config.initialBalance).length / finalBalances.length;
+    const profitProb =
+      finalBalances.filter((b) => b > this.config.initialBalance).length / finalBalances.length;
     const ev = mean - this.config.initialBalance;
 
     const confidenceIntervals = this.config.confidenceLevels.map((level) => ({

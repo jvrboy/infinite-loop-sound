@@ -9,22 +9,22 @@ export interface PlaylistClip {
   id: string;
   trackId: string;
   name: string;
-  startBar: number;        // Starting bar position (can be fractional for fine positioning)
-  lengthBars: number;      // Duration in bars
+  startBar: number; // Starting bar position (can be fractional for fine positioning)
+  lengthBars: number; // Duration in bars
   type: ClipType;
   color: string;
   // Pattern reference (for MIDI pattern clips)
   patternId?: string;
   // Audio buffer (for audio clips)
   audioBuffer?: AudioBuffer;
-  audioStartOffset?: number;  // Start offset within the audio buffer (seconds)
-  audioLength?: number;       // Length of audio to play (seconds)
+  audioStartOffset?: number; // Start offset within the audio buffer (seconds)
+  audioLength?: number; // Length of audio to play (seconds)
   // Automation data (for automation clips)
   automationPoints?: AutomationPoint[];
   automationTarget?: string;
   // Clip-specific settings
-  volume: number;            // 0..2
-  pan: number;              // -1..1
+  volume: number; // 0..2
+  pan: number; // -1..1
   muted: boolean;
   solo: boolean;
   // Loop settings
@@ -35,8 +35,8 @@ export interface PlaylistClip {
   fadeInBars: number;
   fadeOutBars: number;
   // Stretch settings
-  timeStretch: number;      // 0.5..2.0 (1.0 = original)
-  pitchShift: number;        // semitones
+  timeStretch: number; // 0.5..2.0 (1.0 = original)
+  pitchShift: number; // semitones
 }
 
 export type ClipType = "pattern" | "audio" | "automation" | "marker" | "tempo";
@@ -60,7 +60,7 @@ export interface PlaylistTrack {
   volume: number;
   pan: number;
   // Track routing
-  outputTrackId?: string;    // Send to another track (bus routing)
+  outputTrackId?: string; // Send to another track (bus routing)
   // Insert effects
   effects: TrackEffect[];
   // Visual settings
@@ -88,7 +88,7 @@ export interface PlaylistState {
   totalBars: number;
   beatsPerBar: number;
   bpm: number;
-  playhead: number;         // Current position in bars
+  playhead: number; // Current position in bars
   playing: boolean;
   loopMode: boolean;
   loopStartBar: number;
@@ -238,14 +238,23 @@ export function removeClips(state: PlaylistState, clipIds: string[]): PlaylistSt
   };
 }
 
-export function updateClip(state: PlaylistState, clipId: string, updates: Partial<PlaylistClip>): PlaylistState {
+export function updateClip(
+  state: PlaylistState,
+  clipId: string,
+  updates: Partial<PlaylistClip>,
+): PlaylistState {
   return {
     ...state,
     clips: state.clips.map((c) => (c.id === clipId ? { ...c, ...updates } : c)),
   };
 }
 
-export function moveClip(state: PlaylistState, clipId: string, deltaBar: number, deltaTrack: number): PlaylistState {
+export function moveClip(
+  state: PlaylistState,
+  clipId: string,
+  deltaBar: number,
+  deltaTrack: number,
+): PlaylistState {
   const snapValue = PLAYLIST_SNAP_VALUES[state.snapMode];
   return {
     ...state,
@@ -262,13 +271,20 @@ export function moveClip(state: PlaylistState, clipId: string, deltaBar: number,
   };
 }
 
-export function resizeClip(state: PlaylistState, clipId: string, newLengthBars: number): PlaylistState {
+export function resizeClip(
+  state: PlaylistState,
+  clipId: string,
+  newLengthBars: number,
+): PlaylistState {
   const snapValue = PLAYLIST_SNAP_VALUES[state.snapMode];
   return {
     ...state,
     clips: state.clips.map((c) =>
       c.id === clipId
-        ? { ...c, lengthBars: Math.max(snapValue, Math.round(newLengthBars / snapValue) * snapValue) }
+        ? {
+            ...c,
+            lengthBars: Math.max(snapValue, Math.round(newLengthBars / snapValue) * snapValue),
+          }
         : c,
     ),
   };
@@ -289,10 +305,16 @@ export function duplicateClips(state: PlaylistState, clipIds: string[]): Playlis
 }
 
 export function copyClips(state: PlaylistState, clipIds: string[]): PlaylistClip[] {
-  return state.clips.filter((c) => clipIds.includes(c.id)).map((c) => ({ ...c, id: generateClipId() }));
+  return state.clips
+    .filter((c) => clipIds.includes(c.id))
+    .map((c) => ({ ...c, id: generateClipId() }));
 }
 
-export function pasteClips(state: PlaylistState, clips: PlaylistClip[], offsetBar: number = 0): PlaylistState {
+export function pasteClips(
+  state: PlaylistState,
+  clips: PlaylistClip[],
+  offsetBar: number = 0,
+): PlaylistState {
   const pastedClips = clips.map((c) => ({
     ...c,
     id: generateClipId(),
@@ -319,14 +341,22 @@ export function removeTrack(state: PlaylistState, trackId: string): PlaylistStat
   };
 }
 
-export function updateTrack(state: PlaylistState, trackId: string, updates: Partial<PlaylistTrack>): PlaylistState {
+export function updateTrack(
+  state: PlaylistState,
+  trackId: string,
+  updates: Partial<PlaylistTrack>,
+): PlaylistState {
   return {
     ...state,
     tracks: state.tracks.map((t) => (t.id === trackId ? { ...t, ...updates } : t)),
   };
 }
 
-export function moveTrack(state: PlaylistState, trackId: string, direction: "up" | "down"): PlaylistState {
+export function moveTrack(
+  state: PlaylistState,
+  trackId: string,
+  direction: "up" | "down",
+): PlaylistState {
   const index = state.tracks.findIndex((t) => t.id === trackId);
   if (index < 0) return state;
   const newIndex = direction === "up" ? index - 1 : index + 1;
@@ -419,7 +449,11 @@ export class PlaylistPlayer {
       const clipStart = clip.startBar;
       const clipEnd = clip.startBar + clip.lengthBars;
 
-      if (this.playhead >= clipStart && this.playhead < clipEnd && !this.activeSources.has(clip.id)) {
+      if (
+        this.playhead >= clipStart &&
+        this.playhead < clipEnd &&
+        !this.activeSources.has(clip.id)
+      ) {
         if (clip.audioBuffer && AudioEngine.ctx) {
           const src = AudioEngine.ctx.createBufferSource();
           src.buffer = clip.audioBuffer;

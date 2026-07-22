@@ -166,16 +166,44 @@ export function incidentResponsePipeline(severity: string) {
 
 export const PIPELINE_EXTRA_TOOLS: ToolMeta[] = [
   { name: "dataAnalysisPipeline", description: "Analyze a dataset end-to-end", category: "data" },
-  { name: "contentCreationPipeline", description: "Create and publish content on a topic", category: "content" },
-  { name: "researchPipeline", description: "Research a question with citations", category: "research" },
-  { name: "securityAuditPipeline", description: "Audit a scope for vulnerabilities", category: "security" },
-  { name: "migrationPipeline", description: "Migrate data from source to target", category: "migration" },
-  { name: "onboardingPipeline", description: "Onboard and provision a new user", category: "people" },
-  { name: "compliancePipeline", description: "Audit compliance against a standard", category: "compliance" },
+  {
+    name: "contentCreationPipeline",
+    description: "Create and publish content on a topic",
+    category: "content",
+  },
+  {
+    name: "researchPipeline",
+    description: "Research a question with citations",
+    category: "research",
+  },
+  {
+    name: "securityAuditPipeline",
+    description: "Audit a scope for vulnerabilities",
+    category: "security",
+  },
+  {
+    name: "migrationPipeline",
+    description: "Migrate data from source to target",
+    category: "migration",
+  },
+  {
+    name: "onboardingPipeline",
+    description: "Onboard and provision a new user",
+    category: "people",
+  },
+  {
+    name: "compliancePipeline",
+    description: "Audit compliance against a standard",
+    category: "compliance",
+  },
   { name: "devopsPipeline", description: "Build, test, and deploy a project", category: "devops" },
   { name: "mlTrainingPipeline", description: "Train and deploy an ML model", category: "ml" },
   { name: "customerSupportPipeline", description: "Resolve a support ticket", category: "support" },
   { name: "hiringPipeline", description: "Source and hire for a position", category: "people" },
   { name: "productLaunchPipeline", description: "Launch a product to market", category: "product" },
-  { name: "incidentResponsePipeline", description: "Respond to and contain an incident", category: "incident" },
+  {
+    name: "incidentResponsePipeline",
+    description: "Respond to and contain an incident",
+    category: "incident",
+  },
 ];

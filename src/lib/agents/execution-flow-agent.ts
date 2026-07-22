@@ -20,7 +20,7 @@ export async function runExecutionFlowAgent(
   const start = Date.now();
 
   const recentTicks = ticks.slice(-100);
-  const spreads = recentTicks.map((t) => t.bid && t.ask ? t.ask - t.bid : 0).filter((s) => s > 0);
+  const spreads = recentTicks.map((t) => (t.bid && t.ask ? t.ask - t.bid : 0)).filter((s) => s > 0);
   const avgSpread = spreads.length > 0 ? spreads.reduce((a, b) => a + b, 0) / spreads.length : 0;
   const spreadScore = Math.max(0, Math.round(100 - avgSpread * 10000));
 
@@ -40,12 +40,15 @@ export async function runExecutionFlowAgent(
   };
 
   const recommendedStrategy: ExecutionResult["recommendedStrategy"] =
-    slippageRisk === "high" ? "limit"
-    : slippageRisk === "medium" ? "twap"
-    : spreadScore < 50 ? "iceberg"
-    : "market";
+    slippageRisk === "high"
+      ? "limit"
+      : slippageRisk === "medium"
+        ? "twap"
+        : spreadScore < 50
+          ? "iceberg"
+          : "market";
 
-  const urgency = Math.round(Math.max(0, Math.min(100, (100 - spreadScore) + volatilityRatio * 20)));
+  const urgency = Math.round(Math.max(0, Math.min(100, 100 - spreadScore + volatilityRatio * 20)));
 
   return {
     agentId: "execution-flow-agent",

@@ -47,8 +47,16 @@ export interface VoiceSynthOptions {
 }
 
 const VOWEL_MAP: Record<string, string> = {
-  a: "ah", e: "eh", i: "ee", o: "oh", u: "oo",
-  A: "ah", E: "eh", I: "ee", O: "oh", U: "oo",
+  a: "ah",
+  e: "eh",
+  i: "ee",
+  o: "oh",
+  u: "oo",
+  A: "ah",
+  E: "eh",
+  I: "ee",
+  O: "oh",
+  U: "oo",
 };
 
 export function parseLyrics(lyrics: string, tempo: number): LyricSyllable[] {
@@ -57,13 +65,19 @@ export function parseLyrics(lyrics: string, tempo: number): LyricSyllable[] {
   const secPerBeat = 60 / tempo;
   let beat = 0;
   for (const word of words) {
-    const syls = word.match(/[bcdfghjklmnpqrstvwxyz]*[aeiouAEIOU]+[bcdfghjklmnpqrstvwxyz]*/g) || [word];
+    const syls = word.match(/[bcdfghjklmnpqrstvwxyz]*[aeiouAEIOU]+[bcdfghjklmnpqrstvwxyz]*/g) || [
+      word,
+    ];
     for (const syl of syls) {
       const vowel = syl.match(/[aeiouAEIOU]/);
       const phoneme = vowel ? VOWEL_MAP[vowel[0].toLowerCase()] || "ah" : "ah";
       syllables.push({
-        text: syl, phoneme, midi: 60,
-        durationSec: secPerBeat, vibrato: 0.2, intensity: 0.7,
+        text: syl,
+        phoneme,
+        midi: 60,
+        durationSec: secPerBeat,
+        vibrato: 0.2,
+        intensity: 0.7,
       });
       beat++;
     }
@@ -111,7 +125,10 @@ export async function synthesizeVoice(
   let offsetSamples = 0;
   for (const syl of melody) {
     const phoneme = voice.phonemes.find((p) => p.phoneme === syl.phoneme) || voice.phonemes[0];
-    if (!phoneme) { offsetSamples += Math.floor(syl.durationSec * ctx.sampleRate); continue; }
+    if (!phoneme) {
+      offsetSamples += Math.floor(syl.durationSec * ctx.sampleRate);
+      continue;
+    }
     const srcData = voice.buffer.getChannelData(0);
     const targetFreq = 440 * Math.pow(2, (syl.midi - 69) / 12);
     const baseFreq = voice.formants.pitch;
@@ -122,9 +139,10 @@ export async function synthesizeVoice(
       const srcIdx = Math.floor(segStart + i * pitchRatio);
       if (srcIdx < srcData.length) {
         const env = Math.sin((i / segLen) * Math.PI);
-        const vibratoOsc = syl.vibrato > 0
-          ? Math.sin(2 * Math.PI * 5 * (i / ctx.sampleRate)) * syl.vibrato * 0.02
-          : 0;
+        const vibratoOsc =
+          syl.vibrato > 0
+            ? Math.sin(2 * Math.PI * 5 * (i / ctx.sampleRate)) * syl.vibrato * 0.02
+            : 0;
         const sample = srcData[srcIdx] * env * syl.intensity * (1 + vibratoOsc);
         left[offsetSamples + i] += sample;
         right[offsetSamples + i] += sample;
@@ -137,7 +155,10 @@ export async function synthesizeVoice(
     const ratio = Math.pow(2, options.formantShift / 12);
     for (let i = 0; i < totalSamples; i++) {
       const srcIdx = Math.floor(i * ratio);
-      if (srcIdx < totalSamples) { left[i] = left[srcIdx]; right[i] = right[srcIdx]; }
+      if (srcIdx < totalSamples) {
+        left[i] = left[srcIdx];
+        right[i] = right[srcIdx];
+      }
     }
   }
 
@@ -145,7 +166,8 @@ export async function synthesizeVoice(
     const noiseBuf = ctx.createBuffer(2, totalSamples, ctx.sampleRate);
     for (let ch = 0; ch < 2; ch++) {
       const d = noiseBuf.getChannelData(ch);
-      for (let i = 0; i < totalSamples; i++) d[i] = (Math.random() * 2 - 1) * 0.05 * options.breathiness;
+      for (let i = 0; i < totalSamples; i++)
+        d[i] = (Math.random() * 2 - 1) * 0.05 * options.breathiness;
     }
     for (let i = 0; i < totalSamples; i++) {
       left[i] += noiseBuf.getChannelData(0)[i];
@@ -180,13 +202,15 @@ export async function recordVoice(
           phoneme: vowelSet[i],
           startSec: (i * segLen) / audioBuf.sampleRate,
           endSec: ((i + 1) * segLen) / audioBuf.sampleRate,
-          bufferOffset: i * segLen, length: segLen,
+          bufferOffset: i * segLen,
+          length: segLen,
         });
       }
       resolve({
         id: crypto.randomUUID(),
         name: `Voice ${new Date().toLocaleTimeString()}`,
-        buffer: audioBuf, phonemes,
+        buffer: audioBuf,
+        phonemes,
         pitchRange: { min: 48, max: 72 },
         formants: { f1: 700, f2: 1220, f3: 2600, pitch: 150 },
       });
@@ -197,7 +221,10 @@ export async function recordVoice(
     const interval = setInterval(() => {
       const elapsed = (Date.now() - start) / 1000;
       onProgress?.(Math.min(1, elapsed / durationSec));
-      if (elapsed >= durationSec) { clearInterval(interval); mediaRecorder.stop(); }
+      if (elapsed >= durationSec) {
+        clearInterval(interval);
+        mediaRecorder.stop();
+      }
     }, 100);
   });
 }

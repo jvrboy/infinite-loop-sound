@@ -7,7 +7,7 @@ export interface BTMMCycle {
 }
 
 export function analyzeBTMM(candles: Candle[]): BTMMCycle {
-  const close = candles.map(c => c.close);
+  const close = candles.map((c) => c.close);
   const ema50 = ema(close, 50);
   const ema200 = ema(close, 200);
   const lastIdx = candles.length - 1;
@@ -34,9 +34,9 @@ export function analyzeBTMM(candles: Candle[]): BTMMCycle {
   }
 
   // Detect W/M patterns (simplified)
-  const recentHighs = candles.slice(-20).map(c => c.high);
-  const recentLows = candles.slice(-20).map(c => c.low);
-  
+  const recentHighs = candles.slice(-20).map((c) => c.high);
+  const recentLows = candles.slice(-20).map((c) => c.low);
+
   if (bias === "bullish" && isWPattern(recentLows)) pattern = "W";
   if (bias === "bearish" && isMPattern(recentHighs)) pattern = "M";
 
@@ -50,5 +50,7 @@ function isWPattern(lows: number[]): boolean {
 
 function isMPattern(highs: number[]): boolean {
   // Check for two distinct highs where the second is lower or equal
-  return highs[0] < highs[5] && highs[10] < highs[5] && highs[10] < highs[15] && highs[19] < highs[15];
+  return (
+    highs[0] < highs[5] && highs[10] < highs[5] && highs[10] < highs[15] && highs[19] < highs[15]
+  );
 }

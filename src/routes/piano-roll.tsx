@@ -7,18 +7,64 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Piano as PianoIcon, Play, Square, Plus, Copy, Trash, Scissors, Volume,
-  Music, Sliders, Zap, Grid, ArrowUpDown, ZoomIn, ZoomOut, Magnet,
-  Shuffle, ArrowRight, Layers, Lock, Unlock,
+  Piano as PianoIcon,
+  Play,
+  Square,
+  Plus,
+  Copy,
+  Trash,
+  Scissors,
+  Volume,
+  Music,
+  Sliders,
+  Zap,
+  Grid,
+  ArrowUpDown,
+  ZoomIn,
+  ZoomOut,
+  Magnet,
+  Shuffle,
+  ArrowRight,
+  Layers,
+  Lock,
+  Unlock,
 } from "lucide-react";
 import {
-  createDefaultPianoRoll, createNote, createSlide, generateNoteId,
-  addNote, removeNotes, updateNote, selectNote, moveNotes, resizeNote,
-  transposeNotes, changeVelocity, changePan, changeGain,
-  duplicateNotes, copyNotes, pasteNotes, quantizeNotes, selectAll, deselectAll,
-  addSlideToNote, removeSlideFromNote, updateSlide, evaluateNotePitch,
-  evaluateSlide, interpolateCurve, midiToNoteName, isInScale, getScaleNotes,
-  SNAP_VALUES, type PianoRollState, type PianoNote, type NoteSlide, type SlideCurve, type SnapMode,
+  createDefaultPianoRoll,
+  createNote,
+  createSlide,
+  generateNoteId,
+  addNote,
+  removeNotes,
+  updateNote,
+  selectNote,
+  moveNotes,
+  resizeNote,
+  transposeNotes,
+  changeVelocity,
+  changePan,
+  changeGain,
+  duplicateNotes,
+  copyNotes,
+  pasteNotes,
+  quantizeNotes,
+  selectAll,
+  deselectAll,
+  addSlideToNote,
+  removeSlideFromNote,
+  updateSlide,
+  evaluateNotePitch,
+  evaluateSlide,
+  interpolateCurve,
+  midiToNoteName,
+  isInScale,
+  getScaleNotes,
+  SNAP_VALUES,
+  type PianoRollState,
+  type PianoNote,
+  type NoteSlide,
+  type SlideCurve,
+  type SnapMode,
 } from "@lib/audio/piano-roll";
 import { AudioEngine } from "@lib/audio/engine";
 
@@ -26,15 +72,42 @@ export const Route = createFileRoute("/piano-roll")({
   head: () => ({
     meta: [
       { title: "Piano Roll — DivergenceIQ" },
-      { name: "description", content: "Advanced piano roll with per-note pitch, length, velocity, pan, ultra-advanced infinite slide system, scale highlighting, quantize, and infinite zoom." },
+      {
+        name: "description",
+        content:
+          "Advanced piano roll with per-note pitch, length, velocity, pan, ultra-advanced infinite slide system, scale highlighting, quantize, and infinite zoom.",
+      },
     ],
   }),
   component: PianoRollPage,
 });
 
 const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
-const CURVE_TYPES: SlideCurve[] = ["linear", "exponential", "logarithmic", "sine", "scurve", "bounce", "elastic", "step", "custom"];
-const SCALES = ["major", "minor", "pentatonic", "blues", "chromatic", "dorian", "mixolydian", "lydian", "phrygian", "locrian", "harmonic_minor", "melodic_minor"];
+const CURVE_TYPES: SlideCurve[] = [
+  "linear",
+  "exponential",
+  "logarithmic",
+  "sine",
+  "scurve",
+  "bounce",
+  "elastic",
+  "step",
+  "custom",
+];
+const SCALES = [
+  "major",
+  "minor",
+  "pentatonic",
+  "blues",
+  "chromatic",
+  "dorian",
+  "mixolydian",
+  "lydian",
+  "phrygian",
+  "locrian",
+  "harmonic_minor",
+  "melodic_minor",
+];
 const SNAP_MODES: SnapMode[] = ["off", "1/1", "1/2", "1/4", "1/8", "1/16", "1/32", "1/64", "1/128"];
 
 function PianoRollPage() {
@@ -43,7 +116,12 @@ function PianoRollPage() {
   const [clipboard, setClipboard] = useState<PianoNote[]>([]);
   const [selectedSlide, setSelectedSlide] = useState<string | null>(null);
   const [dragMode, setDragMode] = useState<"move" | "resize" | "create" | null>(null);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number; tick: number; midi: number } | null>(null);
+  const [dragStart, setDragStart] = useState<{
+    x: number;
+    y: number;
+    tick: number;
+    midi: number;
+  } | null>(null);
   const [editingSlideForNote, setEditingSlideForNote] = useState<string | null>(null);
   const [scaleLock, setScaleLock] = useState(false);
   const [showScaleGuides, setShowScaleGuides] = useState(true);
@@ -100,9 +178,8 @@ function PianoRollPage() {
       }
 
       if (showScaleGuides && inScale) {
-        ctx.fillStyle = isRoot && highlightRoot
-          ? "rgba(245, 158, 11, 0.12)"
-          : "rgba(59, 130, 246, 0.06)";
+        ctx.fillStyle =
+          isRoot && highlightRoot ? "rgba(245, 158, 11, 0.12)" : "rgba(59, 130, 246, 0.06)";
         ctx.fillRect(keyWidth, y, totalWidth, pixelsPerSemitone);
       }
 
@@ -133,9 +210,16 @@ function PianoRollPage() {
       const x = keyWidth + tick * pixelsPerTick;
       const isBar = tick % ticksPerBar === 0;
       const isBeat = tick % state.ticksPerBeat === 0;
-      if (isBar) { ctx.strokeStyle = "#444"; ctx.lineWidth = 1.5; }
-      else if (isBeat) { ctx.strokeStyle = "#333"; ctx.lineWidth = 1; }
-      else { ctx.strokeStyle = "#1a1a1a"; ctx.lineWidth = 0.5; }
+      if (isBar) {
+        ctx.strokeStyle = "#444";
+        ctx.lineWidth = 1.5;
+      } else if (isBeat) {
+        ctx.strokeStyle = "#333";
+        ctx.lineWidth = 1;
+      } else {
+        ctx.strokeStyle = "#1a1a1a";
+        ctx.lineWidth = 0.5;
+      }
       ctx.beginPath();
       ctx.moveTo(x, 0);
       ctx.lineTo(x, totalHeight);
@@ -151,10 +235,15 @@ function PianoRollPage() {
       const inScale = isInScale(note.midi, state.key, state.scale);
 
       const alpha = note.mute ? 0.3 : 1.0;
-      if (isSelected) { ctx.fillStyle = "#f59e0b"; }
-      else if (inScale) { ctx.fillStyle = `rgba(59, 130, 246, ${alpha})`; }
-      else if (scaleLock) { ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.5})`; }
-      else { ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.7})`; }
+      if (isSelected) {
+        ctx.fillStyle = "#f59e0b";
+      } else if (inScale) {
+        ctx.fillStyle = `rgba(59, 130, 246, ${alpha})`;
+      } else if (scaleLock) {
+        ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.5})`;
+      } else {
+        ctx.fillStyle = `rgba(239, 68, 68, ${alpha * 0.7})`;
+      }
       ctx.fillRect(x, y, w, h);
 
       ctx.strokeStyle = isSelected ? "#fbbf24" : "rgba(255,255,255,0.2)";
@@ -211,7 +300,19 @@ function PianoRollPage() {
       ctx.lineTo(phx, totalHeight);
       ctx.stroke();
     }
-  }, [state, playing, totalWidth, totalHeight, pixelsPerTick, pixelsPerSemitone, showScaleGuides, highlightRoot, gridSubdivision, scaleLock, canvasZoom]);
+  }, [
+    state,
+    playing,
+    totalWidth,
+    totalHeight,
+    pixelsPerTick,
+    pixelsPerSemitone,
+    showScaleGuides,
+    highlightRoot,
+    gridSubdivision,
+    scaleLock,
+    canvasZoom,
+  ]);
 
   useEffect(() => {
     if (!playing) {
@@ -245,8 +346,12 @@ function PianoRollPage() {
           const freq = 440 * Math.pow(2, (pitch - 69) / 12);
           AudioEngine.noteOn(`proll-${note.id}`, freq, {
             waveform: "sawtooth",
-            attack: 0.01, decay: 0.1, sustain: 0.8, release: 0.2,
-            detune: 0, gain: (note.velocity / 127) * note.gain * 0.4,
+            attack: 0.01,
+            decay: 0.1,
+            sustain: 0.8,
+            release: 0.2,
+            detune: 0,
+            gain: (note.velocity / 127) * note.gain * 0.4,
           });
           activeNotes.add(note.id);
         }
@@ -265,71 +370,109 @@ function PianoRollPage() {
     };
   }, [playing, state.notes, state.totalTicks, state.ticksPerBeat]);
 
-  const handleCanvasMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    if (x < keyWidth) return;
+  const handleCanvasMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (x < keyWidth) return;
 
-    const tick = (x - keyWidth) / pixelsPerTick;
-    let midi = 127 - Math.floor(y / pixelsPerSemitone);
-    if (scaleLock && !isInScale(midi, state.key, state.scale)) {
-      const scaleNotes = getScaleNotes(state.key, state.scale, 11);
-      const nearest = scaleNotes.reduce((prev, curr) =>
-        Math.abs(curr - midi) < Math.abs(prev - midi) ? curr : prev,
-      );
-      midi = nearest;
-    }
-
-    const clickedNote = state.notes.find((n) => {
-      const nx = keyWidth + n.startTick * pixelsPerTick;
-      const ny = (127 - n.midi) * pixelsPerSemitone;
-      const nw = n.duration * pixelsPerTick;
-      return x >= nx && x <= nx + nw && y >= ny && y <= ny + pixelsPerSemitone;
-    });
-
-    if (clickedNote) {
-      if (e.shiftKey) { setState((s) => selectNote(s, clickedNote.id, true)); }
-      else { setState((s) => selectNote(s, clickedNote.id, false)); }
-      setDragMode(e.altKey ? "resize" : "move");
-      setDragStart({ x, y, tick, midi });
-    } else {
-      const snappedTick = Math.round(tick / SNAP_VALUES[state.snapMode]) * SNAP_VALUES[state.snapMode];
-      const newNote = createNote(midi, snappedTick, SNAP_VALUES[state.snapMode], 100, 0, state.currentChannel);
-      setState((s) => addNote(s, newNote));
-      setState((s) => selectNote(s, newNote.id, false));
-      setDragMode("resize");
-      setDragStart({ x, y, tick: snappedTick, midi });
-    }
-  }, [state.notes, state.snapMode, pixelsPerTick, pixelsPerSemitone, scaleLock, state.key, state.scale, state.currentChannel]);
-
-  const handleCanvasMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!dragMode || !dragStart) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const deltaTick = Math.round(((x - dragStart.x) / pixelsPerTick) / SNAP_VALUES[state.snapMode]) * SNAP_VALUES[state.snapMode];
-    const deltaMidi = Math.floor((dragStart.y - y) / pixelsPerSemitone);
-
-    if (dragMode === "move" && state.selectedNoteIds.length > 0) {
-      setState((s) => moveNotes(s, s.selectedNoteIds, deltaTick, deltaMidi));
-      setDragStart({ ...dragStart, x, y });
-    } else if (dragMode === "resize" && state.selectedNoteIds.length === 1) {
-      const noteId = state.selectedNoteIds[0];
-      const note = state.notes.find((n) => n.id === noteId);
-      if (note) {
-        const newDur = Math.max(
-          SNAP_VALUES[state.snapMode],
-          Math.round(((x - keyWidth) / pixelsPerTick - note.startTick) / SNAP_VALUES[state.snapMode]) * SNAP_VALUES[state.snapMode],
+      const tick = (x - keyWidth) / pixelsPerTick;
+      let midi = 127 - Math.floor(y / pixelsPerSemitone);
+      if (scaleLock && !isInScale(midi, state.key, state.scale)) {
+        const scaleNotes = getScaleNotes(state.key, state.scale, 11);
+        const nearest = scaleNotes.reduce((prev, curr) =>
+          Math.abs(curr - midi) < Math.abs(prev - midi) ? curr : prev,
         );
-        setState((s) => resizeNote(s, noteId, newDur));
+        midi = nearest;
       }
-    }
-  }, [dragMode, dragStart, state.selectedNoteIds, state.notes, state.snapMode, pixelsPerTick, pixelsPerSemitone]);
+
+      const clickedNote = state.notes.find((n) => {
+        const nx = keyWidth + n.startTick * pixelsPerTick;
+        const ny = (127 - n.midi) * pixelsPerSemitone;
+        const nw = n.duration * pixelsPerTick;
+        return x >= nx && x <= nx + nw && y >= ny && y <= ny + pixelsPerSemitone;
+      });
+
+      if (clickedNote) {
+        if (e.shiftKey) {
+          setState((s) => selectNote(s, clickedNote.id, true));
+        } else {
+          setState((s) => selectNote(s, clickedNote.id, false));
+        }
+        setDragMode(e.altKey ? "resize" : "move");
+        setDragStart({ x, y, tick, midi });
+      } else {
+        const snappedTick =
+          Math.round(tick / SNAP_VALUES[state.snapMode]) * SNAP_VALUES[state.snapMode];
+        const newNote = createNote(
+          midi,
+          snappedTick,
+          SNAP_VALUES[state.snapMode],
+          100,
+          0,
+          state.currentChannel,
+        );
+        setState((s) => addNote(s, newNote));
+        setState((s) => selectNote(s, newNote.id, false));
+        setDragMode("resize");
+        setDragStart({ x, y, tick: snappedTick, midi });
+      }
+    },
+    [
+      state.notes,
+      state.snapMode,
+      pixelsPerTick,
+      pixelsPerSemitone,
+      scaleLock,
+      state.key,
+      state.scale,
+      state.currentChannel,
+    ],
+  );
+
+  const handleCanvasMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLCanvasElement>) => {
+      if (!dragMode || !dragStart) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const deltaTick =
+        Math.round((x - dragStart.x) / pixelsPerTick / SNAP_VALUES[state.snapMode]) *
+        SNAP_VALUES[state.snapMode];
+      const deltaMidi = Math.floor((dragStart.y - y) / pixelsPerSemitone);
+
+      if (dragMode === "move" && state.selectedNoteIds.length > 0) {
+        setState((s) => moveNotes(s, s.selectedNoteIds, deltaTick, deltaMidi));
+        setDragStart({ ...dragStart, x, y });
+      } else if (dragMode === "resize" && state.selectedNoteIds.length === 1) {
+        const noteId = state.selectedNoteIds[0];
+        const note = state.notes.find((n) => n.id === noteId);
+        if (note) {
+          const newDur = Math.max(
+            SNAP_VALUES[state.snapMode],
+            Math.round(
+              ((x - keyWidth) / pixelsPerTick - note.startTick) / SNAP_VALUES[state.snapMode],
+            ) * SNAP_VALUES[state.snapMode],
+          );
+          setState((s) => resizeNote(s, noteId, newDur));
+        }
+      }
+    },
+    [
+      dragMode,
+      dragStart,
+      state.selectedNoteIds,
+      state.notes,
+      state.snapMode,
+      pixelsPerTick,
+      pixelsPerSemitone,
+    ],
+  );
 
   const handleCanvasMouseUp = useCallback(() => {
     setDragMode(null);
@@ -349,7 +492,13 @@ function PianoRollPage() {
       ...s,
       notes: s.notes.map((n) =>
         s.selectedNoteIds.includes(n.id)
-          ? { ...n, velocity: Math.max(1, Math.min(127, Math.round(n.velocity + (Math.random() - 0.5) * 20))) }
+          ? {
+              ...n,
+              velocity: Math.max(
+                1,
+                Math.min(127, Math.round(n.velocity + (Math.random() - 0.5) * 20)),
+              ),
+            }
           : n,
       ),
     }));
@@ -403,9 +552,7 @@ function PianoRollPage() {
       }
       return {
         ...s,
-        notes: s.notes.map((n) =>
-          updates.has(n.id) ? { ...n, duration: updates.get(n.id)! } : n,
-        ),
+        notes: s.notes.map((n) => (updates.has(n.id) ? { ...n, duration: updates.get(n.id)! } : n)),
       };
     });
   }, [state.selectedNoteIds]);
@@ -426,9 +573,11 @@ function PianoRollPage() {
       } else if ((e.ctrlKey || e.metaKey) && e.key === "v") {
         if (clipboard.length > 0) setState((s) => pasteNotes(s, clipboard, 480));
       } else if (e.key === "ArrowUp") {
-        if (state.selectedNoteIds.length > 0) setState((s) => transposeNotes(s, s.selectedNoteIds, 1));
+        if (state.selectedNoteIds.length > 0)
+          setState((s) => transposeNotes(s, s.selectedNoteIds, 1));
       } else if (e.key === "ArrowDown") {
-        if (state.selectedNoteIds.length > 0) setState((s) => transposeNotes(s, s.selectedNoteIds, -1));
+        if (state.selectedNoteIds.length > 0)
+          setState((s) => transposeNotes(s, s.selectedNoteIds, -1));
       } else if (e.key === " ") {
         e.preventDefault();
         setPlaying((p) => !p);
@@ -439,7 +588,8 @@ function PianoRollPage() {
         e.preventDefault();
         zoomOut();
       } else if (e.key === "q" || e.key === "Q") {
-        if (state.selectedNoteIds.length > 0) setState((s) => quantizeNotes(s, s.selectedNoteIds, s.snapMode));
+        if (state.selectedNoteIds.length > 0)
+          setState((s) => quantizeNotes(s, s.selectedNoteIds, s.snapMode));
       }
     };
     window.addEventListener("keydown", handler);
@@ -447,7 +597,10 @@ function PianoRollPage() {
   }, [state.selectedNoteIds, state.notes, clipboard, zoomIn, zoomOut, state.snapMode]);
 
   const selectedNote = state.notes.find((n) => n.id === state.selectedNoteIds[0]);
-  const scaleNotes = useMemo(() => getScaleNotes(state.key, state.scale, 5), [state.key, state.scale]);
+  const scaleNotes = useMemo(
+    () => getScaleNotes(state.key, state.scale, 5),
+    [state.key, state.scale],
+  );
 
   return (
     <AppShell>
@@ -461,14 +614,32 @@ function PianoRollPage() {
               <Button variant="outline" size="sm" onClick={zoomOut} title="Zoom out (Ctrl+-)">
                 <ZoomOut className="w-4 h-4" />
               </Button>
-              <Badge variant="outline" className="font-mono">{(canvasZoom * 100).toFixed(0)}%</Badge>
+              <Badge variant="outline" className="font-mono">
+                {(canvasZoom * 100).toFixed(0)}%
+              </Badge>
               <Button variant="outline" size="sm" onClick={zoomIn} title="Zoom in (Ctrl+=)">
                 <ZoomIn className="w-4 h-4" />
               </Button>
-              <Button variant="outline" size="sm" onClick={zoomReset}>1:1</Button>
-              <Button variant="outline" size="sm" onClick={zoomToFill}>Fit</Button>
-              <Button variant={playing ? "secondary" : "default"} onClick={() => setPlaying((p) => !p)} className="gap-2">
-                {playing ? <><Square className="w-4 h-4" /> Stop</> : <><Play className="w-4 h-4" /> Play</>}
+              <Button variant="outline" size="sm" onClick={zoomReset}>
+                1:1
+              </Button>
+              <Button variant="outline" size="sm" onClick={zoomToFill}>
+                Fit
+              </Button>
+              <Button
+                variant={playing ? "secondary" : "default"}
+                onClick={() => setPlaying((p) => !p)}
+                className="gap-2"
+              >
+                {playing ? (
+                  <>
+                    <Square className="w-4 h-4" /> Stop
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-4 h-4" /> Play
+                  </>
+                )}
               </Button>
             </div>
           }
@@ -478,79 +649,195 @@ function PianoRollPage() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-2">
               <Label className="text-xs">Key</Label>
-              <select value={state.key} onChange={(e) => setState((s) => ({ ...s, key: e.target.value }))}
-                className="bg-card border border-border rounded px-2 py-1 text-sm">
-                {NOTE_NAMES.map((n) => <option key={n} value={n}>{n}</option>)}
+              <select
+                value={state.key}
+                onChange={(e) => setState((s) => ({ ...s, key: e.target.value }))}
+                className="bg-card border border-border rounded px-2 py-1 text-sm"
+              >
+                {NOTE_NAMES.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-xs">Scale</Label>
-              <select value={state.scale} onChange={(e) => setState((s) => ({ ...s, scale: e.target.value }))}
-                className="bg-card border border-border rounded px-2 py-1 text-sm">
-                {SCALES.map((s) => <option key={s} value={s}>{s}</option>)}
+              <select
+                value={state.scale}
+                onChange={(e) => setState((s) => ({ ...s, scale: e.target.value }))}
+                className="bg-card border border-border rounded px-2 py-1 text-sm"
+              >
+                {SCALES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-xs">Snap</Label>
-              <select value={state.snapMode} onChange={(e) => setState((s) => ({ ...s, snapMode: e.target.value as SnapMode }))}
-                className="bg-card border border-border rounded px-2 py-1 text-sm">
-                {SNAP_MODES.map((s) => <option key={s} value={s}>{s}</option>)}
+              <select
+                value={state.snapMode}
+                onChange={(e) => setState((s) => ({ ...s, snapMode: e.target.value as SnapMode }))}
+                className="bg-card border border-border rounded px-2 py-1 text-sm"
+              >
+                {SNAP_MODES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-xs">Grid Sub</Label>
-              <select value={gridSubdivision} onChange={(e) => setGridSubdivision(Number(e.target.value))}
-                className="bg-card border border-border rounded px-2 py-1 text-sm">
-                {[1, 2, 3, 4, 6, 8, 12, 16].map((n) => <option key={n} value={n}>{n}</option>)}
+              <select
+                value={gridSubdivision}
+                onChange={(e) => setGridSubdivision(Number(e.target.value))}
+                className="bg-card border border-border rounded px-2 py-1 text-sm"
+              >
+                {[1, 2, 3, 4, 6, 8, 12, 16].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-xs">Bars</Label>
-              <Input type="number" min={1} max={256} value={state.totalBars}
+              <Input
+                type="number"
+                min={1}
+                max={256}
+                value={state.totalBars}
                 onChange={(e) => {
                   const v = parseInt(e.target.value);
-                  setState((s) => ({ ...s, totalBars: v, totalTicks: v * s.ticksPerBeat * s.beatsPerBar }));
+                  setState((s) => ({
+                    ...s,
+                    totalBars: v,
+                    totalTicks: v * s.ticksPerBeat * s.beatsPerBar,
+                  }));
                 }}
-                className="w-16 font-mono text-sm" />
+                className="w-16 font-mono text-sm"
+              />
             </div>
             <div className="flex items-center gap-2">
               <Label className="text-xs">Channel</Label>
-              <Input type="number" min={0} max={15} value={state.currentChannel}
-                onChange={(e) => setState((s) => ({ ...s, currentChannel: Number(e.target.value) }))}
-                className="w-14 font-mono text-sm" />
+              <Input
+                type="number"
+                min={0}
+                max={15}
+                value={state.currentChannel}
+                onChange={(e) =>
+                  setState((s) => ({ ...s, currentChannel: Number(e.target.value) }))
+                }
+                className="w-14 font-mono text-sm"
+              />
             </div>
             <div className="flex items-center gap-2">
-              <Button variant={showScaleGuides ? "secondary" : "outline"} size="sm" onClick={() => setShowScaleGuides((v) => !v)} className="gap-1">
+              <Button
+                variant={showScaleGuides ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setShowScaleGuides((v) => !v)}
+                className="gap-1"
+              >
                 <Grid className="w-3 h-3" /> Scale Guides
               </Button>
-              <Button variant={highlightRoot ? "secondary" : "outline"} size="sm" onClick={() => setHighlightRoot((v) => !v)}>Root</Button>
-              <Button variant={scaleLock ? "secondary" : "outline"} size="sm" onClick={() => setScaleLock((v) => !v)} className="gap-1">
+              <Button
+                variant={highlightRoot ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setHighlightRoot((v) => !v)}
+              >
+                Root
+              </Button>
+              <Button
+                variant={scaleLock ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setScaleLock((v) => !v)}
+                className="gap-1"
+              >
                 <Lock className="w-3 h-3" /> Scale Lock
               </Button>
-              <Button variant={velocityMode ? "secondary" : "outline"} size="sm" onClick={() => setVelocityMode((v) => !v)} className="gap-1">
+              <Button
+                variant={velocityMode ? "secondary" : "outline"}
+                size="sm"
+                onClick={() => setVelocityMode((v) => !v)}
+                className="gap-1"
+              >
                 <Volume className="w-3 h-3" /> Vel Edit
               </Button>
             </div>
           </div>
         </ProCard>
 
-        <ProCard title="Tools" description="Advanced editing tools for selected notes." icon={<Sliders className="w-4 h-4" />}>
+        <ProCard
+          title="Tools"
+          description="Advanced editing tools for selected notes."
+          icon={<Sliders className="w-4 h-4" />}
+        >
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={() => setState((s) => selectAll(s))} className="gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setState((s) => selectAll(s))}
+              className="gap-1"
+            >
               <Grid className="w-3 h-3" /> Select All
             </Button>
-            <Button variant="outline" size="sm" onClick={() => setState((s) => deselectAll(s))}>Deselect</Button>
-            <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setClipboard(copyNotes(state, state.selectedNoteIds)); }} className="gap-1">
+            <Button variant="outline" size="sm" onClick={() => setState((s) => deselectAll(s))}>
+              Deselect
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (state.selectedNoteIds.length > 0)
+                  setClipboard(copyNotes(state, state.selectedNoteIds));
+              }}
+              className="gap-1"
+            >
               <Copy className="w-3 h-3" /> Copy
             </Button>
-            <Button variant="outline" size="sm" onClick={() => { if (clipboard.length > 0) setState((s) => pasteNotes(s, clipboard, 480)); }}>Paste</Button>
-            <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => duplicateNotes(s, s.selectedNoteIds)); }} className="gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (clipboard.length > 0) setState((s) => pasteNotes(s, clipboard, 480));
+              }}
+            >
+              Paste
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (state.selectedNoteIds.length > 0)
+                  setState((s) => duplicateNotes(s, s.selectedNoteIds));
+              }}
+              className="gap-1"
+            >
               <Plus className="w-3 h-3" /> Dup
             </Button>
-            <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => removeNotes(s, s.selectedNoteIds)); }} className="gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (state.selectedNoteIds.length > 0)
+                  setState((s) => removeNotes(s, s.selectedNoteIds));
+              }}
+              className="gap-1"
+            >
               <Trash className="w-3 h-3" /> Del
             </Button>
-            <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => quantizeNotes(s, s.selectedNoteIds, s.snapMode)); }} className="gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (state.selectedNoteIds.length > 0)
+                  setState((s) => quantizeNotes(s, s.selectedNoteIds, s.snapMode));
+              }}
+              className="gap-1"
+            >
               <Zap className="w-3 h-3" /> Quantize (Q)
             </Button>
             <Button variant="outline" size="sm" onClick={humanizeVelocity} className="gap-1">
@@ -565,12 +852,33 @@ function PianoRollPage() {
             <Button variant="outline" size="sm" onClick={legato} className="gap-1">
               <ArrowRight className="w-3 h-3" /> Legato
             </Button>
-            <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => transposeNotes(s, s.selectedNoteIds, 12)); }}>+Oct</Button>
-            <Button variant="outline" size="sm" onClick={() => { if (state.selectedNoteIds.length > 0) setState((s) => transposeNotes(s, s.selectedNoteIds, -12)); }}>-Oct</Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (state.selectedNoteIds.length > 0)
+                  setState((s) => transposeNotes(s, s.selectedNoteIds, 12));
+              }}
+            >
+              +Oct
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (state.selectedNoteIds.length > 0)
+                  setState((s) => transposeNotes(s, s.selectedNoteIds, -12));
+              }}
+            >
+              -Oct
+            </Button>
           </div>
         </ProCard>
 
-        <div className="rounded-xl border border-border bg-card overflow-auto" style={{ maxHeight: "600px" }}>
+        <div
+          className="rounded-xl border border-border bg-card overflow-auto"
+          style={{ maxHeight: "600px" }}
+        >
           <canvas
             ref={canvasRef}
             onMouseDown={handleCanvasMouseDown}
@@ -583,161 +891,418 @@ function PianoRollPage() {
         </div>
 
         {selectedNote && (
-          <ProCard title={`Note: ${midiToNoteName(selectedNote.midi)}`} description="Per-note properties and ultra-advanced slide system" icon={<Sliders className="w-4 h-4" />}>
+          <ProCard
+            title={`Note: ${midiToNoteName(selectedNote.midi)}`}
+            description="Per-note properties and ultra-advanced slide system"
+            icon={<Sliders className="w-4 h-4" />}
+          >
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
               <div>
                 <Label className="text-xs">MIDI Note</Label>
-                <Input type="number" min={0} max={127} value={selectedNote.midi}
-                  onChange={(e) => setState((s) => updateNote(s, selectedNote.id, { midi: Math.max(0, Math.min(127, parseInt(e.target.value))) }))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={127}
+                  value={selectedNote.midi}
+                  onChange={(e) =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, {
+                        midi: Math.max(0, Math.min(127, parseInt(e.target.value))),
+                      }),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Velocity (0-127)</Label>
-                <Input type="number" min={0} max={127} value={selectedNote.velocity}
-                  onChange={(e) => setState((s) => changeVelocity(s, [selectedNote.id], parseFloat(e.target.value)))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={127}
+                  value={selectedNote.velocity}
+                  onChange={(e) =>
+                    setState((s) =>
+                      changeVelocity(s, [selectedNote.id], parseFloat(e.target.value)),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Pan (-1 to 1)</Label>
-                <Input type="number" min={-1} max={1} step={0.1} value={selectedNote.pan}
-                  onChange={(e) => setState((s) => changePan(s, [selectedNote.id], parseFloat(e.target.value)))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={-1}
+                  max={1}
+                  step={0.1}
+                  value={selectedNote.pan}
+                  onChange={(e) =>
+                    setState((s) => changePan(s, [selectedNote.id], parseFloat(e.target.value)))
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Gain (0-2)</Label>
-                <Input type="number" min={0} max={2} step={0.1} value={selectedNote.gain}
-                  onChange={(e) => setState((s) => changeGain(s, [selectedNote.id], parseFloat(e.target.value)))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={2}
+                  step={0.1}
+                  value={selectedNote.gain}
+                  onChange={(e) =>
+                    setState((s) => changeGain(s, [selectedNote.id], parseFloat(e.target.value)))
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Length (ticks)</Label>
-                <Input type="number" min={15} value={selectedNote.duration}
-                  onChange={(e) => setState((s) => resizeNote(s, selectedNote.id, parseInt(e.target.value)))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={15}
+                  value={selectedNote.duration}
+                  onChange={(e) =>
+                    setState((s) => resizeNote(s, selectedNote.id, parseInt(e.target.value)))
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Micro-tune (cents)</Label>
-                <Input type="number" min={-100} max={100} step={1} value={selectedNote.microTuning}
-                  onChange={(e) => setState((s) => updateNote(s, selectedNote.id, { microTuning: parseFloat(e.target.value) }))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={-100}
+                  max={100}
+                  step={1}
+                  value={selectedNote.microTuning}
+                  onChange={(e) =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, { microTuning: parseFloat(e.target.value) }),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Vibrato Depth</Label>
-                <Input type="number" min={0} max={1} step={0.05} value={selectedNote.vibrato}
-                  onChange={(e) => setState((s) => updateNote(s, selectedNote.id, { vibrato: parseFloat(e.target.value) }))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={selectedNote.vibrato}
+                  onChange={(e) =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, { vibrato: parseFloat(e.target.value) }),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Vibrato Rate (Hz)</Label>
-                <Input type="number" min={0} max={20} step={0.1} value={selectedNote.vibratoRate}
-                  onChange={(e) => setState((s) => updateNote(s, selectedNote.id, { vibratoRate: parseFloat(e.target.value) }))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={20}
+                  step={0.1}
+                  value={selectedNote.vibratoRate}
+                  onChange={(e) =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, { vibratoRate: parseFloat(e.target.value) }),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Tremolo Depth</Label>
-                <Input type="number" min={0} max={1} step={0.05} value={selectedNote.tremolo}
-                  onChange={(e) => setState((s) => updateNote(s, selectedNote.id, { tremolo: parseFloat(e.target.value) }))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={selectedNote.tremolo}
+                  onChange={(e) =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, { tremolo: parseFloat(e.target.value) }),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div>
                 <Label className="text-xs">Expression</Label>
-                <Input type="number" min={0} max={1} step={0.05} value={selectedNote.expression}
-                  onChange={(e) => setState((s) => updateNote(s, selectedNote.id, { expression: parseFloat(e.target.value) }))}
-                  className="font-mono text-sm" />
+                <Input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={selectedNote.expression}
+                  onChange={(e) =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, { expression: parseFloat(e.target.value) }),
+                    )
+                  }
+                  className="font-mono text-sm"
+                />
               </div>
               <div className="flex items-end gap-2">
-                <Button variant={selectedNote.mute ? "secondary" : "outline"} size="sm" onClick={() => setState((s) => updateNote(s, selectedNote.id, { mute: !selectedNote.mute }))}>Mute</Button>
-                <Button variant={selectedNote.solo ? "secondary" : "outline"} size="sm" onClick={() => setState((s) => updateNote(s, selectedNote.id, { solo: !selectedNote.solo }))}>Solo</Button>
-                <Button variant={selectedNote.locked ? "secondary" : "outline"} size="sm" onClick={() => setState((s) => updateNote(s, selectedNote.id, { locked: !selectedNote.locked }))}>
-                  {selectedNote.locked ? <Lock className="w-3 h-3" /> : <Unlock className="w-3 h-3" />} Lock
+                <Button
+                  variant={selectedNote.mute ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    setState((s) => updateNote(s, selectedNote.id, { mute: !selectedNote.mute }))
+                  }
+                >
+                  Mute
+                </Button>
+                <Button
+                  variant={selectedNote.solo ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    setState((s) => updateNote(s, selectedNote.id, { solo: !selectedNote.solo }))
+                  }
+                >
+                  Solo
+                </Button>
+                <Button
+                  variant={selectedNote.locked ? "secondary" : "outline"}
+                  size="sm"
+                  onClick={() =>
+                    setState((s) =>
+                      updateNote(s, selectedNote.id, { locked: !selectedNote.locked }),
+                    )
+                  }
+                >
+                  {selectedNote.locked ? (
+                    <Lock className="w-3 h-3" />
+                  ) : (
+                    <Unlock className="w-3 h-3" />
+                  )}{" "}
+                  Lock
                 </Button>
               </div>
             </div>
 
             <div className="mt-4 border-t border-border pt-4">
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-sm font-semibold flex items-center gap-2"><ArrowUpDown className="w-4 h-4" /> Per-Note Slides (Ultra-Advanced)</h4>
-                <Button variant="outline" size="sm" onClick={() => {
-                  const slide = createSlide(0, selectedNote.duration, selectedNote.midi, selectedNote.midi + 7, "linear", 0, false, 1, 0.01);
-                  setState((s) => addSlideToNote(s, selectedNote.id, slide));
-                }} className="gap-1"><Plus className="w-3 h-3" /> Add Slide</Button>
+                <h4 className="text-sm font-semibold flex items-center gap-2">
+                  <ArrowUpDown className="w-4 h-4" /> Per-Note Slides (Ultra-Advanced)
+                </h4>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    const slide = createSlide(
+                      0,
+                      selectedNote.duration,
+                      selectedNote.midi,
+                      selectedNote.midi + 7,
+                      "linear",
+                      0,
+                      false,
+                      1,
+                      0.01,
+                    );
+                    setState((s) => addSlideToNote(s, selectedNote.id, slide));
+                  }}
+                  className="gap-1"
+                >
+                  <Plus className="w-3 h-3" /> Add Slide
+                </Button>
               </div>
               {selectedNote.slides.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No slides. Add a slide to create pitch automation with curves and infinite glide.</p>
+                <p className="text-xs text-muted-foreground">
+                  No slides. Add a slide to create pitch automation with curves and infinite glide.
+                </p>
               ) : (
                 <div className="space-y-3">
                   {selectedNote.slides.map((slide) => (
-                    <div key={slide.id} className="rounded-lg border border-border bg-card p-3 space-y-2">
+                    <div
+                      key={slide.id}
+                      className="rounded-lg border border-border bg-card p-3 space-y-2"
+                    >
                       <div className="flex items-center justify-between">
                         <Badge variant={slide.infinite ? "default" : "outline"} className="text-xs">
                           {slide.infinite ? "INFINITE SLIDE" : "Slide"}
                         </Badge>
-                        <Button variant="ghost" size="sm" onClick={() => setState((s) => removeSlideFromNote(s, selectedNote.id, slide.id))} className="h-6 px-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() =>
+                            setState((s) => removeSlideFromNote(s, selectedNote.id, slide.id))
+                          }
+                          className="h-6 px-2"
+                        >
                           <Trash className="w-3 h-3" />
                         </Button>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
                         <div>
                           <Label className="text-xs">Start Pitch</Label>
-                          <Input type="number" step={0.01} value={slide.startPitch}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { startPitch: parseFloat(e.target.value) }))}
-                            className="font-mono text-sm" />
+                          <Input
+                            type="number"
+                            step={0.01}
+                            value={slide.startPitch}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  startPitch: parseFloat(e.target.value),
+                                }),
+                              )
+                            }
+                            className="font-mono text-sm"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">End Pitch</Label>
-                          <Input type="number" step={0.01} value={slide.endPitch}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { endPitch: parseFloat(e.target.value) }))}
-                            className="font-mono text-sm" />
+                          <Input
+                            type="number"
+                            step={0.01}
+                            value={slide.endPitch}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  endPitch: parseFloat(e.target.value),
+                                }),
+                              )
+                            }
+                            className="font-mono text-sm"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">Start Tick</Label>
-                          <Input type="number" min={0} value={slide.startTick}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { startTick: parseInt(e.target.value) }))}
-                            className="font-mono text-sm" />
+                          <Input
+                            type="number"
+                            min={0}
+                            value={slide.startTick}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  startTick: parseInt(e.target.value),
+                                }),
+                              )
+                            }
+                            className="font-mono text-sm"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">End Tick</Label>
-                          <Input type="number" min={0} value={slide.endTick}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { endTick: parseInt(e.target.value) }))}
-                            className="font-mono text-sm" />
+                          <Input
+                            type="number"
+                            min={0}
+                            value={slide.endTick}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  endTick: parseInt(e.target.value),
+                                }),
+                              )
+                            }
+                            className="font-mono text-sm"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">Curve Type</Label>
-                          <select value={slide.curveType}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { curveType: e.target.value as SlideCurve }))}
-                            className="w-full bg-card border border-border rounded px-2 py-1.5 text-sm">
-                            {CURVE_TYPES.map((c) => <option key={c} value={c}>{c}</option>)}
+                          <select
+                            value={slide.curveType}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  curveType: e.target.value as SlideCurve,
+                                }),
+                              )
+                            }
+                            className="w-full bg-card border border-border rounded px-2 py-1.5 text-sm"
+                          >
+                            {CURVE_TYPES.map((c) => (
+                              <option key={c} value={c}>
+                                {c}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div>
                           <Label className="text-xs">Curve Amount</Label>
-                          <Input type="number" min={-1} max={1} step={0.1} value={slide.curveAmount}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { curveAmount: parseFloat(e.target.value) }))}
-                            className="font-mono text-sm" />
+                          <Input
+                            type="number"
+                            min={-1}
+                            max={1}
+                            step={0.1}
+                            value={slide.curveAmount}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  curveAmount: parseFloat(e.target.value),
+                                }),
+                              )
+                            }
+                            className="font-mono text-sm"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">Infinite Rate</Label>
-                          <Input type="number" min={0} step={0.001} value={slide.infiniteRate}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { infiniteRate: parseFloat(e.target.value) }))}
-                            className="font-mono text-sm" />
+                          <Input
+                            type="number"
+                            min={0}
+                            step={0.001}
+                            value={slide.infiniteRate}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  infiniteRate: parseFloat(e.target.value),
+                                }),
+                              )
+                            }
+                            className="font-mono text-sm"
+                          />
                         </div>
                         <div>
                           <Label className="text-xs">Infinite Dir</Label>
-                          <select value={slide.infiniteDirection}
-                            onChange={(e) => setState((s) => updateSlide(s, selectedNote.id, slide.id, { infiniteDirection: parseInt(e.target.value) }))}
-                            className="w-full bg-card border border-border rounded px-2 py-1.5 text-sm">
+                          <select
+                            value={slide.infiniteDirection}
+                            onChange={(e) =>
+                              setState((s) =>
+                                updateSlide(s, selectedNote.id, slide.id, {
+                                  infiniteDirection: parseInt(e.target.value),
+                                }),
+                              )
+                            }
+                            className="w-full bg-card border border-border rounded px-2 py-1.5 text-sm"
+                          >
                             <option value={1}>Up (+1)</option>
                             <option value={-1}>Down (-1)</option>
                           </select>
                         </div>
                       </div>
                       <div className="flex items-center gap-3">
-                        <Button variant={slide.infinite ? "secondary" : "outline"} size="sm"
-                          onClick={() => setState((s) => updateSlide(s, selectedNote.id, slide.id, { infinite: !slide.infinite }))}>
+                        <Button
+                          variant={slide.infinite ? "secondary" : "outline"}
+                          size="sm"
+                          onClick={() =>
+                            setState((s) =>
+                              updateSlide(s, selectedNote.id, slide.id, {
+                                infinite: !slide.infinite,
+                              }),
+                            )
+                          }
+                        >
                           {slide.infinite ? "Infinite: ON" : "Infinite: OFF"}
                         </Button>
-                        <Button variant={slide.enabled ? "secondary" : "outline"} size="sm"
-                          onClick={() => setState((s) => updateSlide(s, selectedNote.id, slide.id, { enabled: !slide.enabled }))}>
+                        <Button
+                          variant={slide.enabled ? "secondary" : "outline"}
+                          size="sm"
+                          onClick={() =>
+                            setState((s) =>
+                              updateSlide(s, selectedNote.id, slide.id, {
+                                enabled: !slide.enabled,
+                              }),
+                            )
+                          }
+                        >
                           {slide.enabled ? "Enabled" : "Disabled"}
                         </Button>
                       </div>
@@ -749,12 +1314,37 @@ function PianoRollPage() {
           </ProCard>
         )}
 
-        <KpiGrid tiles={[
-          { label: "Total Notes", value: state.notes.length, icon: <Music className="w-4 h-4" />, accent: "primary" },
-          { label: "Selected", value: state.selectedNoteIds.length, icon: <Grid className="w-4 h-4" />, accent: "neutral" },
-          { label: "Total Slides", value: state.notes.reduce((sum, n) => sum + n.slides.length, 0), icon: <ArrowUpDown className="w-4 h-4" />, accent: "bull" },
-          { label: "Infinite Slides", value: state.notes.reduce((sum, n) => sum + n.slides.filter((s) => s.infinite).length, 0), icon: <Zap className="w-4 h-4" />, accent: "warning" },
-        ]} />
+        <KpiGrid
+          tiles={[
+            {
+              label: "Total Notes",
+              value: state.notes.length,
+              icon: <Music className="w-4 h-4" />,
+              accent: "primary",
+            },
+            {
+              label: "Selected",
+              value: state.selectedNoteIds.length,
+              icon: <Grid className="w-4 h-4" />,
+              accent: "neutral",
+            },
+            {
+              label: "Total Slides",
+              value: state.notes.reduce((sum, n) => sum + n.slides.length, 0),
+              icon: <ArrowUpDown className="w-4 h-4" />,
+              accent: "bull",
+            },
+            {
+              label: "Infinite Slides",
+              value: state.notes.reduce(
+                (sum, n) => sum + n.slides.filter((s) => s.infinite).length,
+                0,
+              ),
+              icon: <Zap className="w-4 h-4" />,
+              accent: "warning",
+            },
+          ]}
+        />
       </div>
     </AppShell>
   );

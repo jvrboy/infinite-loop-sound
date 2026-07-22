@@ -377,7 +377,10 @@ export const AI_PROVIDERS: AIProvider[] = [
     icon: "🎆",
     color: "#EF4444",
     defaultBaseUrl: "https://api.fireworks.ai/inference/v1",
-    models: ["accounts/fireworks/models/llama-v3p1-405b-instruct", "accounts/fireworks/models/mixtral-8x22b-instruct"],
+    models: [
+      "accounts/fireworks/models/llama-v3p1-405b-instruct",
+      "accounts/fireworks/models/mixtral-8x22b-instruct",
+    ],
     description: "Fast inference for fine-tuned and open models",
     docsUrl: "https://docs.fireworks.ai",
     headerKey: "Authorization",

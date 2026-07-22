@@ -26,7 +26,12 @@ function ShadersPage() {
           title="Shader Gallery"
           subtitle="Switch the background renderer. New WebGL/WebGPU shaders added: plasma fractal, aurora flow, hex matrix."
           icon={<Palette className="w-5 h-5" />}
-          action={<Badge variant="outline"><Eye className="w-3 h-3 mr-1" />{SHADER_REGISTRY.find((s) => s.id === active)?.label}</Badge>}
+          action={
+            <Badge variant="outline">
+              <Eye className="w-3 h-3 mr-1" />
+              {SHADER_REGISTRY.find((s) => s.id === active)?.label}
+            </Badge>
+          }
         />
         <ProCard
           title="Available Shaders"

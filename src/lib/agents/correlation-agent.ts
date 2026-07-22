@@ -21,7 +21,9 @@ function pearson(a: number[], b: number[]): number {
   if (n < 3) return 0;
   const ma = a.slice(-n).reduce((x, y) => x + y, 0) / n;
   const mb = b.slice(-n).reduce((x, y) => x + y, 0) / n;
-  let num = 0, da = 0, db = 0;
+  let num = 0,
+    da = 0,
+    db = 0;
   for (let i = a.length - n; i < a.length; i++) {
     const xa = a[i] - ma;
     const xb = b[i] - mb;
@@ -39,16 +41,16 @@ export async function runCorrelationAgent(
   otherAssets: Record<string, Candle[]>,
 ): Promise<CorrelationResult> {
   const start = Date.now();
-  const primaryReturns = candles.slice(1).map((c, i) =>
-    (c.close - candles[i].close) / (candles[i].close || 1),
-  );
+  const primaryReturns = candles
+    .slice(1)
+    .map((c, i) => (c.close - candles[i].close) / (candles[i].close || 1));
 
   const correlations: CorrelationPair[] = [];
   for (const [pair, otherCandles] of Object.entries(otherAssets)) {
     if (otherCandles.length < 5) continue;
-    const otherReturns = otherCandles.slice(1).map((c, i) =>
-      (c.close - otherCandles[i].close) / (otherCandles[i].close || 1),
-    );
+    const otherReturns = otherCandles
+      .slice(1)
+      .map((c, i) => (c.close - otherCandles[i].close) / (otherCandles[i].close || 1));
     const corr = pearson(primaryReturns, otherReturns);
     correlations.push({
       pair,

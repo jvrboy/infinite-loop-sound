@@ -20,7 +20,10 @@ function openDB(): Promise<IDBDatabase> {
       const d = req.result;
       if (!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE);
     };
-    req.onsuccess = () => { db = req.result; resolve(db); };
+    req.onsuccess = () => {
+      db = req.result;
+      resolve(db);
+    };
     req.onerror = () => reject(req.error);
   });
 }
@@ -34,7 +37,9 @@ async function idbGet(key: string): Promise<any> {
       req.onsuccess = () => resolve(req.result ?? null);
       req.onerror = () => resolve(null);
     });
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 async function idbSet(key: string, value: any): Promise<void> {
@@ -46,7 +51,9 @@ async function idbSet(key: string, value: any): Promise<void> {
       tx.oncomplete = () => resolve();
       tx.onerror = () => resolve();
     });
-  } catch { /* localStorage fallback */ }
+  } catch {
+    /* localStorage fallback */
+  }
 }
 
 async function idbDelete(key: string): Promise<void> {
@@ -58,15 +65,30 @@ async function idbDelete(key: string): Promise<void> {
       tx.oncomplete = () => resolve();
       tx.onerror = () => resolve();
     });
-  } catch { /* noop */ }
+  } catch {
+    /* noop */
+  }
 }
 
-export type StoreTable = "signals" | "journal" | "alerts" | "strategies" | "agent_states" | "settings";
+export type StoreTable =
+  | "signals"
+  | "journal"
+  | "alerts"
+  | "strategies"
+  | "agent_states"
+  | "settings";
 
 export interface LocalDataStore {
-  select: <T = any>(table: StoreTable, filter?: Partial<Record<string, any>>) => Promise<{ data: T[] | null; error: any }>;
+  select: <T = any>(
+    table: StoreTable,
+    filter?: Partial<Record<string, any>>,
+  ) => Promise<{ data: T[] | null; error: any }>;
   insert: <T = any>(table: StoreTable, row: T) => Promise<{ data: T | null; error: any }>;
-  update: <T = any>(table: StoreTable, id: string, patch: Partial<T>) => Promise<{ data: T | null; error: any }>;
+  update: <T = any>(
+    table: StoreTable,
+    id: string,
+    patch: Partial<T>,
+  ) => Promise<{ data: T | null; error: any }>;
   remove: (table: StoreTable, id: string) => Promise<{ error: any }>;
   upsert: <T = any>(table: StoreTable, row: T) => Promise<{ data: T | null; error: any }>;
 }
@@ -128,7 +150,10 @@ export function useLocalDataStore(): LocalDataStore {
         return { error: (await supabase.from(table).delete().eq("id", id)).error };
       }
       const rows = ((await idbGet(table)) as any[]) || [];
-      await idbSet(table, rows.filter((r) => r.id !== id));
+      await idbSet(
+        table,
+        rows.filter((r) => r.id !== id),
+      );
       return { error: null };
     },
 
@@ -142,7 +167,11 @@ export function useLocalDataStore(): LocalDataStore {
       if (idx >= 0) {
         rows[idx] = { ...rows[idx], ...rowAny, updated_at: new Date().toISOString() };
       } else {
-        rows.push({ ...rowAny, id: rowAny.id || crypto.randomUUID(), created_at: new Date().toISOString() });
+        rows.push({
+          ...rowAny,
+          id: rowAny.id || crypto.randomUUID(),
+          created_at: new Date().toISOString(),
+        });
       }
       await idbSet(table, rows);
       return { data: row as T, error: null };

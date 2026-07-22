@@ -10,14 +10,18 @@ export interface SupplyDemandZone {
 
 export function findSupplyDemandZones(candles: Candle[], lookback = 200): SupplyDemandZone[] {
   const zones: SupplyDemandZone[] = [];
-  
+
   for (let i = 10; i < candles.length - 5; i++) {
     const prevCandles = candles.slice(i - 5, i);
     const postCandles = candles.slice(i + 1, i + 6);
-    
-    const isBase = prevCandles.every(c => Math.abs(c.close - c.open) < (c.high - c.low) * 0.5);
-    const strongMoveUp = postCandles[0].close > postCandles[0].open && (postCandles[0].close - postCandles[0].open) > (postCandles[0].high - postCandles[0].low) * 0.7;
-    const strongMoveDown = postCandles[0].open > postCandles[0].close && (postCandles[0].open - postCandles[0].close) > (postCandles[0].high - postCandles[0].low) * 0.7;
+
+    const isBase = prevCandles.every((c) => Math.abs(c.close - c.open) < (c.high - c.low) * 0.5);
+    const strongMoveUp =
+      postCandles[0].close > postCandles[0].open &&
+      postCandles[0].close - postCandles[0].open > (postCandles[0].high - postCandles[0].low) * 0.7;
+    const strongMoveDown =
+      postCandles[0].open > postCandles[0].close &&
+      postCandles[0].open - postCandles[0].close > (postCandles[0].high - postCandles[0].low) * 0.7;
 
     if (isBase && strongMoveUp) {
       zones.push({
@@ -25,7 +29,7 @@ export function findSupplyDemandZones(candles: Candle[], lookback = 200): Supply
         type: "demand",
         strength: 5,
         isFresh: true,
-        causedBOS: checkBOS(candles, i, "bullish")
+        causedBOS: checkBOS(candles, i, "bullish"),
       });
     } else if (isBase && strongMoveDown) {
       zones.push({
@@ -33,7 +37,7 @@ export function findSupplyDemandZones(candles: Candle[], lookback = 200): Supply
         type: "supply",
         strength: 5,
         isFresh: true,
-        causedBOS: checkBOS(candles, i, "bearish")
+        causedBOS: checkBOS(candles, i, "bearish"),
       });
     }
   }
@@ -47,8 +51,8 @@ function checkBOS(candles: Candle[], index: number, direction: "bullish" | "bear
   const currentLow = candles[index].low;
 
   if (direction === "bullish") {
-    return futureCandles.some(c => c.close > currentHigh);
+    return futureCandles.some((c) => c.close > currentHigh);
   } else {
-    return futureCandles.some(c => c.close < currentLow);
+    return futureCandles.some((c) => c.close < currentLow);
   }
 }

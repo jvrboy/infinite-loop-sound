@@ -35,7 +35,9 @@ export function getScopes(scope: string): ScopeResult {
   if (!validScopes.includes(scope as ScopeType)) {
     throw new Error(`Invalid scope: ${scope}. Valid: ${validScopes.join(", ")}`);
   }
-  const data: number[] = new Array(128).fill(0).map((_, i) => Math.round(Math.sin(i / 128 * Math.PI) * 100));
+  const data: number[] = new Array(128)
+    .fill(0)
+    .map((_, i) => Math.round(Math.sin((i / 128) * Math.PI) * 100));
   return {
     scope,
     data,
@@ -50,7 +52,11 @@ export interface MatchFrameResult {
   adjustments: Record<string, number>;
 }
 
-export function matchFrame(sourceId: string, targetId: string, matchType: string): MatchFrameResult {
+export function matchFrame(
+  sourceId: string,
+  targetId: string,
+  matchType: string,
+): MatchFrameResult {
   const validTypes: MatchType[] = ["exposure", "color", "both"];
   if (!validTypes.includes(matchType as MatchType)) {
     throw new Error(`Invalid match type: ${matchType}. Valid: ${validTypes.join(", ")}`);
@@ -161,7 +167,11 @@ export interface PresetResult {
   saved: boolean;
 }
 
-export function savePreset(name: string, type: string, data: Record<string, unknown>): PresetResult {
+export function savePreset(
+  name: string,
+  type: string,
+  data: Record<string, unknown>,
+): PresetResult {
   const validTypes: PresetType[] = ["edit-recipe", "lut", "effect-stack"];
   if (!validTypes.includes(type as PresetType)) {
     throw new Error(`Invalid preset type: ${type}. Valid: ${validTypes.join(", ")}`);
@@ -232,14 +242,54 @@ export function cloudRender(format: string, resolution: string): CloudRenderResu
 }
 
 export const PRO_MEDIA_TOOLS = [
-  { name: "adjustCurves", label: "Adjust Curves", description: "Adjust RGB/R/G/B curves with histogram output" },
-  { name: "getScopes", label: "Get Scopes", description: "Read waveform, vectorscope, or RGB parade with broadcast-safe check" },
-  { name: "matchFrame", label: "Match Frame", description: "Match exposure, color, or both between two clips" },
-  { name: "nodeComposite", label: "Node Composite", description: "Composite via node graph with topological render order" },
-  { name: "proxyWorkflow", label: "Proxy Workflow", description: "Calculate proxy compression ratio from resolutions" },
-  { name: "batchProcess", label: "Batch Process", description: "Queue a batch operation with estimated time" },
-  { name: "savePreset", label: "Save Preset", description: "Save an edit-recipe, LUT, or effect-stack preset" },
-  { name: "versionSnapshot", label: "Version Snapshot", description: "Create a branchable version snapshot" },
-  { name: "collaborate", label: "Collaborate", description: "Log a collaboration event (join, comment, edit, leave)" },
-  { name: "cloudRender", label: "Cloud Render", description: "Estimate cloud render cost by format and resolution" },
+  {
+    name: "adjustCurves",
+    label: "Adjust Curves",
+    description: "Adjust RGB/R/G/B curves with histogram output",
+  },
+  {
+    name: "getScopes",
+    label: "Get Scopes",
+    description: "Read waveform, vectorscope, or RGB parade with broadcast-safe check",
+  },
+  {
+    name: "matchFrame",
+    label: "Match Frame",
+    description: "Match exposure, color, or both between two clips",
+  },
+  {
+    name: "nodeComposite",
+    label: "Node Composite",
+    description: "Composite via node graph with topological render order",
+  },
+  {
+    name: "proxyWorkflow",
+    label: "Proxy Workflow",
+    description: "Calculate proxy compression ratio from resolutions",
+  },
+  {
+    name: "batchProcess",
+    label: "Batch Process",
+    description: "Queue a batch operation with estimated time",
+  },
+  {
+    name: "savePreset",
+    label: "Save Preset",
+    description: "Save an edit-recipe, LUT, or effect-stack preset",
+  },
+  {
+    name: "versionSnapshot",
+    label: "Version Snapshot",
+    description: "Create a branchable version snapshot",
+  },
+  {
+    name: "collaborate",
+    label: "Collaborate",
+    description: "Log a collaboration event (join, comment, edit, leave)",
+  },
+  {
+    name: "cloudRender",
+    label: "Cloud Render",
+    description: "Estimate cloud render cost by format and resolution",
+  },
 ];

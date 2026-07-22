@@ -11,7 +11,7 @@ export interface PortfolioMetrics {
 export function calculatePortfolioMetrics(
   portfolioReturns: number[],
   benchmarkReturns: number[],
-  riskFreeRate = 0.02
+  riskFreeRate = 0.02,
 ): PortfolioMetrics {
   if (portfolioReturns.length !== benchmarkReturns.length || portfolioReturns.length === 0) {
     return {
@@ -29,7 +29,9 @@ export function calculatePortfolioMetrics(
   const avgBenchmarkReturn = benchmarkReturns.reduce((a, b) => a + b) / benchmarkReturns.length;
 
   // Volatility (Standard Deviation)
-  const portfolioVariance = portfolioReturns.reduce((sum, r) => sum + Math.pow(r - avgPortfolioReturn, 2), 0) / portfolioReturns.length;
+  const portfolioVariance =
+    portfolioReturns.reduce((sum, r) => sum + Math.pow(r - avgPortfolioReturn, 2), 0) /
+    portfolioReturns.length;
   const volatility = Math.sqrt(portfolioVariance);
 
   // Covariance and Beta
@@ -62,7 +64,10 @@ export function calculatePortfolioMetrics(
   // Information Ratio
   const activeReturns = portfolioReturns.map((r, i) => r - benchmarkReturns[i]);
   const avgActiveReturn = activeReturns.reduce((a, b) => a + b) / activeReturns.length;
-  const trackingError = Math.sqrt(activeReturns.reduce((sum, r) => sum + Math.pow(r - avgActiveReturn, 2), 0) / activeReturns.length);
+  const trackingError = Math.sqrt(
+    activeReturns.reduce((sum, r) => sum + Math.pow(r - avgActiveReturn, 2), 0) /
+      activeReturns.length,
+  );
   const informationRatio = avgActiveReturn / (trackingError || 0.001);
 
   return {

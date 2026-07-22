@@ -22,12 +22,22 @@ export function identifySRZones(candles: Candle[], lookback = 100, proximity = 0
     const next2 = relevantCandles[i + 2];
 
     // Swing High (Resistance)
-    if (current.high > prev1.high && current.high > prev2.high && current.high > next1.high && current.high > next2.high) {
+    if (
+      current.high > prev1.high &&
+      current.high > prev2.high &&
+      current.high > next1.high &&
+      current.high > next2.high
+    ) {
       addOrUpdateZone(zones, current.high, "resistance", current.epoch, proximity);
     }
 
     // Swing Low (Support)
-    if (current.low < prev1.low && current.low < prev2.low && current.low < next1.low && current.low < next2.low) {
+    if (
+      current.low < prev1.low &&
+      current.low < prev2.low &&
+      current.low < next1.low &&
+      current.low < next2.low
+    ) {
       addOrUpdateZone(zones, current.low, "support", current.epoch, proximity);
     }
   }
@@ -35,8 +45,14 @@ export function identifySRZones(candles: Candle[], lookback = 100, proximity = 0
   return zones.sort((a, b) => b.strength - a.strength);
 }
 
-function addOrUpdateZone(zones: SRZone[], level: number, type: "support" | "resistance", epoch: number, proximity: number) {
-  const existingZone = zones.find(z => Math.abs(z.level - level) / level < proximity);
+function addOrUpdateZone(
+  zones: SRZone[],
+  level: number,
+  type: "support" | "resistance",
+  epoch: number,
+  proximity: number,
+) {
+  const existingZone = zones.find((z) => Math.abs(z.level - level) / level < proximity);
 
   if (existingZone) {
     existingZone.touches++;
@@ -52,7 +68,7 @@ function addOrUpdateZone(zones: SRZone[], level: number, type: "support" | "resi
       strength: 1,
       touches: 1,
       lastTouchEpoch: epoch,
-      isFlipZone: false
+      isFlipZone: false,
     });
   }
 }

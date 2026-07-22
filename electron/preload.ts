@@ -9,7 +9,8 @@ contextBridge.exposeInMainWorld("nativeAPI", {
   listFiles: (dirPath: string) => ipcRenderer.invoke("native:listFiles", dirPath),
   readBuffer: (filePath: string) => ipcRenderer.invoke("native:readFile", filePath),
   readFile: (filePath: string) => ipcRenderer.invoke("native:readFile", filePath),
-  writeFile: (filePath: string, data: ArrayBuffer) => ipcRenderer.invoke("native:writeFile", filePath, data),
+  writeFile: (filePath: string, data: ArrayBuffer) =>
+    ipcRenderer.invoke("native:writeFile", filePath, data),
   deleteFile: (filePath: string) => ipcRenderer.invoke("native:deleteFile", filePath),
   createDirectory: (dirPath: string) => ipcRenderer.invoke("native:createDirectory", dirPath),
 
@@ -21,7 +22,8 @@ contextBridge.exposeInMainWorld("nativeAPI", {
     ipcRenderer.invoke("dialog:saveFile", defaultName, filters),
 
   // Network
-  downloadFile: (url: string, destPath: string) => ipcRenderer.invoke("native:downloadFile", url, destPath),
+  downloadFile: (url: string, destPath: string) =>
+    ipcRenderer.invoke("native:downloadFile", url, destPath),
   openExternal: (filePath: string) => ipcRenderer.invoke("native:openExternal", filePath),
 
   // Legacy compat

@@ -104,18 +104,9 @@ export interface CrossTrackResult {
   handoffs: number;
 }
 
-const VALID_OBJECT_TYPES: ObjectType[] = [
-  "person",
-  "vehicle",
-  "animal",
-  "package",
-];
+const VALID_OBJECT_TYPES: ObjectType[] = ["person", "vehicle", "animal", "package"];
 
-const VALID_ANOMALY_TYPES: AnomalyType[] = [
-  "loitering",
-  "unusual-hours",
-  "sudden-motion",
-];
+const VALID_ANOMALY_TYPES: AnomalyType[] = ["loitering", "unusual-hours", "sudden-motion"];
 
 const QUALITY_BITRATES: Record<string, number> = {
   low: 1_000_000,
@@ -136,19 +127,13 @@ function assertPositive(value: number, label: string): void {
   }
 }
 
-function assertValidList(
-  values: string[],
-  allowed: readonly string[],
-  label: string,
-): void {
+function assertValidList(values: string[], allowed: readonly string[], label: string): void {
   if (!Array.isArray(values)) {
     throw new Error(`${label} must be an array`);
   }
   for (const v of values) {
     if (!allowed.includes(v as never)) {
-      throw new Error(
-        `Invalid ${label} value: "${v}". Allowed: ${allowed.join(", ")}`,
-      );
+      throw new Error(`Invalid ${label} value: "${v}". Allowed: ${allowed.join(", ")}`);
     }
   }
 }
@@ -168,11 +153,7 @@ export function motionZones(zones: MotionZone[]): MotionZonesResult {
   }
   for (const z of zones) {
     assertNonEmpty(z.id, "zone id");
-    if (
-      !Number.isFinite(z.sensitivity) ||
-      z.sensitivity < 0 ||
-      z.sensitivity > 100
-    ) {
+    if (!Number.isFinite(z.sensitivity) || z.sensitivity < 0 || z.sensitivity > 100) {
       throw new Error("zone sensitivity must be between 0 and 100");
     }
   }
@@ -191,9 +172,7 @@ export function objectFilter(types: string[]): ObjectFilterResult {
   return { types: [...types], detected };
 }
 
-export function faceRecognition(
-  list: FaceEntry[],
-): FaceRecognitionResult {
+export function faceRecognition(list: FaceEntry[]): FaceRecognitionResult {
   if (!Array.isArray(list)) {
     throw new Error("list must be an array");
   }
@@ -228,10 +207,7 @@ export function timelineEvents(events: number): TimelineEventsResult {
   return { events, markers };
 }
 
-export function storageConfig(
-  retention: number,
-  hybrid: boolean,
-): StorageConfigResult {
+export function storageConfig(retention: number, hybrid: boolean): StorageConfigResult {
   assertPositive(retention, "retention");
   return {
     retention,
@@ -240,10 +216,7 @@ export function storageConfig(
   };
 }
 
-export function streamingConfig(
-  quality: string,
-  adaptive: boolean,
-): StreamingConfigResult {
+export function streamingConfig(quality: string, adaptive: boolean): StreamingConfigResult {
   assertNonEmpty(quality, "quality");
   const q = quality.toLowerCase();
   if (!(q in QUALITY_BITRATES)) {
@@ -254,9 +227,7 @@ export function streamingConfig(
   return { quality: q, adaptive: Boolean(adaptive), bitrate: QUALITY_BITRATES[q] };
 }
 
-export function ptzPreset(
-  presets: PtzPreset[],
-): PtzPresetResult {
+export function ptzPreset(presets: PtzPreset[]): PtzPresetResult {
   if (!Array.isArray(presets)) {
     throw new Error("presets must be an array");
   }
@@ -293,10 +264,7 @@ export function alertRouting(
   };
 }
 
-export function aiSummary(
-  events: number,
-  timeRange: string,
-): AiSummaryResult {
+export function aiSummary(events: number, timeRange: string): AiSummaryResult {
   assertPositive(events, "events");
   assertNonEmpty(timeRange, "timeRange");
   return {
@@ -311,9 +279,7 @@ export function anomalyDetect(types: string[]): AnomalyDetectResult {
   return { types: [...types], detected: 0 };
 }
 
-export function healthMonitor(
-  cameras: CameraHealth[],
-): HealthMonitorResult {
+export function healthMonitor(cameras: CameraHealth[]): HealthMonitorResult {
   if (!Array.isArray(cameras)) {
     throw new Error("cameras must be an array");
   }
@@ -332,10 +298,7 @@ export function healthMonitor(
   };
 }
 
-export function crossTrack(
-  objectId: string,
-  cameras: string[],
-): CrossTrackResult {
+export function crossTrack(objectId: string, cameras: string[]): CrossTrackResult {
   assertNonEmpty(objectId, "objectId");
   if (!Array.isArray(cameras)) {
     throw new Error("cameras must be an array");

@@ -46,7 +46,10 @@ const STRATEGIES: { name: string; fn: StrategyFn }[] = [
     name: "RSI Reversal",
     fn: (candles: Candle[]) => {
       if (candles.length < 20) return null;
-      const r = rsi(candles.map((c) => c.close), 14);
+      const r = rsi(
+        candles.map((c) => c.close),
+        14,
+      );
       const last = r[r.length - 1] ?? 50;
       if (last < 30) return "BUY";
       if (last > 70) return "SELL";
@@ -146,7 +149,9 @@ function WalkForwardPage() {
             </p>
           </div>
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg glass-card">
-            <Activity className={`w-3.5 h-3.5 text-primary ${ready ? "animate-pulse" : "opacity-30"}`} />
+            <Activity
+              className={`w-3.5 h-3.5 text-primary ${ready ? "animate-pulse" : "opacity-30"}`}
+            />
             <span className="text-xs font-mono text-primary">
               {tickCount} ticks · {ready ? "LIVE" : "CONNECTING…"}
             </span>
@@ -307,13 +312,14 @@ function WalkForwardPage() {
                               <div className="flex justify-between mb-1">
                                 <span className="text-muted-foreground">Out-of-Sample</span>
                                 <span className="font-mono">
-                                  {(fold.outOfSampleAcc * 100).toFixed(1)}% ({fold.outOfSampleTrades}t)
+                                  {(fold.outOfSampleAcc * 100).toFixed(1)}% (
+                                  {fold.outOfSampleTrades}t)
                                 </span>
                               </div>
                               <Progress
                                 value={fold.outOfSampleAcc * 100}
                                 className="h-1.5"
-                                // @ts-ignore
+                                // @ts-expect-error CSS custom property is not in React style typings
                                 style={{ "--progress-color": "var(--bull)" }}
                               />
                             </div>
@@ -341,8 +347,8 @@ function WalkForwardPage() {
                   ) : (
                     <>
                       <p className="text-bear">
-                        Strategy may be overfit: decay is {(result.decay * 100).toFixed(1)}% (threshold: 20%).
-                        OOS accuracy is significantly lower than IS accuracy.
+                        Strategy may be overfit: decay is {(result.decay * 100).toFixed(1)}%
+                        (threshold: 20%). OOS accuracy is significantly lower than IS accuracy.
                       </p>
                       <p>
                         Recommendations: reduce parameters, simplify entry conditions, increase

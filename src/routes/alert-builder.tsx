@@ -109,7 +109,8 @@ function AlertBuilder() {
         let hit = false;
         if (r.op === ">") hit = price > r.value;
         else if (r.op === "<") hit = price < r.value;
-        else if (r.op === "crosses_up") hit = prev !== undefined && prev <= r.value && price > r.value;
+        else if (r.op === "crosses_up")
+          hit = prev !== undefined && prev <= r.value && price > r.value;
         else if (r.op === "crosses_down")
           hit = prev !== undefined && prev >= r.value && price < r.value;
         if (!hit) return r;
@@ -212,8 +213,8 @@ function AlertBuilder() {
                 value={draft.op}
                 onChange={(e) => setDraft((d) => ({ ...d, op: e.target.value as Op }))}
               >
-                <option value=">">price {'>'}</option>
-                <option value="<">price {'<'}</option>
+                <option value=">">price {">"}</option>
+                <option value="<">price {"<"}</option>
                 <option value="crosses_up">crosses up</option>
                 <option value="crosses_down">crosses down</option>
               </select>
@@ -280,9 +281,7 @@ function AlertBuilder() {
                       <div className="text-xs text-muted-foreground italic">"{r.note}"</div>
                     )}
                     <div className="ml-auto flex items-center gap-3">
-                      <span className="font-mono text-xs">
-                        {p != null ? p.toFixed(5) : "—"}
-                      </span>
+                      <span className="font-mono text-xs">{p != null ? p.toFixed(5) : "—"}</span>
                       {r.triggered && (
                         <span className="text-xs text-emerald-400">
                           last {new Date(r.triggered).toLocaleTimeString()}
@@ -291,11 +290,7 @@ function AlertBuilder() {
                       <Button size="sm" variant="outline" onClick={() => toggle(r.id)}>
                         {r.active ? "Pause" : "Resume"}
                       </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => remove(r.id)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => remove(r.id)}>
                         Delete
                       </Button>
                     </div>

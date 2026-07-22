@@ -36,26 +36,62 @@ export interface OneShotState {
 
 export function createDefaultPad(index: number): OneShotPad {
   const keys = ["a", "s", "d", "f", "g", "h", "j", "k", "l", ";", "w", "e", "r", "t", "y", "u"];
-  const colors = ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#84cc16", "#22c55e", "#10b981", "#14b8a6", "#06b6d4", "#3b82f6", "#6366f1", "#8b5cf6", "#a855f7", "#d946ef", "#ec4899", "#f43f5e"];
+  const colors = [
+    "#ef4444",
+    "#f97316",
+    "#f59e0b",
+    "#eab308",
+    "#84cc16",
+    "#22c55e",
+    "#10b981",
+    "#14b8a6",
+    "#06b6d4",
+    "#3b82f6",
+    "#6366f1",
+    "#8b5cf6",
+    "#a855f7",
+    "#d946ef",
+    "#ec4899",
+    "#f43f5e",
+  ];
   return {
-    id: crypto.randomUUID(), name: `Pad ${index + 1}`, buffer: null,
-    key: keys[index % keys.length] || `pad${index}`, midiNote: 36 + index,
+    id: crypto.randomUUID(),
+    name: `Pad ${index + 1}`,
+    buffer: null,
+    key: keys[index % keys.length] || `pad${index}`,
+    midiNote: 36 + index,
     color: colors[index % colors.length],
-    pitch: 0, pan: 0, gain: 1, reverse: false,
-    startOffset: 0, endOffset: 1, loopMode: false,
-    reverb: 0, delay: 0, filter: 1, durationSec: 0, waveform: [],
+    pitch: 0,
+    pan: 0,
+    gain: 1,
+    reverse: false,
+    startOffset: 0,
+    endOffset: 1,
+    loopMode: false,
+    reverb: 0,
+    delay: 0,
+    filter: 1,
+    durationSec: 0,
+    waveform: [],
   };
 }
 
 export function createDefaultOneShotState(padCount = 16): OneShotState {
   return {
     pads: Array.from({ length: padCount }, (_, i) => createDefaultPad(i)),
-    selectedPadId: null, masterVolume: 0.8,
-    recordMode: false, recordingBuffer: null, isRecording: false,
+    selectedPadId: null,
+    masterVolume: 0.8,
+    recordMode: false,
+    recordingBuffer: null,
+    isRecording: false,
   };
 }
 
-export async function recordOneShot(ctx: AudioContext, durationSec: number, onProgress?: (pct: number) => void): Promise<AudioBuffer> {
+export async function recordOneShot(
+  ctx: AudioContext,
+  durationSec: number,
+  onProgress?: (pct: number) => void,
+): Promise<AudioBuffer> {
   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
   const mediaRecorder = new MediaRecorder(stream);
   const chunks: Blob[] = [];
@@ -74,18 +110,33 @@ export async function recordOneShot(ctx: AudioContext, durationSec: number, onPr
     const interval = setInterval(() => {
       const elapsed = (Date.now() - start) / 1000;
       onProgress?.(Math.min(1, elapsed / durationSec));
-      if (elapsed >= durationSec) { clearInterval(interval); mediaRecorder.stop(); }
+      if (elapsed >= durationSec) {
+        clearInterval(interval);
+        mediaRecorder.stop();
+      }
     }, 50);
   });
 }
 
-export async function loadPadSample(ctx: AudioContext, file: File): Promise<{ buffer: AudioBuffer; waveform: number[]; durationSec: number }> {
+export async function loadPadSample(
+  ctx: AudioContext,
+  file: File,
+): Promise<{ buffer: AudioBuffer; waveform: number[]; durationSec: number }> {
   const arrayBuf = await file.arrayBuffer();
   const audioBuf = await ctx.decodeAudioData(arrayBuf);
-  return { buffer: audioBuf, waveform: renderWaveformPeaks(audioBuf, 200), durationSec: audioBuf.duration };
+  return {
+    buffer: audioBuf,
+    waveform: renderWaveformPeaks(audioBuf, 200),
+    durationSec: audioBuf.duration,
+  };
 }
 
-export function trimBuffer(ctx: BaseAudioContext, buffer: AudioBuffer, startOffset: number, endOffset: number): AudioBuffer {
+export function trimBuffer(
+  ctx: BaseAudioContext,
+  buffer: AudioBuffer,
+  startOffset: number,
+  endOffset: number,
+): AudioBuffer {
   const start = Math.floor(buffer.length * startOffset);
   const end = Math.floor(buffer.length * endOffset);
   const len = Math.max(1, end - start);
@@ -98,11 +149,18 @@ export function trimBuffer(ctx: BaseAudioContext, buffer: AudioBuffer, startOffs
   return out;
 }
 
-export function normalizeBuffer(ctx: BaseAudioContext, buffer: AudioBuffer, targetDb = -1): AudioBuffer {
+export function normalizeBuffer(
+  ctx: BaseAudioContext,
+  buffer: AudioBuffer,
+  targetDb = -1,
+): AudioBuffer {
   let peak = 0;
   for (let ch = 0; ch < buffer.numberOfChannels; ch++) {
     const d = buffer.getChannelData(ch);
-    for (let i = 0; i < d.length; i++) { const v = Math.abs(d[i]); if (v > peak) peak = v; }
+    for (let i = 0; i < d.length; i++) {
+      const v = Math.abs(d[i]);
+      if (v > peak) peak = v;
+    }
   }
   if (peak === 0) return buffer;
   const target = Math.pow(10, targetDb / 20);
@@ -126,10 +184,17 @@ export function reverseBuffer(ctx: BaseAudioContext, buffer: AudioBuffer): Audio
   return out;
 }
 
-export function playPad(ctx: AudioContext, pad: OneShotPad, opts: { gain?: number; startTime?: number } = {}): void {
+export function playPad(
+  ctx: AudioContext,
+  pad: OneShotPad,
+  opts: { gain?: number; startTime?: number } = {},
+): void {
   if (!pad.buffer) return;
   const src = ctx.createBufferSource();
-  const trimmed = pad.startOffset > 0 || pad.endOffset < 1 ? trimBuffer(ctx, pad.buffer, pad.startOffset, pad.endOffset) : pad.buffer;
+  const trimmed =
+    pad.startOffset > 0 || pad.endOffset < 1
+      ? trimBuffer(ctx, pad.buffer, pad.startOffset, pad.endOffset)
+      : pad.buffer;
   const finalBuffer = pad.reverse ? reverseBuffer(ctx, trimmed) : trimmed;
   src.buffer = finalBuffer;
   src.playbackRate.value = Math.pow(2, pad.pitch / 12);
@@ -143,31 +208,54 @@ export function playPad(ctx: AudioContext, pad: OneShotPad, opts: { gain?: numbe
     const filter = ctx.createBiquadFilter();
     filter.type = "lowpass";
     filter.frequency.value = 200 + pad.filter * 18000;
-    last.connect(filter); last = filter;
+    last.connect(filter);
+    last = filter;
   }
   if (pad.reverb > 0) {
-    const delay = ctx.createDelay(1); delay.delayTime.value = 0.1;
-    const fb = ctx.createGain(); fb.gain.value = pad.reverb * 0.4;
-    delay.connect(fb); fb.connect(delay); last.connect(delay); last = delay;
+    const delay = ctx.createDelay(1);
+    delay.delayTime.value = 0.1;
+    const fb = ctx.createGain();
+    fb.gain.value = pad.reverb * 0.4;
+    delay.connect(fb);
+    fb.connect(delay);
+    last.connect(delay);
+    last = delay;
   }
   if (pad.delay > 0) {
-    const delay = ctx.createDelay(1); delay.delayTime.value = 0.25;
-    const fb = ctx.createGain(); fb.gain.value = pad.delay * 0.3;
-    delay.connect(fb); fb.connect(delay); last.connect(delay); last = delay;
+    const delay = ctx.createDelay(1);
+    delay.delayTime.value = 0.25;
+    const fb = ctx.createGain();
+    fb.gain.value = pad.delay * 0.3;
+    delay.connect(fb);
+    fb.connect(delay);
+    last.connect(delay);
+    last = delay;
   }
-  src.connect(gain); last.connect(panner); panner.connect(ctx.destination);
+  src.connect(gain);
+  last.connect(panner);
+  panner.connect(ctx.destination);
   src.start(opts.startTime ?? ctx.currentTime);
 }
 
-export function updatePad(state: OneShotState, padId: string, patch: Partial<OneShotPad>): OneShotState {
+export function updatePad(
+  state: OneShotState,
+  padId: string,
+  patch: Partial<OneShotPad>,
+): OneShotState {
   return { ...state, pads: state.pads.map((p) => (p.id === padId ? { ...p, ...patch } : p)) };
 }
 
-export function assignPadBuffer(state: OneShotState, padId: string, buffer: AudioBuffer): OneShotState {
+export function assignPadBuffer(
+  state: OneShotState,
+  padId: string,
+  buffer: AudioBuffer,
+): OneShotState {
   return {
     ...state,
     pads: state.pads.map((p) =>
-      p.id === padId ? { ...p, buffer, durationSec: buffer.duration, waveform: renderWaveformPeaks(buffer, 200) } : p,
+      p.id === padId
+        ? { ...p, buffer, durationSec: buffer.duration, waveform: renderWaveformPeaks(buffer, 200) }
+        : p,
     ),
   };
 }

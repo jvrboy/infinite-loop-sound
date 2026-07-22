@@ -14,7 +14,10 @@ import {
   CircleCheck,
 } from "lucide-react";
 import { deriv, ALL_ASSETS, displayPair, type TF } from "@/lib/engine/deriv";
-import { findSupplyDemandZones, type SupplyDemandZone } from "@/lib/strategies/advanced/supply-demand-strategy";
+import {
+  findSupplyDemandZones,
+  type SupplyDemandZone,
+} from "@/lib/strategies/advanced/supply-demand-strategy";
 import { identifySRZones } from "@/lib/engine/support-resistance";
 import { detectSwing, fibLevels } from "@/lib/engine/heatmap-analytics";
 import { rsi, ema, type Candle } from "@/lib/engine/indicators";
@@ -203,16 +206,10 @@ function detectLiquiditySweeps(candles: Candle[]): LiquiditySweep[] {
   const lows: { idx: number; price: number }[] = [];
 
   for (let i = 2; i < slice.length - 2; i++) {
-    if (
-      slice[i].high > slice[i - 1].high &&
-      slice[i].high > slice[i + 1].high
-    ) {
+    if (slice[i].high > slice[i - 1].high && slice[i].high > slice[i + 1].high) {
       highs.push({ idx: i, price: slice[i].high });
     }
-    if (
-      slice[i].low < slice[i - 1].low &&
-      slice[i].low < slice[i + 1].low
-    ) {
+    if (slice[i].low < slice[i - 1].low && slice[i].low < slice[i + 1].low) {
       lows.push({ idx: i, price: slice[i].low });
     }
   }
@@ -277,11 +274,17 @@ function SMCPage() {
 
       const bullishBreaks = breaks.filter((b) => b.direction === "bullish").length;
       const bearishBreaks = breaks.filter((b) => b.direction === "bearish").length;
-      const unmitigatedBull = orderBlocks.filter((o) => o.type === "bullish" && !o.mitigated).length;
-      const unmitigatedBear = orderBlocks.filter((o) => o.type === "bearish" && !o.mitigated).length;
+      const unmitigatedBull = orderBlocks.filter(
+        (o) => o.type === "bullish" && !o.mitigated,
+      ).length;
+      const unmitigatedBear = orderBlocks.filter(
+        (o) => o.type === "bearish" && !o.mitigated,
+      ).length;
       const bullScore = bullishBreaks * 2 + unmitigatedBull;
       const bearScore = bearBreaks * 2 + unmitigatedBear;
-      const biasScore = Math.round(((bullScore - bearScore) / Math.max(1, bullScore + bearScore)) * 100);
+      const biasScore = Math.round(
+        ((bullScore - bearScore) / Math.max(1, bullScore + bearScore)) * 100,
+      );
       const bias = biasScore > 15 ? "bullish" : biasScore < -15 ? "bearish" : "neutral";
 
       const lastClose = cs[cs.length - 1].close;
@@ -295,9 +298,7 @@ function SMCPage() {
         bias,
         biasScore,
         lastClose,
-        swing: swing
-          ? { high: swing.highPrice, low: swing.lowPrice, index: swing.highIdx }
-          : null,
+        swing: swing ? { high: swing.highPrice, low: swing.lowPrice, index: swing.highIdx } : null,
       });
     } catch (e: any) {
       setError(e?.message || "Failed to load SMC analysis");
@@ -314,8 +315,14 @@ function SMCPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [symbol, tf]);
 
-  const srZones = useMemo(() => (candles.length ? identifySRZones(candles, 120).slice(0, 5) : []), [candles]);
-  const fib = useMemo(() => (candles.length ? fibLevels(detectSwing(candles, 120)!) : null), [candles]);
+  const srZones = useMemo(
+    () => (candles.length ? identifySRZones(candles, 120).slice(0, 5) : []),
+    [candles],
+  );
+  const fib = useMemo(
+    () => (candles.length ? fibLevels(detectSwing(candles, 120)!) : null),
+    [candles],
+  );
 
   return (
     <AppShell>
@@ -528,9 +535,7 @@ function SMCPage() {
                         <div className="flex items-center gap-3">
                           <span
                             className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              z.type === "demand"
-                                ? "bg-bull/20 text-bull"
-                                : "bg-bear/20 text-bear"
+                              z.type === "demand" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"
                             }`}
                           >
                             {z.type.toUpperCase()}
@@ -592,11 +597,7 @@ function SMCPage() {
                             >
                               {b.type}
                             </span>
-                            <span
-                              className={
-                                b.direction === "bullish" ? "text-bull" : "text-bear"
-                              }
-                            >
+                            <span className={b.direction === "bullish" ? "text-bull" : "text-bear"}>
                               {b.direction}
                             </span>
                           </div>
@@ -667,11 +668,7 @@ function SMCPage() {
                           key={i}
                           className="flex items-center justify-between rounded bg-muted/20 px-3 py-1.5 text-xs"
                         >
-                          <span
-                            className={
-                              z.type === "support" ? "text-bull" : "text-bear"
-                            }
-                          >
+                          <span className={z.type === "support" ? "text-bull" : "text-bear"}>
                             {z.type.toUpperCase()}
                             {z.isFlipZone ? " · FLIP" : ""}
                           </span>
@@ -719,9 +716,9 @@ function SMCPage() {
             </div>
 
             <p className="text-[10px] text-muted-foreground text-center">
-              Data: live Deriv {tf} candles · Order blocks from institutional candle patterns ·
-              S/D zones from base+momentum · BOS/CHoCH from swing structure · Liquidity sweeps from
-              wick reversals · refresh every 2min
+              Data: live Deriv {tf} candles · Order blocks from institutional candle patterns · S/D
+              zones from base+momentum · BOS/CHoCH from swing structure · Liquidity sweeps from wick
+              reversals · refresh every 2min
             </p>
           </>
         )}

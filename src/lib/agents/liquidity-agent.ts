@@ -59,9 +59,11 @@ export async function runLiquidityAgent(
   const buySide = zones.filter((z) => z.type === "buy-side");
   const sellSide = zones.filter((z) => z.type === "sell-side");
   const flowDirection =
-    buySide.length > sellSide.length * 1.3 ? "bullish"
-    : sellSide.length > buySide.length * 1.3 ? "bearish"
-    : "neutral";
+    buySide.length > sellSide.length * 1.3
+      ? "bullish"
+      : sellSide.length > buySide.length * 1.3
+        ? "bearish"
+        : "neutral";
 
   const sweptZones = zones.filter((z) => z.swept);
   const stopHunt = sweptZones.length >= 2;

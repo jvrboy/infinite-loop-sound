@@ -88,16 +88,17 @@ export interface TextureResult {
   opacity: number;
 }
 
-const ASPECT_PRESETS: Record<string, (w: number, h: number) => { width: number; height: number }> = {
-  "9:16": (w, h) => ({ width: Math.round((h * 9) / 16), height: h }),
-  "16:9": (w, h) => ({ width: w, height: Math.round((w * 9) / 16) }),
-  "1:1": (w, h) => {
-    const s = Math.min(w, h);
-    return { width: s, height: s };
-  },
-  "4:5": (w, h) => ({ width: Math.round((h * 4) / 5), height: h }),
-  freeform: (w, h) => ({ width: w, height: h }),
-};
+const ASPECT_PRESETS: Record<string, (w: number, h: number) => { width: number; height: number }> =
+  {
+    "9:16": (w, h) => ({ width: Math.round((h * 9) / 16), height: h }),
+    "16:9": (w, h) => ({ width: w, height: Math.round((w * 9) / 16) }),
+    "1:1": (w, h) => {
+      const s = Math.min(w, h);
+      return { width: s, height: s };
+    },
+    "4:5": (w, h) => ({ width: Math.round((h * 4) / 5), height: h }),
+    freeform: (w, h) => ({ width: w, height: h }),
+  };
 
 const FILTER_PRESETS = ["cinematic", "vintage", "film", "moody", "vibrant"] as const;
 
@@ -116,16 +117,36 @@ const EFFECTS = [
 ] as const;
 
 const BLEND_MODES = [
-  "normal", "dissolve", "darken", "multiply", "color burn", "linear burn",
-  "darker color", "lighten", "screen", "color dodge", "linear dodge (add)",
-  "lighter color", "overlay", "soft light", "hard light", "vivid light",
-  "linear light", "pin light", "hard mix", "difference", "exclusion",
-  "subtract", "divide", "hue", "saturation", "color", "luminosity",
+  "normal",
+  "dissolve",
+  "darken",
+  "multiply",
+  "color burn",
+  "linear burn",
+  "darker color",
+  "lighten",
+  "screen",
+  "color dodge",
+  "linear dodge (add)",
+  "lighter color",
+  "overlay",
+  "soft light",
+  "hard light",
+  "vivid light",
+  "linear light",
+  "pin light",
+  "hard mix",
+  "difference",
+  "exclusion",
+  "subtract",
+  "divide",
+  "hue",
+  "saturation",
+  "color",
+  "luminosity",
 ] as const;
 
-const TEXTURES = [
-  "grain", "paper", "canvas", "fabric", "dust", "scratches", "bokeh",
-] as const;
+const TEXTURES = ["grain", "paper", "canvas", "fabric", "dust", "scratches", "bokeh"] as const;
 
 /**
  * Crop an image to a target aspect ratio. The crop is centered on the source.
@@ -186,9 +207,9 @@ export function applyEffect(effectName: string, intensity: number): EffectResult
  */
 export function removeBackground(imageData: ImageData): BackgroundRemovalResult {
   const pixelCount = imageData.width * imageData.height;
-  const matte = new Array<number>(pixelCount).fill(0).map((_, i) =>
-    imageData.data[i * 4 + 3] > 128 ? 255 : 0
-  );
+  const matte = new Array<number>(pixelCount)
+    .fill(0)
+    .map((_, i) => (imageData.data[i * 4 + 3] > 128 ? 255 : 0));
   return {
     matte,
     edgeRefinement: true,
@@ -203,10 +224,13 @@ export function changeBackground(replacement: string): BackgroundReplacementResu
   const validTypes = ["image", "video", "color", "gradient", "blurred", "ai-scene"];
   const type = validTypes.includes(replacement) ? replacement : "color";
   const source =
-    type === "color" ? "#000000" :
-    type === "gradient" ? "linear-gradient(135deg, #1e3a8a, #312e81)" :
-    type === "blurred" ? "blur(24px)" :
-    `bg://${type}`;
+    type === "color"
+      ? "#000000"
+      : type === "gradient"
+        ? "linear-gradient(135deg, #1e3a8a, #312e81)"
+        : type === "blurred"
+          ? "blur(24px)"
+          : `bg://${type}`;
   return { type, source };
 }
 
@@ -224,10 +248,7 @@ export function trimMedia(start: number, end: number, mode: string): TrimResult 
 /**
  * Apply a geometric image manipulation tool with numeric parameters.
  */
-export function manipulateImage(
-  tool: string,
-  params: Record<string, number>
-): ManipulationResult {
+export function manipulateImage(tool: string, params: Record<string, number>): ManipulationResult {
   const validTools = ["warp", "liquify", "perspective", "lens-distortion", "mesh", "puppet-warp"];
   const normalizedTool = validTools.includes(tool) ? tool : "warp";
   const normalizedParams: Record<string, number> = {};
@@ -273,7 +294,7 @@ export function removeObjects(mask: number[], mode: string): ObjectRemovalResult
 export function applyTexture(
   textureName: string,
   blendMode: string,
-  opacity: number
+  opacity: number,
 ): TextureResult {
   const normalizedTexture = (TEXTURES as readonly string[]).includes(textureName)
     ? textureName
@@ -302,13 +323,33 @@ export const MEDIA_EDIT_TOOLS: MediaEditToolMeta[] = [
   { name: "crop", description: "Reframe and crop to aspect ratios", category: "geometry" },
   { name: "filter", description: "Apply cinematic and vintage looks", category: "color" },
   { name: "adjust", description: "Fine-tune exposure, contrast, and tone", category: "color" },
-  { name: "effects", description: "Add creative effects like glow and glitch", category: "creative" },
-  { name: "remove-background", description: "Isolate subjects with AI matting", category: "masking" },
-  { name: "change-background", description: "Swap backgrounds with images or video", category: "masking" },
+  {
+    name: "effects",
+    description: "Add creative effects like glow and glitch",
+    category: "creative",
+  },
+  {
+    name: "remove-background",
+    description: "Isolate subjects with AI matting",
+    category: "masking",
+  },
+  {
+    name: "change-background",
+    description: "Swap backgrounds with images or video",
+    category: "masking",
+  },
   { name: "trim", description: "Cut and trim media with ripple edits", category: "timeline" },
   { name: "manipulate", description: "Warp, liquify, and distort geometry", category: "geometry" },
   { name: "merge", description: "Combine, stitch, and stack sources", category: "compositing" },
   { name: "blend", description: "Blend layers with 28 blend modes", category: "compositing" },
-  { name: "remove-objects", description: "Erase objects with content-aware fill", category: "masking" },
-  { name: "texture", description: "Overlay grain, paper, and bokeh textures", category: "creative" },
+  {
+    name: "remove-objects",
+    description: "Erase objects with content-aware fill",
+    category: "masking",
+  },
+  {
+    name: "texture",
+    description: "Overlay grain, paper, and bokeh textures",
+    category: "creative",
+  },
 ];

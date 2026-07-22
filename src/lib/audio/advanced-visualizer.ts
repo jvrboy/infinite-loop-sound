@@ -16,10 +16,15 @@ export class AdvancedVisualizer {
   private analyser: AnalyserNode;
   private raf: number = 0;
   private mode: AdvancedVizMode;
-  private particles: { x: number; y: number; vx: number; vy: number; life: number; hue: number }[] = [];
+  private particles: { x: number; y: number; vx: number; vy: number; life: number; hue: number }[] =
+    [];
   private waterfallData: ImageData | null = null;
 
-  constructor(canvas: HTMLCanvasElement, engine: AudioEngine, mode: AdvancedVizMode = "radial-spectrum") {
+  constructor(
+    canvas: HTMLCanvasElement,
+    engine: AudioEngine,
+    mode: AdvancedVizMode = "radial-spectrum",
+  ) {
     this.canvas = canvas;
     this.ctx = canvas.getContext("2d")!;
     this.analyser = engine.ctx.createAnalyser();
@@ -72,13 +77,16 @@ export class AdvancedVisualizer {
 
   destroy() {
     this.stop();
-    try { this.analyser.disconnect(); } catch {}
+    try {
+      this.analyser.disconnect();
+    } catch {}
   }
 
   private drawRadial(freq: Uint8Array, w: number, h: number) {
     this.ctx.fillStyle = "rgba(10, 14, 26, 0.2)";
     this.ctx.fillRect(0, 0, w, h);
-    const cx = w / 2, cy = h / 2;
+    const cx = w / 2,
+      cy = h / 2;
     const bars = 128;
     const radius = Math.min(w, h) * 0.2;
 
@@ -110,7 +118,7 @@ export class AdvancedVisualizer {
     for (let i = 0; i < bars; i++) {
       const value = freq[Math.floor((i / bars) * freq.length)] / 255;
       const barHeight = value * h * 0.6;
-      const depth = 1 - i / bars * maxDepth;
+      const depth = 1 - (i / bars) * maxDepth;
       const x = i * barWidth;
       const y = h - barHeight;
 
@@ -166,7 +174,8 @@ export class AdvancedVisualizer {
   private drawPhaseScope(time: Float32Array, w: number, h: number) {
     this.ctx.fillStyle = "rgba(10, 14, 26, 0.1)";
     this.ctx.fillRect(0, 0, w, h);
-    const cx = w / 2, cy = h / 2;
+    const cx = w / 2,
+      cy = h / 2;
     const scale = Math.min(w, h) * 0.4;
 
     this.ctx.strokeStyle = "rgba(6, 180, 212, 0.6)";
@@ -226,7 +235,7 @@ export const ADVANCED_VIZ_MODES: AdvancedVizMode[] = [
 export const ADVANCED_VIZ_LABELS: Record<AdvancedVizMode, string> = {
   "radial-spectrum": "Radial Spectrum",
   "3d-bars": "3D Bars",
-  "waterfall": "Waterfall",
+  waterfall: "Waterfall",
   "phase-scope": "Phase Scope",
   "particle-flow": "Particle Flow",
 };

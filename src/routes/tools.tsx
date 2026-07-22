@@ -520,24 +520,9 @@ function ToolsPage() {
                   onChange={(v) => setPivotKind(v as "classic" | "fibonacci" | "camarilla")}
                   options={["classic", "fibonacci", "camarilla"]}
                 />
-                <NumberField
-                  label="Prev High"
-                  value={pivotH}
-                  onChange={setPivotH}
-                  step={0.0001}
-                />
-                <NumberField
-                  label="Prev Low"
-                  value={pivotL}
-                  onChange={setPivotL}
-                  step={0.0001}
-                />
-                <NumberField
-                  label="Prev Close"
-                  value={pivotC}
-                  onChange={setPivotC}
-                  step={0.0001}
-                />
+                <NumberField label="Prev High" value={pivotH} onChange={setPivotH} step={0.0001} />
+                <NumberField label="Prev Low" value={pivotL} onChange={setPivotL} step={0.0001} />
+                <NumberField label="Prev Close" value={pivotC} onChange={setPivotC} step={0.0001} />
               </div>
               {pivotResult && (
                 <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">

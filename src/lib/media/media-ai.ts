@@ -468,16 +468,48 @@ export interface MediaAIToolMeta {
  * Metadata for every AI media tool surfaced in the UI.
  */
 export const MEDIA_AI_TOOLS: MediaAIToolMeta[] = [
-  { name: "generative-fill", description: "Extend image edges with AI-generated content", category: "generative" },
-  { name: "generative-replace", description: "Replace objects via text description", category: "generative" },
-  { name: "text-to-image", description: "Generate images from text prompts", category: "generative" },
-  { name: "text-to-video", description: "Generate video clips from text prompts", category: "generative" },
-  { name: "image-to-video", description: "Animate stills with camera motion", category: "generative" },
-  { name: "face-retouch", description: "AI skin smoothing and feature enhancement", category: "portrait" },
+  {
+    name: "generative-fill",
+    description: "Extend image edges with AI-generated content",
+    category: "generative",
+  },
+  {
+    name: "generative-replace",
+    description: "Replace objects via text description",
+    category: "generative",
+  },
+  {
+    name: "text-to-image",
+    description: "Generate images from text prompts",
+    category: "generative",
+  },
+  {
+    name: "text-to-video",
+    description: "Generate video clips from text prompts",
+    category: "generative",
+  },
+  {
+    name: "image-to-video",
+    description: "Animate stills with camera motion",
+    category: "generative",
+  },
+  {
+    name: "face-retouch",
+    description: "AI skin smoothing and feature enhancement",
+    category: "portrait",
+  },
   { name: "face-swap", description: "Swap faces between subjects", category: "portrait" },
   { name: "rotoscope", description: "Auto-mask subjects across frames", category: "masking" },
-  { name: "auto-reframe", description: "Reframe to any aspect with subject tracking", category: "reframing" },
-  { name: "motion-tracking", description: "Track and attach elements to motion", category: "tracking" },
+  {
+    name: "auto-reframe",
+    description: "Reframe to any aspect with subject tracking",
+    category: "reframing",
+  },
+  {
+    name: "motion-tracking",
+    description: "Track and attach elements to motion",
+    category: "tracking",
+  },
   { name: "speech-to-text", description: "Transcribe and caption audio", category: "audio" },
   { name: "ai-voiceover", description: "Generate natural voice narration", category: "audio" },
   { name: "lip-sync", description: "Sync lip movement to audio tracks", category: "audio" },
@@ -488,9 +520,17 @@ export const MEDIA_AI_TOOLS: MediaAIToolMeta[] = [
   { name: "depth-map", description: "Generate depth layers for 3D effects", category: "depth" },
   { name: "relight", description: "Relight scenes with virtual lights", category: "lighting" },
   { name: "sky-replace", description: "Replace skies with presets", category: "environment" },
-  { name: "weather-effects", description: "Add rain, snow, fog, and flares", category: "environment" },
+  {
+    name: "weather-effects",
+    description: "Add rain, snow, fog, and flares",
+    category: "environment",
+  },
   { name: "time-remap", description: "Speed ramp and slow motion", category: "motion" },
-  { name: "frame-interpolate", description: "Interpolate to higher frame rates", category: "motion" },
+  {
+    name: "frame-interpolate",
+    description: "Interpolate to higher frame rates",
+    category: "motion",
+  },
   { name: "stabilize", description: "Stabilize shaky footage", category: "motion" },
   { name: "deflicker", description: "Remove flicker from footage", category: "motion" },
 ];

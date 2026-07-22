@@ -1,32 +1,35 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { AppShell } from '@/components/app/AppShell';
-import { useState } from 'react';
-import { Copy, Check, Zap, Plus, Trash } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from 'sonner';
+import { createFileRoute } from "@tanstack/react-router";
+import { AppShell } from "@/components/app/AppShell";
+import { useState } from "react";
+import { Copy, Check, Zap, Plus, Trash } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
-export const Route = createFileRoute('/webhooks')({ component: WebhooksPage });
+export const Route = createFileRoute("/webhooks")({ component: WebhooksPage });
 
 function WebhooksPage() {
   const [copied, setCopied] = useState(false);
   const [webhooks, setWebhooks] = useState<any[]>([]);
   const [minConfidence, setMinConfidence] = useState(70);
-  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookUrl, setWebhookUrl] = useState("");
   const generatedUrl = `https://infinite-loop-sound.vercel.app/api/webhook/tradingview?key=${Math.random().toString(36).slice(2, 11)}`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(generatedUrl);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-    toast.success('Webhook URL copied');
+    toast.success("Webhook URL copied");
   };
 
   const addWebhook = () => {
-    if (!webhookUrl) { toast.error('Enter webhook URL'); return; }
+    if (!webhookUrl) {
+      toast.error("Enter webhook URL");
+      return;
+    }
     setWebhooks([...webhooks, { id: Date.now(), url: webhookUrl, created: new Date() }]);
-    setWebhookUrl('');
-    toast.success('Webhook added');
+    setWebhookUrl("");
+    toast.success("Webhook added");
   };
 
   return (
@@ -39,7 +42,9 @@ function WebhooksPage() {
         {/* TradingView Setup */}
         <div className="rounded-lg border border-border bg-card p-4 space-y-3">
           <h2 className="text-lg font-bold">TradingView Setup</h2>
-          <p className="text-xs text-muted-foreground">Copy this URL into your TradingView alert webhook:</p>
+          <p className="text-xs text-muted-foreground">
+            Copy this URL into your TradingView alert webhook:
+          </p>
           <div className="flex gap-2">
             <input
               type="text"
@@ -74,12 +79,19 @@ function WebhooksPage() {
           <h2 className="text-lg font-bold">Connected Webhooks ({webhooks.length})</h2>
           <div className="space-y-2 max-h-64 overflow-auto">
             {webhooks.map((wh) => (
-              <div key={wh.id} className="flex items-center justify-between p-2 bg-muted rounded text-xs">
+              <div
+                key={wh.id}
+                className="flex items-center justify-between p-2 bg-muted rounded text-xs"
+              >
                 <div className="flex-1">
                   <p className="font-mono truncate">{wh.url}</p>
                   <p className="text-muted-foreground text-[10px]">{wh.created.toLocaleString()}</p>
                 </div>
-                <Button onClick={() => setWebhooks(webhooks.filter(w => w.id !== wh.id))} variant="ghost" size="sm">
+                <Button
+                  onClick={() => setWebhooks(webhooks.filter((w) => w.id !== wh.id))}
+                  variant="ghost"
+                  size="sm"
+                >
                   <Trash className="w-4 h-4" />
                 </Button>
               </div>

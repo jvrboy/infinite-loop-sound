@@ -34,7 +34,7 @@ export class SwarmIntelligence {
   private particles: SwarmParticle[] = [];
   private globalBest: number[] = [];
   private globalBestFitness = -Infinity;
-  private history: SwarmResult['history'] = [];
+  private history: SwarmResult["history"] = [];
 
   constructor(private config: SwarmConfig) {
     this.initializeSwarm();
@@ -44,7 +44,10 @@ export class SwarmIntelligence {
     this.particles = [];
     for (let i = 0; i < this.config.particleCount; i++) {
       const position = Array.from({ length: this.config.dimensions }, () => Math.random());
-      const velocity = Array.from({ length: this.config.dimensions }, () => (Math.random() - 0.5) * 0.1);
+      const velocity = Array.from(
+        { length: this.config.dimensions },
+        () => (Math.random() - 0.5) * 0.1,
+      );
       this.particles.push({
         id: `particle-${i}`,
         position,
@@ -88,16 +91,24 @@ export class SwarmIntelligence {
         for (let d = 0; d < this.config.dimensions; d++) {
           const r1 = Math.random();
           const r2 = Math.random();
-          const cognitive = this.config.cognitiveWeight * r1 * (particle.bestPosition[d] - particle.position[d]);
-          const social = this.config.socialWeight * r2 * (this.globalBest[d] - particle.position[d]);
-          particle.velocity[d] = this.config.inertiaWeight * particle.velocity[d] + cognitive + social;
-          particle.position[d] = Math.max(0, Math.min(1, particle.position[d] + particle.velocity[d]));
+          const cognitive =
+            this.config.cognitiveWeight * r1 * (particle.bestPosition[d] - particle.position[d]);
+          const social =
+            this.config.socialWeight * r2 * (this.globalBest[d] - particle.position[d]);
+          particle.velocity[d] =
+            this.config.inertiaWeight * particle.velocity[d] + cognitive + social;
+          particle.position[d] = Math.max(
+            0,
+            Math.min(1, particle.position[d] + particle.velocity[d]),
+          );
         }
       }
 
       if (!improved && iterations > 10) {
         const recent = this.history.slice(-10);
-        const variance = recent.reduce((sum, h) => sum + Math.pow(h.bestFitness - this.globalBestFitness, 2), 0) / 10;
+        const variance =
+          recent.reduce((sum, h) => sum + Math.pow(h.bestFitness - this.globalBestFitness, 2), 0) /
+          10;
         if (variance < this.config.tolerance) {
           converged = true;
           break;

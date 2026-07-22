@@ -8,18 +8,44 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import {
-  Crop, Sparkles, Sliders, Wand2, Scissors, Layers,
-  Eraser, Image as ImageIcon, Palette, Blend,
+  Crop,
+  Sparkles,
+  Sliders,
+  Wand2,
+  Scissors,
+  Layers,
+  Eraser,
+  Image as ImageIcon,
+  Palette,
+  Blend,
 } from "lucide-react";
 import {
-  cropImage, applyFilter, applyAdjustment, applyEffect,
-  removeBackground, changeBackground, trimMedia, manipulateImage,
-  mergeMedia, blendLayers, removeObjects, applyTexture, MEDIA_EDIT_TOOLS,
+  cropImage,
+  applyFilter,
+  applyAdjustment,
+  applyEffect,
+  removeBackground,
+  changeBackground,
+  trimMedia,
+  manipulateImage,
+  mergeMedia,
+  blendLayers,
+  removeObjects,
+  applyTexture,
+  MEDIA_EDIT_TOOLS,
 } from "@/lib/media/media-edit";
 
 type TabId =
-  | "crop" | "filters" | "adjust" | "effects" | "background"
-  | "trim" | "manipulation" | "blend" | "remove" | "texture";
+  | "crop"
+  | "filters"
+  | "adjust"
+  | "effects"
+  | "background"
+  | "trim"
+  | "manipulation"
+  | "blend"
+  | "remove"
+  | "texture";
 
 const TABS: { id: TabId; label: string; icon: typeof Crop }[] = [
   { id: "crop", label: "Crop", icon: Crop },
@@ -38,7 +64,11 @@ export const Route = createFileRoute("/media-studio")({
   head: () => ({
     meta: [
       { title: "Media Studio — Infinite Loop Sound" },
-      { name: "description", content: "Pro media editing tools: crop, filter, adjust, effects, background, trim, blend, and more." },
+      {
+        name: "description",
+        content:
+          "Pro media editing tools: crop, filter, adjust, effects, background, trim, blend, and more.",
+      },
     ],
   }),
   component: MediaStudioPage,
@@ -105,11 +135,24 @@ function MediaStudioPage() {
   };
   const runAdjust = () => {
     const r = applyAdjustment({
-      exposure, contrast, highlights, shadows, temperature,
-      tint: 0, vibrance: 0, saturation, clarity: 0, dehaze: 0,
-      sharpness, noiseReduction: 0,
+      exposure,
+      contrast,
+      highlights,
+      shadows,
+      temperature,
+      tint: 0,
+      vibrance: 0,
+      saturation,
+      clarity: 0,
+      dehaze: 0,
+      sharpness,
+      noiseReduction: 0,
     });
-    setResult(`Adjustments: ${Object.entries(r).map(([k, v]) => `${k}=${v}`).join(", ")}`);
+    setResult(
+      `Adjustments: ${Object.entries(r)
+        .map(([k, v]) => `${k}=${v}`)
+        .join(", ")}`,
+    );
   };
   const runEffect = () => {
     const r = applyEffect(effectName, effectIntensity);
@@ -150,12 +193,14 @@ function MediaStudioPage() {
           action={<Badge variant="secondary">{MEDIA_EDIT_TOOLS.length} tools</Badge>}
         />
 
-        <KpiGrid tiles={[
-          { label: "Edit Tools", value: MEDIA_EDIT_TOOLS.length, icon: Wand2 },
-          { label: "Blend Modes", value: 28, icon: Blend },
-          { label: "Filter Presets", value: 5, icon: Sparkles },
-          { label: "Effects", value: 11, icon: Wand2 },
-        ]} />
+        <KpiGrid
+          tiles={[
+            { label: "Edit Tools", value: MEDIA_EDIT_TOOLS.length, icon: Wand2 },
+            { label: "Blend Modes", value: 28, icon: Blend },
+            { label: "Filter Presets", value: 5, icon: Sparkles },
+            { label: "Effects", value: 11, icon: Wand2 },
+          ]}
+        />
 
         <ProCard title="Editing Tools" description="Select a tool category" icon={Layers}>
           <div className="flex flex-wrap gap-2">
@@ -186,7 +231,12 @@ function MediaStudioPage() {
                 <Label>Aspect Ratio</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["9:16", "16:9", "1:1", "4:5", "freeform"].map((a) => (
-                    <Button key={a} size="sm" variant={aspect === a ? "default" : "outline"} onClick={() => setAspect(a)}>
+                    <Button
+                      key={a}
+                      size="sm"
+                      variant={aspect === a ? "default" : "outline"}
+                      onClick={() => setAspect(a)}
+                    >
                       {a}
                     </Button>
                   ))}
@@ -196,13 +246,21 @@ function MediaStudioPage() {
                 <Label>Mode</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["precise", "ripple", "slip", "slide"].map((m) => (
-                    <Button key={m} size="sm" variant={cropMode === m ? "default" : "outline"} onClick={() => setCropMode(m)}>
+                    <Button
+                      key={m}
+                      size="sm"
+                      variant={cropMode === m ? "default" : "outline"}
+                      onClick={() => setCropMode(m)}
+                    >
                       {m}
                     </Button>
                   ))}
                 </div>
               </div>
-              <Button onClick={runCrop}><Crop className="w-4 h-4 mr-2" />Apply Crop</Button>
+              <Button onClick={runCrop}>
+                <Crop className="w-4 h-4 mr-2" />
+                Apply Crop
+              </Button>
             </div>
           </ProCard>
         )}
@@ -214,7 +272,12 @@ function MediaStudioPage() {
                 <Label>Preset</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["cinematic", "vintage", "film", "moody", "vibrant"].map((f) => (
-                    <Button key={f} size="sm" variant={filterName === f ? "default" : "outline"} onClick={() => setFilterName(f)}>
+                    <Button
+                      key={f}
+                      size="sm"
+                      variant={filterName === f ? "default" : "outline"}
+                      onClick={() => setFilterName(f)}
+                    >
                       {f}
                     </Button>
                   ))}
@@ -222,9 +285,19 @@ function MediaStudioPage() {
               </div>
               <div>
                 <Label>Intensity: {filterIntensity}%</Label>
-                <Slider value={[filterIntensity]} min={0} max={100} step={1} onValueChange={(v) => setFilterIntensity(v[0])} className="mt-2" />
+                <Slider
+                  value={[filterIntensity]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => setFilterIntensity(v[0])}
+                  className="mt-2"
+                />
               </div>
-              <Button onClick={runFilter}><Sparkles className="w-4 h-4 mr-2" />Apply Filter</Button>
+              <Button onClick={runFilter}>
+                <Sparkles className="w-4 h-4 mr-2" />
+                Apply Filter
+              </Button>
             </div>
           </ProCard>
         )}
@@ -242,11 +315,23 @@ function MediaStudioPage() {
                 { label: "Sharpness", val: sharpness, set: setSharpness },
               ].map((a) => (
                 <div key={a.label}>
-                  <Label>{a.label}: {a.val}</Label>
-                  <Slider value={[a.val]} min={-100} max={100} step={1} onValueChange={(v) => a.set(v[0])} className="mt-2" />
+                  <Label>
+                    {a.label}: {a.val}
+                  </Label>
+                  <Slider
+                    value={[a.val]}
+                    min={-100}
+                    max={100}
+                    step={1}
+                    onValueChange={(v) => a.set(v[0])}
+                    className="mt-2"
+                  />
                 </div>
               ))}
-              <Button onClick={runAdjust}><Sliders className="w-4 h-4 mr-2" />Apply Adjustments</Button>
+              <Button onClick={runAdjust}>
+                <Sliders className="w-4 h-4 mr-2" />
+                Apply Adjustments
+              </Button>
             </div>
           </ProCard>
         )}
@@ -257,8 +342,25 @@ function MediaStudioPage() {
               <div>
                 <Label>Effect</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {["glow", "bloom", "chromatic aberration", "film grain", "light leaks", "glitch", "vhs", "prism", "tilt-shift", "motion blur", "radial blur"].map((e) => (
-                    <Button key={e} size="sm" variant={effectName === e ? "default" : "outline"} onClick={() => setEffectName(e)}>
+                  {[
+                    "glow",
+                    "bloom",
+                    "chromatic aberration",
+                    "film grain",
+                    "light leaks",
+                    "glitch",
+                    "vhs",
+                    "prism",
+                    "tilt-shift",
+                    "motion blur",
+                    "radial blur",
+                  ].map((e) => (
+                    <Button
+                      key={e}
+                      size="sm"
+                      variant={effectName === e ? "default" : "outline"}
+                      onClick={() => setEffectName(e)}
+                    >
                       {e}
                     </Button>
                   ))}
@@ -266,9 +368,19 @@ function MediaStudioPage() {
               </div>
               <div>
                 <Label>Intensity: {effectIntensity}%</Label>
-                <Slider value={[effectIntensity]} min={0} max={100} step={1} onValueChange={(v) => setEffectIntensity(v[0])} className="mt-2" />
+                <Slider
+                  value={[effectIntensity]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => setEffectIntensity(v[0])}
+                  className="mt-2"
+                />
               </div>
-              <Button onClick={runEffect}><Wand2 className="w-4 h-4 mr-2" />Apply Effect</Button>
+              <Button onClick={runEffect}>
+                <Wand2 className="w-4 h-4 mr-2" />
+                Apply Effect
+              </Button>
             </div>
           </ProCard>
         )}
@@ -276,20 +388,37 @@ function MediaStudioPage() {
         {activeTab === "background" && (
           <ProCard title="Background" description="Remove or replace backgrounds" icon={ImageIcon}>
             <div className="space-y-4">
-              <Button variant="outline" onClick={() => { const r = removeBackground(mockImage); setResult(`Background removed — matte: ${r.matte.length}px, edge: ${r.edgeRefinement}`); }}>
-                <Eraser className="w-4 h-4 mr-2" />Remove Background
+              <Button
+                variant="outline"
+                onClick={() => {
+                  const r = removeBackground(mockImage);
+                  setResult(
+                    `Background removed — matte: ${r.matte.length}px, edge: ${r.edgeRefinement}`,
+                  );
+                }}
+              >
+                <Eraser className="w-4 h-4 mr-2" />
+                Remove Background
               </Button>
               <div>
                 <Label>Replace With</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["image", "video", "color", "gradient", "blurred", "ai-scene"].map((b) => (
-                    <Button key={b} size="sm" variant={bgReplacement === b ? "default" : "outline"} onClick={() => setBgReplacement(b)}>
+                    <Button
+                      key={b}
+                      size="sm"
+                      variant={bgReplacement === b ? "default" : "outline"}
+                      onClick={() => setBgReplacement(b)}
+                    >
                       {b}
                     </Button>
                   ))}
                 </div>
               </div>
-              <Button onClick={runBg}><ImageIcon className="w-4 h-4 mr-2" />Replace Background</Button>
+              <Button onClick={runBg}>
+                <ImageIcon className="w-4 h-4 mr-2" />
+                Replace Background
+              </Button>
             </div>
           </ProCard>
         )}
@@ -300,24 +429,46 @@ function MediaStudioPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Start (s): {trimStart}</Label>
-                  <Slider value={[trimStart]} min={0} max={60} step={1} onValueChange={(v) => setTrimStart(v[0])} className="mt-2" />
+                  <Slider
+                    value={[trimStart]}
+                    min={0}
+                    max={60}
+                    step={1}
+                    onValueChange={(v) => setTrimStart(v[0])}
+                    className="mt-2"
+                  />
                 </div>
                 <div>
                   <Label>End (s): {trimEnd}</Label>
-                  <Slider value={[trimEnd]} min={0} max={60} step={1} onValueChange={(v) => setTrimEnd(v[0])} className="mt-2" />
+                  <Slider
+                    value={[trimEnd]}
+                    min={0}
+                    max={60}
+                    step={1}
+                    onValueChange={(v) => setTrimEnd(v[0])}
+                    className="mt-2"
+                  />
                 </div>
               </div>
               <div>
                 <Label>Mode</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["precise", "ripple", "slip", "slide", "silence-cut"].map((m) => (
-                    <Button key={m} size="sm" variant={trimMode === m ? "default" : "outline"} onClick={() => setTrimMode(m)}>
+                    <Button
+                      key={m}
+                      size="sm"
+                      variant={trimMode === m ? "default" : "outline"}
+                      onClick={() => setTrimMode(m)}
+                    >
                       {m}
                     </Button>
                   ))}
                 </div>
               </div>
-              <Button onClick={runTrim}><Scissors className="w-4 h-4 mr-2" />Apply Trim</Button>
+              <Button onClick={runTrim}>
+                <Scissors className="w-4 h-4 mr-2" />
+                Apply Trim
+              </Button>
             </div>
           </ProCard>
         )}
@@ -328,18 +479,35 @@ function MediaStudioPage() {
               <div>
                 <Label>Tool</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
-                  {["warp", "liquify", "perspective", "lens-distortion", "mesh", "puppet-warp"].map((t) => (
-                    <Button key={t} size="sm" variant={manipTool === t ? "default" : "outline"} onClick={() => setManipTool(t)}>
-                      {t}
-                    </Button>
-                  ))}
+                  {["warp", "liquify", "perspective", "lens-distortion", "mesh", "puppet-warp"].map(
+                    (t) => (
+                      <Button
+                        key={t}
+                        size="sm"
+                        variant={manipTool === t ? "default" : "outline"}
+                        onClick={() => setManipTool(t)}
+                      >
+                        {t}
+                      </Button>
+                    ),
+                  )}
                 </div>
               </div>
               <div>
                 <Label>Strength: {manipStrength}</Label>
-                <Slider value={[manipStrength]} min={0} max={100} step={1} onValueChange={(v) => setManipStrength(v[0])} className="mt-2" />
+                <Slider
+                  value={[manipStrength]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => setManipStrength(v[0])}
+                  className="mt-2"
+                />
               </div>
-              <Button onClick={runManip}><Layers className="w-4 h-4 mr-2" />Apply Manipulation</Button>
+              <Button onClick={runManip}>
+                <Layers className="w-4 h-4 mr-2" />
+                Apply Manipulation
+              </Button>
             </div>
           </ProCard>
         )}
@@ -349,17 +517,61 @@ function MediaStudioPage() {
             <div className="space-y-4">
               <div>
                 <Label>Blend Mode</Label>
-                <select className="w-full mt-2 rounded-md border border-input bg-background px-3 py-2 text-sm" value={blendMode} onChange={(e) => setBlendMode(e.target.value)}>
-                  {["normal","dissolve","darken","multiply","color burn","linear burn","darker color","lighten","screen","color dodge","linear dodge (add)","lighter color","overlay","soft light","hard light","vivid light","linear light","pin light","hard mix","difference","exclusion","subtract","divide","hue","saturation","color","luminosity"].map((b) => (
-                    <option key={b} value={b}>{b}</option>
+                <select
+                  className="w-full mt-2 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={blendMode}
+                  onChange={(e) => setBlendMode(e.target.value)}
+                >
+                  {[
+                    "normal",
+                    "dissolve",
+                    "darken",
+                    "multiply",
+                    "color burn",
+                    "linear burn",
+                    "darker color",
+                    "lighten",
+                    "screen",
+                    "color dodge",
+                    "linear dodge (add)",
+                    "lighter color",
+                    "overlay",
+                    "soft light",
+                    "hard light",
+                    "vivid light",
+                    "linear light",
+                    "pin light",
+                    "hard mix",
+                    "difference",
+                    "exclusion",
+                    "subtract",
+                    "divide",
+                    "hue",
+                    "saturation",
+                    "color",
+                    "luminosity",
+                  ].map((b) => (
+                    <option key={b} value={b}>
+                      {b}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
                 <Label>Opacity: {blendOpacity}%</Label>
-                <Slider value={[blendOpacity]} min={0} max={100} step={1} onValueChange={(v) => setBlendOpacity(v[0])} className="mt-2" />
+                <Slider
+                  value={[blendOpacity]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => setBlendOpacity(v[0])}
+                  className="mt-2"
+                />
               </div>
-              <Button onClick={runBlend}><Blend className="w-4 h-4 mr-2" />Apply Blend</Button>
+              <Button onClick={runBlend}>
+                <Blend className="w-4 h-4 mr-2" />
+                Apply Blend
+              </Button>
             </div>
           </ProCard>
         )}
@@ -371,13 +583,21 @@ function MediaStudioPage() {
                 <Label>Mode</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["content-aware", "magic-eraser", "temporal-track"].map((m) => (
-                    <Button key={m} size="sm" variant={removeMode === m ? "default" : "outline"} onClick={() => setRemoveMode(m)}>
+                    <Button
+                      key={m}
+                      size="sm"
+                      variant={removeMode === m ? "default" : "outline"}
+                      onClick={() => setRemoveMode(m)}
+                    >
                       {m}
                     </Button>
                   ))}
                 </div>
               </div>
-              <Button onClick={runRemove}><Eraser className="w-4 h-4 mr-2" />Remove Objects</Button>
+              <Button onClick={runRemove}>
+                <Eraser className="w-4 h-4 mr-2" />
+                Remove Objects
+              </Button>
             </div>
           </ProCard>
         )}
@@ -389,7 +609,12 @@ function MediaStudioPage() {
                 <Label>Texture</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {["grain", "paper", "canvas", "fabric", "dust", "scratches", "bokeh"].map((t) => (
-                    <Button key={t} size="sm" variant={textureName === t ? "default" : "outline"} onClick={() => setTextureName(t)}>
+                    <Button
+                      key={t}
+                      size="sm"
+                      variant={textureName === t ? "default" : "outline"}
+                      onClick={() => setTextureName(t)}
+                    >
                       {t}
                     </Button>
                   ))}
@@ -397,17 +622,35 @@ function MediaStudioPage() {
               </div>
               <div>
                 <Label>Blend Mode</Label>
-                <select className="w-full mt-2 rounded-md border border-input bg-background px-3 py-2 text-sm" value={textureBlend} onChange={(e) => setTextureBlend(e.target.value)}>
-                  {["overlay","soft light","hard light","multiply","screen","normal"].map((b) => (
-                    <option key={b} value={b}>{b}</option>
-                  ))}
+                <select
+                  className="w-full mt-2 rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={textureBlend}
+                  onChange={(e) => setTextureBlend(e.target.value)}
+                >
+                  {["overlay", "soft light", "hard light", "multiply", "screen", "normal"].map(
+                    (b) => (
+                      <option key={b} value={b}>
+                        {b}
+                      </option>
+                    ),
+                  )}
                 </select>
               </div>
               <div>
                 <Label>Opacity: {textureOpacity}%</Label>
-                <Slider value={[textureOpacity]} min={0} max={100} step={1} onValueChange={(v) => setTextureOpacity(v[0])} className="mt-2" />
+                <Slider
+                  value={[textureOpacity]}
+                  min={0}
+                  max={100}
+                  step={1}
+                  onValueChange={(v) => setTextureOpacity(v[0])}
+                  className="mt-2"
+                />
               </div>
-              <Button onClick={runTexture}><Palette className="w-4 h-4 mr-2" />Apply Texture</Button>
+              <Button onClick={runTexture}>
+                <Palette className="w-4 h-4 mr-2" />
+                Apply Texture
+              </Button>
             </div>
           </ProCard>
         )}

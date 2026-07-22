@@ -23,7 +23,10 @@ export class AudioRecorder {
     this.chunks = [];
     const mimeTypes = ["audio/webm;codecs=opus", "audio/webm", "audio/ogg"];
     for (const m of mimeTypes) {
-      if (MediaRecorder.isTypeSupported(m)) { this.mimeType = m; break; }
+      if (MediaRecorder.isTypeSupported(m)) {
+        this.mimeType = m;
+        break;
+      }
     }
     this.recorder = new MediaRecorder(this.dest!.stream, { mimeType: this.mimeType });
     this.recorder.ondataavailable = (e) => {
@@ -35,7 +38,10 @@ export class AudioRecorder {
 
   stop(): Promise<Blob> {
     return new Promise((resolve) => {
-      if (!this.recorder) { resolve(new Blob()); return; }
+      if (!this.recorder) {
+        resolve(new Blob());
+        return;
+      }
       this.recorder.onstop = () => {
         const blob = new Blob(this.chunks, { type: this.mimeType });
         this.recording = false;

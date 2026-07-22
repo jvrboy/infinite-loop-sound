@@ -38,7 +38,8 @@ export function LivePrice({ symbol, price, change, className }: LivePriceProps) 
       </span>
       {change !== undefined && (
         <span className={cn("text-xs", up ? "text-bull" : "text-bear")}>
-          {up ? "+" : ""}{change.toFixed(2)}
+          {up ? "+" : ""}
+          {change.toFixed(2)}
         </span>
       )}
     </div>

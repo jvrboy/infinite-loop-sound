@@ -12,7 +12,7 @@ export interface StreamEvent {
 }
 
 export interface WindowConfig {
-  type: 'tumbling' | 'sliding' | 'session';
+  type: "tumbling" | "sliding" | "session";
   sizeMs: number;
   slideMs?: number;
   gapMs?: number;
@@ -27,7 +27,7 @@ export interface WindowResult {
 
 export interface CEPattern {
   name: string;
-  conditions: { field: string; operator: '>' | '<' | '=' | '>=' | '<=' | '!=' ; value: any }[];
+  conditions: { field: string; operator: ">" | "<" | "=" | ">=" | "<=" | "!="; value: any }[];
   sequence?: { type: string; within: number }[];
   action: string;
 }
@@ -75,7 +75,10 @@ export class StreamProcessor {
   private pruneWindow(streamId: string): void {
     const events = this.windows.get(streamId)!;
     const cutoff = Date.now() - this.windowConfig.sizeMs * 2;
-    this.windows.set(streamId, events.filter((e) => e.timestamp > cutoff));
+    this.windows.set(
+      streamId,
+      events.filter((e) => e.timestamp > cutoff),
+    );
   }
 
   private computeWindows(streamId: string): WindowResult[] {
@@ -83,29 +86,51 @@ export class StreamProcessor {
     const now = Date.now();
     const results: WindowResult[] = [];
 
-    if (this.windowConfig.type === 'tumbling') {
+    if (this.windowConfig.type === "tumbling") {
       const windowStart = now - (now % this.windowConfig.sizeMs);
       const windowEnd = windowStart + this.windowConfig.sizeMs;
-      const windowEvents = events.filter((e) => e.timestamp >= windowStart && e.timestamp < windowEnd);
+      const windowEvents = events.filter(
+        (e) => e.timestamp >= windowStart && e.timestamp < windowEnd,
+      );
       if (windowEvents.length > 0) {
         results.push(this.createWindowResult(windowStart, windowEnd, windowEvents, streamId));
       }
-    } else if (this.windowConfig.type === 'sliding') {
+    } else if (this.windowConfig.type === "sliding") {
       const slide = this.windowConfig.slideMs ?? this.windowConfig.sizeMs / 2;
       for (let start = now - this.windowConfig.sizeMs; start <= now; start += slide) {
-        const windowEvents = events.filter((e) => e.timestamp >= start && e.timestamp < start + this.windowConfig.sizeMs);
+        const windowEvents = events.filter(
+          (e) => e.timestamp >= start && e.timestamp < start + this.windowConfig.sizeMs,
+        );
         if (windowEvents.length > 0) {
-          results.push(this.createWindowResult(start, start + this.windowConfig.sizeMs, windowEvents, streamId));
+          results.push(
+            this.createWindowResult(
+              start,
+              start + this.windowConfig.sizeMs,
+              windowEvents,
+              streamId,
+            ),
+          );
         }
       }
-    } else if (this.windowConfig.type === 'session') {
+    } else if (this.windowConfig.type === "session") {
       const gap = this.windowConfig.gapMs ?? 30000;
       let sessionStart = events[0]?.timestamp ?? now;
       let sessionEvents: StreamEvent[] = [];
       for (const event of events) {
-        if (event.timestamp - (sessionEvents[sessionEvents.length - 1]?.timestamp ?? event.timestamp) > gap) {
+        if (
+          event.timestamp -
+            (sessionEvents[sessionEvents.length - 1]?.timestamp ?? event.timestamp) >
+          gap
+        ) {
           if (sessionEvents.length > 0) {
-            results.push(this.createWindowResult(sessionStart, sessionEvents[sessionEvents.length - 1].timestamp, sessionEvents, streamId));
+            results.push(
+              this.createWindowResult(
+                sessionStart,
+                sessionEvents[sessionEvents.length - 1].timestamp,
+                sessionEvents,
+                streamId,
+              ),
+            );
           }
           sessionStart = event.timestamp;
           sessionEvents = [];
@@ -113,14 +138,26 @@ export class StreamProcessor {
         sessionEvents.push(event);
       }
       if (sessionEvents.length > 0) {
-        results.push(this.createWindowResult(sessionStart, sessionEvents[sessionEvents.length - 1].timestamp, sessionEvents, streamId));
+        results.push(
+          this.createWindowResult(
+            sessionStart,
+            sessionEvents[sessionEvents.length - 1].timestamp,
+            sessionEvents,
+            streamId,
+          ),
+        );
       }
     }
 
     return results;
   }
 
-  private createWindowResult(start: number, end: number, events: StreamEvent[], streamId: string): WindowResult {
+  private createWindowResult(
+    start: number,
+    end: number,
+    events: StreamEvent[],
+    streamId: string,
+  ): WindowResult {
     const aggregator = this.aggregators.get(streamId);
     const aggregate = aggregator ? aggregator(events) : { count: events.length };
     return { windowStart: start, windowEnd: end, events, aggregate };
@@ -151,17 +188,24 @@ export class StreamProcessor {
     return matches;
   }
 
-  private matchConditions(event: StreamEvent, conditions: CEPattern['conditions']): boolean {
+  private matchConditions(event: StreamEvent, conditions: CEPattern["conditions"]): boolean {
     return conditions.every((cond) => {
       const value = event.data[cond.field];
       switch (cond.operator) {
-        case '>': return value > cond.value;
-        case '<': return value < cond.value;
-        case '=': return value === cond.value;
-        case '>=': return value >= cond.value;
-        case '<=': return value <= cond.value;
-        case '!=': return value !== cond.value;
-        default: return false;
+        case ">":
+          return value > cond.value;
+        case "<":
+          return value < cond.value;
+        case "=":
+          return value === cond.value;
+        case ">=":
+          return value >= cond.value;
+        case "<=":
+          return value <= cond.value;
+        case "!=":
+          return value !== cond.value;
+        default:
+          return false;
       }
     });
   }
@@ -171,15 +215,21 @@ export class StreamProcessor {
     const matches: CEPMatch[] = [];
 
     for (let i = 0; i <= events.length - pattern.sequence.length; i++) {
-      const matchedEvents: StreamEvent[] = []
+      const matchedEvents: StreamEvent[] = [];
       let valid = true;
       let lastTime = events[i].timestamp;
 
       for (let j = 0; j < pattern.sequence.length; j++) {
         const seqItem = pattern.sequence[j];
         const event = events[i + j];
-        if (!event || event.type !== seqItem.type) { valid = false; break; }
-        if (event.timestamp - lastTime > seqItem.within) { valid = false; break; }
+        if (!event || event.type !== seqItem.type) {
+          valid = false;
+          break;
+        }
+        if (event.timestamp - lastTime > seqItem.within) {
+          valid = false;
+          break;
+        }
         matchedEvents.push(event);
         lastTime = event.timestamp;
       }

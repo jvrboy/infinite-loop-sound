@@ -14,22 +14,22 @@ export interface DecisionContext {
 
 export interface TechnicalSignal {
   indicator: string;
-  signal: 'buy' | 'sell' | 'neutral';
+  signal: "buy" | "sell" | "neutral";
   strength: number;
   confidence: number;
 }
 
 export interface RiskSignal {
   type: string;
-  risk: 'low' | 'medium' | 'high';
+  risk: "low" | "medium" | "high";
   value: number;
 }
 
 export interface MarketCondition {
-  trend: 'uptrend' | 'downtrend' | 'sideways';
-  volatility: 'low' | 'normal' | 'high';
-  liquidity: 'low' | 'normal' | 'high';
-  sessionType: 'london' | 'newyork' | 'tokyo' | 'sydney';
+  trend: "uptrend" | "downtrend" | "sideways";
+  volatility: "low" | "normal" | "high";
+  liquidity: "low" | "normal" | "high";
+  sessionType: "london" | "newyork" | "tokyo" | "sydney";
 }
 
 export interface SentimentScore {
@@ -40,7 +40,7 @@ export interface SentimentScore {
 }
 
 export interface TradingDecision {
-  action: 'buy' | 'sell' | 'hold' | 'close';
+  action: "buy" | "sell" | "hold" | "close";
   confidence: number;
   reasoning: string;
   position: {
@@ -107,9 +107,9 @@ export class DecisionEngine {
       return { score: 0, buySignals: 0, sellSignals: 0, averageStrength: 0, averageConfidence: 0 };
     }
 
-    const buySignals = signals.filter((s) => s.signal === 'buy').length;
-    const sellSignals = signals.filter((s) => s.signal === 'sell').length;
-    const neutralSignals = signals.filter((s) => s.signal === 'neutral').length;
+    const buySignals = signals.filter((s) => s.signal === "buy").length;
+    const sellSignals = signals.filter((s) => s.signal === "sell").length;
+    const neutralSignals = signals.filter((s) => s.signal === "neutral").length;
 
     const averageStrength = signals.reduce((sum, s) => sum + s.strength, 0) / signals.length;
     const averageConfidence = signals.reduce((sum, s) => sum + s.confidence, 0) / signals.length;
@@ -130,27 +130,27 @@ export class DecisionEngine {
    * Assess risk
    */
   private assessRisk(riskMetrics: RiskSignal[]): {
-    overallRisk: 'low' | 'medium' | 'high';
+    overallRisk: "low" | "medium" | "high";
     riskScore: number;
   } {
     if (riskMetrics.length === 0) {
-      return { overallRisk: 'low', riskScore: 0 };
+      return { overallRisk: "low", riskScore: 0 };
     }
 
-    const highRiskCount = riskMetrics.filter((r) => r.risk === 'high').length;
-    const mediumRiskCount = riskMetrics.filter((r) => r.risk === 'medium').length;
+    const highRiskCount = riskMetrics.filter((r) => r.risk === "high").length;
+    const mediumRiskCount = riskMetrics.filter((r) => r.risk === "medium").length;
 
-    let overallRisk: 'low' | 'medium' | 'high' = 'low';
+    let overallRisk: "low" | "medium" | "high" = "low";
     let riskScore = 0;
 
     if (highRiskCount > riskMetrics.length / 2) {
-      overallRisk = 'high';
+      overallRisk = "high";
       riskScore = 0.8;
     } else if (mediumRiskCount > riskMetrics.length / 2) {
-      overallRisk = 'medium';
+      overallRisk = "medium";
       riskScore = 0.5;
     } else {
-      overallRisk = 'low';
+      overallRisk = "low";
       riskScore = 0.2;
     }
 
@@ -167,33 +167,39 @@ export class DecisionEngine {
     let score = 0;
 
     // Trend scoring
-    if (condition.trend === 'uptrend') {
+    if (condition.trend === "uptrend") {
       score += 0.3;
-    } else if (condition.trend === 'downtrend') {
+    } else if (condition.trend === "downtrend") {
       score -= 0.3;
     }
 
     // Volatility scoring
-    if (condition.volatility === 'normal') {
+    if (condition.volatility === "normal") {
       score += 0.2;
-    } else if (condition.volatility === 'high') {
+    } else if (condition.volatility === "high") {
       score -= 0.1;
     }
 
     // Liquidity scoring
-    if (condition.liquidity === 'high') {
+    if (condition.liquidity === "high") {
       score += 0.2;
-    } else if (condition.liquidity === 'low') {
+    } else if (condition.liquidity === "low") {
       score -= 0.2;
     }
 
     // Session scoring
-    if (condition.sessionType === 'newyork' || condition.sessionType === 'london') {
+    if (condition.sessionType === "newyork" || condition.sessionType === "london") {
       score += 0.1;
     }
 
     const favorability =
-      score > 0.5 ? 'highly_favorable' : score > 0.1 ? 'favorable' : score < -0.5 ? 'unfavorable' : 'neutral';
+      score > 0.5
+        ? "highly_favorable"
+        : score > 0.1
+          ? "favorable"
+          : score < -0.5
+            ? "unfavorable"
+            : "neutral";
 
     return { score, favorability };
   }
@@ -242,20 +248,20 @@ export class DecisionEngine {
       sentimentScore * weights.sentiment;
 
     // Determine action
-    let action: 'buy' | 'sell' | 'hold' | 'close' = 'hold';
+    let action: "buy" | "sell" | "hold" | "close" = "hold";
     let confidence = Math.abs(compositeScore);
 
     if (compositeScore > 0.3) {
-      action = 'buy';
+      action = "buy";
       confidence = Math.min(1, compositeScore);
     } else if (compositeScore < -0.3) {
-      action = 'sell';
+      action = "sell";
       confidence = Math.min(1, Math.abs(compositeScore));
     }
 
     // Filter out high-risk scenarios
-    if (riskAssessment.overallRisk === 'high' && confidence < 0.7) {
-      action = 'hold';
+    if (riskAssessment.overallRisk === "high" && confidence < 0.7) {
+      action = "hold";
       confidence *= 0.5;
     }
 
@@ -265,11 +271,15 @@ export class DecisionEngine {
 
     // Calculate stop loss and take profit
     const atr = context.currentPrice * 0.02; // Simplified ATR
-    const stopLoss = action === 'buy' ? context.currentPrice - atr * 1.5 : context.currentPrice + atr * 1.5;
-    const takeProfit = action === 'buy' ? context.currentPrice + atr * 3 : context.currentPrice - atr * 3;
+    const stopLoss =
+      action === "buy" ? context.currentPrice - atr * 1.5 : context.currentPrice + atr * 1.5;
+    const takeProfit =
+      action === "buy" ? context.currentPrice + atr * 3 : context.currentPrice - atr * 3;
 
     const riskRewardRatio =
-      action === 'buy' || action === 'sell' ? Math.abs(takeProfit - context.currentPrice) / Math.abs(context.currentPrice - stopLoss) : 0;
+      action === "buy" || action === "sell"
+        ? Math.abs(takeProfit - context.currentPrice) / Math.abs(context.currentPrice - stopLoss)
+        : 0;
 
     // Generate reasoning
     const conditions: string[] = [];
@@ -278,13 +288,13 @@ export class DecisionEngine {
       conditions.push(`Technical: ${technicalScore.buySignals} buy signals`);
     }
     if (technicalScore.averageConfidence > 0.7) {
-      conditions.push('Strong technical alignment');
+      conditions.push("Strong technical alignment");
     }
-    if (marketScore.favorability !== 'unfavorable') {
+    if (marketScore.favorability !== "unfavorable") {
       conditions.push(`Market: ${marketScore.favorability}`);
     }
     if (sentimentScore > 0.3) {
-      conditions.push('Positive market sentiment');
+      conditions.push("Positive market sentiment");
     }
 
     const reasoning = `${action.toUpperCase()}: Score=${compositeScore.toFixed(2)}, Risk=${riskAssessment.overallRisk}, Conditions=${conditions.length}`;

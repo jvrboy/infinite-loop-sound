@@ -16,7 +16,15 @@ const PATTERNS = [
   { name: "Deep Crab", xa: 1, ab: 0.886, bc: 0.886, cd: 3.618, ad: 0.886, dir: "Bullish/Bearish" },
   { name: "Shark", xa: 1, ab: 0.886, bc: 1.13, cd: 1.618, ad: 0.886, dir: "Bullish/Bearish" },
   { name: "Cypher", xa: 1, ab: 0.382, bc: 0.618, cd: 1.272, ad: 0.786, dir: "Bullish/Bearish" },
-  { name: "Three Drives", xa: 1, ab: 0.618, bc: 0.618, cd: 1.618, ad: 1.272, dir: "Bullish/Bearish" },
+  {
+    name: "Three Drives",
+    xa: 1,
+    ab: 0.618,
+    bc: 0.618,
+    cd: 1.618,
+    ad: 1.272,
+    dir: "Bullish/Bearish",
+  },
 ];
 
 function HarmonicPage() {
@@ -69,13 +77,16 @@ function HarmonicPage() {
             <Waves className="w-6 h-6 text-primary" /> Harmonic Pattern Detector
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Detect Gartley, Bat, Butterfly, Crab, Shark, Cypher and other harmonic patterns using Fibonacci ratios.
+            Detect Gartley, Bat, Butterfly, Crab, Shark, Cypher and other harmonic patterns using
+            Fibonacci ratios.
           </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="bg-card border border-border p-6 rounded-lg space-y-4 h-fit">
-            <div className="text-sm font-semibold border-b border-border pb-2">Swing Points (XABCD)</div>
+            <div className="text-sm font-semibold border-b border-border pb-2">
+              Swing Points (XABCD)
+            </div>
             {[
               { label: "X", val: x, set: setX },
               { label: "A", val: a, set: setA },
@@ -106,7 +117,10 @@ function HarmonicPage() {
                     { label: "CD/BC", value: analysis.cdRatio },
                     { label: "AD/XA", value: analysis.adRatio },
                   ].map((r) => (
-                    <div key={r.label} className="bg-card border border-border p-3 rounded-lg text-center">
+                    <div
+                      key={r.label}
+                      className="bg-card border border-border p-3 rounded-lg text-center"
+                    >
                       <div className="text-[10px] text-muted-foreground uppercase">{r.label}</div>
                       <div className="font-mono font-bold text-lg mt-1">{r.value.toFixed(3)}</div>
                     </div>
@@ -117,7 +131,9 @@ function HarmonicPage() {
                   <div className="bg-card border border-border rounded-lg p-6">
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-lg font-bold">Best Match: {analysis.best.name}</div>
-                      <span className={`px-3 py-1 rounded-full text-xs font-bold ${analysis.best.isMatch ? "bg-bull/20 text-bull" : "bg-warning/20 text-warning"}`}>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-bold ${analysis.best.isMatch ? "bg-bull/20 text-bull" : "bg-warning/20 text-warning"}`}
+                      >
                         {analysis.best.score}/4 ratios match
                       </span>
                     </div>
@@ -129,33 +145,61 @@ function HarmonicPage() {
                         { label: "AD", ok: analysis.best.adOk, target: analysis.best.ad },
                       ].map((r) => (
                         <div key={r.label} className="flex items-center gap-2">
-                          {r.ok ? <CircleCheck className="w-4 h-4 text-bull" /> : <XCircle className="w-4 h-4 text-bear" />}
-                          <span className="font-mono text-xs">{r.label} ≈ {r.target}</span>
+                          {r.ok ? (
+                            <CircleCheck className="w-4 h-4 text-bull" />
+                          ) : (
+                            <XCircle className="w-4 h-4 text-bear" />
+                          )}
+                          <span className="font-mono text-xs">
+                            {r.label} ≈ {r.target}
+                          </span>
                         </div>
                       ))}
                     </div>
                     <div className="mt-4 pt-4 border-t border-border grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
-                      <div><span className="text-muted-foreground">Direction:</span> <span className="font-bold">{analysis.direction}</span></div>
-                      <div><span className="text-muted-foreground">PRZ (D):</span> <span className="font-mono font-bold">{fmt(analysis.prz)}</span></div>
-                      <div><span className="text-muted-foreground">Stop Loss:</span> <span className="font-mono text-bear">{fmt(analysis.sl)}</span></div>
-                      <div><span className="text-muted-foreground">TP1:</span> <span className="font-mono text-bull">{fmt(analysis.tp1)}</span></div>
+                      <div>
+                        <span className="text-muted-foreground">Direction:</span>{" "}
+                        <span className="font-bold">{analysis.direction}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">PRZ (D):</span>{" "}
+                        <span className="font-mono font-bold">{fmt(analysis.prz)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">Stop Loss:</span>{" "}
+                        <span className="font-mono text-bear">{fmt(analysis.sl)}</span>
+                      </div>
+                      <div>
+                        <span className="text-muted-foreground">TP1:</span>{" "}
+                        <span className="font-mono text-bull">{fmt(analysis.tp1)}</span>
+                      </div>
                     </div>
                   </div>
                 )}
 
                 <div className="bg-card border border-border rounded-lg overflow-hidden">
-                  <div className="bg-muted/50 p-3 border-b border-border font-semibold">All Pattern Scores</div>
+                  <div className="bg-muted/50 p-3 border-b border-border font-semibold">
+                    All Pattern Scores
+                  </div>
                   <div className="divide-y divide-border">
                     {analysis.matches.map((m) => (
-                      <div key={m.name} className="p-3 flex items-center justify-between hover:bg-accent/30">
+                      <div
+                        key={m.name}
+                        className="p-3 flex items-center justify-between hover:bg-accent/30"
+                      >
                         <span className="font-medium">{m.name}</span>
                         <div className="flex items-center gap-2">
                           <div className="flex gap-1">
                             {[m.abOk, m.bcOk, m.cdOk, m.adOk].map((ok, i) => (
-                              <div key={i} className={`w-2 h-2 rounded-full ${ok ? "bg-bull" : "bg-muted"}`} />
+                              <div
+                                key={i}
+                                className={`w-2 h-2 rounded-full ${ok ? "bg-bull" : "bg-muted"}`}
+                              />
                             ))}
                           </div>
-                          <span className="text-xs text-muted-foreground font-mono w-8 text-right">{m.score}/4</span>
+                          <span className="text-xs text-muted-foreground font-mono w-8 text-right">
+                            {m.score}/4
+                          </span>
                         </div>
                       </div>
                     ))}

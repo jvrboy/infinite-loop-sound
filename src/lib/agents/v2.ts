@@ -4,12 +4,7 @@
 // no external API deps. Namespaced with "v2" to avoid clashing with existing
 // agents in src/lib/agents/*.
 
-import type {
-  AgentConfig,
-  AgentResult,
-  AgentSignal,
-  RiskAssessment,
-} from "./types";
+import type { AgentConfig, AgentResult, AgentSignal, RiskAssessment } from "./types";
 
 export type Regime = "trending-up" | "trending-down" | "ranging" | "volatile" | "quiet";
 
@@ -98,14 +93,13 @@ function std(xs: number[]): number {
   return Math.sqrt(v);
 }
 
-function atr(
-  candles: { h: number; l: number; c: number }[],
-  period = 14,
-): number {
+function atr(candles: { h: number; l: number; c: number }[], period = 14): number {
   if (candles.length < period + 1) return 0;
   const trs: number[] = [];
   for (let i = 1; i < candles.length; i++) {
-    const h = candles[i].h, l = candles[i].l, pc = candles[i - 1].c;
+    const h = candles[i].h,
+      l = candles[i].l,
+      pc = candles[i - 1].c;
     trs.push(Math.max(h - l, Math.abs(h - pc), Math.abs(l - pc)));
   }
   const slice = trs.slice(-period);
@@ -114,7 +108,9 @@ function atr(
 
 function pseudoAdx(candles: { h: number; l: number; c: number }[], period = 14): number {
   if (candles.length < period + 1) return 0;
-  let plusDM = 0, minusDM = 0, tr = 0;
+  let plusDM = 0,
+    minusDM = 0,
+    tr = 0;
   for (let i = candles.length - period; i < candles.length; i++) {
     const up = candles[i].h - candles[i - 1].h;
     const down = candles[i - 1].l - candles[i].l;
@@ -155,9 +151,9 @@ export function createRegimeAgent(): V2Agent {
       const adx = pseudoAdx(c);
       const mean = closes.reduce((x, y) => x + y, 0) / Math.max(1, closes.length);
       const volPct = mean ? (a / mean) * 100 : 0;
-      const returns = closes.slice(-20).map((v, i, arr) =>
-        i === 0 ? 0 : (v - arr[i - 1]) / arr[i - 1],
-      );
+      const returns = closes
+        .slice(-20)
+        .map((v, i, arr) => (i === 0 ? 0 : (v - arr[i - 1]) / arr[i - 1]));
       const drift = returns.reduce((x, y) => x + y, 0);
       const noise = std(returns);
 
@@ -179,7 +175,7 @@ export function createRegimeAgent(): V2Agent {
 
       const assessment: RegimeAssessment = {
         regime,
-        confidence: Math.min(0.95, 0.5 + adx / 200 + Math.abs(drift) / (noise + 0.001) * 0.1),
+        confidence: Math.min(0.95, 0.5 + adx / 200 + (Math.abs(drift) / (noise + 0.001)) * 0.1),
         volatilityPct: volPct,
         adxLike: adx,
         suggestedApproach: approach,
@@ -251,8 +247,10 @@ export function createLiquidityAgent(): V2Agent {
       const clusters: LiquidityCluster[] = [];
       for (let i = 2; i < c.length - 2; i++) {
         if (
-          c[i].h > c[i - 1].h && c[i].h > c[i - 2].h &&
-          c[i].h > c[i + 1].h && c[i].h > c[i + 2].h
+          c[i].h > c[i - 1].h &&
+          c[i].h > c[i - 2].h &&
+          c[i].h > c[i + 1].h &&
+          c[i].h > c[i + 2].h
         ) {
           clusters.push({
             price: c[i].h,
@@ -262,8 +260,10 @@ export function createLiquidityAgent(): V2Agent {
           });
         }
         if (
-          c[i].l < c[i - 1].l && c[i].l < c[i - 2].l &&
-          c[i].l < c[i + 1].l && c[i].l < c[i + 2].l
+          c[i].l < c[i - 1].l &&
+          c[i].l < c[i - 2].l &&
+          c[i].l < c[i + 1].l &&
+          c[i].l < c[i + 2].l
         ) {
           clusters.push({
             price: c[i].l,
@@ -297,27 +297,31 @@ export function createLiquidityAgent(): V2Agent {
         output: { liquidity: map } as unknown as Record<string, unknown>,
         signals:
           dominant === "buy"
-            ? [{
-                id: `liq_${start}`,
-                strategy: "liquidity-sweep",
-                pair: input.instrument,
-                direction: "BUY",
-                confidence: Math.min(0.8, map.totalImbalance),
-                score: Math.round(map.totalImbalance * 60 + 20),
-                timestamp: start,
-                metadata: { sweepRisk, dominant },
-              }]
-            : dominant === "sell"
-              ? [{
+            ? [
+                {
                   id: `liq_${start}`,
                   strategy: "liquidity-sweep",
                   pair: input.instrument,
-                  direction: "SELL",
+                  direction: "BUY",
                   confidence: Math.min(0.8, map.totalImbalance),
                   score: Math.round(map.totalImbalance * 60 + 20),
                   timestamp: start,
                   metadata: { sweepRisk, dominant },
-                }]
+                },
+              ]
+            : dominant === "sell"
+              ? [
+                  {
+                    id: `liq_${start}`,
+                    strategy: "liquidity-sweep",
+                    pair: input.instrument,
+                    direction: "SELL",
+                    confidence: Math.min(0.8, map.totalImbalance),
+                    score: Math.round(map.totalImbalance * 60 + 20),
+                    timestamp: start,
+                    metadata: { sweepRisk, dominant },
+                  },
+                ]
               : [],
         insights: [
           `Liquidity bias: ${dominant.toUpperCase()} (imbalance ${map.totalImbalance.toFixed(2)})`,
@@ -352,7 +356,9 @@ export function createMacroAgent(): V2Agent {
       const start = Date.now();
       const c = input.candles;
       const closes = c.map((x) => x.c);
-      const ret = closes.slice(-30).map((v, i, arr) => (i === 0 ? 0 : v - arr[i - 1]) / (arr[i - 1] || 1));
+      const ret = closes
+        .slice(-30)
+        .map((v, i, arr) => (i === 0 ? 0 : v - arr[i - 1]) / (arr[i - 1] || 1));
       const drift = ret.reduce((a, b) => a + b, 0);
 
       const isSafeHaven = /JPY|CHF/i.test(input.instrument);
@@ -512,19 +518,25 @@ export function createSwarmCoordinator(
       const consensus = Math.abs(buyScore - sellScore) / total;
 
       const dir: "BUY" | "SELL" | null =
-        buyScore > sellScore && buyScore > 0 ? "BUY" : sellScore > buyScore && sellScore > 0 ? "SELL" : null;
+        buyScore > sellScore && buyScore > 0
+          ? "BUY"
+          : sellScore > buyScore && sellScore > 0
+            ? "SELL"
+            : null;
 
       const signals: AgentSignal[] = dir
-        ? [{
-            id: `swarm_${start}`,
-            strategy: "swarm-consensus",
-            pair: input.instrument,
-            direction: dir,
-            confidence: Math.min(0.95, consensus),
-            score: Math.round(Math.max(buyScore, sellScore) / Math.max(1, enabled.length)),
-            timestamp: start,
-            metadata: { buyScore, sellScore, agents: enabled.length },
-          }]
+        ? [
+            {
+              id: `swarm_${start}`,
+              strategy: "swarm-consensus",
+              pair: input.instrument,
+              direction: dir,
+              confidence: Math.min(0.95, consensus),
+              score: Math.round(Math.max(buyScore, sellScore) / Math.max(1, enabled.length)),
+              timestamp: start,
+              metadata: { buyScore, sellScore, agents: enabled.length },
+            },
+          ]
         : [];
 
       lastHeartbeat = {

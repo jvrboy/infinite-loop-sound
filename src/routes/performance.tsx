@@ -148,7 +148,8 @@ function PerformancePage() {
     // Sharpe & Sortino
     const returns = filtered.map((t) => t.pnlPercentage);
     const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
-    const variance = returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
+    const variance =
+      returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
     const stdDev = Math.sqrt(variance);
     const downside = Math.sqrt(
       returns.reduce((sum, r) => sum + Math.pow(Math.min(r - avgReturn, 0), 2), 0) / returns.length,
@@ -340,7 +341,9 @@ function PerformancePage() {
               <div className="text-2xl font-bold font-mono">
                 {metrics.averageWin.toFixed(2)} / {metrics.averageLoss.toFixed(2)}
               </div>
-              <div className="text-xs text-muted-foreground mt-1">RR {metrics.riskRewardRatio.toFixed(2)}</div>
+              <div className="text-xs text-muted-foreground mt-1">
+                RR {metrics.riskRewardRatio.toFixed(2)}
+              </div>
             </CardContent>
           </Card>
           <Card>
@@ -386,7 +389,9 @@ function PerformancePage() {
                 </div>
                 <div className="flex justify-between items-center p-3 rounded bg-red-500/10 border border-red-500/20">
                   <span className="text-sm">Gross Loss</span>
-                  <span className="font-mono font-bold text-red-500">-${metrics.grossLoss.toFixed(2)}</span>
+                  <span className="font-mono font-bold text-red-500">
+                    -${metrics.grossLoss.toFixed(2)}
+                  </span>
                 </div>
               </div>
             </CardContent>
@@ -394,7 +399,9 @@ function PerformancePage() {
 
           <Card>
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-semibold uppercase tracking-wider">Top Pairs</CardTitle>
+              <CardTitle className="text-sm font-semibold uppercase tracking-wider">
+                Top Pairs
+              </CardTitle>
             </CardHeader>
             <CardContent className="pt-0">
               <div className="space-y-2">
@@ -419,7 +426,12 @@ function PerformancePage() {
                 ))}
               </div>
               {selectedPair && (
-                <Button size="sm" variant="outline" className="w-full mt-3" onClick={() => setSelectedPair(null)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full mt-3"
+                  onClick={() => setSelectedPair(null)}
+                >
                   Clear Filter
                 </Button>
               )}
@@ -457,8 +469,12 @@ function PerformancePage() {
                       >
                         {trade.direction}
                       </td>
-                      <td className="text-right py-2 font-mono text-xs">{trade.entryPrice.toFixed(5)}</td>
-                      <td className="text-right py-2 font-mono text-xs">{trade.exitPrice.toFixed(5)}</td>
+                      <td className="text-right py-2 font-mono text-xs">
+                        {trade.entryPrice.toFixed(5)}
+                      </td>
+                      <td className="text-right py-2 font-mono text-xs">
+                        {trade.exitPrice.toFixed(5)}
+                      </td>
                       <td
                         className={`text-right py-2 font-mono font-bold ${trade.pnl >= 0 ? "text-bull" : "text-bear"}`}
                       >
@@ -495,13 +511,16 @@ function MetricCard({
   icon: any;
   accent?: "bull" | "bear" | "neutral";
 }) {
-  const colorClass = accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-foreground";
+  const colorClass =
+    accent === "bull" ? "text-bull" : accent === "bear" ? "text-bear" : "text-foreground";
 
   return (
     <Card>
       <CardContent className="p-4">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</span>
+          <span className="text-[11px] uppercase tracking-wider text-muted-foreground">
+            {label}
+          </span>
           <Icon className={`w-4 h-4 ${colorClass}`} />
         </div>
         <div className={`text-2xl font-bold font-mono ${colorClass}`}>{value}</div>

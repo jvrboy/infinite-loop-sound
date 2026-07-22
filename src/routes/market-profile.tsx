@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { AssetSelect } from "@/components/app/AssetSelect";
 import { deriv } from "@/lib/engine/deriv";
-import { marketProfile as computeProfile, type MarketProfileResult } from "@/lib/engine/market-profile";
+import {
+  marketProfile as computeProfile,
+  type MarketProfileResult,
+} from "@/lib/engine/market-profile";
 import {
   createChart,
   ColorType,
@@ -112,8 +115,7 @@ function MarketProfilePage() {
       valueAreaHigh: result.vah,
       valueAreaLow: result.val,
       totalVolume: result.totalVolume,
-      imbalance:
-        volumes.filter((v) => v > maxVol * 0.7).length > 5 ? "HIGH" : "NORMAL",
+      imbalance: volumes.filter((v) => v > maxVol * 0.7).length > 5 ? "HIGH" : "NORMAL",
     };
     setProfile(p);
 

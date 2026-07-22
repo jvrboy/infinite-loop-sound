@@ -37,7 +37,7 @@ export interface BacktestTrade {
   entryPrice: number;
   exitPrice: number;
   size: number;
-  type: 'long' | 'short';
+  type: "long" | "short";
   profit: number;
   profitPercent: number;
   holdTime: number;
@@ -68,8 +68,12 @@ export interface BacktestResult {
   drawdownCurve: number[];
 }
 
-export type StrategyFunction = (bar: BacktestBar, bars: BacktestBar[], position: BacktestPosition | null) => {
-  action: 'buy' | 'sell' | 'hold';
+export type StrategyFunction = (
+  bar: BacktestBar,
+  bars: BacktestBar[],
+  position: BacktestPosition | null,
+) => {
+  action: "buy" | "sell" | "hold";
   size?: number;
   stopLoss?: number;
   takeProfit?: number;
@@ -79,7 +83,11 @@ export class BacktestEngine {
   /**
    * Run backtest on historical data
    */
-  static backtest(config: BacktestConfig, bars: BacktestBar[], strategy: StrategyFunction): BacktestResult {
+  static backtest(
+    config: BacktestConfig,
+    bars: BacktestBar[],
+    strategy: StrategyFunction,
+  ): BacktestResult {
     let balance = config.initialBalance;
     const trades: BacktestTrade[] = [];
     let position: BacktestPosition | null = null;
@@ -93,7 +101,7 @@ export class BacktestEngine {
       // Execute strategy
       const signal = strategy(bar, bars.slice(Math.max(0, i - 100), i), position);
 
-      if (signal.action === 'buy' && !position) {
+      if (signal.action === "buy" && !position) {
         // Open long position
         const size = signal.size ?? Math.floor(balance / (bar.close * (1 + config.commission)));
 
@@ -113,7 +121,7 @@ export class BacktestEngine {
             balance -= cost;
           }
         }
-      } else if (signal.action === 'sell' && position) {
+      } else if (signal.action === "sell" && position) {
         // Close position
         const exitPrice = bar.close;
         const slippage = exitPrice * config.slippage;
@@ -127,7 +135,7 @@ export class BacktestEngine {
           entryPrice: position.entryPrice,
           exitPrice,
           size: position.size,
-          type: 'long',
+          type: "long",
           profit,
           profitPercent: (profit / (position.size * position.entryPrice)) * 100,
           holdTime: bar.timestamp - position.entryTime,
@@ -151,7 +159,7 @@ export class BacktestEngine {
             entryPrice: position.entryPrice,
             exitPrice,
             size: position.size,
-            type: 'long',
+            type: "long",
             profit,
             profitPercent: (profit / (position.size * position.entryPrice)) * 100,
             holdTime: bar.timestamp - position.entryTime,
@@ -171,7 +179,7 @@ export class BacktestEngine {
             entryPrice: position.entryPrice,
             exitPrice,
             size: position.size,
-            type: 'long',
+            type: "long",
             profit,
             profitPercent: (profit / (position.size * position.entryPrice)) * 100,
             holdTime: bar.timestamp - position.entryTime,
@@ -204,9 +212,12 @@ export class BacktestEngine {
         entryPrice: position.entryPrice,
         exitPrice: lastBar.close,
         size: position.size,
-        type: 'long',
+        type: "long",
         profit: proceeds - position.size * position.entryPrice,
-        profitPercent: ((proceeds - position.size * position.entryPrice) / (position.size * position.entryPrice)) * 100,
+        profitPercent:
+          ((proceeds - position.size * position.entryPrice) /
+            (position.size * position.entryPrice)) *
+          100,
         holdTime: lastBar.timestamp - position.entryTime,
       };
 
@@ -234,11 +245,14 @@ export class BacktestEngine {
     const { maxDrawdown, drawdownCurve } = this.calculateDrawdown(equityCurve);
 
     // Calculate Sharpe ratio
-    const returns = equityCurve.map((v, i) => (i > 0 ? (v - equityCurve[i - 1]) / equityCurve[i - 1] : 0));
+    const returns = equityCurve.map((v, i) =>
+      i > 0 ? (v - equityCurve[i - 1]) / equityCurve[i - 1] : 0,
+    );
     const sharpeRatio = this.calculateSharpeRatio(returns);
 
     // Calculate Calmar ratio
-    const calmarRatio = maxDrawdown > 0 ? (totalProfit / config.initialBalance) / (maxDrawdown / 100) : 0;
+    const calmarRatio =
+      maxDrawdown > 0 ? totalProfit / config.initialBalance / (maxDrawdown / 100) : 0;
 
     // Calculate recovery factor
     const recoveryFactor = maxDrawdown > 0 ? totalProfit / (maxDrawdown / 100) : totalProfit;
@@ -272,7 +286,10 @@ export class BacktestEngine {
   /**
    * Calculate drawdown
    */
-  private static calculateDrawdown(equityCurve: number[]): { maxDrawdown: number; drawdownCurve: number[] } {
+  private static calculateDrawdown(equityCurve: number[]): {
+    maxDrawdown: number;
+    drawdownCurve: number[];
+  } {
     const drawdownCurve: number[] = [];
     let peak = equityCurve[0];
     let maxDrawdown = 0;
@@ -300,7 +317,8 @@ export class BacktestEngine {
     if (returns.length === 0) return 0;
 
     const avgReturn = returns.reduce((a, b) => a + b, 0) / returns.length;
-    const variance = returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
+    const variance =
+      returns.reduce((sum, r) => sum + Math.pow(r - avgReturn, 2), 0) / returns.length;
     const stdDev = Math.sqrt(variance);
 
     if (stdDev === 0) return 0;

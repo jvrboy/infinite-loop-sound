@@ -130,23 +130,13 @@ function assertPositive(value: number, label: string): void {
   }
 }
 
-function assertValid(
-  value: string,
-  allowed: readonly string[],
-  label: string,
-): void {
+function assertValid(value: string, allowed: readonly string[], label: string): void {
   if (!allowed.includes(value as never)) {
-    throw new Error(
-      `Invalid ${label}: "${value}". Allowed: ${allowed.join(", ")}`,
-    );
+    throw new Error(`Invalid ${label}: "${value}". Allowed: ${allowed.join(", ")}`);
   }
 }
 
-function assertValidList(
-  values: string[],
-  allowed: readonly string[],
-  label: string,
-): void {
+function assertValidList(values: string[], allowed: readonly string[], label: string): void {
   if (!Array.isArray(values)) {
     throw new Error(`${label} must be an array`);
   }
@@ -155,9 +145,7 @@ function assertValidList(
   }
 }
 
-export function startRecording(
-  config: RecordingConfig,
-): StartRecordingResult {
+export function startRecording(config: RecordingConfig): StartRecordingResult {
   if (!config || typeof config !== "object" || Array.isArray(config)) {
     throw new Error("config must be a plain object");
   }
@@ -172,16 +160,11 @@ export function startRecording(
   };
 }
 
-export function keystrokeVisualizer(
-  enabled: boolean,
-): KeystrokeVisualizerResult {
+export function keystrokeVisualizer(enabled: boolean): KeystrokeVisualizerResult {
   return { enabled: Boolean(enabled), keys: [] };
 }
 
-export function greenScreen(
-  enabled: boolean,
-  bgImage: string,
-): GreenScreenResult {
+export function greenScreen(enabled: boolean, bgImage: string): GreenScreenResult {
   if (enabled) {
     assertNonEmpty(bgImage, "bgImage");
   }
@@ -192,18 +175,12 @@ export function greenScreen(
   };
 }
 
-export function cursorHighlight(
-  style: string,
-  rippleOnClick: boolean,
-): CursorHighlightResult {
+export function cursorHighlight(style: string, rippleOnClick: boolean): CursorHighlightResult {
   assertValid(style, VALID_CURSOR_STYLES, "cursor style");
   return { style, rippleOnClick: Boolean(rippleOnClick) };
 }
 
-export function zoomFollow(
-  enabled: boolean,
-  zoomLevel: number,
-): ZoomFollowResult {
+export function zoomFollow(enabled: boolean, zoomLevel: number): ZoomFollowResult {
   if (enabled) {
     if (!Number.isFinite(zoomLevel) || zoomLevel < 1 || zoomLevel > 4) {
       throw new Error("zoomLevel must be between 1 and 4 when enabled");
@@ -240,9 +217,7 @@ export function fillerCut(words: string[]): FillerCutResult {
   return { words: [...words], removed: words.length };
 }
 
-export function chapterMarkers(
-  markers: ChapterMarker[],
-): ChapterMarkersResult {
+export function chapterMarkers(markers: ChapterMarker[]): ChapterMarkersResult {
   if (!Array.isArray(markers)) {
     throw new Error("markers must be an array");
   }
@@ -256,9 +231,7 @@ export function chapterMarkers(
   };
 }
 
-export function transcription(
-  speakerLabels: boolean,
-): TranscriptionResult {
+export function transcription(speakerLabels: boolean): TranscriptionResult {
   return {
     speakerLabels: Boolean(speakerLabels),
     segments: 0,
@@ -282,10 +255,7 @@ export function multiScene(scenes: string[]): MultiSceneResult {
   return { scenes: [...scenes], hotkeys };
 }
 
-export function drawAnnotate(
-  enabled: boolean,
-  color: string,
-): DrawAnnotateResult {
+export function drawAnnotate(enabled: boolean, color: string): DrawAnnotateResult {
   if (enabled) {
     assertNonEmpty(color, "color");
   }

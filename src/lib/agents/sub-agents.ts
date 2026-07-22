@@ -62,14 +62,20 @@ export const liquidityAgent: SubAgent = {
     const lows = recent.map((c) => c.low);
     const maxHigh = Math.max(...highs);
     const minLow = Math.min(...lows);
-    const equalHighs = highs.filter((h) => Math.abs(h - maxHigh) < (maxHigh - minLow) * 0.001).length;
+    const equalHighs = highs.filter(
+      (h) => Math.abs(h - maxHigh) < (maxHigh - minLow) * 0.001,
+    ).length;
     const equalLows = lows.filter((l) => Math.abs(l - minLow) < (maxHigh - minLow) * 0.001).length;
     if (equalHighs >= 2) {
-      insights.push(`Equal highs detected (${equalHighs}x) — sell-side liquidity pool above ${maxHigh}`);
+      insights.push(
+        `Equal highs detected (${equalHighs}x) — sell-side liquidity pool above ${maxHigh}`,
+      );
       score -= 15;
     }
     if (equalLows >= 2) {
-      insights.push(`Equal lows detected (${equalLows}x) — buy-side liquidity pool below ${minLow}`);
+      insights.push(
+        `Equal lows detected (${equalLows}x) — buy-side liquidity pool below ${minLow}`,
+      );
       score += 15;
     }
     const lastCandle = candles[n - 1];
@@ -103,7 +109,15 @@ export const orderBlockAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    if (n < 10) return { type: "order-block", name: "Order Block Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    if (n < 10)
+      return {
+        type: "order-block",
+        name: "Order Block Agent",
+        bias: "neutral",
+        confidence: 0,
+        score: 0,
+        insights: ["Not enough data"],
+      };
     const lookback = Math.min(30, n);
     const recent = candles.slice(n - lookback);
     // Find impulse moves (3 consecutive candles in same direction)
@@ -114,10 +128,18 @@ export const orderBlockAgent: SubAgent = {
       const imp2 = recent[i - 1].close > recent[i - 1].open;
       const imp3 = recent[i].close > recent[i].open;
       if (imp1 && imp2 && imp3 && !bullOB) {
-        bullOB = { high: recent[i - 3]?.high ?? recent[i - 2].high, low: recent[i - 2].low, index: i - 2 };
+        bullOB = {
+          high: recent[i - 3]?.high ?? recent[i - 2].high,
+          low: recent[i - 2].low,
+          index: i - 2,
+        };
       }
       if (!imp1 && !imp2 && !imp3 && !bearOB) {
-        bearOB = { high: recent[i - 2].high, low: recent[i - 3]?.low ?? recent[i - 2].low, index: i - 2 };
+        bearOB = {
+          high: recent[i - 2].high,
+          low: recent[i - 3]?.low ?? recent[i - 2].low,
+          index: i - 2,
+        };
       }
     }
     const lastPrice = recent[recent.length - 1].close;
@@ -125,10 +147,14 @@ export const orderBlockAgent: SubAgent = {
       const dist = Math.abs(lastPrice - (bullOB.high + bullOB.low) / 2);
       const range = bullOB.high - bullOB.low || 1;
       if (dist < range * 3) {
-        insights.push(`Bullish order block at ${bullOB.low.toFixed(5)}–${bullOB.high.toFixed(5)} — price near mitigation`);
+        insights.push(
+          `Bullish order block at ${bullOB.low.toFixed(5)}–${bullOB.high.toFixed(5)} — price near mitigation`,
+        );
         score += 20;
       } else {
-        insights.push(`Bullish order block at ${bullOB.low.toFixed(5)}–${bullOB.high.toFixed(5)} — unmitigated`);
+        insights.push(
+          `Bullish order block at ${bullOB.low.toFixed(5)}–${bullOB.high.toFixed(5)} — unmitigated`,
+        );
         score += 5;
       }
     }
@@ -136,16 +162,27 @@ export const orderBlockAgent: SubAgent = {
       const dist = Math.abs(lastPrice - (bearOB.high + bearOB.low) / 2);
       const range = bearOB.high - bearOB.low || 1;
       if (dist < range * 3) {
-        insights.push(`Bearish order block at ${bearOB.low.toFixed(5)}–${bearOB.high.toFixed(5)} — price near mitigation`);
+        insights.push(
+          `Bearish order block at ${bearOB.low.toFixed(5)}–${bearOB.high.toFixed(5)} — price near mitigation`,
+        );
         score -= 20;
       } else {
-        insights.push(`Bearish order block at ${bearOB.low.toFixed(5)}–${bearOB.high.toFixed(5)} — unmitigated`);
+        insights.push(
+          `Bearish order block at ${bearOB.low.toFixed(5)}–${bearOB.high.toFixed(5)} — unmitigated`,
+        );
         score -= 5;
       }
     }
     if (!bullOB && !bearOB) insights.push("No clear order blocks detected in recent price action");
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "order-block", name: "Order Block Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 25), score, insights };
+    return {
+      type: "order-block",
+      name: "Order Block Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 2 + 25),
+      score,
+      insights,
+    };
   },
 };
 
@@ -159,7 +196,15 @@ export const fvgAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    if (n < 5) return { type: "fvg", name: "FVG Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    if (n < 5)
+      return {
+        type: "fvg",
+        name: "FVG Agent",
+        bias: "neutral",
+        confidence: 0,
+        score: 0,
+        insights: ["Not enough data"],
+      };
     const lookback = Math.min(20, n);
     const recent = candles.slice(n - lookback);
     const fvgs: { type: "bull" | "bear"; top: number; bottom: number; filled: boolean }[] = [];
@@ -188,9 +233,18 @@ export const fvgAgent: SubAgent = {
       insights.push(`${bearFVGs.length} unfilled bearish FVG(s) — price likely to return and fill`);
       score -= bearFVGs.length * 10;
     }
-    if (unfilled.length === 0) insights.push("All recent FVGs have been filled — balanced price action");
+    if (unfilled.length === 0)
+      insights.push("All recent FVGs have been filled — balanced price action");
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "fvg", name: "FVG Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 20), score, insights, data: { fvgs: unfilled } };
+    return {
+      type: "fvg",
+      name: "FVG Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 2 + 20),
+      score,
+      insights,
+      data: { fvgs: unfilled },
+    };
   },
 };
 
@@ -223,7 +277,14 @@ export const sessionAgent: SubAgent = {
       insights.push("Asian session — range-bound strategies preferred, watch for breakouts");
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "session", name: "Session Agent", bias, confidence: Math.min(100, Math.abs(score) * 3 + 30), score, insights };
+    return {
+      type: "session",
+      name: "Session Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 3 + 30),
+      score,
+      insights,
+    };
   },
 };
 
@@ -262,7 +323,14 @@ export const mtfAgent: SubAgent = {
       insights.push(`Lower TF Supertrend: ${lTrend > 0 ? "Bullish" : "Bearish"}`);
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "mtf", name: "MTF Agent", bias, confidence: Math.min(100, Math.abs(score) + 30), score, insights };
+    return {
+      type: "mtf",
+      name: "MTF Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) + 30),
+      score,
+      insights,
+    };
   },
 };
 
@@ -276,7 +344,10 @@ export const momentumAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    const rsiArr = rsi(candles.map((c) => c.close), 14);
+    const rsiArr = rsi(
+      candles.map((c) => c.close),
+      14,
+    );
     const rsiVal = rsiArr[n - 1];
     if (rsiVal != null) {
       if (rsiVal < 30) {
@@ -296,7 +367,7 @@ export const momentumAgent: SubAgent = {
     if (adxVal != null) {
       if (adxVal > 25) {
         insights.push(`ADX = ${adxVal.toFixed(1)} — strong trend`);
-        if (pdi != null && mdi != null) score += (pdi > mdi ? 20 : -20);
+        if (pdi != null && mdi != null) score += pdi > mdi ? 20 : -20;
       } else {
         insights.push(`ADX = ${adxVal.toFixed(1)} — weak/no trend`);
       }
@@ -308,7 +379,14 @@ export const momentumAgent: SubAgent = {
       insights.push(`Aroon Osc = ${arOsc.toFixed(0)}`);
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "momentum", name: "Momentum Agent", bias, confidence: Math.min(100, Math.abs(score) * 1.5 + 20), score, insights };
+    return {
+      type: "momentum",
+      name: "Momentum Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 1.5 + 20),
+      score,
+      insights,
+    };
   },
 };
 
@@ -358,7 +436,14 @@ export const volatilityAgent: SubAgent = {
       insights.push(`ATR as % of price: ${atrPct.toFixed(2)}%`);
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "volatility", name: "Volatility Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 25), score, insights };
+    return {
+      type: "volatility",
+      name: "Volatility Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 2 + 25),
+      score,
+      insights,
+    };
   },
 };
 
@@ -383,27 +468,54 @@ export const trendAgent: SubAgent = {
     const e50v = e50[n - 1];
     const e200v = e200[n - 1];
     if (e8v != null && e21v != null) {
-      if (e8v > e21v) { score += 15; insights.push("EMA 8 > 21 — short-term bullish"); }
-      else { score -= 15; insights.push("EMA 8 < 21 — short-term bearish"); }
+      if (e8v > e21v) {
+        score += 15;
+        insights.push("EMA 8 > 21 — short-term bullish");
+      } else {
+        score -= 15;
+        insights.push("EMA 8 < 21 — short-term bearish");
+      }
     }
     if (e21v != null && e50v != null) {
-      if (e21v > e50v) { score += 15; insights.push("EMA 21 > 50 — medium-term bullish"); }
-      else { score -= 15; insights.push("EMA 21 < 50 — medium-term bearish"); }
+      if (e21v > e50v) {
+        score += 15;
+        insights.push("EMA 21 > 50 — medium-term bullish");
+      } else {
+        score -= 15;
+        insights.push("EMA 21 < 50 — medium-term bearish");
+      }
     }
     if (e50v != null && e200v != null) {
-      if (e50v > e200v) { score += 20; insights.push("EMA 50 > 200 — long-term bullish (Golden cross zone)"); }
-      else { score -= 20; insights.push("EMA 50 < 200 — long-term bearish (Death cross zone)"); }
+      if (e50v > e200v) {
+        score += 20;
+        insights.push("EMA 50 > 200 — long-term bullish (Golden cross zone)");
+      } else {
+        score -= 20;
+        insights.push("EMA 50 < 200 — long-term bearish (Death cross zone)");
+      }
     }
     if (e200v != null) {
-      if (last > e200v) { score += 10; insights.push("Price above EMA 200 — bullish bias"); }
-      else { score -= 10; insights.push("Price below EMA 200 — bearish bias"); }
+      if (last > e200v) {
+        score += 10;
+        insights.push("Price above EMA 200 — bullish bias");
+      } else {
+        score -= 10;
+        insights.push("Price below EMA 200 — bearish bias");
+      }
     }
     const st = supertrend(candles);
     const stTrend = st.trend[n - 1];
     score += stTrend * 15;
     insights.push(`Supertrend: ${stTrend > 0 ? "Bullish" : "Bearish"}`);
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "trend", name: "Trend Agent", bias, confidence: Math.min(100, Math.abs(score) + 25), score, insights };
+    return {
+      type: "trend",
+      name: "Trend Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) + 25),
+      score,
+      insights,
+    };
   },
 };
 
@@ -417,7 +529,15 @@ export const scalperAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    if (n < 20) return { type: "scalper", name: "Scalper Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    if (n < 20)
+      return {
+        type: "scalper",
+        name: "Scalper Agent",
+        bias: "neutral",
+        confidence: 0,
+        score: 0,
+        insights: ["Not enough data"],
+      };
     const close = candles.map((c) => c.close);
     const e5 = ema(close, 5);
     const e13 = ema(close, 13);
@@ -443,18 +563,31 @@ export const scalperAgent: SubAgent = {
     const rsiArr = rsi(close, 7);
     const rsiVal = rsiArr[n - 1];
     if (rsiVal != null) {
-      if (rsiVal < 25) { score += 15; insights.push(`RSI(7) = ${rsiVal.toFixed(1)} — scalping oversold bounce`); }
-      else if (rsiVal > 75) { score -= 15; insights.push(`RSI(7) = ${rsiVal.toFixed(1)} — scalping overbought reversal`); }
+      if (rsiVal < 25) {
+        score += 15;
+        insights.push(`RSI(7) = ${rsiVal.toFixed(1)} — scalping oversold bounce`);
+      } else if (rsiVal > 75) {
+        score -= 15;
+        insights.push(`RSI(7) = ${rsiVal.toFixed(1)} — scalping overbought reversal`);
+      }
     }
     const atrArr = atr(candles, 7);
     const atrVal = atrArr[n - 1];
     if (atrVal != null) {
       const atrPct = (atrVal / close[n - 1]) * 100;
-      if (atrPct > 0.5) insights.push(`ATR(7) = ${atrPct.toFixed(2)}% — high volatility for scalping`);
+      if (atrPct > 0.5)
+        insights.push(`ATR(7) = ${atrPct.toFixed(2)}% — high volatility for scalping`);
       else insights.push(`ATR(7) = ${atrPct.toFixed(2)}% — low volatility, tight stops`);
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "scalper", name: "Scalper Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 30), score, insights };
+    return {
+      type: "scalper",
+      name: "Scalper Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 2 + 30),
+      score,
+      insights,
+    };
   },
 };
 
@@ -468,15 +601,28 @@ export const swingAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    if (n < 50) return { type: "swing", name: "Swing Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    if (n < 50)
+      return {
+        type: "swing",
+        name: "Swing Agent",
+        bias: "neutral",
+        confidence: 0,
+        score: 0,
+        insights: ["Not enough data"],
+      };
     const close = candles.map((c) => c.close);
     const e20 = ema(close, 20);
     const e50 = ema(close, 50);
     const e20v = e20[n - 1];
     const e50v = e50[n - 1];
     if (e20v != null && e50v != null) {
-      if (e20v > e50v) { score += 20; insights.push("EMA 20 > 50 — swing bullish bias"); }
-      else { score -= 20; insights.push("EMA 20 < 50 — swing bearish bias"); }
+      if (e20v > e50v) {
+        score += 20;
+        insights.push("EMA 20 > 50 — swing bullish bias");
+      } else {
+        score -= 20;
+        insights.push("EMA 20 < 50 — swing bearish bias");
+      }
     }
     const st = supertrend(candles, 10, 3);
     const stTrend = st.trend[n - 1];
@@ -492,7 +638,14 @@ export const swingAgent: SubAgent = {
       score -= 5;
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "swing", name: "Swing Agent", bias, confidence: Math.min(100, Math.abs(score) * 1.5 + 25), score, insights };
+    return {
+      type: "swing",
+      name: "Swing Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 1.5 + 25),
+      score,
+      insights,
+    };
   },
 };
 
@@ -528,7 +681,14 @@ export const newsEventAgent: SubAgent = {
     }
     insights.push("Monitor economic calendar for scheduled releases");
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "news-event", name: "News Event Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 20), score, insights };
+    return {
+      type: "news-event",
+      name: "News Event Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 2 + 20),
+      score,
+      insights,
+    };
   },
 };
 
@@ -542,7 +702,15 @@ export const breakoutAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    if (n < 30) return { type: "breakout", name: "Breakout Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    if (n < 30)
+      return {
+        type: "breakout",
+        name: "Breakout Agent",
+        bias: "neutral",
+        confidence: 0,
+        score: 0,
+        insights: ["Not enough data"],
+      };
     const sq = ttmSqueeze(candles);
     const isSqueezing = sq.squeezeOn[n - 1];
     if (isSqueezing) {
@@ -566,7 +734,14 @@ export const breakoutAgent: SubAgent = {
       }
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "breakout", name: "Breakout Agent", bias, confidence: Math.min(100, Math.abs(score) * 2 + 25), score, insights };
+    return {
+      type: "breakout",
+      name: "Breakout Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 2 + 25),
+      score,
+      insights,
+    };
   },
 };
 
@@ -580,7 +755,15 @@ export const meanReversionAgent: SubAgent = {
     const n = candles.length;
     const insights: string[] = [];
     let score = 0;
-    if (n < 25) return { type: "mean-reversion", name: "Mean Reversion Agent", bias: "neutral", confidence: 0, score: 0, insights: ["Not enough data"] };
+    if (n < 25)
+      return {
+        type: "mean-reversion",
+        name: "Mean Reversion Agent",
+        bias: "neutral",
+        confidence: 0,
+        score: 0,
+        insights: ["Not enough data"],
+      };
     const close = candles.map((c) => c.close);
     const rsiArr = rsi(close, 14);
     const rsiVal = rsiArr[n - 1];
@@ -620,11 +803,20 @@ export const meanReversionAgent: SubAgent = {
     const ch = choppiness(candles);
     const chVal = ch[n - 1];
     if (chVal != null && chVal > 61.8) {
-      insights.push(`Choppiness = ${chVal.toFixed(1)} — range-bound market, ideal for mean reversion`);
+      insights.push(
+        `Choppiness = ${chVal.toFixed(1)} — range-bound market, ideal for mean reversion`,
+      );
       score += 10;
     }
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
-    return { type: "mean-reversion", name: "Mean Reversion Agent", bias, confidence: Math.min(100, Math.abs(score) * 1.5 + 25), score, insights };
+    return {
+      type: "mean-reversion",
+      name: "Mean Reversion Agent",
+      bias,
+      confidence: Math.min(100, Math.abs(score) * 1.5 + 25),
+      score,
+      insights,
+    };
   },
 };
 
@@ -680,7 +872,8 @@ export function runPipeline(
       .map((a) => a.run(candles, ctx));
     results.push(...stepResults);
   }
-  const compositeScore = results.length > 0 ? results.reduce((a, r) => a + r.score, 0) / results.length : 0;
+  const compositeScore =
+    results.length > 0 ? results.reduce((a, r) => a + r.score, 0) / results.length : 0;
   const compositeBias: PipelineResult["compositeBias"] =
     compositeScore > 10 ? "bull" : compositeScore < -10 ? "bear" : "neutral";
   const compositeConfidence =
@@ -699,7 +892,16 @@ export function runPipeline(
 // Default pipeline: all agents in parallel
 export const DEFAULT_PIPELINE: PipelineStep[] = [
   {
-    agents: ["liquidity", "order-block", "fvg", "session", "mtf", "momentum", "volatility", "trend"],
+    agents: [
+      "liquidity",
+      "order-block",
+      "fvg",
+      "session",
+      "mtf",
+      "momentum",
+      "volatility",
+      "trend",
+    ],
     stage: "parallel",
   },
 ];
@@ -736,5 +938,22 @@ export const MEAN_REVERSION_PIPELINE: PipelineStep[] = [
 
 // Full analysis pipeline: all 13 agents
 export const FULL_PIPELINE: PipelineStep[] = [
-  { agents: ["liquidity", "order-block", "fvg", "session", "mtf", "momentum", "volatility", "trend", "scalper", "swing", "news-event", "breakout", "mean-reversion"], stage: "parallel" },
+  {
+    agents: [
+      "liquidity",
+      "order-block",
+      "fvg",
+      "session",
+      "mtf",
+      "momentum",
+      "volatility",
+      "trend",
+      "scalper",
+      "swing",
+      "news-event",
+      "breakout",
+      "mean-reversion",
+    ],
+    stage: "parallel",
+  },
 ];

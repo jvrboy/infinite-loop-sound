@@ -170,9 +170,7 @@ function MTFPage() {
         <div className="grid md:grid-cols-2 gap-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">
-                Key S/R Zones ({highestTF?.tf ?? "—"})
-              </CardTitle>
+              <CardTitle className="text-base">Key S/R Zones ({highestTF?.tf ?? "—"})</CardTitle>
             </CardHeader>
             <CardContent>
               {zones.length === 0 && (
@@ -184,11 +182,7 @@ function MTFPage() {
                     key={i}
                     className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-1.5 text-sm"
                   >
-                    <span
-                      className={
-                        z.type === "support" ? "text-emerald-400" : "text-rose-400"
-                      }
-                    >
+                    <span className={z.type === "support" ? "text-emerald-400" : "text-rose-400"}>
                       {z.type.toUpperCase()}
                       {z.isFlipZone ? " · FLIP" : ""}
                     </span>

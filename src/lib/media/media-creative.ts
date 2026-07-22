@@ -90,13 +90,7 @@ export interface ShapeResult {
 }
 
 export function drawShape(shape: string, params: Record<string, number>): ShapeResult {
-  const validShapes: ShapeType[] = [
-    "rectangle",
-    "ellipse",
-    "polygon",
-    "custom-path",
-    "pen-tool",
-  ];
+  const validShapes: ShapeType[] = ["rectangle", "ellipse", "polygon", "custom-path", "pen-tool"];
   if (!validShapes.includes(shape as ShapeType)) {
     throw new Error(`Invalid shape: ${shape}. Valid: ${validShapes.join(", ")}`);
   }
@@ -129,7 +123,9 @@ export interface TextOptions {
 export function createText(options: TextOptions): Record<string, string | number | boolean> {
   const validAnimations: TextAnimation[] = ["kinetic", "variable", "static"];
   if (!validAnimations.includes(options.animation as TextAnimation)) {
-    throw new Error(`Invalid text animation: ${options.animation}. Valid: ${validAnimations.join(", ")}`);
+    throw new Error(
+      `Invalid text animation: ${options.animation}. Valid: ${validAnimations.join(", ")}`,
+    );
   }
   return {
     content: options.content,
@@ -217,7 +213,11 @@ export interface ChromaKeyResult {
   edgeSoftness: number;
 }
 
-export function chromaKey(keyColor: string, spillSuppression: number, edgeSoftness: number): ChromaKeyResult {
+export function chromaKey(
+  keyColor: string,
+  spillSuppression: number,
+  edgeSoftness: number,
+): ChromaKeyResult {
   return { keyColor, spillSuppression, edgeSoftness };
 }
 
@@ -229,7 +229,11 @@ export interface DuotoneResult {
   type: string;
 }
 
-export function applyDuotone(shadowColor: string, highlightColor: string, type: string): DuotoneResult {
+export function applyDuotone(
+  shadowColor: string,
+  highlightColor: string,
+  type: string,
+): DuotoneResult {
   const validTypes: DuotoneType[] = ["duotone", "tritone", "gradient-map"];
   if (!validTypes.includes(type as DuotoneType)) {
     throw new Error(`Invalid duotone type: ${type}. Valid: ${validTypes.join(", ")}`);
@@ -244,7 +248,12 @@ export interface VignetteResult {
   centerY: number;
 }
 
-export function applyVignette(amount: number, feather: number, centerX: number, centerY: number): VignetteResult {
+export function applyVignette(
+  amount: number,
+  feather: number,
+  centerX: number,
+  centerY: number,
+): VignetteResult {
   return { amount, feather, centerX, centerY };
 }
 
@@ -255,21 +264,76 @@ export interface GrainResult {
   perChannel: boolean;
 }
 
-export function applyGrain(amount: number, size: number, roughness: number, perChannel: boolean): GrainResult {
+export function applyGrain(
+  amount: number,
+  size: number,
+  roughness: number,
+  perChannel: boolean,
+): GrainResult {
   return { amount, size, roughness, perChannel };
 }
 
 export const CREATIVE_TOOLS = [
-  { name: "createLayer", label: "Create Layer", description: "Create a new layer (raster, vector, adjustment, smart-object, clipping-mask, group)" },
-  { name: "createMask", label: "Create Mask", description: "Create a mask (brush, gradient, radial, luminosity, ai-subject)" },
-  { name: "blendIf", label: "Blend If", description: "Configure blend-if sliders for this/underlying layer ranges" },
-  { name: "drawShape", label: "Draw Shape", description: "Draw a vector shape (rectangle, ellipse, polygon, custom-path, pen-tool)" },
-  { name: "createText", label: "Create Text", description: "Create animated text with kinetic/variable/static animation, 3D, curve paths" },
-  { name: "addSticker", label: "Add Sticker", description: "Add a sticker element at a position, optionally animated" },
-  { name: "applyTransition", label: "Apply Transition", description: "Apply a transition (cross-dissolve, whip-pan, zoom-blur, morph-cut, luma-fade, glitch, 3d-flip)" },
-  { name: "splitScreen", label: "Split Screen", description: "Create a split-screen layout (grid, pip, multi-cam)" },
-  { name: "chromaKey", label: "Chroma Key", description: "Key out a color with spill suppression and edge softness" },
-  { name: "applyDuotone", label: "Apply Duotone", description: "Apply duotone/tritone/gradient-map toning" },
-  { name: "applyVignette", label: "Apply Vignette", description: "Apply a vignette with amount, feather, and center offset" },
-  { name: "applyGrain", label: "Apply Grain", description: "Apply film grain with per-channel control" },
+  {
+    name: "createLayer",
+    label: "Create Layer",
+    description:
+      "Create a new layer (raster, vector, adjustment, smart-object, clipping-mask, group)",
+  },
+  {
+    name: "createMask",
+    label: "Create Mask",
+    description: "Create a mask (brush, gradient, radial, luminosity, ai-subject)",
+  },
+  {
+    name: "blendIf",
+    label: "Blend If",
+    description: "Configure blend-if sliders for this/underlying layer ranges",
+  },
+  {
+    name: "drawShape",
+    label: "Draw Shape",
+    description: "Draw a vector shape (rectangle, ellipse, polygon, custom-path, pen-tool)",
+  },
+  {
+    name: "createText",
+    label: "Create Text",
+    description: "Create animated text with kinetic/variable/static animation, 3D, curve paths",
+  },
+  {
+    name: "addSticker",
+    label: "Add Sticker",
+    description: "Add a sticker element at a position, optionally animated",
+  },
+  {
+    name: "applyTransition",
+    label: "Apply Transition",
+    description:
+      "Apply a transition (cross-dissolve, whip-pan, zoom-blur, morph-cut, luma-fade, glitch, 3d-flip)",
+  },
+  {
+    name: "splitScreen",
+    label: "Split Screen",
+    description: "Create a split-screen layout (grid, pip, multi-cam)",
+  },
+  {
+    name: "chromaKey",
+    label: "Chroma Key",
+    description: "Key out a color with spill suppression and edge softness",
+  },
+  {
+    name: "applyDuotone",
+    label: "Apply Duotone",
+    description: "Apply duotone/tritone/gradient-map toning",
+  },
+  {
+    name: "applyVignette",
+    label: "Apply Vignette",
+    description: "Apply a vignette with amount, feather, and center offset",
+  },
+  {
+    name: "applyGrain",
+    label: "Apply Grain",
+    description: "Apply film grain with per-channel control",
+  },
 ];

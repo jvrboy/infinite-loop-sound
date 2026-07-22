@@ -6,7 +6,7 @@ export interface DataStream {
   id: string;
   source: string;
   symbol: string;
-  type: 'price' | 'order' | 'trade' | 'depth' | 'ticker';
+  type: "price" | "order" | "trade" | "depth" | "ticker";
   active: boolean;
   subscriptionTime: number;
 }
@@ -31,7 +31,7 @@ export interface StreamHealth {
   messagesReceived: number;
   errors: number;
   latency: number;
-  status: 'healthy' | 'degraded' | 'failed';
+  status: "healthy" | "degraded" | "failed";
 }
 
 export class DataStreamManager {
@@ -49,7 +49,7 @@ export class DataStreamManager {
   subscribe(
     source: string,
     symbol: string,
-    type: 'price' | 'order' | 'trade' | 'depth' | 'ticker',
+    type: "price" | "order" | "trade" | "depth" | "ticker",
   ): string {
     const streamId = `${source}-${symbol}-${type}-${Date.now()}`;
 
@@ -79,7 +79,7 @@ export class DataStreamManager {
       messagesReceived: 0,
       errors: 0,
       latency: 0,
-      status: 'healthy',
+      status: "healthy",
     });
 
     return streamId;
@@ -211,10 +211,10 @@ export class DataStreamManager {
       health.errors++;
 
       if (health.errors > 10) {
-        health.status = 'failed';
+        health.status = "failed";
         health.active = false;
       } else if (health.errors > 5) {
-        health.status = 'degraded';
+        health.status = "degraded";
       }
     }
   }
@@ -228,9 +228,9 @@ export class DataStreamManager {
       health.latency = latency;
 
       if (latency > 5000) {
-        health.status = 'degraded';
+        health.status = "degraded";
       } else if (latency <= 1000) {
-        health.status = 'healthy';
+        health.status = "healthy";
       }
     }
   }

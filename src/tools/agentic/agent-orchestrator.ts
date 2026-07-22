@@ -5,8 +5,8 @@
 
 export interface AgentTask {
   id: string;
-  type: 'analysis' | 'execution' | 'decision' | 'monitoring';
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  type: "analysis" | "execution" | "decision" | "monitoring";
+  priority: "low" | "medium" | "high" | "critical";
   payload: Record<string, any>;
   timeout?: number;
   retryCount?: number;
@@ -16,7 +16,7 @@ export interface AgentTask {
 export interface AgentResult {
   taskId: string;
   agentId: string;
-  status: 'success' | 'failed' | 'timeout' | 'cancelled';
+  status: "success" | "failed" | "timeout" | "cancelled";
   data?: Record<string, any>;
   error?: string;
   executionTime: number;
@@ -26,7 +26,7 @@ export interface AgentResult {
 export interface AgentConfig {
   id: string;
   name: string;
-  type: 'analyzer' | 'executor' | 'decision' | 'monitor';
+  type: "analyzer" | "executor" | "decision" | "monitor";
   enabled: boolean;
   concurrency: number;
   timeout: number;
@@ -112,7 +112,7 @@ export class AgentOrchestrator {
   private areDependenciesMet(dependencies: string[]): boolean {
     return dependencies.every((depId) => {
       const depResults = this.results.get(depId);
-      return depResults && depResults.some((r) => r.status === 'success');
+      return depResults && depResults.some((r) => r.status === "success");
     });
   }
 
@@ -147,9 +147,9 @@ export class AgentOrchestrator {
     }
     this.results.get(task.id)!.push({
       taskId: task.id,
-      agentId: 'orchestrator',
-      status: 'failed',
-      error: lastError?.message ?? 'Unknown error',
+      agentId: "orchestrator",
+      status: "failed",
+      error: lastError?.message ?? "Unknown error",
       executionTime: 0,
       timestamp: Date.now(),
     });
@@ -181,47 +181,47 @@ export class AgentOrchestrator {
    */
   private async executeTaskLogic(task: AgentTask): Promise<AgentResult> {
     const startTime = performance.now();
-    const agentId = task.type + '-agent';
+    const agentId = task.type + "-agent";
 
     try {
       // Route to appropriate handler based on task type
       let data: Record<string, any> = {};
 
       switch (task.type) {
-        case 'analysis':
+        case "analysis":
           data = await this.handleAnalysisTask(task);
           break;
-        case 'execution':
+        case "execution":
           data = await this.handleExecutionTask(task);
           break;
-        case 'decision':
+        case "decision":
           data = await this.handleDecisionTask(task);
           break;
-        case 'monitoring':
+        case "monitoring":
           data = await this.handleMonitoringTask(task);
           break;
-        case 'sentiment' as any:
+        case "sentiment" as any:
           data = await this.handleSentimentTask(task);
           break;
-        case 'portfolio' as any:
+        case "portfolio" as any:
           data = await this.handlePortfolioTask(task);
           break;
-        case 'execution-optimization' as any:
+        case "execution-optimization" as any:
           data = await this.handleExecutionOptimizationTask(task);
           break;
-        case 'btmm' as any:
+        case "btmm" as any:
           data = await this.handleBTMMTask(task);
           break;
-        case 'supply-demand' as any:
+        case "supply-demand" as any:
           data = await this.handleSupplyDemandTask(task);
           break;
-        case 'msnr' as any:
+        case "msnr" as any:
           data = await this.handleMSNRTask(task);
           break;
-        case 'web-scrape' as any:
+        case "web-scrape" as any:
           data = await this.handleWebScrapeTask(task);
           break;
-        case 'self-learning' as any:
+        case "self-learning" as any:
           data = await this.handleSelfLearningTask(task);
           break;
       }
@@ -231,7 +231,7 @@ export class AgentOrchestrator {
       return {
         taskId: task.id,
         agentId,
-        status: 'success',
+        status: "success",
         data,
         executionTime,
         timestamp: Date.now(),
@@ -242,8 +242,8 @@ export class AgentOrchestrator {
       return {
         taskId: task.id,
         agentId,
-        status: 'failed',
-        error: error instanceof Error ? error.message : 'Unknown error',
+        status: "failed",
+        error: error instanceof Error ? error.message : "Unknown error",
         executionTime,
         timestamp: Date.now(),
       };
@@ -268,7 +268,7 @@ export class AgentOrchestrator {
     // Execution implementation placeholder
     return {
       executionType: task.payload.action,
-      status: 'executed',
+      status: "executed",
     };
   }
 
@@ -279,7 +279,7 @@ export class AgentOrchestrator {
     // Decision implementation placeholder
     return {
       decision: null,
-      reasoning: '',
+      reasoning: "",
     };
   }
 
@@ -290,7 +290,7 @@ export class AgentOrchestrator {
     // Monitoring implementation placeholder
     return {
       metrics: {},
-      status: 'monitored',
+      status: "monitored",
     };
   }
 
@@ -302,7 +302,7 @@ export class AgentOrchestrator {
     return {
       sentiment: {
         overallSentiment: 0.45,
-        recommendedBias: 'BULLISH',
+        recommendedBias: "BULLISH",
       },
     };
   }
@@ -338,7 +338,7 @@ export class AgentOrchestrator {
    */
   private async handleBTMMTask(task: AgentTask): Promise<Record<string, any>> {
     return {
-      btmm: { phase: 'trend', bias: 'bullish', pattern: 'W' },
+      btmm: { phase: "trend", bias: "bullish", pattern: "W" },
     };
   }
 
@@ -347,7 +347,7 @@ export class AgentOrchestrator {
    */
   private async handleSupplyDemandTask(task: AgentTask): Promise<Record<string, any>> {
     return {
-      zones: [{ type: 'demand', strength: 8, isFresh: true }],
+      zones: [{ type: "demand", strength: 8, isFresh: true }],
     };
   }
 
@@ -356,7 +356,7 @@ export class AgentOrchestrator {
    */
   private async handleMSNRTask(task: AgentTask): Promise<Record<string, any>> {
     return {
-      msnr: { structure: 'bullish', bias: 'long' },
+      msnr: { structure: "bullish", bias: "long" },
     };
   }
 
@@ -365,7 +365,7 @@ export class AgentOrchestrator {
    */
   private async handleWebScrapeTask(task: AgentTask): Promise<Record<string, any>> {
     return {
-      news: [{ title: 'Fed rate cut signals', impact: 'high' }],
+      news: [{ title: "Fed rate cut signals", impact: "high" }],
     };
   }
 
@@ -374,7 +374,7 @@ export class AgentOrchestrator {
    */
   private async handleSelfLearningTask(task: AgentTask): Promise<Record<string, any>> {
     return {
-      status: 'learning_updated',
+      status: "learning_updated",
       metrics: { winRate: 65.5 },
     };
   }

@@ -12,11 +12,7 @@ export interface KeltnerResult {
   lower: (number | null)[];
 }
 
-export function keltnerChannels(
-  candles: Candle[],
-  len = 20,
-  mult = 1.5,
-): KeltnerResult {
+export function keltnerChannels(candles: Candle[], len = 20, mult = 1.5): KeltnerResult {
   const n = candles.length;
   const close = candles.map((c) => c.close);
   const mid = ema(close, len);
@@ -138,7 +134,7 @@ export function cmf(candles: Candle[], len = 20): (number | null)[] {
   if (n < len) return out;
   const mfVolume: number[] = candles.map((c) => {
     const range = c.high - c.low;
-    const mfv = range === 0 ? 0 : ((c.close - c.low) - (c.high - c.close)) / range;
+    const mfv = range === 0 ? 0 : (c.close - c.low - (c.high - c.close)) / range;
     return mfv * (c.volume ?? 0);
   });
   for (let i = len - 1; i < n; i++) {
@@ -175,7 +171,7 @@ export function trix(close: number[], len = 12): (number | null)[] {
   const out: (number | null)[] = new Array(close.length).fill(null);
   for (let i = 1; i < close.length; i++) {
     if (e3[i] != null && (e3[i] as number) !== 0 && e3[i - 1] != null) {
-      out[i] = ((e3[i] as number) - (e3[i - 1] as number)) / (e3[i - 1] as number) * 100;
+      out[i] = (((e3[i] as number) - (e3[i - 1] as number)) / (e3[i - 1] as number)) * 100;
     }
   }
   return out;
@@ -198,7 +194,7 @@ export function hullMA(close: number[], len = 16): (number | null)[] {
 function wma(src: number[], len: number): (number | null)[] {
   const n = src.length;
   const out: (number | null)[] = new Array(n).fill(null);
- const denom = (len * (len + 1)) / 2;
+  const denom = (len * (len + 1)) / 2;
   for (let i = len - 1; i < n; i++) {
     let sum = 0;
     for (let j = 0; j < len; j++) {
@@ -315,7 +311,8 @@ export function easeOfMovement(candles: Candle[], len = 14): (number | null)[] {
   const out: (number | null)[] = new Array(n).fill(null);
   const raw: number[] = new Array(n).fill(0);
   for (let i = 1; i < n; i++) {
-    const dm = ((candles[i].high + candles[i].low) / 2) - ((candles[i - 1].high + candles[i - 1].low) / 2);
+    const dm =
+      (candles[i].high + candles[i].low) / 2 - (candles[i - 1].high + candles[i - 1].low) / 2;
     const br = candles[i].volume ?? 1;
     const ratio = br === 0 ? 0 : dm / br;
     raw[i] = ratio * 1000000;
@@ -351,9 +348,10 @@ export function pvt(candles: Candle[]): number[] {
   const out: number[] = new Array(n).fill(0);
   if (n < 2) return out;
   for (let i = 1; i < n; i++) {
-    const pct = candles[i - 1].close !== 0
-      ? (candles[i].close - candles[i - 1].close) / candles[i - 1].close
-      : 0;
+    const pct =
+      candles[i - 1].close !== 0
+        ? (candles[i].close - candles[i - 1].close) / candles[i - 1].close
+        : 0;
     out[i] = out[i - 1] + pct * (candles[i].volume ?? 0);
   }
   return out;
@@ -368,9 +366,10 @@ export function nvi(candles: Candle[]): number[] {
     const prevVol = candles[i - 1].volume ?? 0;
     const currVol = candles[i].volume ?? 0;
     if (currVol < prevVol) {
-      const pct = candles[i - 1].close !== 0
-        ? (candles[i].close - candles[i - 1].close) / candles[i - 1].close
-        : 0;
+      const pct =
+        candles[i - 1].close !== 0
+          ? (candles[i].close - candles[i - 1].close) / candles[i - 1].close
+          : 0;
       out[i] = out[i - 1] * (1 + pct);
     } else {
       out[i] = out[i - 1];
@@ -388,9 +387,10 @@ export function pvi(candles: Candle[]): number[] {
     const prevVol = candles[i - 1].volume ?? 0;
     const currVol = candles[i].volume ?? 0;
     if (currVol > prevVol) {
-      const pct = candles[i - 1].close !== 0
-        ? (candles[i].close - candles[i - 1].close) / candles[i - 1].close
-        : 0;
+      const pct =
+        candles[i - 1].close !== 0
+          ? (candles[i].close - candles[i - 1].close) / candles[i - 1].close
+          : 0;
       out[i] = out[i - 1] * (1 + pct);
     } else {
       out[i] = out[i - 1];
@@ -422,7 +422,11 @@ export function kst(close: number[]): KSTResult {
   const kst: (number | null)[] = new Array(n).fill(null);
   for (let i = 0; i < n; i++) {
     if (sma1[i] != null && sma2[i] != null && sma3[i] != null && sma4[i] != null) {
-      kst[i] = (sma1[i] as number) + 2 * (sma2[i] as number) + 3 * (sma3[i] as number) + 4 * (sma4[i] as number);
+      kst[i] =
+        (sma1[i] as number) +
+        2 * (sma2[i] as number) +
+        3 * (sma3[i] as number) +
+        4 * (sma4[i] as number);
     }
   }
   const kstFiltered = kst.map((v) => (v ?? 0) as number);
@@ -434,9 +438,7 @@ export function kst(close: number[]): KSTResult {
 export function coppockCurve(close: number[]): (number | null)[] {
   const roc14 = roc(close, 14);
   const roc11 = roc(close, 11);
-  const sum: number[] = close.map((_, i) =>
-    (roc14[i] ?? 0) + (roc11[i] ?? 0),
-  );
+  const sum: number[] = close.map((_, i) => (roc14[i] ?? 0) + (roc11[i] ?? 0));
   return wma(sum, 10);
 }
 
@@ -498,10 +500,19 @@ export function zigZag(candles: Candle[], deviation = 5): ZigZagPoint[] {
         lastLow = l;
         lastLowIdx = i;
       }
-      if (h > lastHigh) { lastHigh = h; lastHighIdx = i; }
-      if (l < lastLow) { lastLow = l; lastLowIdx = i; }
+      if (h > lastHigh) {
+        lastHigh = h;
+        lastHighIdx = i;
+      }
+      if (l < lastLow) {
+        lastLow = l;
+        lastLowIdx = i;
+      }
     } else if (trend === "up") {
-      if (h > lastHigh) { lastHigh = h; lastHighIdx = i; }
+      if (h > lastHigh) {
+        lastHigh = h;
+        lastHighIdx = i;
+      }
       if (l < lastHigh * (1 - deviation / 100)) {
         points.push({ index: lastHighIdx, price: lastHigh, type: "high" });
         trend = "down";
@@ -509,7 +520,10 @@ export function zigZag(candles: Candle[], deviation = 5): ZigZagPoint[] {
         lastLowIdx = i;
       }
     } else if (trend === "down") {
-      if (l < lastLow) { lastLow = l; lastLowIdx = i; }
+      if (l < lastLow) {
+        lastLow = l;
+        lastLowIdx = i;
+      }
       if (h > lastLow * (1 + deviation / 100)) {
         points.push({ index: lastLowIdx, price: lastLow, type: "low" });
         trend = "up";
@@ -563,12 +577,7 @@ export interface STARCResult {
   lower: (number | null)[];
 }
 
-export function starcBands(
-  candles: Candle[],
-  smaLen = 6,
-  atrLen = 15,
-  mult = 2,
-): STARCResult {
+export function starcBands(candles: Candle[], smaLen = 6, atrLen = 15, mult = 2): STARCResult {
   const close = candles.map((c) => c.close);
   const mid = sma(close, smaLen);
   const atrArr = atr(candles, atrLen);
@@ -590,7 +599,10 @@ export function chaikinOscillator(candles: Candle[]): (number | null)[] {
   if (n === 0) return adl.map(() => null);
   for (let i = 0; i < n; i++) {
     const range = candles[i].high - candles[i].low;
-    const mfv = range === 0 ? 0 : ((candles[i].close - candles[i].low) - (candles[i].high - candles[i].close)) / range;
+    const mfv =
+      range === 0
+        ? 0
+        : (candles[i].close - candles[i].low - (candles[i].high - candles[i].close)) / range;
     adl[i] = (i > 0 ? adl[i - 1] : 0) + mfv * (candles[i].volume ?? 0);
   }
   const e3 = ema(adl, 3);

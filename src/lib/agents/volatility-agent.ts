@@ -65,15 +65,16 @@ export async function runVolatilityAgent(
   const recentATRs = atrs.slice(-5);
   const trend = recentATRs.length >= 2 ? recentATRs[recentATRs.length - 1] - recentATRs[0] : 0;
   const forecast: VolatilityResult["forecast"] =
-    trend > currentATR * 0.1 ? "expanding"
-    : trend < -currentATR * 0.1 ? "contracting"
-    : "stable";
+    trend > currentATR * 0.1 ? "expanding" : trend < -currentATR * 0.1 ? "contracting" : "stable";
 
   const recommendedSize =
-    regime === "extreme" ? 0.5
-    : regime === "expansion" ? 0.75
-    : regime === "contraction" ? 1.25
-    : 1.0;
+    regime === "extreme"
+      ? 0.5
+      : regime === "expansion"
+        ? 0.75
+        : regime === "contraction"
+          ? 1.25
+          : 1.0;
 
   return {
     agentId: "volatility-agent",

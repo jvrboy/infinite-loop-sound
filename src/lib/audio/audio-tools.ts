@@ -63,7 +63,7 @@ export class AudioTools {
     const onsets: number[] = [];
     for (let i = 1; i < energies.length; i++) {
       const flux = Math.max(0, energies[i] - energies[i - 1]);
-      if (flux > 0.01) onsets.push(i * hopSize / sampleRate);
+      if (flux > 0.01) onsets.push((i * hopSize) / sampleRate);
     }
 
     // Autocorrelation of onset intervals
@@ -83,9 +83,12 @@ export class AudioTools {
     }
 
     let maxCount = 0;
- let bestBPM = 120;
+    let bestBPM = 120;
     for (const [bpm, count] of hist) {
-      if (count > maxCount) { maxCount = count; bestBPM = bpm; }
+      if (count > maxCount) {
+        maxCount = count;
+        bestBPM = bpm;
+      }
     }
 
     const confidence = Math.min(1, maxCount / intervals.length);
@@ -98,7 +101,9 @@ export class AudioTools {
     const sampleRate = buffer.sampleRate;
     const fftSize = 4096;
     const chroma = new Array(12).fill(0);
-    const noteFreqs = [261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.00, 415.30, 440.00, 466.16, 493.88];
+    const noteFreqs = [
+      261.63, 277.18, 293.66, 311.13, 329.63, 349.23, 369.99, 392.0, 415.3, 440.0, 466.16, 493.88,
+    ];
 
     for (let i = 0; i < data.length - fftSize; i += fftSize) {
       const frame = data.slice(i, i + fftSize);
@@ -106,7 +111,7 @@ export class AudioTools {
       for (let n = 0; n < 12; n++) {
         for (let octave = 0; octave < 5; octave++) {
           const freq = noteFreqs[n] * Math.pow(2, octave - 1);
-          const bin = Math.round(freq * fftSize / sampleRate);
+          const bin = Math.round((freq * fftSize) / sampleRate);
           if (bin < spectrum.length) {
             chroma[n] += Math.abs(spectrum[bin]);
           }
@@ -120,7 +125,7 @@ export class AudioTools {
 
     // Major and minor profiles
     const majorProfile = [6.35, 2.23, 3.48, 2.33, 4.38, 4.09, 2.52, 5.19, 2.39, 3.66, 2.29, 2.88];
-    const minorProfile = [6.33, 2.68, 3.52, 5.38, 2.60, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
+    const minorProfile = [6.33, 2.68, 3.52, 5.38, 2.6, 3.53, 2.54, 4.75, 3.98, 2.69, 3.34, 3.17];
 
     const keys = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
     const results: { key: string; scaleType: string; confidence: number }[] = [];
@@ -155,14 +160,11 @@ export class AudioTools {
       momentary.push(ms);
     }
 
-    const integrated = momentary.length > 0
-      ? momentary.reduce((a, b) => a + b, 0) / momentary.length - 0.691
-      : -70;
+    const integrated =
+      momentary.length > 0 ? momentary.reduce((a, b) => a + b, 0) / momentary.length - 0.691 : -70;
     const shortTerm = momentary.length > 0 ? momentary[momentary.length - 1] : -70;
     const momentaryVal = shortTerm;
-    const range = momentary.length > 1
-      ? Math.max(...momentary) - Math.min(...momentary)
-      : 0;
+    const range = momentary.length > 1 ? Math.max(...momentary) - Math.min(...momentary) : 0;
 
     let truePeak = 0;
     for (let i = 0; i < data.length; i++) {
@@ -188,7 +190,8 @@ export class AudioTools {
     }
 
     // Spectral centroid
-    let sumMag = 0, sumFreqMag = 0;
+    let sumMag = 0,
+      sumFreqMag = 0;
     for (let i = 0; i < frequencies.length; i++) {
       sumFreqMag += frequencies[i] * magnitudes[i];
       sumMag += magnitudes[i];
@@ -203,7 +206,9 @@ export class AudioTools {
     const spread = sumMag > 0 ? Math.sqrt(sumSpread / sumMag) : 0;
 
     // Spectral flatness
-    const geoMean = Math.exp(magnitudes.reduce((a, b) => a + Math.log(b + 1e-10), 0) / magnitudes.length);
+    const geoMean = Math.exp(
+      magnitudes.reduce((a, b) => a + Math.log(b + 1e-10), 0) / magnitudes.length,
+    );
     const arithMean = magnitudes.reduce((a, b) => a + b, 0) / magnitudes.length;
     const flatness = arithMean > 0 ? geoMean / arithMean : 0;
 
@@ -283,7 +288,9 @@ export class AudioTools {
     if (buffer.numberOfChannels < 2) return 1.0;
     const left = buffer.getChannelData(0);
     const right = buffer.getChannelData(1);
-    let sumLR = 0, sumL2 = 0, sumR2 = 0;
+    let sumLR = 0,
+      sumL2 = 0,
+      sumR2 = 0;
     const length = Math.min(left.length, right.length);
     for (let i = 0; i < length; i++) {
       sumLR += left[i] * right[i];
@@ -294,7 +301,9 @@ export class AudioTools {
   }
 
   // 8. Dynamic Range Meter — DR measurement
-  async measureDynamicRange(buffer: AudioBuffer): Promise<{ dr: number; peak: number; rms: number }> {
+  async measureDynamicRange(
+    buffer: AudioBuffer,
+  ): Promise<{ dr: number; peak: number; rms: number }> {
     const data = buffer.getChannelData(0);
     const blockSize = 65536;
     let peak = 0;
@@ -323,7 +332,9 @@ export class AudioTools {
   }
 
   // 9. Pitch Tracker — Autocorrelation-based fundamental frequency detection
-  async detectPitch(buffer: AudioBuffer): Promise<{ freq: number; confidence: number; note: string }> {
+  async detectPitch(
+    buffer: AudioBuffer,
+  ): Promise<{ freq: number; confidence: number; note: string }> {
     const data = buffer.getChannelData(0);
     const sampleRate = buffer.sampleRate;
     const minFreq = 80;
@@ -376,7 +387,9 @@ export class AudioTools {
     const hex = (hash >>> 0).toString(16).padStart(8, "0");
 
     const duration = buffer.duration;
-    const durHex = Math.round(duration * 1000).toString(16).padStart(6, "0");
+    const durHex = Math.round(duration * 1000)
+      .toString(16)
+      .padStart(6, "0");
 
     return `DIQ-${hex}-${durHex}`;
   }
@@ -388,7 +401,7 @@ export class AudioTools {
     for (let k = 0; k < N; k++) {
       let real = 0;
       for (let n = 0; n < N; n++) {
-        real += data[n] * Math.cos(-2 * Math.PI * k * n / N);
+        real += data[n] * Math.cos((-2 * Math.PI * k * n) / N);
       }
       result[k] = real;
     }

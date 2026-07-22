@@ -4,9 +4,9 @@
 
 export interface MarketAlert {
   id: string;
-  type: 'price' | 'volume' | 'volatility' | 'trend' | 'correlation' | 'anomaly';
+  type: "price" | "volume" | "volatility" | "trend" | "correlation" | "anomaly";
   symbol: string;
-  severity: 'info' | 'warning' | 'critical';
+  severity: "info" | "warning" | "critical";
   message: string;
   value: number;
   threshold: number;
@@ -33,7 +33,7 @@ export interface VolatilityAlert {
   currentVol: number;
   averageVol: number;
   percentChange: number;
-  status: 'normal' | 'elevated' | 'extreme';
+  status: "normal" | "elevated" | "extreme";
 }
 
 export interface AnomalyDetection {
@@ -48,7 +48,7 @@ export interface CorrelationWatch {
   symbols: string[];
   correlation: number;
   change: number;
-  status: 'normal' | 'diverging' | 'converging';
+  status: "normal" | "diverging" | "converging";
 }
 
 export class MarketMonitor {
@@ -77,16 +77,20 @@ export class MarketMonitor {
   /**
    * Check price alerts
    */
-  checkPriceAlert(symbol: string, price: number, thresholds: { high?: number; low?: number }): MarketAlert[] {
+  checkPriceAlert(
+    symbol: string,
+    price: number,
+    thresholds: { high?: number; low?: number },
+  ): MarketAlert[] {
     const alerts: MarketAlert[] = [];
     const timestamp = Date.now();
 
     if (thresholds.high && price > thresholds.high) {
       const alert: MarketAlert = {
         id: `ALERT-${timestamp}`,
-        type: 'price',
+        type: "price",
         symbol,
-        severity: 'warning',
+        severity: "warning",
         message: `Price ${price} exceeded high threshold ${thresholds.high}`,
         value: price,
         threshold: thresholds.high,
@@ -101,9 +105,9 @@ export class MarketMonitor {
     if (thresholds.low && price < thresholds.low) {
       const alert: MarketAlert = {
         id: `ALERT-${timestamp}`,
-        type: 'price',
+        type: "price",
         symbol,
-        severity: 'warning',
+        severity: "warning",
         message: `Price ${price} fell below low threshold ${thresholds.low}`,
         value: price,
         threshold: thresholds.low,
@@ -121,15 +125,20 @@ export class MarketMonitor {
   /**
    * Check volume alerts
    */
-  checkVolumeAlert(symbol: string, volume: number, avgVolume: number, threshold: number = 1.5): MarketAlert | null {
+  checkVolumeAlert(
+    symbol: string,
+    volume: number,
+    avgVolume: number,
+    threshold: number = 1.5,
+  ): MarketAlert | null {
     const volumeRatio = volume / avgVolume;
 
     if (volumeRatio > threshold) {
       const alert: MarketAlert = {
         id: `ALERT-${Date.now()}`,
-        type: 'volume',
+        type: "volume",
         symbol,
-        severity: 'warning',
+        severity: "warning",
         message: `Volume spike detected: ${(volumeRatio * 100).toFixed(0)}% above average`,
         value: volume,
         threshold: avgVolume * threshold,
@@ -156,21 +165,21 @@ export class MarketMonitor {
     }
 
     const percentChange = ((currentVol - baseline) / baseline) * 100;
-    let status: 'normal' | 'elevated' | 'extreme' = 'normal';
-    let severity: 'info' | 'warning' | 'critical' = 'info';
+    let status: "normal" | "elevated" | "extreme" = "normal";
+    let severity: "info" | "warning" | "critical" = "info";
 
     if (percentChange > 50) {
-      status = 'extreme';
-      severity = 'critical';
+      status = "extreme";
+      severity = "critical";
     } else if (percentChange > 25) {
-      status = 'elevated';
-      severity = 'warning';
+      status = "elevated";
+      severity = "warning";
     }
 
-    if (severity !== 'info') {
+    if (severity !== "info") {
       const alert: MarketAlert = {
         id: `ALERT-${Date.now()}`,
-        type: 'volatility',
+        type: "volatility",
         symbol,
         severity,
         message: `Volatility ${status}: ${percentChange.toFixed(1)}% change detected`,
@@ -213,7 +222,7 @@ export class MarketMonitor {
         // 5% jump
         anomalies.push({
           symbol,
-          type: 'price_jump',
+          type: "price_jump",
           score: Math.min(1, priceChange),
           description: `Significant price jump of ${(priceChange * 100).toFixed(2)}%`,
           timestamp: Date.now(),
@@ -227,7 +236,7 @@ export class MarketMonitor {
       // Spread > 1%
       anomalies.push({
         symbol,
-        type: 'spread_widening',
+        type: "spread_widening",
         score: Math.min(1, spread),
         description: `Wide bid-ask spread: ${(spread * 100).toFixed(3)}%`,
         timestamp: Date.now(),
@@ -249,7 +258,7 @@ export class MarketMonitor {
         symbols: [symbol1, symbol2],
         correlation: 0,
         change: 0,
-        status: 'normal',
+        status: "normal",
       };
     }
 
@@ -261,12 +270,12 @@ export class MarketMonitor {
     const correlation = this.calculatePearsonCorrelation(changes1, changes2);
 
     // Determine status
-    let status: 'normal' | 'diverging' | 'converging' = 'normal';
+    let status: "normal" | "diverging" | "converging" = "normal";
 
     if (correlation < -0.3) {
-      status = 'diverging';
+      status = "diverging";
     } else if (correlation > 0.7) {
-      status = 'converging';
+      status = "converging";
     }
 
     return {

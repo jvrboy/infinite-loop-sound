@@ -300,7 +300,10 @@ function CorrelationPage() {
                         moveB: recentB,
                         type: `${a.display} moved ${recentA > 0 ? "up" : "down"} but ${b.display} stalled`,
                       });
-                    } else if (Math.abs(recentB) > threshold && Math.abs(recentA) < threshold * 0.3) {
+                    } else if (
+                      Math.abs(recentB) > threshold &&
+                      Math.abs(recentA) < threshold * 0.3
+                    ) {
                       divergences.push({
                         pairA: a.display,
                         pairB: b.display,

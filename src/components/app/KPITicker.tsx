@@ -39,12 +39,20 @@ export function KPITicker({ items, speed = 40 }: KPITickerProps) {
   const renderItem = (item: TickerItem, key: string) => {
     const up = item.change >= 0;
     return (
-      <div key={key} className="flex items-center gap-2 px-4 border-r border-border/40 whitespace-nowrap">
+      <div
+        key={key}
+        className="flex items-center gap-2 px-4 border-r border-border/40 whitespace-nowrap"
+      >
         <span className="text-xs font-bold font-mono">{item.symbol}</span>
-        <span className="text-xs font-mono tabular-nums text-muted-foreground">{item.price.toFixed(item.price < 1 ? 5 : 2)}</span>
-        <span className={`text-xs font-mono flex items-center gap-0.5 ${up ? "text-bull" : "text-bear"}`}>
+        <span className="text-xs font-mono tabular-nums text-muted-foreground">
+          {item.price.toFixed(item.price < 1 ? 5 : 2)}
+        </span>
+        <span
+          className={`text-xs font-mono flex items-center gap-0.5 ${up ? "text-bull" : "text-bear"}`}
+        >
           {up ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          {up ? "+" : ""}{item.change.toFixed(2)}
+          {up ? "+" : ""}
+          {item.change.toFixed(2)}
         </span>
       </div>
     );

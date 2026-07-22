@@ -4,58 +4,94 @@
 // 1. Pivot Points Calculator (Classic, Fibonacci, Camarilla, Woodie, DeMark)
 export interface PivotSet {
   pp: number;
-  r1: number; r2: number; r3: number; r4: number;
-  s1: number; s2: number; s3: number; s4: number;
+  r1: number;
+  r2: number;
+  r3: number;
+  r4: number;
+  s1: number;
+  s2: number;
+  s3: number;
+  s4: number;
 }
 
-export function calcPivots(high: number, low: number, close: number, method: "classic" | "fibonacci" | "camarilla" | "woodie" | "demark" = "classic"): PivotSet {
+export function calcPivots(
+  high: number,
+  low: number,
+  close: number,
+  method: "classic" | "fibonacci" | "camarilla" | "woodie" | "demark" = "classic",
+): PivotSet {
   switch (method) {
     case "classic": {
       const pp = (high + low + close) / 3;
       return {
-        pp, r1: 2 * pp - low, s1: 2 * pp - high,
-        r2: pp + (high - low), s2: pp - (high - low),
-        r3: high + 2 * (pp - low), s3: low - 2 * (high - pp),
-        r4: r3 + (high - low), s4: s3 - (high - low),
+        pp,
+        r1: 2 * pp - low,
+        s1: 2 * pp - high,
+        r2: pp + (high - low),
+        s2: pp - (high - low),
+        r3: high + 2 * (pp - low),
+        s3: low - 2 * (high - pp),
+        r4: r3 + (high - low),
+        s4: s3 - (high - low),
       };
     }
     case "fibonacci": {
       const pp = (high + low + close) / 3;
       const range = high - low;
       return {
-        pp, r1: pp + 0.382 * range, s1: pp - 0.382 * range,
-        r2: pp + 0.618 * range, s2: pp - 0.618 * range,
-        r3: pp + 1.000 * range, s3: pp - 1.000 * range,
-        r4: pp + 1.618 * range, s4: pp - 1.618 * range,
+        pp,
+        r1: pp + 0.382 * range,
+        s1: pp - 0.382 * range,
+        r2: pp + 0.618 * range,
+        s2: pp - 0.618 * range,
+        r3: pp + 1.0 * range,
+        s3: pp - 1.0 * range,
+        r4: pp + 1.618 * range,
+        s4: pp - 1.618 * range,
       };
     }
     case "camarilla": {
       const range = high - low;
       return {
-        pp: close, r1: close + range * 1.1 / 12, s1: close - range * 1.1 / 12,
-        r2: close + range * 1.1 / 6, s2: close - range * 1.1 / 6,
-        r3: close + range * 1.1 / 4, s3: close - range * 1.1 / 4,
-        r4: close + range * 1.1 / 2, s4: close - range * 1.1 / 2,
+        pp: close,
+        r1: close + (range * 1.1) / 12,
+        s1: close - (range * 1.1) / 12,
+        r2: close + (range * 1.1) / 6,
+        s2: close - (range * 1.1) / 6,
+        r3: close + (range * 1.1) / 4,
+        s3: close - (range * 1.1) / 4,
+        r4: close + (range * 1.1) / 2,
+        s4: close - (range * 1.1) / 2,
       };
     }
     case "woodie": {
       const pp = (high + low + 2 * close) / 4;
       const range = high - low;
       return {
-        pp, r1: 2 * pp - low, s1: 2 * pp - high,
-        r2: pp + range, s2: pp - range,
-        r3: high + 2 * (pp - low), s3: low - 2 * (high - pp),
-        r4: r3 + range, s4: s3 - range,
+        pp,
+        r1: 2 * pp - low,
+        s1: 2 * pp - high,
+        r2: pp + range,
+        s2: pp - range,
+        r3: high + 2 * (pp - low),
+        s3: low - 2 * (high - pp),
+        r4: r3 + range,
+        s4: s3 - range,
       };
     }
     case "demark": {
       const x = close > open ? 2 * high + low + close : 2 * low + high + close;
       const pp = x / 4;
       return {
-        pp, r1: pp + (high - low), s1: pp - (high - low),
-        r2: pp + 2 * (high - low), s2: pp - 2 * (high - low),
-        r3: pp + 3 * (high - low), s3: pp - 3 * (high - low),
-        r4: pp + 4 * (high - low), s4: pp - 4 * (high - low),
+        pp,
+        r1: pp + (high - low),
+        s1: pp - (high - low),
+        r2: pp + 2 * (high - low),
+        s2: pp - 2 * (high - low),
+        r3: pp + 3 * (high - low),
+        s3: pp - 3 * (high - low),
+        r4: pp + 4 * (high - low),
+        s4: pp - 4 * (high - low),
       };
     }
   }
@@ -98,7 +134,10 @@ export function calcRiskOfRuin(
   for (let t = 0; t < trials; t++) {
     let balance = startingBalance;
     for (let i = 0; i < 100; i++) {
-      if (balance <= 0) { ruinCount++; break; }
+      if (balance <= 0) {
+        ruinCount++;
+        break;
+      }
       const win = Math.random() < winRate;
       const riskAmount = balance * (riskPerTrade / 100);
       if (win) {
@@ -188,7 +227,11 @@ export function calcPipValue(
 }
 
 // 9. Drawdown Calculator
-export function calcDrawdown(equityCurve: number[]): { maxDrawdown: number; maxDrawdownPct: number; recoveryFactor: number } {
+export function calcDrawdown(equityCurve: number[]): {
+  maxDrawdown: number;
+  maxDrawdownPct: number;
+  recoveryFactor: number;
+} {
   let peak = equityCurve[0] || 0;
   let maxDD = 0;
   let maxDDPct = 0;
@@ -209,7 +252,8 @@ export function calcDrawdown(equityCurve: number[]): { maxDrawdown: number; maxD
     }
   }
 
-  const recovery = equityCurve[troughIdx] > 0 ? equityCurve[equityCurve.length - 1] / equityCurve[troughIdx] : 1;
+  const recovery =
+    equityCurve[troughIdx] > 0 ? equityCurve[equityCurve.length - 1] / equityCurve[troughIdx] : 1;
 
   return { maxDrawdown: maxDD, maxDrawdownPct: maxDDPct, recoveryFactor: recovery };
 }
@@ -234,7 +278,12 @@ export function calcSharpeRatio(returns: number[], riskFreeRate: number = 0.02):
 }
 
 // 12. Profit Factor Calculator
-export function calcProfitFactor(trades: { pnl: number }[]): { profitFactor: number; expectancy: number; totalProfit: number; totalLoss: number } {
+export function calcProfitFactor(trades: { pnl: number }[]): {
+  profitFactor: number;
+  expectancy: number;
+  totalProfit: number;
+  totalLoss: number;
+} {
   const profits = trades.filter((t) => t.pnl > 0).map((t) => t.pnl);
   const losses = trades.filter((t) => t.pnl < 0).map((t) => t.pnl);
   const totalProfit = profits.reduce((a, b) => a + b, 0);

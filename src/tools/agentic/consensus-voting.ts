@@ -6,7 +6,7 @@
 export interface Vote {
   agentId: string;
   proposal: string;
-  vote: 'yes' | 'no' | 'abstain';
+  vote: "yes" | "no" | "abstain";
   weight: number;
   confidence: number;
   reasoning?: string;
@@ -55,9 +55,9 @@ export class ConsensusVoting {
 
   tallyVotes(proposal: string): ConsensusResult {
     const votes = this.votes.get(proposal) ?? [];
-    const yesVotes = votes.filter((v) => v.vote === 'yes');
-    const noVotes = votes.filter((v) => v.vote === 'no');
-    const abstainVotes = votes.filter((v) => v.vote === 'abstain');
+    const yesVotes = votes.filter((v) => v.vote === "yes");
+    const noVotes = votes.filter((v) => v.vote === "no");
+    const abstainVotes = votes.filter((v) => v.vote === "abstain");
 
     const totalWeight = votes.reduce((sum, v) => sum + v.weight, 0);
     const yesWeight = yesVotes.reduce((sum, v) => sum + v.weight, 0);

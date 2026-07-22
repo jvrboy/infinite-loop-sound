@@ -10,7 +10,7 @@ export interface FuzzySet {
 
 export interface FuzzyRule {
   antecedents: { variable: string; set: string }[];
-  operator: 'AND' | 'OR';
+  operator: "AND" | "OR";
   consequent: { variable: string; set: string };
   weight: number;
 }
@@ -61,7 +61,8 @@ export class FuzzyDecisionEngine {
   evaluate(inputs: Record<string, number>, outputVariable: string): FuzzyDecision {
     const firedRules: { rule: FuzzyRule; strength: number }[] = [];
     const outputVar = this.variables.get(outputVariable);
-    if (!outputVar) return { output: 0, confidence: 0, firedRules: [], linguisticOutput: 'unknown' };
+    if (!outputVar)
+      return { output: 0, confidence: 0, firedRules: [], linguisticOutput: "unknown" };
 
     for (const rule of this.rules) {
       if (rule.consequent.variable !== outputVariable) continue;
@@ -70,13 +71,13 @@ export class FuzzyDecisionEngine {
       const antecedentStrengths = rule.antecedents.map((ant) => {
         const variable = this.variables.get(ant.variable);
         if (!variable) return 0;
-      const setInput = inputs[ant.variable];
-      if (setInput === undefined) return 0;
-      const set = variable.sets.find((s) => s.name === ant.set);
-      return set ? set.membership(setInput) : 0;
+        const setInput = inputs[ant.variable];
+        if (setInput === undefined) return 0;
+        const set = variable.sets.find((s) => s.name === ant.set);
+        return set ? set.membership(setInput) : 0;
       });
 
-      if (rule.operator === 'AND') {
+      if (rule.operator === "AND") {
         strength = Math.min(...antecedentStrengths) * rule.weight;
       } else {
         strength = Math.max(...antecedentStrengths) * rule.weight;
@@ -88,13 +89,19 @@ export class FuzzyDecisionEngine {
     }
 
     const output = this.defuzzify(firedRules, outputVar);
-    const confidence = firedRules.length > 0 ? firedRules.reduce((s, r) => s + r.strength, 0) / firedRules.length : 0;
+    const confidence =
+      firedRules.length > 0
+        ? firedRules.reduce((s, r) => s + r.strength, 0) / firedRules.length
+        : 0;
     const linguisticOutput = this.getLinguisticOutput(output, outputVar);
 
     return { output, confidence, firedRules, linguisticOutput };
   }
 
-  private defuzzify(firedRules: { rule: FuzzyRule; strength: number }[], outputVar: FuzzyVariable): number {
+  private defuzzify(
+    firedRules: { rule: FuzzyRule; strength: number }[],
+    outputVar: FuzzyVariable,
+  ): number {
     if (firedRules.length === 0) return (outputVar.range[0] + outputVar.range[1]) / 2;
 
     let numerator = 0;
@@ -113,12 +120,14 @@ export class FuzzyDecisionEngine {
       }
     }
 
-    return denominator > 0 ? numerator / denominator : (outputVar.range[0] + outputVar.range[1]) / 2;
+    return denominator > 0
+      ? numerator / denominator
+      : (outputVar.range[0] + outputVar.range[1]) / 2;
   }
 
   private getLinguisticOutput(value: number, variable: FuzzyVariable): string {
     let maxMembership = 0;
-    let result = 'unknown';
+    let result = "unknown";
     for (const set of variable.sets) {
       const membership = set.membership(value);
       if (membership > maxMembership) {

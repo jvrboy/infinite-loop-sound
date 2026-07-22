@@ -23,7 +23,7 @@ export interface CombinedStrategy {
 }
 
 export interface AllocationMethod {
-  type: 'equal_weight' | 'sharpe_weighted' | 'inverse_volatility' | 'risk_parity' | 'momentum';
+  type: "equal_weight" | "sharpe_weighted" | "inverse_volatility" | "risk_parity" | "momentum";
 }
 
 export class StrategyCombiner {
@@ -46,9 +46,11 @@ export class StrategyCombiner {
 
     const combinedSharpe = this.calculateSharpe(combinedReturns);
     const combinedMaxDrawdown = this.calculateMaxDrawdown(combinedReturns);
-    const combinedWinRate = combinedReturns.filter((r) => r > 0).length / (combinedReturns.length || 1);
+    const combinedWinRate =
+      combinedReturns.filter((r) => r > 0).length / (combinedReturns.length || 1);
 
-    const avgSharpe = strategies.reduce((s, st) => s + st.sharpeRatio, 0) / (strategies.length || 1);
+    const avgSharpe =
+      strategies.reduce((s, st) => s + st.sharpeRatio, 0) / (strategies.length || 1);
     const diversificationRatio = avgSharpe > 0 ? combinedSharpe / avgSharpe : 0;
 
     return {
@@ -62,40 +64,51 @@ export class StrategyCombiner {
     };
   }
 
-  private calculateWeights(strategies: StrategyPerformance[], method: AllocationMethod): Record<string, number> {
+  private calculateWeights(
+    strategies: StrategyPerformance[],
+    method: AllocationMethod,
+  ): Record<string, number> {
     const weights: Record<string, number> = {};
 
     switch (method.type) {
-      case 'equal_weight': {
+      case "equal_weight": {
         const w = 1 / strategies.length;
         strategies.forEach((s) => (weights[s.name] = w));
         break;
       }
-      case 'sharpe_weighted': {
+      case "sharpe_weighted": {
         const totalSharpe = strategies.reduce((sum, s) => sum + Math.max(0, s.sharpeRatio), 0);
-        strategies.forEach((s) => (weights[s.name] = totalSharpe > 0 ? Math.max(0, s.sharpeRatio) / totalSharpe : 1 / strategies.length));
+        strategies.forEach(
+          (s) =>
+            (weights[s.name] =
+              totalSharpe > 0 ? Math.max(0, s.sharpeRatio) / totalSharpe : 1 / strategies.length),
+        );
         break;
       }
-      case 'inverse_volatility': {
+      case "inverse_volatility": {
         const vols = strategies.map((s) => ({ name: s.name, vol: this.stdDev(s.returns) || 1 }));
         const totalInvVol = vols.reduce((sum, v) => sum + 1 / v.vol, 0);
         vols.forEach((v) => (weights[v.name] = 1 / v.vol / totalInvVol));
         break;
       }
-      case 'risk_parity': {
+      case "risk_parity": {
         const risks = strategies.map((s) => ({ name: s.name, risk: Math.abs(s.maxDrawdown) || 1 }));
         const totalInvRisk = risks.reduce((sum, r) => sum + 1 / r.risk, 0);
         risks.forEach((r) => (weights[r.name] = 1 / r.risk / totalInvRisk));
         break;
       }
-      case 'momentum': {
+      case "momentum": {
         const momenta = strategies.map((s) => {
           const recent = s.returns.slice(-20);
           const momentum = recent.reduce((a, b) => a + b, 0) / (recent.length || 1);
           return { name: s.name, momentum };
         });
         const totalMomentum = momenta.reduce((sum, m) => sum + Math.max(0, m.momentum), 0);
-        momenta.forEach((m) => (weights[m.name] = totalMomentum > 0 ? Math.max(0, m.momentum) / totalMomentum : 1 / strategies.length));
+        momenta.forEach(
+          (m) =>
+            (weights[m.name] =
+              totalMomentum > 0 ? Math.max(0, m.momentum) / totalMomentum : 1 / strategies.length),
+        );
         break;
       }
     }

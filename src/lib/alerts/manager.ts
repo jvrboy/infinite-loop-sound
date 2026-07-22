@@ -135,9 +135,7 @@ export class AlertManager {
     this.saveToStorage();
 
     // Send to all configured channels
-    await Promise.all(
-      config.channels.map((channel) => this.sendToChannel(channel, config, event)),
-    );
+    await Promise.all(config.channels.map((channel) => this.sendToChannel(channel, config, event)));
   }
 
   /**
@@ -270,7 +268,10 @@ Timestamp: ${event.timestamp.toISOString()}
               value: event.timestamp.toLocaleTimeString(),
               inline: true,
             },
-            { name: "Details", value: `\`\`\`json\n${JSON.stringify(event.data, null, 2)}\n\`\`\`` },
+            {
+              name: "Details",
+              value: `\`\`\`json\n${JSON.stringify(event.data, null, 2)}\n\`\`\``,
+            },
           ],
         },
       ],

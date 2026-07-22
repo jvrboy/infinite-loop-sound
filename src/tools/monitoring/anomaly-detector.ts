@@ -4,7 +4,7 @@
  */
 
 export interface AnomalyConfig {
-  method: 'zscore' | 'iqr' | 'isolation_forest' | 'seasonal';
+  method: "zscore" | "iqr" | "isolation_forest" | "seasonal";
   threshold: number;
   windowSize: number;
   seasonalityPeriod: number;
@@ -15,7 +15,7 @@ export interface Anomaly {
   value: number;
   score: number;
   method: string;
-  severity: 'low' | 'medium' | 'high';
+  severity: "low" | "medium" | "high";
   description: string;
 }
 
@@ -37,57 +37,64 @@ export class AnomalyDetector {
     const anomalies: Anomaly[] = [];
 
     switch (this.config.method) {
-      case 'zscore':
+      case "zscore":
         for (const point of data) {
-          const score = baseline.stdDev > 0 ? Math.abs((point.value - baseline.mean) / baseline.stdDev) : 0;
+          const score =
+            baseline.stdDev > 0 ? Math.abs((point.value - baseline.mean) / baseline.stdDev) : 0;
           if (score > this.config.threshold) {
-            anomalies.push(this.createAnomaly(point, score, 'zscore', baseline));
+            anomalies.push(this.createAnomaly(point, score, "zscore", baseline));
           }
         }
         break;
-      case 'iqr':
+      case "iqr": {
         const lowerFence = baseline.median - this.config.threshold * baseline.iqr;
         const upperFence = baseline.median + this.config.threshold * baseline.iqr;
         for (const point of data) {
           if (point.value < lowerFence || point.value > upperFence) {
-            const score = Math.max(Math.abs(point.value - upperFence), Math.abs(point.value - lowerFence)) / (baseline.iqr || 1);
-            anomalies.push(this.createAnomaly(point, score, 'iqr', baseline));
+            const score =
+              Math.max(Math.abs(point.value - upperFence), Math.abs(point.value - lowerFence)) /
+              (baseline.iqr || 1);
+            anomalies.push(this.createAnomaly(point, score, "iqr", baseline));
           }
         }
         break;
-      case 'isolation_forest':
+      }
+      case "isolation_forest": {
         const forest = this.buildIsolationForest(values, 100, 256);
         for (const point of data) {
           const pathLength = this.averagePathLength(point.value, forest);
           const score = Math.pow(2, -pathLength / this.expectedPathLength(values.length));
           if (score > 0.6) {
-            anomalies.push(this.createAnomaly(point, score, 'isolation_forest', baseline));
+            anomalies.push(this.createAnomaly(point, score, "isolation_forest", baseline));
           }
         }
         break;
-      case 'seasonal':
+      }
+      case "seasonal": {
         const seasonal = this.seasonalDecompose(values, this.config.seasonalityPeriod);
         for (let i = 0; i < data.length; i++) {
-          const residual = data[i].value - seasonal.trend[i] - seasonal.seasonal[i % seasonal.seasonal.length];
+          const residual =
+            data[i].value - seasonal.trend[i] - seasonal.seasonal[i % seasonal.seasonal.length];
           const score = baseline.stdDev > 0 ? Math.abs(residual) / baseline.stdDev : 0;
           if (score > this.config.threshold) {
-            anomalies.push(this.createAnomaly(data[i], score, 'seasonal', baseline));
+            anomalies.push(this.createAnomaly(data[i], score, "seasonal", baseline));
           }
         }
         break;
+      }
     }
 
     return {
       totalAnomalies: anomalies.length,
-      highSeverity: anomalies.filter((a) => a.severity === 'high').length,
-      mediumSeverity: anomalies.filter((a) => a.severity === 'medium').length,
-      lowSeverity: anomalies.filter((a) => a.severity === 'low').length,
+      highSeverity: anomalies.filter((a) => a.severity === "high").length,
+      mediumSeverity: anomalies.filter((a) => a.severity === "medium").length,
+      lowSeverity: anomalies.filter((a) => a.severity === "low").length,
       anomalies,
       baseline,
     };
   }
 
-  private calculateBaseline(values: number[]): AnomalyReport['baseline'] {
+  private calculateBaseline(values: number[]): AnomalyReport["baseline"] {
     const sorted = [...values].sort((a, b) => a - b);
     const mean = values.reduce((a, b) => a + b, 0) / (values.length || 1);
     const variance = values.reduce((s, v) => s + Math.pow(v - mean, 2), 0) / (values.length || 1);
@@ -99,8 +106,13 @@ export class AnomalyDetector {
     return { mean, stdDev, median, iqr };
   }
 
-  private createAnomaly(point: { timestamp: number; value: number }, score: number, method: string, baseline: AnomalyReport['baseline']): Anomaly {
-    const severity = score > 3 ? 'high' : score > 2 ? 'medium' : 'low';
+  private createAnomaly(
+    point: { timestamp: number; value: number },
+    score: number,
+    method: string,
+    baseline: AnomalyReport["baseline"],
+  ): Anomaly {
+    const severity = score > 3 ? "high" : score > 2 ? "medium" : "low";
     return {
       timestamp: point.timestamp,
       value: point.value,
@@ -111,7 +123,11 @@ export class AnomalyDetector {
     };
   }
 
-  private buildIsolationForest(values: number[], numTrees: number, sampleSize: number): number[][][] {
+  private buildIsolationForest(
+    values: number[],
+    numTrees: number,
+    sampleSize: number,
+  ): number[][][] {
     const forest: number[][][] = [];
     for (let t = 0; t < numTrees; t++) {
       const sample = values.slice(0, sampleSize).map((v) => [v]);
@@ -135,10 +151,13 @@ export class AnomalyDetector {
 
   private expectedPathLength(n: number): number {
     if (n <= 1) return 1;
-    return 2 * (Math.log(n - 1) + 0.5772156649) - 2 * (n - 1) / n;
+    return 2 * (Math.log(n - 1) + 0.5772156649) - (2 * (n - 1)) / n;
   }
 
-  private seasonalDecompose(values: number[], period: number): { trend: number[]; seasonal: number[] } {
+  private seasonalDecompose(
+    values: number[],
+    period: number,
+  ): { trend: number[]; seasonal: number[] } {
     const trend: number[] = [];
     const halfWindow = Math.floor(period / 2);
     for (let i = 0; i < values.length; i++) {

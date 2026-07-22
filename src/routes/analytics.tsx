@@ -1,11 +1,11 @@
-import { createFileRoute } from '@tanstack/react-router';
-import { AppShell } from '@/components/app/AppShell';
-import { useMemo } from 'react';
-import { BarChart, TrendingUp, Calendar } from 'lucide-react';
-import { calculateMetrics } from '@/lib/analytics/metrics';
-import { botRunner } from '@/lib/bot/runner';
+import { createFileRoute } from "@tanstack/react-router";
+import { AppShell } from "@/components/app/AppShell";
+import { useMemo } from "react";
+import { BarChart, TrendingUp, Calendar } from "lucide-react";
+import { calculateMetrics } from "@/lib/analytics/metrics";
+import { botRunner } from "@/lib/bot/runner";
 
-export const Route = createFileRoute('/analytics')({ component: AnalyticsPage });
+export const Route = createFileRoute("/analytics")({ component: AnalyticsPage });
 
 function AnalyticsPage() {
   const closed = botRunner.getRecentClosed(1000);
@@ -21,9 +21,17 @@ function AnalyticsPage() {
         {/* Key Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <MetricCard label="Win Rate" value={`${metrics.winRate.toFixed(1)}%`} color="bull" />
-          <MetricCard label="Profit Factor" value={metrics.profitFactor.toFixed(2)} color="primary" />
+          <MetricCard
+            label="Profit Factor"
+            value={metrics.profitFactor.toFixed(2)}
+            color="primary"
+          />
           <MetricCard label="Sharpe Ratio" value={metrics.sharpeRatio.toFixed(2)} color="elite" />
-          <MetricCard label="Total Trades" value={metrics.totalTrades.toString()} color="foreground" />
+          <MetricCard
+            label="Total Trades"
+            value={metrics.totalTrades.toString()}
+            color="foreground"
+          />
         </div>
 
         {/* Performance Metrics */}
@@ -32,10 +40,22 @@ function AnalyticsPage() {
             <TrendingUp className="w-5 h-5" /> Performance Metrics
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-            <div><p className="text-muted-foreground">Avg Win</p><p className="font-bold mt-1 text-bull">{metrics.avgWin.toFixed(2)}</p></div>
-            <div><p className="text-muted-foreground">Avg Loss</p><p className="font-bold mt-1 text-bear">{metrics.avgLoss.toFixed(2)}</p></div>
-            <div><p className="text-muted-foreground">Max Drawdown</p><p className="font-bold mt-1">-{metrics.maxDrawdown.toFixed(1)}%</p></div>
-            <div><p className="text-muted-foreground">Total P&L</p><p className="font-bold mt-1 text-bull">{metrics.totalPnl.toFixed(2)}</p></div>
+            <div>
+              <p className="text-muted-foreground">Avg Win</p>
+              <p className="font-bold mt-1 text-bull">{metrics.avgWin.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Avg Loss</p>
+              <p className="font-bold mt-1 text-bear">{metrics.avgLoss.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Max Drawdown</p>
+              <p className="font-bold mt-1">-{metrics.maxDrawdown.toFixed(1)}%</p>
+            </div>
+            <div>
+              <p className="text-muted-foreground">Total P&L</p>
+              <p className="font-bold mt-1 text-bull">{metrics.totalPnl.toFixed(2)}</p>
+            </div>
           </div>
         </div>
 

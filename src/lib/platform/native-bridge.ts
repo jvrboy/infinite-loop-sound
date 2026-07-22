@@ -73,8 +73,14 @@ export function createNativeBridge(): NativeBridge {
     if (platform === "capacitor" && capacitorPlugins?.Filesystem) {
       const dir = "DivergenceIQ";
       try {
-        await capacitorPlugins.Filesystem.mkdir({ path: dir, directory: "DOCUMENTS", recursive: true });
-      } catch { /* may already exist */ }
+        await capacitorPlugins.Filesystem.mkdir({
+          path: dir,
+          directory: "DOCUMENTS",
+          recursive: true,
+        });
+      } catch {
+        /* may already exist */
+      }
       return dir;
     }
     // Web fallback — use a virtual folder name
@@ -90,7 +96,10 @@ export function createNativeBridge(): NativeBridge {
         return electronAPI.listFiles(dirPath);
       }
       if (platform === "capacitor" && capacitorPlugins?.Filesystem) {
-        const result = await capacitorPlugins.Filesystem.readdir({ path: dirPath, directory: "DOCUMENTS" });
+        const result = await capacitorPlugins.Filesystem.readdir({
+          path: dirPath,
+          directory: "DOCUMENTS",
+        });
         return result.files.map((f: any) => ({
           name: f.name,
           path: `${dirPath}/${f.name}`,
@@ -114,7 +123,9 @@ export function createNativeBridge(): NativeBridge {
             });
           }
           return files;
-        } catch { return []; }
+        } catch {
+          return [];
+        }
       }
       return [];
     },
@@ -126,8 +137,13 @@ export function createNativeBridge(): NativeBridge {
         throw new Error(result.error);
       }
       if (platform === "capacitor" && capacitorPlugins?.Filesystem) {
-        const result = await capacitorPlugins.Filesystem.readFile({ path: filePath, directory: "DOCUMENTS" });
-        return result.data instanceof ArrayBuffer ? result.data : new Uint8Array(result.data).buffer;
+        const result = await capacitorPlugins.Filesystem.readFile({
+          path: filePath,
+          directory: "DOCUMENTS",
+        });
+        return result.data instanceof ArrayBuffer
+          ? result.data
+          : new Uint8Array(result.data).buffer;
       }
       throw new Error("File reading not supported on this platform");
     },
@@ -149,7 +165,9 @@ export function createNativeBridge(): NativeBridge {
       }
       // Web: File System Access API
       if (typeof window !== "undefined" && (window as any).showSaveFilePicker) {
-        const handle = await (window as any).showSaveFilePicker({ suggestedName: filePath.split("/").pop() });
+        const handle = await (window as any).showSaveFilePicker({
+          suggestedName: filePath.split("/").pop(),
+        });
         const writable = await handle.createWritable();
         await writable.write(data);
         await writable.close();
@@ -179,8 +197,14 @@ export function createNativeBridge(): NativeBridge {
       }
       if (platform === "capacitor" && capacitorPlugins?.Filesystem) {
         try {
-          await capacitorPlugins.Filesystem.mkdir({ path: dirPath, directory: "DOCUMENTS", recursive: true });
-        } catch { /* may exist */ }
+          await capacitorPlugins.Filesystem.mkdir({
+            path: dirPath,
+            directory: "DOCUMENTS",
+            recursive: true,
+          });
+        } catch {
+          /* may exist */
+        }
         return;
       }
     },
@@ -194,10 +218,16 @@ export function createNativeBridge(): NativeBridge {
       if (typeof window !== "undefined" && (window as any).showOpenFilePicker) {
         try {
           const [handle] = await (window as any).showOpenFilePicker({
-            types: filters?.map((f) => ({ description: f.name, accept: { "application/octet-stream": f.extensions.map((e) => `.${e}`) } })) || [],
+            types:
+              filters?.map((f) => ({
+                description: f.name,
+                accept: { "application/octet-stream": f.extensions.map((e) => `.${e}`) },
+              })) || [],
           });
           return handle.name;
-        } catch { return null; }
+        } catch {
+          return null;
+        }
       }
       return null;
     },
@@ -211,7 +241,9 @@ export function createNativeBridge(): NativeBridge {
         try {
           const handle = await (window as any).showDirectoryPicker();
           return handle.name;
-        } catch { return null; }
+        } catch {
+          return null;
+        }
       }
       return null;
     },

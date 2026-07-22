@@ -23,7 +23,8 @@ interface NewsItem {
 function parseImpact(text: string): "high" | "medium" | "low" {
   const lower = text.toLowerCase();
   if (lower.includes("high") || lower.includes("red") || lower.includes("critical")) return "high";
-  if (lower.includes("medium") || lower.includes("orange") || lower.includes("moderate")) return "medium";
+  if (lower.includes("medium") || lower.includes("orange") || lower.includes("moderate"))
+    return "medium";
   return "low";
 }
 
@@ -55,10 +56,10 @@ Deno.serve(async (req: Request) => {
     ]);
 
     if (!weekRes.ok && !todayRes.ok) {
-      return new Response(
-        JSON.stringify({ error: "Failed to fetch news feeds", items: [] }),
-        { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-      );
+      return new Response(JSON.stringify({ error: "Failed to fetch news feeds", items: [] }), {
+        status: 502,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const items: NewsItem[] = [];
@@ -115,13 +116,17 @@ Deno.serve(async (req: Request) => {
       .slice(0, limit);
 
     return new Response(
-      JSON.stringify({ items: filtered, count: filtered.length, fetchedAt: new Date().toISOString() }),
+      JSON.stringify({
+        items: filtered,
+        count: filtered.length,
+        fetchedAt: new Date().toISOString(),
+      }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
     );
   } catch (err) {
-    return new Response(
-      JSON.stringify({ error: err.message, items: [] }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } },
-    );
+    return new Response(JSON.stringify({ error: err.message, items: [] }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });

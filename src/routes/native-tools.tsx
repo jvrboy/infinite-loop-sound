@@ -4,15 +4,39 @@ import { useEffect, useState, useCallback } from "react";
 import { ProCard, SectionHeader, StatTile, KpiGrid, MeterBar } from "@/components/pro";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Folder, File, FileText, HardDrive, Wifi, Download, Upload, Trash, FolderPlus, RefreshCw, ExternalLink, FolderOpen, Cpu, Network, Save } from "lucide-react";
-import { getNativeBridge, type DeviceFile, type NetworkInfo, type AppStorageInfo } from "@/lib/platform/native-bridge";
+import {
+  Folder,
+  File,
+  FileText,
+  HardDrive,
+  Wifi,
+  Download,
+  Upload,
+  Trash,
+  FolderPlus,
+  RefreshCw,
+  ExternalLink,
+  FolderOpen,
+  Cpu,
+  Network,
+  Save,
+} from "lucide-react";
+import {
+  getNativeBridge,
+  type DeviceFile,
+  type NetworkInfo,
+  type AppStorageInfo,
+} from "@/lib/platform/native-bridge";
 import { detectPlatform } from "@/lib/platform/model-loader";
 
 export const Route = createFileRoute("/native-tools")({
   head: () => ({
     meta: [
       { title: "Native Device Tools — DivergenceIQ" },
-      { name: "description", content: "Access device files, network, and local storage on desktop and mobile builds." },
+      {
+        name: "description",
+        content: "Access device files, network, and local storage on desktop and mobile builds.",
+      },
     ],
   }),
   component: NativeToolsPage,
@@ -59,42 +83,53 @@ function NativeToolsPage() {
     }
   }, [bridge]);
 
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-  const browseDirectory = useCallback(async (dirPath: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const fileList = await bridge.listFiles(dirPath);
-      setFiles(fileList);
-      setCurrentPath(dirPath);
-    } catch (e: any) {
-      setError(e?.message || "Failed to list directory");
-    } finally {
-      setLoading(false);
-    }
-  }, [bridge]);
+  const browseDirectory = useCallback(
+    async (dirPath: string) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const fileList = await bridge.listFiles(dirPath);
+        setFiles(fileList);
+        setCurrentPath(dirPath);
+      } catch (e: any) {
+        setError(e?.message || "Failed to list directory");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [bridge],
+  );
 
-  const viewFile = useCallback(async (file: DeviceFile) => {
-    setSelectedFile(file);
-    setFileContent(null);
-    try {
-      const buffer = await bridge.readFile(file.path);
-      const text = new TextDecoder().decode(buffer);
-      setFileContent(text.substring(0, 5000));
-    } catch (e: any) {
-      setFileContent(`[Binary file — ${formatBytes(file.size)}]`);
-    }
-  }, [bridge]);
+  const viewFile = useCallback(
+    async (file: DeviceFile) => {
+      setSelectedFile(file);
+      setFileContent(null);
+      try {
+        const buffer = await bridge.readFile(file.path);
+        const text = new TextDecoder().decode(buffer);
+        setFileContent(text.substring(0, 5000));
+      } catch (e: any) {
+        setFileContent(`[Binary file — ${formatBytes(file.size)}]`);
+      }
+    },
+    [bridge],
+  );
 
-  const deleteFile = useCallback(async (file: DeviceFile) => {
-    try {
-      await bridge.deleteFile(file.path);
-      refresh();
-    } catch (e: any) {
-      setError(e?.message || "Failed to delete file");
-    }
-  }, [bridge, refresh]);
+  const deleteFile = useCallback(
+    async (file: DeviceFile) => {
+      try {
+        await bridge.deleteFile(file.path);
+        refresh();
+      } catch (e: any) {
+        setError(e?.message || "Failed to delete file");
+      }
+    },
+    [bridge, refresh],
+  );
 
   const createSubfolder = useCallback(async () => {
     const name = prompt("Folder name:");
@@ -155,10 +190,34 @@ function NativeToolsPage() {
 
         <KpiGrid
           tiles={[
-            { label: "Platform", value: platformLabels[platform], sub: bridge.isNative ? "Native access" : "Web fallback", icon: <Cpu className="w-4 h-4" />, accent: "primary" },
-            { label: "App Folder", value: appFolder ? appFolder.split("/").pop() || appFolder : "...", sub: appFolder, icon: <Folder className="w-4 h-4" />, accent: "primary" },
-            { label: "Storage Used", value: storage ? formatBytes(storage.usedBytes) : "...", sub: storage ? `${formatBytes(storage.freeBytes)} free` : "", icon: <HardDrive className="w-4 h-4" />, accent: "neutral" },
-            { label: "Network", value: network ? (network.online ? "Online" : "Offline") : "...", sub: network ? `${network.type} · ${network.rtt}ms` : "", icon: <Wifi className="w-4 h-4" />, accent: network?.online ? "bull" : "bear" },
+            {
+              label: "Platform",
+              value: platformLabels[platform],
+              sub: bridge.isNative ? "Native access" : "Web fallback",
+              icon: <Cpu className="w-4 h-4" />,
+              accent: "primary",
+            },
+            {
+              label: "App Folder",
+              value: appFolder ? appFolder.split("/").pop() || appFolder : "...",
+              sub: appFolder,
+              icon: <Folder className="w-4 h-4" />,
+              accent: "primary",
+            },
+            {
+              label: "Storage Used",
+              value: storage ? formatBytes(storage.usedBytes) : "...",
+              sub: storage ? `${formatBytes(storage.freeBytes)} free` : "",
+              icon: <HardDrive className="w-4 h-4" />,
+              accent: "neutral",
+            },
+            {
+              label: "Network",
+              value: network ? (network.online ? "Online" : "Offline") : "...",
+              sub: network ? `${network.type} · ${network.rtt}ms` : "",
+              icon: <Wifi className="w-4 h-4" />,
+              accent: network?.online ? "bull" : "bear",
+            },
           ]}
         />
 
@@ -174,7 +233,13 @@ function NativeToolsPage() {
           icon={<FolderOpen className="w-4 h-4" />}
           action={
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={refresh} disabled={loading} className="gap-1.5">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={refresh}
+                disabled={loading}
+                className="gap-1.5"
+              >
                 <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} /> Refresh
               </Button>
               <Button size="sm" variant="outline" onClick={createSubfolder} className="gap-1.5">
@@ -207,7 +272,7 @@ function NativeToolsPage() {
                   )}
                   <button
                     className="flex-1 text-left text-sm truncate"
-                    onClick={() => file.isDirectory ? browseDirectory(file.path) : viewFile(file)}
+                    onClick={() => (file.isDirectory ? browseDirectory(file.path) : viewFile(file))}
                   >
                     {file.name}
                   </button>
@@ -260,18 +325,26 @@ function NativeToolsPage() {
         >
           {network && (
             <div className="space-y-3">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <StatTile label="Status" value={network.online ? "Online" : "Offline"} accent={network.online ? "bull" : "bear"} />
-              <StatTile label="Connection" value={network.type} accent="neutral" />
-              <StatTile label="Downlink" value={`${network.downlink} Mbps`} accent="neutral" />
-              <StatTile label="Latency" value={`${network.rtt} ms`} accent={network.rtt < 100 ? "bull" : "warning"} />
-            </div>
-            <MeterBar
-              value={Math.max(0, Math.min(100, 100 - network.rtt / 10))}
-              label="Connection Quality"
-              color={network.online ? "bull" : "bear"}
-              showValue
-            />
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <StatTile
+                  label="Status"
+                  value={network.online ? "Online" : "Offline"}
+                  accent={network.online ? "bull" : "bear"}
+                />
+                <StatTile label="Connection" value={network.type} accent="neutral" />
+                <StatTile label="Downlink" value={`${network.downlink} Mbps`} accent="neutral" />
+                <StatTile
+                  label="Latency"
+                  value={`${network.rtt} ms`}
+                  accent={network.rtt < 100 ? "bull" : "warning"}
+                />
+              </div>
+              <MeterBar
+                value={Math.max(0, Math.min(100, 100 - network.rtt / 10))}
+                label="Connection Quality"
+                color={network.online ? "bull" : "bear"}
+                showValue
+              />
             </div>
           )}
         </ProCard>
