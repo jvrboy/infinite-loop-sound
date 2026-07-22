@@ -4,7 +4,7 @@
 
 export interface SentimentSource {
   name: string;
-  type: 'news' | 'social' | 'market' | 'technical';
+  type: "news" | "social" | "market" | "technical";
   score: number;
   weight: number;
   timestamp: number;
@@ -18,14 +18,14 @@ export interface SentimentAnalysis {
   bearishPercent: number;
   neutralPercent: number;
   sources: SentimentSource[];
-  signal: 'strong_buy' | 'buy' | 'neutral' | 'sell' | 'strong_sell';
+  signal: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
   confidence: number;
 }
 
 export interface NewsItem {
   symbol: string;
   title: string;
-  sentiment: 'positive' | 'neutral' | 'negative';
+  sentiment: "positive" | "neutral" | "negative";
   score: number;
   source: string;
   timestamp: number;
@@ -35,7 +35,7 @@ export interface NewsItem {
 export interface SocialMetrics {
   mentions: number;
   sentiment: number;
-  trend: 'up' | 'down' | 'stable';
+  trend: "up" | "down" | "stable";
   engagement: number;
   source: string;
   timestamp: number;
@@ -82,9 +82,7 @@ export class SentimentAnalyzer {
     const now = Date.now();
     const cutoff = now - timeWindow;
 
-    const relevantNews = this.newsItems.filter(
-      (n) => n.symbol === symbol && n.timestamp > cutoff,
-    );
+    const relevantNews = this.newsItems.filter((n) => n.symbol === symbol && n.timestamp > cutoff);
 
     if (relevantNews.length === 0) {
       return 0;
@@ -92,8 +90,8 @@ export class SentimentAnalyzer {
 
     let totalScore = 0;
     for (const item of relevantNews) {
-      if (item.sentiment === 'positive') totalScore += item.score;
-      else if (item.sentiment === 'negative') totalScore -= item.score;
+      if (item.sentiment === "positive") totalScore += item.score;
+      else if (item.sentiment === "negative") totalScore -= item.score;
     }
 
     return Math.max(-1, Math.min(1, totalScore / relevantNews.length));
@@ -138,15 +136,12 @@ export class SentimentAnalyzer {
   /**
    * Analyze technical sentiment
    */
-  private analyzeTechnicalSentiment(
-    symbol: string,
-    rsi: number,
-    macdSignal: number,
-  ): number {
+  private analyzeTechnicalSentiment(symbol: string, rsi: number, macdSignal: number): number {
     let sentiment = 0;
 
     // RSI sentiment
-    if (rsi < 30) sentiment += 0.5; // Oversold = buy signal
+    if (rsi < 30)
+      sentiment += 0.5; // Oversold = buy signal
     else if (rsi > 70) sentiment -= 0.5; // Overbought = sell signal
 
     // MACD sentiment
@@ -183,8 +178,8 @@ export class SentimentAnalyzer {
     if (includeNews) {
       const newsScore = this.analyzeNewsSentiment(symbol);
       sources.push({
-        name: 'news',
-        type: 'news',
+        name: "news",
+        type: "news",
         score: newsScore,
         weight: 0.3,
         timestamp: Date.now(),
@@ -197,8 +192,8 @@ export class SentimentAnalyzer {
     if (includeSocial) {
       const socialScore = this.analyzeSocialSentiment(symbol);
       sources.push({
-        name: 'social',
-        type: 'social',
+        name: "social",
+        type: "social",
         score: socialScore,
         weight: 0.2,
         timestamp: Date.now(),
@@ -211,8 +206,8 @@ export class SentimentAnalyzer {
     if (options.priceChange !== undefined) {
       const marketScore = this.analyzeMarketSentiment(symbol, options.priceChange);
       sources.push({
-        name: 'market',
-        type: 'market',
+        name: "market",
+        type: "market",
         score: marketScore,
         weight: 0.25,
         timestamp: Date.now(),
@@ -225,8 +220,8 @@ export class SentimentAnalyzer {
     if (includeTechnical && options.rsi !== undefined && options.macd !== undefined) {
       const technicalScore = this.analyzeTechnicalSentiment(symbol, options.rsi, options.macd);
       sources.push({
-        name: 'technical',
-        type: 'technical',
+        name: "technical",
+        type: "technical",
         score: technicalScore,
         weight: 0.25,
         timestamp: Date.now(),
@@ -243,12 +238,12 @@ export class SentimentAnalyzer {
     const neutralPercent = 100 - bullishPercent - bearishPercent;
 
     // Determine signal
-    let signal: 'strong_buy' | 'buy' | 'neutral' | 'sell' | 'strong_sell';
-    if (overallSentiment > 0.6) signal = 'strong_buy';
-    else if (overallSentiment > 0.2) signal = 'buy';
-    else if (overallSentiment < -0.6) signal = 'strong_sell';
-    else if (overallSentiment < -0.2) signal = 'sell';
-    else signal = 'neutral';
+    let signal: "strong_buy" | "buy" | "neutral" | "sell" | "strong_sell";
+    if (overallSentiment > 0.6) signal = "strong_buy";
+    else if (overallSentiment > 0.2) signal = "buy";
+    else if (overallSentiment < -0.6) signal = "strong_sell";
+    else if (overallSentiment < -0.2) signal = "sell";
+    else signal = "neutral";
 
     const confidence = Math.abs(overallSentiment);
 

@@ -3,12 +3,7 @@
 
 export type CaptureMode = "full-screen" | "window" | "region" | "scrolling";
 
-export type AnnotationType =
-  | "arrow"
-  | "box"
-  | "blur"
-  | "highlight"
-  | "numbered-steps";
+export type AnnotationType = "arrow" | "box" | "blur" | "highlight" | "numbered-steps";
 
 export type SensitiveType = "email" | "credit-card" | "password";
 
@@ -79,12 +74,7 @@ export interface PerspectiveCorrectResult {
   corrected: boolean;
 }
 
-const VALID_CAPTURE_MODES: CaptureMode[] = [
-  "full-screen",
-  "window",
-  "region",
-  "scrolling",
-];
+const VALID_CAPTURE_MODES: CaptureMode[] = ["full-screen", "window", "region", "scrolling"];
 
 const VALID_ANNOTATION_TYPES: AnnotationType[] = [
   "arrow",
@@ -94,11 +84,7 @@ const VALID_ANNOTATION_TYPES: AnnotationType[] = [
   "numbered-steps",
 ];
 
-const VALID_SENSITIVE_TYPES: SensitiveType[] = [
-  "email",
-  "credit-card",
-  "password",
-];
+const VALID_SENSITIVE_TYPES: SensitiveType[] = ["email", "credit-card", "password"];
 
 function assertNonEmpty(value: string, label: string): void {
   if (typeof value !== "string" || value.trim() === "") {
@@ -112,15 +98,9 @@ function assertPositive(value: number, label: string): void {
   }
 }
 
-function assertValid(
-  value: string,
-  allowed: readonly string[],
-  label: string,
-): void {
+function assertValid(value: string, allowed: readonly string[], label: string): void {
   if (!allowed.includes(value as never)) {
-    throw new Error(
-      `Invalid ${label}: "${value}". Allowed: ${allowed.join(", ")}`,
-    );
+    throw new Error(`Invalid ${label}: "${value}". Allowed: ${allowed.join(", ")}`);
   }
 }
 
@@ -138,10 +118,7 @@ export function delayedCapture(seconds: number): DelayedCaptureResult {
   return { seconds, countdown: seconds };
 }
 
-export function annotate(
-  type: string,
-  params: Record<string, number>,
-): AnnotateResult {
+export function annotate(type: string, params: Record<string, number>): AnnotateResult {
   assertValid(type, VALID_ANNOTATION_TYPES, "annotation type");
   if (!params || typeof params !== "object" || Array.isArray(params)) {
     throw new Error("params must be a plain object");
@@ -178,10 +155,7 @@ export function uploadToCloud(filename: string): UploadResult {
   };
 }
 
-export function historySearch(
-  query: string,
-  total: number,
-): HistorySearchResult {
+export function historySearch(query: string, total: number): HistorySearchResult {
   assertNonEmpty(query, "query");
   assertPositive(total, "total");
   const matches: string[] = [];
@@ -201,19 +175,13 @@ export function compare(before: string, after: string): CompareResult {
   };
 }
 
-export function batchCapture(
-  interval: number,
-  count: number,
-): BatchCaptureResult {
+export function batchCapture(interval: number, count: number): BatchCaptureResult {
   assertPositive(interval, "interval");
   assertPositive(count, "count");
   return { interval, count, captured: count };
 }
 
-export function redact(
-  areas: number[],
-  reversible: boolean,
-): RedactResult {
+export function redact(areas: number[], reversible: boolean): RedactResult {
   if (!Array.isArray(areas)) {
     throw new Error("areas must be an array");
   }
@@ -237,9 +205,7 @@ export function toMarkdown(imageData: string): ToMarkdownResult {
   };
 }
 
-export function perspectiveCorrect(
-  corners: [number, number][],
-): PerspectiveCorrectResult {
+export function perspectiveCorrect(corners: [number, number][]): PerspectiveCorrectResult {
   if (!Array.isArray(corners) || corners.length !== 4) {
     throw new Error("corners must be an array of exactly 4 [x, y] pairs");
   }

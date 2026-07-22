@@ -4,22 +4,57 @@
 
 import type { Skill, SkillCategory, SkillContext, SkillResult } from "@/lib/skills/list";
 import {
-  createArtifact, generateJSON, generateCSV, generateHTML, generateComponent,
-  generateAPI, generateSQL, generateDockerfile, generateDockerCompose,
-  generateEnv, generateMarkdown, generateSVG, generateGitignore,
-  generateConfig, generateShellScript, generatePythonScript, generateTypeScriptModule,
+  createArtifact,
+  generateJSON,
+  generateCSV,
+  generateHTML,
+  generateComponent,
+  generateAPI,
+  generateSQL,
+  generateDockerfile,
+  generateDockerCompose,
+  generateEnv,
+  generateMarkdown,
+  generateSVG,
+  generateGitignore,
+  generateConfig,
+  generateShellScript,
+  generatePythonScript,
+  generateTypeScriptModule,
   type ArtifactKind,
 } from "@/lib/tools/artifact-creator";
 import {
-  testAPI, generateSupabaseSchema, generatePrismaSchema, generateVercelConfig,
-  generateNetlifyConfig, generateK8sManifest, generateOpenAPISpec,
-  generatePostmanCollection, generateGitHubActions, generateEnvTemplate,
-  compareEnvs, generateWebhookPayload, healthCheck,
+  testAPI,
+  generateSupabaseSchema,
+  generatePrismaSchema,
+  generateVercelConfig,
+  generateNetlifyConfig,
+  generateK8sManifest,
+  generateOpenAPISpec,
+  generatePostmanCollection,
+  generateGitHubActions,
+  generateEnvTemplate,
+  compareEnvs,
+  generateWebhookPayload,
+  healthCheck,
 } from "@/lib/tools/backend-tools";
 import {
-  analyzeCode, formatJSON, minifyJS, minifyCSS, minifyHTML, tsToJs, jsToTs,
-  runJS, generateHTMLPreview, testRegex, encodeBase64, decodeBase64,
-  urlEncode, urlDecode, hashText, generateUUIDs,
+  analyzeCode,
+  formatJSON,
+  minifyJS,
+  minifyCSS,
+  minifyHTML,
+  tsToJs,
+  jsToTs,
+  runJS,
+  generateHTMLPreview,
+  testRegex,
+  encodeBase64,
+  decodeBase64,
+  urlEncode,
+  urlDecode,
+  hashText,
+  generateUUIDs,
 } from "@/lib/tools/code-runner";
 import { runWithAutoCorrect } from "@/lib/executor";
 
@@ -46,7 +81,11 @@ export const DEV_SKILLS: Skill[] = [
       const data = args?.data || { example: "value", items: [1, 2, 3] };
       const spec = generateJSON(data, (args?.name as string) || "data");
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated JSON: ${artifact.name}.${artifact.extension} (${artifact.bytes} bytes)`, artifact: { name: artifact.name, kind: "json", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated JSON: ${artifact.name}.${artifact.extension} (${artifact.bytes} bytes)`,
+        artifact: { name: artifact.name, kind: "json", content: artifact.content },
+      };
     },
   },
   {
@@ -57,10 +96,16 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["create csv", "generate csv", "make csv", "csv file", "spreadsheet"],
     exec: async ({ args }) => {
-      const rows = (args?.rows as Record<string, unknown>[]) || [{ id: 1, name: "Example", value: 100 }];
+      const rows = (args?.rows as Record<string, unknown>[]) || [
+        { id: 1, name: "Example", value: 100 },
+      ];
       const spec = generateCSV(rows, (args?.name as string) || "data");
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated CSV: ${artifact.name}.${artifact.extension} (${rows.length} rows)`, artifact: { name: artifact.name, kind: "csv", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated CSV: ${artifact.name}.${artifact.extension} (${rows.length} rows)`,
+        artifact: { name: artifact.name, kind: "csv", content: artifact.content },
+      };
     },
   },
   {
@@ -72,10 +117,14 @@ export const DEV_SKILLS: Skill[] = [
     keywords: ["create html", "generate html", "make html", "html page", "web page"],
     exec: async ({ args }) => {
       const title = (args?.title as string) || "Generated Page";
-      const body = (args?.body as string) || "<div class=\"card\"><p>Content goes here</p></div>";
+      const body = (args?.body as string) || '<div class="card"><p>Content goes here</p></div>';
       const spec = generateHTML(title, body);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated HTML: ${artifact.name}.${artifact.extension}`, artifact: { name: artifact.name, kind: "html", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated HTML: ${artifact.name}.${artifact.extension}`,
+        artifact: { name: artifact.name, kind: "html", content: artifact.content },
+      };
     },
   },
   {
@@ -89,7 +138,11 @@ export const DEV_SKILLS: Skill[] = [
       const name = (args?.name as string) || "MyComponent";
       const spec = generateComponent(name, "react");
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated React component: ${name}`, artifact: { name: artifact.name, kind: "tsx", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated React component: ${name}`,
+        artifact: { name: artifact.name, kind: "tsx", content: artifact.content },
+      };
     },
   },
   {
@@ -100,10 +153,18 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["create env", "generate env", "env file", "environment file", "dotenv"],
     exec: async ({ args }) => {
-      const vars = (args?.vars as Record<string, string>) || { DATABASE_URL: "", API_KEY: "", SECRET: "" };
+      const vars = (args?.vars as Record<string, string>) || {
+        DATABASE_URL: "",
+        API_KEY: "",
+        SECRET: "",
+      };
       const spec = generateEnv(vars);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated .env file with ${Object.keys(vars).length} variables`, artifact: { name: artifact.name, kind: "env", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated .env file with ${Object.keys(vars).length} variables`,
+        artifact: { name: artifact.name, kind: "env", content: artifact.content },
+      };
     },
   },
   {
@@ -118,7 +179,11 @@ export const DEV_SKILLS: Skill[] = [
       const port = Number(args?.port) || 3000;
       const spec = generateDockerfile(baseImage, port);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated Dockerfile for ${baseImage} on port ${port}`, artifact: { name: artifact.name, kind: "dockerfile", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated Dockerfile for ${baseImage} on port ${port}`,
+        artifact: { name: artifact.name, kind: "dockerfile", content: artifact.content },
+      };
     },
   },
   {
@@ -135,7 +200,11 @@ export const DEV_SKILLS: Skill[] = [
       ];
       const spec = generateDockerCompose(services);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated docker-compose.yml with ${services.length} services`, artifact: { name: artifact.name, kind: "yaml", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated docker-compose.yml with ${services.length} services`,
+        artifact: { name: artifact.name, kind: "yaml", content: artifact.content },
+      };
     },
   },
   {
@@ -153,7 +222,11 @@ export const DEV_SKILLS: Skill[] = [
       ];
       const spec = generateMarkdown(title, sections);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated Markdown: ${title}`, artifact: { name: artifact.name, kind: "md", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated Markdown: ${title}`,
+        artifact: { name: artifact.name, kind: "md", content: artifact.content },
+      };
     },
   },
   {
@@ -164,10 +237,21 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["gitignore", "git ignore", "ignore file"],
     exec: async ({ args }) => {
-      const entries = (args?.entries as string[]) || ["node_modules", ".env", "dist", ".next", "*.log", ".DS_Store"];
+      const entries = (args?.entries as string[]) || [
+        "node_modules",
+        ".env",
+        "dist",
+        ".next",
+        "*.log",
+        ".DS_Store",
+      ];
       const spec = generateGitignore(entries);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated .gitignore with ${entries.length} entries`, artifact: { name: artifact.name, kind: "gitignore", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated .gitignore with ${entries.length} entries`,
+        artifact: { name: artifact.name, kind: "gitignore", content: artifact.content },
+      };
     },
   },
   {
@@ -178,10 +262,18 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["shell script", "bash script", "create script", "shell"],
     exec: async ({ args }) => {
-      const commands = (args?.commands as string[]) || ["echo 'Hello World'", "npm install", "npm run build"];
+      const commands = (args?.commands as string[]) || [
+        "echo 'Hello World'",
+        "npm install",
+        "npm run build",
+      ];
       const spec = generateShellScript(commands);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated shell script with ${commands.length} commands`, artifact: { name: artifact.name, kind: "sh", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated shell script with ${commands.length} commands`,
+        artifact: { name: artifact.name, kind: "sh", content: artifact.content },
+      };
     },
   },
   {
@@ -192,10 +284,16 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["python script", "create python", "generate python", "py file"],
     exec: async ({ args }) => {
-      const code = (args?.code as string) || "def main():\n    print('Hello from DivergenceIQ')\n\nif __name__ == '__main__':\n    main()";
+      const code =
+        (args?.code as string) ||
+        "def main():\n    print('Hello from DivergenceIQ')\n\nif __name__ == '__main__':\n    main()";
       const spec = generatePythonScript(code);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated Python script`, artifact: { name: artifact.name, kind: "py", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated Python script`,
+        artifact: { name: artifact.name, kind: "py", content: artifact.content },
+      };
     },
   },
   {
@@ -215,7 +313,11 @@ export const DEV_SKILLS: Skill[] = [
       ];
       const spec = generateSVG(width, height, shapes);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated SVG ${width}x${height}`, artifact: { name: artifact.name, kind: "svg", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated SVG ${width}x${height}`,
+        artifact: { name: artifact.name, kind: "svg", content: artifact.content },
+      };
     },
   },
 
@@ -224,9 +326,17 @@ export const DEV_SKILLS: Skill[] = [
     id: "run-code",
     name: "Run Code",
     category: "Code Tooling" as SkillCategory,
-    description: "Execute JavaScript, TypeScript, HTML, CSS, JSON, or Python code with auto-correction.",
+    description:
+      "Execute JavaScript, TypeScript, HTML, CSS, JSON, or Python code with auto-correction.",
     trigger: "keyword",
-    keywords: ["run code", "execute code", "run javascript", "run python", "run typescript", "code runner"],
+    keywords: [
+      "run code",
+      "execute code",
+      "run javascript",
+      "run python",
+      "run typescript",
+      "code runner",
+    ],
     exec: async ({ args }) => {
       const language = (args?.language as string) || "js";
       const code = (args?.code as string) || "console.log('Hello from DivergenceIQ');";
@@ -248,7 +358,10 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const code = (args?.code as string) || "function hello() { console.log('hi'); }";
       const stats = analyzeCode(code);
-      return { ok: true, output: `Code Analysis:\n  Lines: ${stats.lines}\n  Lines of Code: ${stats.linesOfCode}\n  Blank: ${stats.blankLines}\n  Comments: ${stats.commentLines}\n  Characters: ${stats.characters}\n  Words: ${stats.words}\n  Functions: ${stats.functions}\n  Classes: ${stats.classes}\n  Imports: ${stats.imports}\n  Cyclomatic Complexity: ${stats.complexity}` };
+      return {
+        ok: true,
+        output: `Code Analysis:\n  Lines: ${stats.lines}\n  Lines of Code: ${stats.linesOfCode}\n  Blank: ${stats.blankLines}\n  Comments: ${stats.commentLines}\n  Characters: ${stats.characters}\n  Words: ${stats.words}\n  Functions: ${stats.functions}\n  Classes: ${stats.classes}\n  Imports: ${stats.imports}\n  Cyclomatic Complexity: ${stats.complexity}`,
+      };
     },
   },
   {
@@ -261,9 +374,13 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const type = (args?.type as string) || "js";
       const code = (args?.code as string) || "function  hello ( ) {  console.log( 'hi' ) ;  }";
-      const minified = type === "css" ? minifyCSS(code) : type === "html" ? minifyHTML(code) : minifyJS(code);
+      const minified =
+        type === "css" ? minifyCSS(code) : type === "html" ? minifyHTML(code) : minifyJS(code);
       const saved = Math.round((1 - minified.length / code.length) * 100);
-      return { ok: true, output: `Minified ${type.toUpperCase()}: ${code.length} -> ${minified.length} bytes (${saved}% reduction)\n\n${minified}` };
+      return {
+        ok: true,
+        output: `Minified ${type.toUpperCase()}: ${code.length} -> ${minified.length} bytes (${saved}% reduction)\n\n${minified}`,
+      };
     },
   },
   {
@@ -287,7 +404,8 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["ts to js", "typescript to javascript", "strip types", "convert ts"],
     exec: async ({ args }) => {
-      const code = (args?.code as string) || "function add(a: number, b: number): number { return a + b; }";
+      const code =
+        (args?.code as string) || "function add(a: number, b: number): number { return a + b; }";
       const js = tsToJs(code);
       return { ok: true, output: `Converted TS -> JS:\n\n${js}` };
     },
@@ -305,7 +423,10 @@ export const DEV_SKILLS: Skill[] = [
       const testStr = (args?.testString as string) || "Hello 123 World 456";
       const result = testRegex(pattern, flags, testStr);
       if (!result.ok) return { ok: false, error: result.error };
-      return { ok: true, output: `Pattern: /${pattern}/${flags}\nString: "${testStr}"\nMatches: ${result.matches.length}\n${result.matches.map((m, i) => `  [${i}] "${m.match}" at index ${m.index}`).join("\n")}` };
+      return {
+        ok: true,
+        output: `Pattern: /${pattern}/${flags}\nString: "${testStr}"\nMatches: ${result.matches.length}\n${result.matches.map((m, i) => `  [${i}] "${m.match}" at index ${m.index}`).join("\n")}`,
+      };
     },
   },
   {
@@ -318,7 +439,14 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const op = (args?.op as string) || "base64-encode";
       const input = (args?.input as string) || "Hello World";
-      const output = op === "base64-encode" ? encodeBase64(input) : op === "base64-decode" ? decodeBase64(input) : op === "url-encode" ? urlEncode(input) : urlDecode(input);
+      const output =
+        op === "base64-encode"
+          ? encodeBase64(input)
+          : op === "base64-decode"
+            ? decodeBase64(input)
+            : op === "url-encode"
+              ? urlEncode(input)
+              : urlDecode(input);
       return { ok: true, output: `${op}: "${input}" -> "${output}"` };
     },
   },
@@ -346,7 +474,10 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const count = Number(args?.count) || 5;
       const uuids = generateUUIDs(count);
-      return { ok: true, output: `Generated ${count} UUIDs:\n${uuids.map((u) => `  ${u}`).join("\n")}` };
+      return {
+        ok: true,
+        output: `Generated ${count} UUIDs:\n${uuids.map((u) => `  ${u}`).join("\n")}`,
+      };
     },
   },
 
@@ -361,8 +492,16 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const url = (args?.url as string) || "https://jsonplaceholder.typicode.com/todos/1";
       const method = (args?.method as string) || "GET";
-      const result = await testAPI(url, method, args?.body, args?.headers as Record<string, string>);
-      return { ok: result.ok, output: `API Test: ${method} ${url}\nStatus: ${result.status} ${result.statusText}\nDuration: ${result.durationMs.toFixed(0)}ms\nResponse: ${JSON.stringify(result.data, null, 2)?.slice(0, 500)}` };
+      const result = await testAPI(
+        url,
+        method,
+        args?.body,
+        args?.headers as Record<string, string>,
+      );
+      return {
+        ok: result.ok,
+        output: `API Test: ${method} ${url}\nStatus: ${result.status} ${result.statusText}\nDuration: ${result.durationMs.toFixed(0)}ms\nResponse: ${JSON.stringify(result.data, null, 2)?.slice(0, 500)}`,
+      };
     },
   },
   {
@@ -375,7 +514,10 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const url = (args?.url as string) || "https://api.github.com";
       const result = await healthCheck(url);
-      return { ok: result.ok, output: `Health Check: ${url}\nStatus: ${result.status || "UNREACHABLE"}\nResponse Time: ${result.responseTime}ms\nTimestamp: ${new Date(result.timestamp).toISOString()}` };
+      return {
+        ok: result.ok,
+        output: `Health Check: ${url}\nStatus: ${result.status || "UNREACHABLE"}\nResponse Time: ${result.responseTime}ms\nTimestamp: ${new Date(result.timestamp).toISOString()}`,
+      };
     },
   },
   {
@@ -388,13 +530,22 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const title = (args?.title as string) || "My API";
       const version = (args?.version as string) || "1.0.0";
-      const endpoints = (args?.endpoints as { method: string; path: string; description: string; auth: boolean }[]) || [
+      const endpoints = (args?.endpoints as {
+        method: string;
+        path: string;
+        description: string;
+        auth: boolean;
+      }[]) || [
         { method: "GET", path: "/users", description: "List all users", auth: true },
         { method: "POST", path: "/users", description: "Create a user", auth: true },
       ];
       const spec = generateOpenAPISpec(title, version, endpoints as never);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated OpenAPI spec with ${endpoints.length} endpoints`, artifact: { name: artifact.name, kind: "json", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated OpenAPI spec with ${endpoints.length} endpoints`,
+        artifact: { name: artifact.name, kind: "json", content: artifact.content },
+      };
     },
   },
   {
@@ -406,12 +557,19 @@ export const DEV_SKILLS: Skill[] = [
     keywords: ["postman", "postman collection", "api collection"],
     exec: async ({ args }) => {
       const name = (args?.name as string) || "My API";
-      const endpoints = (args?.endpoints as { method: string; path: string; description: string; auth: boolean }[]) || [
-        { method: "GET", path: "/health", description: "Health check", auth: false },
-      ];
+      const endpoints = (args?.endpoints as {
+        method: string;
+        path: string;
+        description: string;
+        auth: boolean;
+      }[]) || [{ method: "GET", path: "/health", description: "Health check", auth: false }];
       const spec = generatePostmanCollection(name, endpoints as never);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated Postman collection: ${name}`, artifact: { name: artifact.name, kind: "json", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated Postman collection: ${name}`,
+        artifact: { name: artifact.name, kind: "json", content: artifact.content },
+      };
     },
   },
   {
@@ -426,7 +584,11 @@ export const DEV_SKILLS: Skill[] = [
       const data = args?.data || { id: "123", email: "user@example.com" };
       const spec = generateWebhookPayload(event, data);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated webhook payload for "${event}" event`, artifact: { name: artifact.name, kind: "json", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated webhook payload for "${event}" event`,
+        artifact: { name: artifact.name, kind: "json", content: artifact.content },
+      };
     },
   },
 
@@ -447,7 +609,11 @@ export const DEV_SKILLS: Skill[] = [
       ];
       const spec = generateSQL(table, columns);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated SQL schema for table "${table}" with RLS policies`, artifact: { name: artifact.name, kind: "sql", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated SQL schema for table "${table}" with RLS policies`,
+        artifact: { name: artifact.name, kind: "sql", content: artifact.content },
+      };
     },
   },
   {
@@ -458,13 +624,33 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["supabase schema", "supabase migration", "supabase rls", "supabase"],
     exec: async ({ args }) => {
-      const tables = (args?.tables as { table: string; columns: { name: string; type: string; nullable?: boolean; primary?: boolean }[] }[]) || [
-        { table: "profiles", columns: [{ name: "user_id", type: "UUID", primary: true }, { name: "username", type: "TEXT", nullable: false }] },
-        { table: "posts", columns: [{ name: "user_id", type: "UUID", nullable: false }, { name: "title", type: "TEXT", nullable: false }, { name: "body", type: "TEXT" }] },
+      const tables = (args?.tables as {
+        table: string;
+        columns: { name: string; type: string; nullable?: boolean; primary?: boolean }[];
+      }[]) || [
+        {
+          table: "profiles",
+          columns: [
+            { name: "user_id", type: "UUID", primary: true },
+            { name: "username", type: "TEXT", nullable: false },
+          ],
+        },
+        {
+          table: "posts",
+          columns: [
+            { name: "user_id", type: "UUID", nullable: false },
+            { name: "title", type: "TEXT", nullable: false },
+            { name: "body", type: "TEXT" },
+          ],
+        },
       ];
       const spec = generateSupabaseSchema(tables as never);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated Supabase schema with ${tables.length} tables and RLS`, artifact: { name: artifact.name, kind: "sql", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated Supabase schema with ${tables.length} tables and RLS`,
+        artifact: { name: artifact.name, kind: "sql", content: artifact.content },
+      };
     },
   },
   {
@@ -475,12 +661,25 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["prisma", "prisma schema", "orm schema", "prisma model"],
     exec: async ({ args }) => {
-      const tables = (args?.tables as { table: string; columns: { name: string; type: string; primary?: boolean; unique?: boolean }[] }[]) || [
-        { table: "User", columns: [{ name: "id", type: "String", primary: true }, { name: "email", type: "String", unique: true }] },
+      const tables = (args?.tables as {
+        table: string;
+        columns: { name: string; type: string; primary?: boolean; unique?: boolean }[];
+      }[]) || [
+        {
+          table: "User",
+          columns: [
+            { name: "id", type: "String", primary: true },
+            { name: "email", type: "String", unique: true },
+          ],
+        },
       ];
       const spec = generatePrismaSchema(tables as never);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated Prisma schema with ${tables.length} models`, artifact: { name: artifact.name, kind: "txt", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated Prisma schema with ${tables.length} models`,
+        artifact: { name: artifact.name, kind: "txt", content: artifact.content },
+      };
     },
   },
 
@@ -493,10 +692,21 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["vercel config", "vercel.json", "deploy to vercel", "vercel deployment"],
     exec: async ({ args }) => {
-      const config = { platform: "vercel" as const, env: (args?.env as Record<string, string>) || { NEXT_PUBLIC_API_URL: "https://api.example.com" }, buildCommand: (args?.buildCommand as string) || "npm run build", outputDir: (args?.outputDir as string) || "dist" };
+      const config = {
+        platform: "vercel" as const,
+        env: (args?.env as Record<string, string>) || {
+          NEXT_PUBLIC_API_URL: "https://api.example.com",
+        },
+        buildCommand: (args?.buildCommand as string) || "npm run build",
+        outputDir: (args?.outputDir as string) || "dist",
+      };
       const spec = generateVercelConfig(config);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated vercel.json config`, artifact: { name: artifact.name, kind: "json", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated vercel.json config`,
+        artifact: { name: artifact.name, kind: "json", content: artifact.content },
+      };
     },
   },
   {
@@ -507,10 +717,19 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["netlify config", "netlify.toml", "deploy to netlify", "netlify"],
     exec: async ({ args }) => {
-      const config = { platform: "netlify" as const, env: {}, buildCommand: (args?.buildCommand as string) || "npm run build", outputDir: (args?.outputDir as string) || "dist" };
+      const config = {
+        platform: "netlify" as const,
+        env: {},
+        buildCommand: (args?.buildCommand as string) || "npm run build",
+        outputDir: (args?.outputDir as string) || "dist",
+      };
       const spec = generateNetlifyConfig(config);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated netlify.toml config`, artifact: { name: artifact.name, kind: "toml", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated netlify.toml config`,
+        artifact: { name: artifact.name, kind: "toml", content: artifact.content },
+      };
     },
   },
   {
@@ -527,7 +746,11 @@ export const DEV_SKILLS: Skill[] = [
       const replicas = Number(args?.replicas) || 3;
       const spec = generateK8sManifest(appName, image, port, replicas);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated K8s manifest for ${appName} (${replicas} replicas)`, artifact: { name: artifact.name, kind: "yaml", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated K8s manifest for ${appName} (${replicas} replicas)`,
+        artifact: { name: artifact.name, kind: "yaml", content: artifact.content },
+      };
     },
   },
   {
@@ -549,7 +772,11 @@ export const DEV_SKILLS: Skill[] = [
       ];
       const spec = generateGitHubActions({ name, on, steps });
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated GitHub Actions workflow: ${name}`, artifact: { name: artifact.name, kind: "yaml", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated GitHub Actions workflow: ${name}`,
+        artifact: { name: artifact.name, kind: "yaml", content: artifact.content },
+      };
     },
   },
   {
@@ -560,10 +787,20 @@ export const DEV_SKILLS: Skill[] = [
     trigger: "keyword",
     keywords: ["env template", "env example", "dotenv template", ".env.example"],
     exec: async ({ args }) => {
-      const keys = (args?.keys as string[]) || ["DATABASE_URL", "API_KEY", "SECRET_KEY", "PORT", "NODE_ENV"];
+      const keys = (args?.keys as string[]) || [
+        "DATABASE_URL",
+        "API_KEY",
+        "SECRET_KEY",
+        "PORT",
+        "NODE_ENV",
+      ];
       const spec = generateEnvTemplate(keys);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated .env.example with ${keys.length} variables`, artifact: { name: artifact.name, kind: "env", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated .env.example with ${keys.length} variables`,
+        artifact: { name: artifact.name, kind: "env", content: artifact.content },
+      };
     },
   },
   {
@@ -577,7 +814,10 @@ export const DEV_SKILLS: Skill[] = [
       const env1 = (args?.env1 as string) || "API_KEY=abc\nPORT=3000";
       const env2 = (args?.env2 as string) || "API_KEY=xyz\nPORT=3000\nDB_URL=localhost";
       const result = compareEnvs(env1, env2);
-      return { ok: true, output: `Env Comparison:\n  Missing in env1: ${result.missing.join(", ") || "none"}\n  Extra in env1: ${result.extra.join(", ") || "none"}\n  Different values: ${result.different.map((d) => `${d.key} (${d.val1} vs ${d.val2})`).join(", ") || "none"}` };
+      return {
+        ok: true,
+        output: `Env Comparison:\n  Missing in env1: ${result.missing.join(", ") || "none"}\n  Extra in env1: ${result.extra.join(", ") || "none"}\n  Different values: ${result.different.map((d) => `${d.key} (${d.val1} vs ${d.val2})`).join(", ") || "none"}`,
+      };
     },
   },
 
@@ -592,10 +832,17 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const endpoint = (args?.endpoint as string) || "users";
       const method = (args?.method as string) || "POST";
-      const fields = (args?.fields as { name: string; type: string }[]) || [{ name: "email", type: "string" }, { name: "password", type: "string" }];
+      const fields = (args?.fields as { name: string; type: string }[]) || [
+        { name: "email", type: "string" },
+        { name: "password", type: "string" },
+      ];
       const spec = generateAPI(endpoint, method, fields);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated API endpoint: ${method.toUpperCase()} /${endpoint}`, artifact: { name: artifact.name, kind: "ts", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated API endpoint: ${method.toUpperCase()} /${endpoint}`,
+        artifact: { name: artifact.name, kind: "ts", content: artifact.content },
+      };
     },
   },
   {
@@ -608,12 +855,20 @@ export const DEV_SKILLS: Skill[] = [
     exec: async ({ args }) => {
       const name = (args?.name as string) || "utils";
       const exports = (args?.exports as { name: string; type: string; body: string }[]) || [
-        { name: "formatDate", type: "export function", body: "(date: Date): string { return date.toISOString(); }" },
+        {
+          name: "formatDate",
+          type: "export function",
+          body: "(date: Date): string { return date.toISOString(); }",
+        },
         { name: "MAX_RETRIES", type: "export const", body: "= 3;" },
       ];
       const spec = generateTypeScriptModule(name, exports);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated TypeScript module: ${name} (${exports.length} exports)`, artifact: { name: artifact.name, kind: "ts", content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated TypeScript module: ${name} (${exports.length} exports)`,
+        artifact: { name: artifact.name, kind: "ts", content: artifact.content },
+      };
     },
   },
   {
@@ -625,10 +880,17 @@ export const DEV_SKILLS: Skill[] = [
     keywords: ["config file", "generate config", "toml config", "yaml config", "ini config"],
     exec: async ({ args }) => {
       const format = (args?.format as "toml" | "ini" | "yaml" | "json") || "yaml";
-      const data = (args?.data as Record<string, unknown>) || { server: { port: 3000, host: "0.0.0.0" }, database: { url: "postgres://localhost/mydb" } };
+      const data = (args?.data as Record<string, unknown>) || {
+        server: { port: 3000, host: "0.0.0.0" },
+        database: { url: "postgres://localhost/mydb" },
+      };
       const spec = generateConfig(format, data);
       const artifact = createArtifact(spec);
-      return { ok: true, output: `Generated ${format.toUpperCase()} config file`, artifact: { name: artifact.name, kind: format as ArtifactKind, content: artifact.content } };
+      return {
+        ok: true,
+        output: `Generated ${format.toUpperCase()} config file`,
+        artifact: { name: artifact.name, kind: format as ArtifactKind, content: artifact.content },
+      };
     },
   },
 ];

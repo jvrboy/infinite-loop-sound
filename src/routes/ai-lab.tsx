@@ -6,7 +6,10 @@ export const Route = createFileRoute("/ai-lab")({
   head: () => ({
     meta: [
       { title: "AI Training Lab — DivergenceIQ" },
-      { name: "description", content: "Train, monitor, and orchestrate 12 specialized AI trading agents." },
+      {
+        name: "description",
+        content: "Train, monitor, and orchestrate 12 specialized AI trading agents.",
+      },
     ],
   }),
   component: AILabPage,

@@ -19,40 +19,88 @@ export interface MasterPreset {
 
 export const MASTER_PRESETS: MasterPreset[] = [
   {
-    id: "transparent", name: "Transparent",
+    id: "transparent",
+    name: "Transparent",
     description: "Subtle glue, no coloration. Ideal for classical, jazz, acoustic.",
-    targetLufs: -16, truePeak: -1.5, compressorRatio: 1.5, compressorThreshold: -18,
-    limiterCeiling: -1.5, exciterAmount: 0.1, stereoWideness: 1.05, bassEnhance: 0.1, airBoost: 0.15,
+    targetLufs: -16,
+    truePeak: -1.5,
+    compressorRatio: 1.5,
+    compressorThreshold: -18,
+    limiterCeiling: -1.5,
+    exciterAmount: 0.1,
+    stereoWideness: 1.05,
+    bassEnhance: 0.1,
+    airBoost: 0.15,
   },
   {
-    id: "streaming", name: "Streaming",
+    id: "streaming",
+    name: "Streaming",
     description: "Loud, punchy, optimized for Spotify/Apple Music/YouTube.",
-    targetLufs: -14, truePeak: -1.0, compressorRatio: 3, compressorThreshold: -14,
-    limiterCeiling: -1.0, exciterAmount: 0.35, stereoWideness: 1.2, bassEnhance: 0.3, airBoost: 0.4,
+    targetLufs: -14,
+    truePeak: -1.0,
+    compressorRatio: 3,
+    compressorThreshold: -14,
+    limiterCeiling: -1.0,
+    exciterAmount: 0.35,
+    stereoWideness: 1.2,
+    bassEnhance: 0.3,
+    airBoost: 0.4,
   },
   {
-    id: "club", name: "Club",
+    id: "club",
+    name: "Club",
     description: "Maximum loudness, deep bass, aggressive limiting for clubs.",
-    targetLufs: -9, truePeak: -0.5, compressorRatio: 4, compressorThreshold: -10,
-    limiterCeiling: -0.5, exciterAmount: 0.5, stereoWideness: 1.4, bassEnhance: 0.6, airBoost: 0.3,
+    targetLufs: -9,
+    truePeak: -0.5,
+    compressorRatio: 4,
+    compressorThreshold: -10,
+    limiterCeiling: -0.5,
+    exciterAmount: 0.5,
+    stereoWideness: 1.4,
+    bassEnhance: 0.6,
+    airBoost: 0.3,
   },
   {
-    id: "vinyl", name: "Vinyl",
+    id: "vinyl",
+    name: "Vinyl",
     description: "Warm, analog-style, mono-compatible, no harshness.",
-    targetLufs: -18, truePeak: -2.0, compressorRatio: 2, compressorThreshold: -16,
-    limiterCeiling: -2.0, exciterAmount: 0.2, stereoWideness: 0.9, bassEnhance: 0.2, airBoost: 0.1,
+    targetLufs: -18,
+    truePeak: -2.0,
+    compressorRatio: 2,
+    compressorThreshold: -16,
+    limiterCeiling: -2.0,
+    exciterAmount: 0.2,
+    stereoWideness: 0.9,
+    bassEnhance: 0.2,
+    airBoost: 0.1,
   },
   {
-    id: "podcast", name: "Podcast",
+    id: "podcast",
+    name: "Podcast",
     description: "Voice-optimized, clarity, consistent loudness for speech.",
-    targetLufs: -16, truePeak: -1.5, compressorRatio: 4, compressorThreshold: -18,
-    limiterCeiling: -1.5, exciterAmount: 0.15, stereoWideness: 1.0, bassEnhance: 0.05, airBoost: 0.5,
+    targetLufs: -16,
+    truePeak: -1.5,
+    compressorRatio: 4,
+    compressorThreshold: -18,
+    limiterCeiling: -1.5,
+    exciterAmount: 0.15,
+    stereoWideness: 1.0,
+    bassEnhance: 0.05,
+    airBoost: 0.5,
   },
   {
-    id: "lofi", name: "Lo-Fi",
+    id: "lofi",
+    name: "Lo-Fi",
     description: "Soft, tape-saturated, gentle saturation and roll-off.",
-    targetLufs: -14, truePeak: -1.0, compressorRatio: 2, compressorThreshold: -12,
-    limiterCeiling: -1.0, exciterAmount: 0.25, stereoWideness: 1.1, bassEnhance: 0.4, airBoost: 0.2,
+    targetLufs: -14,
+    truePeak: -1.0,
+    compressorRatio: 2,
+    compressorThreshold: -12,
+    limiterCeiling: -1.0,
+    exciterAmount: 0.25,
+    stereoWideness: 1.1,
+    bassEnhance: 0.4,
+    airBoost: 0.2,
   },
 ];
 
@@ -100,9 +148,7 @@ export async function autoMaster(
   preset: MasterPreset,
 ): Promise<MasterResult> {
   const start = Date.now();
-  const offline = new OfflineAudioContext(
-    input.numberOfChannels, input.length, input.sampleRate,
-  );
+  const offline = new OfflineAudioContext(input.numberOfChannels, input.length, input.sampleRate);
 
   const src = offline.createBufferSource();
   src.buffer = input;
@@ -127,7 +173,7 @@ export async function autoMaster(
   const shaper = offline.createWaveShaper();
   const curve = new Float32Array(4096);
   for (let i = 0; i < 4096; i++) {
-    const x = (i / 2048) - 1;
+    const x = i / 2048 - 1;
     curve[i] = Math.tanh(x * (1 + preset.exciterAmount * 3)) * 0.7;
   }
   shaper.curve = curve;

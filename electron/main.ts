@@ -80,17 +80,19 @@ ipcMain.handle("native:getStorageInfo", async () => {
 ipcMain.handle("native:listFiles", async (_event, dirPath: string) => {
   try {
     const entries = await fs.promises.readdir(dirPath, { withFileTypes: true });
-    const files = await Promise.all(entries.map(async (entry) => {
-      const fullPath = path.join(dirPath, entry.name);
-      const stat = await fs.promises.stat(fullPath);
-      return {
-        name: entry.name,
-        path: fullPath,
-        size: stat.size,
-        isDirectory: entry.isDirectory(),
-        modified: stat.mtimeMs,
-      };
-    }));
+    const files = await Promise.all(
+      entries.map(async (entry) => {
+        const fullPath = path.join(dirPath, entry.name);
+        const stat = await fs.promises.stat(fullPath);
+        return {
+          name: entry.name,
+          path: fullPath,
+          size: stat.size,
+          isDirectory: entry.isDirectory(),
+          modified: stat.mtimeMs,
+        };
+      }),
+    );
     return files;
   } catch (err) {
     return [];

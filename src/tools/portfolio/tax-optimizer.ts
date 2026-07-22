@@ -16,7 +16,7 @@ export interface Lot {
 export interface TaxLotRecommendation {
   lotId: string;
   symbol: string;
-  action: 'harvest' | 'hold' | 'sell_short_term' | 'sell_long_term';
+  action: "harvest" | "hold" | "sell_short_term" | "sell_long_term";
   estimatedLoss: number;
   taxSavings: number;
   washSaleRisk: boolean;
@@ -49,7 +49,10 @@ export class TaxOptimizer {
   analyze(lots: Lot[], currentPriceMap: Record<string, number>): TaxReport {
     const recommendations: TaxLotRecommendation[] = [];
     const washSaleViolations: string[] = [];
-    let stGains = 0, ltGains = 0, stLosses = 0, ltLosses = 0;
+    let stGains = 0,
+      ltGains = 0,
+      stLosses = 0,
+      ltLosses = 0;
 
     for (const lot of lots) {
       const currentPrice = currentPriceMap[lot.symbol] ?? lot.currentPrice;
@@ -59,40 +62,47 @@ export class TaxOptimizer {
 
       if (unrealized < 0) {
         const loss = Math.abs(unrealized);
-        if (isLongTerm) ltLosses += loss; else stLosses += loss;
+        if (isLongTerm) ltLosses += loss;
+        else stLosses += loss;
         const taxSavings = loss * (isLongTerm ? this.taxRates.longTerm : this.taxRates.shortTerm);
         recommendations.push({
           lotId: lot.id,
           symbol: lot.symbol,
-          action: hasWashSaleRisk ? 'hold' : 'harvest',
+          action: hasWashSaleRisk ? "hold" : "harvest",
           estimatedLoss: loss,
           taxSavings,
           washSaleRisk: hasWashSaleRisk,
           reasoning: hasWashSaleRisk
-            ? 'Wash sale risk: sold at a loss within 30 days. Holding to avoid disallowed loss.'
+            ? "Wash sale risk: sold at a loss within 30 days. Holding to avoid disallowed loss."
             : `Tax-loss harvesting opportunity: $${loss.toFixed(2)} unrealized loss. Selling saves ~$${taxSavings.toFixed(2)} in taxes.`,
         });
       } else {
         if (unrealized > 0) {
-          if (isLongTerm) ltGains += unrealized; else stGains += unrealized;
+          if (isLongTerm) ltGains += unrealized;
+          else stGains += unrealized;
         }
         recommendations.push({
           lotId: lot.id,
           symbol: lot.symbol,
-          action: isLongTerm ? 'sell_long_term' : 'sell_short_term',
+          action: isLongTerm ? "sell_long_term" : "sell_short_term",
           estimatedLoss: 0,
           taxSavings: 0,
           washSaleRisk: false,
-          reasoning: `Holding ${isLongTerm ? 'long' : 'short'}-term gain of $${unrealized.toFixed(2)}.`,
+          reasoning: `Holding ${isLongTerm ? "long" : "short"}-term gain of $${unrealized.toFixed(2)}.`,
         });
       }
 
       if (hasWashSaleRisk) washSaleViolations.push(lot.symbol);
     }
 
-    const netGains = (stGains + ltGains) - (stLosses + ltLosses);
-    const estimatedTax = Math.max(0, stGains - stLosses) * this.taxRates.shortTerm + Math.max(0, ltGains - ltLosses) * this.taxRates.longTerm;
-    const totalValue = lots.reduce((sum, l) => sum + (currentPriceMap[l.symbol] ?? l.currentPrice) * l.quantity, 0);
+    const netGains = stGains + ltGains - (stLosses + ltLosses);
+    const estimatedTax =
+      Math.max(0, stGains - stLosses) * this.taxRates.shortTerm +
+      Math.max(0, ltGains - ltLosses) * this.taxRates.longTerm;
+    const totalValue = lots.reduce(
+      (sum, l) => sum + (currentPriceMap[l.symbol] ?? l.currentPrice) * l.quantity,
+      0,
+    );
     const taxDrag = totalValue > 0 ? (estimatedTax / totalValue) * 100 : 0;
 
     return {
@@ -102,7 +112,7 @@ export class TaxOptimizer {
       longTermLosses: ltLosses,
       netCapitalGains: netGains,
       estimatedTaxLiability: estimatedTax,
-      taxLossHarvestingOpportunities: recommendations.filter((r) => r.action === 'harvest'),
+      taxLossHarvestingOpportunities: recommendations.filter((r) => r.action === "harvest"),
       washSaleViolations,
       taxDragPct: taxDrag,
     };
@@ -112,14 +122,26 @@ export class TaxOptimizer {
     return this.recentSales.some((s) => s.symbol === symbol && s.loss);
   }
 
-  optimizeLotSelection(lots: Lot[], amountToSell: number, currentPrices: Record<string, number>): Lot[] {
+  optimizeLotSelection(
+    lots: Lot[],
+    amountToSell: number,
+    currentPrices: Record<string, number>,
+  ): Lot[] {
     const sorted = [...lots].sort((a, b) => {
       const aPrice = currentPrices[a.symbol] ?? a.costBasis;
       const bPrice = currentPrices[b.symbol] ?? b.costBasis;
       const aGain = (aPrice - a.costBasis) / a.costBasis;
       const bGain = (bPrice - b.costBasis) / b.costBasis;
-      if (a.holdingPeriod > 365 * 24 * 60 * 60 * 1000 && b.holdingPeriod <= 365 * 24 * 60 * 60 * 1000) return -1;
-      if (b.holdingPeriod > 365 * 24 * 60 * 60 * 1000 && a.holdingPeriod <= 365 * 24 * 60 * 60 * 1000) return 1;
+      if (
+        a.holdingPeriod > 365 * 24 * 60 * 60 * 1000 &&
+        b.holdingPeriod <= 365 * 24 * 60 * 60 * 1000
+      )
+        return -1;
+      if (
+        b.holdingPeriod > 365 * 24 * 60 * 60 * 1000 &&
+        a.holdingPeriod <= 365 * 24 * 60 * 60 * 1000
+      )
+        return 1;
       return aGain - bGain;
     });
 

@@ -57,18 +57,24 @@ function analyzeElliottWave(swings: Swing[]) {
   const score = [fibCheck.w2Valid, fibCheck.w3Valid, fibCheck.w4Valid].filter(Boolean).length;
   const completionScore = (score / 3) * 100;
 
-  const target = direction === "UP"
-    ? wave3.price + (wave3.price - wave1.price) * 0.618
-    : wave3.price - (wave1.price - wave3.price) * 0.618;
+  const target =
+    direction === "UP"
+      ? wave3.price + (wave3.price - wave1.price) * 0.618
+      : wave3.price - (wave1.price - wave3.price) * 0.618;
 
   return { direction, wave1, wave2, wave3, wave4, wave5, fibCheck, completionScore, target };
 }
 
 function ElliottWavePage() {
-  const [input, setInput] = useState("1.085,1.082,1.088,1.084,1.092,1.087,1.095,1.090,1.098,1.093,1.100,1.096,1.103,1.098,1.105");
+  const [input, setInput] = useState(
+    "1.085,1.082,1.088,1.084,1.092,1.087,1.095,1.090,1.098,1.093,1.100,1.096,1.103,1.098,1.105",
+  );
 
   const { prices, swings, analysis } = useMemo(() => {
-    const p = input.split(",").map(Number).filter((n) => !isNaN(n));
+    const p = input
+      .split(",")
+      .map(Number)
+      .filter((n) => !isNaN(n));
     const sw = detectSwings(p, 2);
     const an = analyzeElliottWave(sw);
     return { prices: p, swings: sw, analysis: an };
@@ -91,8 +97,15 @@ function ElliottWavePage() {
         <div className="grid lg:grid-cols-2 gap-6">
           <div className="bg-card border border-border p-4 rounded-lg space-y-3">
             <label className="text-sm font-medium">Price Series (comma-separated)</label>
-            <textarea value={input} onChange={(e) => setInput(e.target.value)} rows={6} className="w-full p-3 border border-input rounded bg-background font-mono text-xs" />
-            <p className="text-xs text-muted-foreground">{prices.length} data points. {swings.length} swing points detected.</p>
+            <textarea
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              rows={6}
+              className="w-full p-3 border border-input rounded bg-background font-mono text-xs"
+            />
+            <p className="text-xs text-muted-foreground">
+              {prices.length} data points. {swings.length} swing points detected.
+            </p>
           </div>
 
           <div className="space-y-4">
@@ -100,24 +113,51 @@ function ElliottWavePage() {
               <>
                 <div className="bg-card border border-border rounded-lg p-6">
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm font-semibold text-muted-foreground">Wave Pattern</span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-bold ${analysis.direction === "UP" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"}`}>
+                    <span className="text-sm font-semibold text-muted-foreground">
+                      Wave Pattern
+                    </span>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-bold ${analysis.direction === "UP" ? "bg-bull/20 text-bull" : "bg-bear/20 text-bear"}`}
+                    >
                       {analysis.direction === "UP" ? "Bullish Impulse" : "Bearish Impulse"}
                     </span>
                   </div>
                   <div className="w-full bg-muted rounded-full h-3 mb-1">
-                    <div className="h-3 rounded-full bg-primary transition-all" style={{ width: `${analysis.completionScore}%` }} />
+                    <div
+                      className="h-3 rounded-full bg-primary transition-all"
+                      style={{ width: `${analysis.completionScore}%` }}
+                    />
                   </div>
-                  <span className="text-xs text-muted-foreground">Pattern Confidence: {analysis.completionScore.toFixed(0)}%</span>
+                  <span className="text-xs text-muted-foreground">
+                    Pattern Confidence: {analysis.completionScore.toFixed(0)}%
+                  </span>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { label: "W2 Ret of W1", value: analysis.fibCheck.w2Ret, valid: analysis.fibCheck.w2Valid, target: "50-61.8%" },
-                    { label: "W3 Extension", value: analysis.fibCheck.w3Ext, valid: analysis.fibCheck.w3Valid, target: "≥100%" },
-                    { label: "W4 Ret of W3", value: analysis.fibCheck.w4Ret, valid: analysis.fibCheck.w4Valid, target: "38.2%" },
+                    {
+                      label: "W2 Ret of W1",
+                      value: analysis.fibCheck.w2Ret,
+                      valid: analysis.fibCheck.w2Valid,
+                      target: "50-61.8%",
+                    },
+                    {
+                      label: "W3 Extension",
+                      value: analysis.fibCheck.w3Ext,
+                      valid: analysis.fibCheck.w3Valid,
+                      target: "≥100%",
+                    },
+                    {
+                      label: "W4 Ret of W3",
+                      value: analysis.fibCheck.w4Ret,
+                      valid: analysis.fibCheck.w4Valid,
+                      target: "38.2%",
+                    },
                   ].map((r) => (
-                    <div key={r.label} className={`bg-card border p-3 rounded-lg ${r.valid ? "border-bull/40" : "border-bear/40"}`}>
+                    <div
+                      key={r.label}
+                      className={`bg-card border p-3 rounded-lg ${r.valid ? "border-bull/40" : "border-bear/40"}`}
+                    >
                       <div className="text-[10px] text-muted-foreground uppercase">{r.label}</div>
                       <div className="font-mono font-bold text-lg mt-1">{r.value.toFixed(1)}%</div>
                       <div className="text-[10px] text-muted-foreground">Target: {r.target}</div>
@@ -138,7 +178,11 @@ function ElliottWavePage() {
                       <div key={w.label} className="flex items-center justify-between">
                         <span className="text-muted-foreground">{w.label}</span>
                         <div className="flex items-center gap-2">
-                          {w.swing.type === "high" ? <TrendingUp className="w-3 h-3 text-bull" /> : <TrendingDown className="w-3 h-3 text-bear" />}
+                          {w.swing.type === "high" ? (
+                            <TrendingUp className="w-3 h-3 text-bull" />
+                          ) : (
+                            <TrendingDown className="w-3 h-3 text-bear" />
+                          )}
                           <span className="font-mono">{fmt(w.swing.price)}</span>
                         </div>
                       </div>

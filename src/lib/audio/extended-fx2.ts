@@ -20,14 +20,17 @@ export function createDefaultExtendedFX2(type: ExtendedFX2Type): ExtendedFX2Conf
   const defaults: Record<ExtendedFX2Type, Record<string, number>> = {
     "ring-modulator": { frequency: 100, depth: 1.0, mix: 0.5 },
     "frequency-shifter": { shift: 200, feedback: 0.3, mix: 0.5 },
-    "resonator": { frequency: 440, resonance: 10, decay: 0.5, mix: 0.5 },
+    resonator: { frequency: 440, resonance: 10, decay: 0.5, mix: 0.5 },
     "chorus-ensemble": { rate: 0.5, depth: 0.3, voices: 3, width: 0.8, mix: 0.5 },
     "phaser-stages": { rate: 0.3, depth: 0.7, stages: 6, feedback: 0.3, mix: 0.5 },
   };
   return { type, enabled: false, mix: 1.0, params: defaults[type] };
 }
 
-export function createExtendedFX2Node(engine: AudioEngine, config: ExtendedFX2Config): AudioNode | null {
+export function createExtendedFX2Node(
+  engine: AudioEngine,
+  config: ExtendedFX2Config,
+): AudioNode | null {
   const ctx = engine.ctx;
 
   switch (config.type) {
@@ -130,7 +133,7 @@ export const EXTENDED_FX2_TYPES: ExtendedFX2Type[] = [
 export const EXTENDED_FX2_LABELS: Record<ExtendedFX2Type, string> = {
   "ring-modulator": "Ring Modulator",
   "frequency-shifter": "Frequency Shifter",
-  "resonator": "Resonator",
+  resonator: "Resonator",
   "chorus-ensemble": "Chorus Ensemble",
   "phaser-stages": "Multi-Stage Phaser",
 };

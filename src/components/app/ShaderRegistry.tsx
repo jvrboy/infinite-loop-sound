@@ -16,15 +16,41 @@ import { MagmaFlowBackground } from "./MagmaFlowBackground";
 import { CrystalLatticeBackground } from "./CrystalLatticeBackground";
 
 export type ShaderId =
-  | "three" | "webgpu" | "plasma" | "aurora" | "hexflow"
-  | "voronoi" | "starfield" | "fluid" | "tunnel" | "galaxy"
-  | "kaleidoscope" | "raymarch" | "neongrid" | "magma" | "crystal" | "none";
+  | "three"
+  | "webgpu"
+  | "plasma"
+  | "aurora"
+  | "hexflow"
+  | "voronoi"
+  | "starfield"
+  | "fluid"
+  | "tunnel"
+  | "galaxy"
+  | "kaleidoscope"
+  | "raymarch"
+  | "neongrid"
+  | "magma"
+  | "crystal"
+  | "none";
 
 const STORAGE_KEY = "diq:shader";
 const ORDER: ShaderId[] = [
-  "three", "webgpu", "plasma", "aurora", "hexflow",
-  "voronoi", "starfield", "fluid", "tunnel", "galaxy",
-  "kaleidoscope", "raymarch", "neongrid", "magma", "crystal", "none",
+  "three",
+  "webgpu",
+  "plasma",
+  "aurora",
+  "hexflow",
+  "voronoi",
+  "starfield",
+  "fluid",
+  "tunnel",
+  "galaxy",
+  "kaleidoscope",
+  "raymarch",
+  "neongrid",
+  "magma",
+  "crystal",
+  "none",
 ];
 
 export const SHADER_REGISTRY: { id: ShaderId; label: string; desc: string }[] = [
@@ -66,23 +92,39 @@ export function ShaderBackground() {
   }, []);
 
   switch (id) {
-    case "webgpu": return <WebGPUBackground />;
-    case "plasma": return <PlasmaBackground />;
-    case "aurora": return <AuroraBackground />;
-    case "hexflow": return <HexFlowBackground />;
-    case "voronoi": return <VoronoiBackground />;
-    case "starfield": return <StarfieldBackground />;
-    case "fluid": return <FluidBackground />;
-    case "tunnel": return <TunnelBackground />;
-    case "galaxy": return <GalaxyBackground />;
-    case "kaleidoscope": return <KaleidoscopeBackground />;
-    case "raymarch": return <RaymarchBackground />;
-    case "neongrid": return <NeonGridBackground />;
-    case "magma": return <MagmaFlowBackground />;
-    case "crystal": return <CrystalLatticeBackground />;
-    case "none": return null;
+    case "webgpu":
+      return <WebGPUBackground />;
+    case "plasma":
+      return <PlasmaBackground />;
+    case "aurora":
+      return <AuroraBackground />;
+    case "hexflow":
+      return <HexFlowBackground />;
+    case "voronoi":
+      return <VoronoiBackground />;
+    case "starfield":
+      return <StarfieldBackground />;
+    case "fluid":
+      return <FluidBackground />;
+    case "tunnel":
+      return <TunnelBackground />;
+    case "galaxy":
+      return <GalaxyBackground />;
+    case "kaleidoscope":
+      return <KaleidoscopeBackground />;
+    case "raymarch":
+      return <RaymarchBackground />;
+    case "neongrid":
+      return <NeonGridBackground />;
+    case "magma":
+      return <MagmaFlowBackground />;
+    case "crystal":
+      return <CrystalLatticeBackground />;
+    case "none":
+      return null;
     case "three":
-    default: return <ThreeBackground />;
+    default:
+      return <ThreeBackground />;
   }
 }
 
@@ -100,13 +142,17 @@ export function ShaderPicker() {
           key={s.id}
           onClick={() => setShader(s.id)}
           className={`text-left rounded-lg border p-4 transition-all hover:border-primary/60 ${
-            active === s.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"
+            active === s.id
+              ? "border-primary bg-primary/10"
+              : "border-border bg-card hover:bg-card/80"
           }`}
         >
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold">{s.label}</span>
             {active === s.id && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">ACTIVE</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary">
+                ACTIVE
+              </span>
             )}
           </div>
           <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>

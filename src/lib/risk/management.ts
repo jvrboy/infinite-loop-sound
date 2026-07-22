@@ -16,27 +16,27 @@ const DEFAULT_RISK_LIMIT: RiskLimit = {
   maxPortfolioHeat: 5,
   maxPairHeat: 2,
   maxCorrelation: 0.8,
-  volatilityMultiplier: 1
+  volatilityMultiplier: 1,
 };
 
 export function calculatePortfolioRisk(
   openPositions: any[],
-  accountBalance: number
+  accountBalance: number,
 ): PortfolioRisk {
   let totalNotionalRisk = 0;
   const pairHeat: Record<string, number> = {};
-  
-  openPositions.forEach(pos => {
+
+  openPositions.forEach((pos) => {
     const positionRisk = Math.abs((pos.slPrice - pos.entry) * pos.lot);
     totalNotionalRisk += positionRisk;
     pairHeat[pos.pair] = (pairHeat[pos.pair] || 0) + (positionRisk / accountBalance) * 100;
   });
-  
+
   return {
     totalNotionalRisk,
     portfolioHeat: (totalNotionalRisk / accountBalance) * 100,
     pairHeat,
-    correlationRisk: calculateCorrelationRisk(openPositions)
+    correlationRisk: calculateCorrelationRisk(openPositions),
   };
 }
 
@@ -55,12 +55,12 @@ export function validateRiskLimits(risk: PortfolioRisk, limits: RiskLimit = DEFA
 
 function calculateCorrelationRisk(positions: any[]): number {
   const pairMap: Record<string, string[]> = {};
-  positions.forEach(pos => {
-    const [, quote] = pos.pair.split('/');
+  positions.forEach((pos) => {
+    const [, quote] = pos.pair.split("/");
     if (!pairMap[quote]) pairMap[quote] = [];
     pairMap[quote].push(pos.pair);
   });
-  const maxCorrelated = Math.max(...Object.values(pairMap).map(p => p.length), 1);
+  const maxCorrelated = Math.max(...Object.values(pairMap).map((p) => p.length), 1);
   return maxCorrelated / positions.length;
 }
 

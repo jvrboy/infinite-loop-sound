@@ -100,7 +100,9 @@ function SmartEditorRoute() {
 /* ---------- Panels ---------- */
 
 function PromptToEditPanel({ onRun }: { onRun: (fn: () => unknown) => void }) {
-  const [prompt, setPrompt] = useState("Cut the boring parts, add a fade transition, and color grade for warm tones");
+  const [prompt, setPrompt] = useState(
+    "Cut the boring parts, add a fade transition, and color grade for warm tones",
+  );
 
   return (
     <div className="space-y-4">
@@ -127,7 +129,12 @@ function AutoEditPanel({ onRun }: { onRun: (fn: () => unknown) => void }) {
       </div>
       <div className="space-y-2">
         <Label>Footage Count: {footageCount}</Label>
-        <Slider value={[footageCount]} min={1} max={100} onValueChange={(v) => setFootageCount(v[0])} />
+        <Slider
+          value={[footageCount]}
+          min={1}
+          max={100}
+          onValueChange={(v) => setFootageCount(v[0])}
+        />
       </div>
       <Button onClick={() => onRun(() => autoEdit(brief, footageCount))}>
         <Scissors className="h-4 w-4 mr-1" /> Generate First Cut
@@ -148,7 +155,12 @@ function HighlightReelPanel({ onRun }: { onRun: (fn: () => unknown) => void }) {
       </div>
       <div className="space-y-2">
         <Label>Highlight Count: {highlightCount}</Label>
-        <Slider value={[highlightCount]} min={1} max={20} onValueChange={(v) => setHighlightCount(v[0])} />
+        <Slider
+          value={[highlightCount]}
+          min={1}
+          max={20}
+          onValueChange={(v) => setHighlightCount(v[0])}
+        />
       </div>
       <Button onClick={() => onRun(() => highlightReel(duration, highlightCount))}>
         <Star className="h-4 w-4 mr-1" /> Extract Highlights
@@ -169,7 +181,12 @@ function ContentSearchPanel({ onRun }: { onRun: (fn: () => unknown) => void }) {
       </div>
       <div className="space-y-2">
         <Label>Library Size: {librarySize} clips</Label>
-        <Slider value={[librarySize]} min={10} max={5000} onValueChange={(v) => setLibrarySize(v[0])} />
+        <Slider
+          value={[librarySize]}
+          min={10}
+          max={5000}
+          onValueChange={(v) => setLibrarySize(v[0])}
+        />
       </div>
       <Button onClick={() => onRun(() => contentSearch(query, librarySize))}>
         <Search className="h-4 w-4 mr-1" /> Search Library
@@ -232,15 +249,27 @@ function AccessibilityPanel({ onRun }: { onRun: (fn: () => unknown) => void }) {
           Alt Text
         </label>
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={colorBlindSafe} onChange={(e) => setColorBlindSafe(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={colorBlindSafe}
+            onChange={(e) => setColorBlindSafe(e.target.checked)}
+          />
           Color-Blind Safe
         </label>
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={captions} onChange={(e) => setCaptions(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={captions}
+            onChange={(e) => setCaptions(e.target.checked)}
+          />
           Closed Captions
         </label>
       </div>
-      <Button onClick={() => onRun(() => accessibilityCheck({ altText, colorBlindSafe, closedCaptions: captions }))}>
+      <Button
+        onClick={() =>
+          onRun(() => accessibilityCheck({ altText, colorBlindSafe, closedCaptions: captions }))
+        }
+      >
         <Accessibility className="h-4 w-4 mr-1" /> Run Check
       </Button>
       <div className="flex items-center gap-2 text-sm text-muted-foreground">

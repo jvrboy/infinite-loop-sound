@@ -7,15 +7,15 @@ import { AudioEngine } from "./engine";
 // Real-time pitch shifting using granular synthesis with overlap-add (PSOLA-like)
 
 export interface PitcherConfig {
-  pitchRatio: number;      // 0.25..4.0 (1.0 = original)
-  pitchShift: number;      // semitones (-24..+24)
-  formantShift: number;    // semitones (-12..+12), independent of pitch
-  mix: number;             // 0..1 dry/wet
-  feedback: number;        // 0..0.9
-  windowSize: number;      // grain window in ms (10..100)
-  crossfade: number;       // 0..1 grain crossfade amount
-  stereoWidth: number;     // 0..2
-  detune: number;          // cents (-50..+50)
+  pitchRatio: number; // 0.25..4.0 (1.0 = original)
+  pitchShift: number; // semitones (-24..+24)
+  formantShift: number; // semitones (-12..+12), independent of pitch
+  mix: number; // 0..1 dry/wet
+  feedback: number; // 0..0.9
+  windowSize: number; // grain window in ms (10..100)
+  crossfade: number; // 0..1 grain crossfade amount
+  stereoWidth: number; // 0..2
+  detune: number; // cents (-50..+50)
 }
 
 export function createDefaultPitcher(): PitcherConfig {
@@ -158,14 +158,14 @@ export class SoundPitcher {
 // Shifts vocal formant frequencies independently of pitch using filter bank resynthesis
 
 export interface FormantShifterConfig {
-  shift: number;          // -12..+12 semitones
-  formant1: number;        // Hz, first formant base
-  formant2: number;        // Hz, second formant base
-  formant3: number;        // Hz, third formant base
-  bandwidth: number;       // Q factor multiplier
-  resonance: number;       // 0..2 formant emphasis
+  shift: number; // -12..+12 semitones
+  formant1: number; // Hz, first formant base
+  formant2: number; // Hz, second formant base
+  formant3: number; // Hz, third formant base
+  bandwidth: number; // Q factor multiplier
+  resonance: number; // 0..2 formant emphasis
   preserveOriginal: boolean; // keep original formants alongside shifted
-  mix: number;             // 0..1
+  mix: number; // 0..1
 }
 
 export function createDefaultFormantShifter(): FormantShifterConfig {
@@ -234,12 +234,24 @@ export class FormantShifter {
     const shiftRatio = Math.pow(2, this.config.shift / 12);
     const formants = [this.config.formant1, this.config.formant2, this.config.formant3];
     for (let i = 0; i < this.filters.length; i++) {
-      this.filters[i].frequency.setTargetAtTime(formants[i] * shiftRatio, this.ctx.currentTime, 0.02);
+      this.filters[i].frequency.setTargetAtTime(
+        formants[i] * shiftRatio,
+        this.ctx.currentTime,
+        0.02,
+      );
       this.filters[i].Q.setTargetAtTime(10 * this.config.bandwidth, this.ctx.currentTime, 0.02);
-      this.filterGains[i].gain.setTargetAtTime((1 / formants.length) * this.config.resonance, this.ctx.currentTime, 0.02);
+      this.filterGains[i].gain.setTargetAtTime(
+        (1 / formants.length) * this.config.resonance,
+        this.ctx.currentTime,
+        0.02,
+      );
     }
     if (config.mix !== undefined || config.preserveOriginal !== undefined) {
-      this.dryGain.gain.setTargetAtTime(this.config.preserveOriginal ? 1 - this.config.mix : 0, this.ctx.currentTime, 0.02);
+      this.dryGain.gain.setTargetAtTime(
+        this.config.preserveOriginal ? 1 - this.config.mix : 0,
+        this.ctx.currentTime,
+        0.02,
+      );
       this.wetGain.gain.setTargetAtTime(this.config.mix, this.ctx.currentTime, 0.02);
     }
   }
@@ -264,18 +276,18 @@ export class FormantShifter {
 // Combines pitch shifting, formant shifting, harmonization, and pitch correction
 
 export interface AdvancedPitchConfig {
-  pitchShift: number;       // semitones
-  formantShift: number;     // semitones
+  pitchShift: number; // semitones
+  formantShift: number; // semitones
   formant1: number;
   formant2: number;
   formant3: number;
-  detune: number;           // cents
-  harmonize: number[];      // semitone offsets for harmony voices
-  pitchCorrect: number;     // 0..1 (0 = off, 1 = full correction)
-  pitchCorrectKey: string;  // e.g. "C"
+  detune: number; // cents
+  harmonize: number[]; // semitone offsets for harmony voices
+  pitchCorrect: number; // 0..1 (0 = off, 1 = full correction)
+  pitchCorrectKey: string; // e.g. "C"
   pitchCorrectScale: string; // e.g. "major"
-  glide: number;            // 0..1 pitch glide amount
-  stereoSpread: number;     // 0..1
+  glide: number; // 0..1 pitch glide amount
+  stereoSpread: number; // 0..1
   mix: number;
 }
 
@@ -355,7 +367,12 @@ export class AdvancedPitchEngine {
         detune: this.config.detune,
       });
     }
-    if (config.formantShift !== undefined || config.formant1 !== undefined || config.formant2 !== undefined || config.formant3 !== undefined) {
+    if (
+      config.formantShift !== undefined ||
+      config.formant1 !== undefined ||
+      config.formant2 !== undefined ||
+      config.formant3 !== undefined
+    ) {
       this.formantShifter.setConfig({
         shift: this.config.formantShift,
         formant1: this.config.formant1,
@@ -452,7 +469,10 @@ const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", 
 // ============= PITCH DETECTION =============
 // Autocorrelation-based pitch detection for real-time pitch tracking
 
-export function detectPitch(buffer: Float32Array, sampleRate: number): { freq: number; confidence: number } {
+export function detectPitch(
+  buffer: Float32Array,
+  sampleRate: number,
+): { freq: number; confidence: number } {
   const minPeriod = Math.floor(sampleRate / 2000);
   const maxPeriod = Math.floor(sampleRate / 80);
   let bestPeriod = 0;

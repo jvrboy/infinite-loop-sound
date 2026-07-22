@@ -142,17 +142,27 @@ const CATALOG: McpServer[] = [
   {
     id: "mt5",
     name: "MetaTrader 5 MCP",
-    description: "Connect to MT5 terminals for account info, open positions, pending orders, and live symbol ticks.",
+    description:
+      "Connect to MT5 terminals for account info, open positions, pending orders, and live symbol ticks.",
     category: "Execution",
     endpoint: "ws://localhost:8000/mcp/mt5",
-    tools: ["account_info", "positions", "pending_orders", "market_watch", "place_order", "modify_order", "close_position"],
+    tools: [
+      "account_info",
+      "positions",
+      "pending_orders",
+      "market_watch",
+      "place_order",
+      "modify_order",
+      "close_position",
+    ],
     status: "available",
     icon: Server,
   },
   {
     id: "tradingview",
     name: "TradingView MCP",
-    description: "Fetch TradingView ideas, screener results, indicators, and chart snapshots for any symbol.",
+    description:
+      "Fetch TradingView ideas, screener results, indicators, and chart snapshots for any symbol.",
     category: "Market Data",
     endpoint: "https://mcp.tradingview.com/sse",
     tools: ["get_ideas", "screener", "indicators", "chart_snapshot", "watchlist"],
@@ -198,7 +208,8 @@ function McpServersPage() {
 
   const connectedCount = servers.filter((s) => s.status === "connected").length;
   const avgLatency = Math.round(
-    servers.filter((s) => s.status === "connected" && s.latencyMs)
+    servers
+      .filter((s) => s.status === "connected" && s.latencyMs)
       .reduce((a, s) => a + (s.latencyMs ?? 0), 0) / Math.max(1, connectedCount),
   );
 
@@ -316,7 +327,11 @@ function McpServersPage() {
                           : "bg-muted text-muted-foreground"
                     }`}
                   >
-                    {connected ? <CircleCheck className="h-3 w-3" /> : <XCircle className="h-3 w-3" />}
+                    {connected ? (
+                      <CircleCheck className="h-3 w-3" />
+                    ) : (
+                      <XCircle className="h-3 w-3" />
+                    )}
                     {s.status.toUpperCase()}
                   </span>
                 </div>

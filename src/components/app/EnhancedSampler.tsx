@@ -50,7 +50,9 @@ export function EnhancedSampler() {
   const [activeChops, setActiveChops] = useState<Set<number>>(new Set());
   const [selectedChop, setSelectedChop] = useState<number | null>(null);
   const [chopStates, setChopStates] = useState<ChopState[]>([]);
-  const voicesRef = useRef<Map<number, { src: AudioBufferSourceNode; g: GainNode } | null>>(new Map());
+  const voicesRef = useRef<Map<number, { src: AudioBufferSourceNode; g: GainNode } | null>>(
+    new Map(),
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   // Initialize chop states
@@ -71,53 +73,73 @@ export function EnhancedSampler() {
     }
   }, []);
 
-  const startChop = useCallback((i: number) => {
-    if (!buffer) return;
-    AudioEngine.unlock();
-    const existing = voicesRef.current.get(i);
-    if (existing) { AudioEngine.stopSample(existing); voicesRef.current.set(i, null); }
-    const cs = chopStates[i] ?? defaultChop();
-    const full = buffer.duration / numChops;
-    const start = i * full + cs.startOffset * full;
-    const dur = Math.max(full * (lenPct / 100), 0.001);
-
-    if (cs.granular) {
-      // Use granular engine for this chop
-      AudioEngine.setGranularBuffer(buffer);
-      AudioEngine.startGranular({
-        grainSize: cs.grainSize,
-        grainDensity: cs.grainDensity,
-        pitch: cs.pitch,
-        spread: 0.5,
-        position: start / buffer.duration,
-        positionJitter: 0.02,
-        envelope: 0.5,
-        mix: 0.5,
-      });
-    } else {
-      const voice = AudioEngine.playSample(buffer, start, dur, cs.pitch, true);
-      if (voice) {
-        voice.g.gain.setTargetAtTime(cs.volume, AudioEngine.ctx!.currentTime, 0.01);
-        voicesRef.current.set(i, voice);
+  const startChop = useCallback(
+    (i: number) => {
+      if (!buffer) return;
+      AudioEngine.unlock();
+      const existing = voicesRef.current.get(i);
+      if (existing) {
+        AudioEngine.stopSample(existing);
+        voicesRef.current.set(i, null);
       }
-    }
-    setActiveChops((s) => new Set(s).add(i));
-  }, [buffer, numChops, lenPct, chopStates]);
+      const cs = chopStates[i] ?? defaultChop();
+      const full = buffer.duration / numChops;
+      const start = i * full + cs.startOffset * full;
+      const dur = Math.max(full * (lenPct / 100), 0.001);
 
-  const stopChop = useCallback((i: number) => {
-    const cs = chopStates[i];
-    if (cs?.granular) {
-      AudioEngine.stopGranular();
-    } else {
-      const v = voicesRef.current.get(i);
-      if (v) { AudioEngine.stopSample(v); voicesRef.current.set(i, null); }
-    }
-    setActiveChops((s) => { const n = new Set(s); n.delete(i); return n; });
-  }, [chopStates]);
+      if (cs.granular) {
+        // Use granular engine for this chop
+        AudioEngine.setGranularBuffer(buffer);
+        AudioEngine.startGranular({
+          grainSize: cs.grainSize,
+          grainDensity: cs.grainDensity,
+          pitch: cs.pitch,
+          spread: 0.5,
+          position: start / buffer.duration,
+          positionJitter: 0.02,
+          envelope: 0.5,
+          mix: 0.5,
+        });
+      } else {
+        const voice = AudioEngine.playSample(buffer, start, dur, cs.pitch, true);
+        if (voice) {
+          voice.g.gain.setTargetAtTime(cs.volume, AudioEngine.ctx!.currentTime, 0.01);
+          voicesRef.current.set(i, voice);
+        }
+      }
+      setActiveChops((s) => new Set(s).add(i));
+    },
+    [buffer, numChops, lenPct, chopStates],
+  );
 
-  const toggleChop = useCallback((i: number) => {
-    if (activeChops.has(i)) stopChop(i); else startChop(i);
-  }, [activeChops, startChop, stopChop]);
+  const stopChop = useCallback(
+    (i: number) => {
+      const cs = chopStates[i];
+      if (cs?.granular) {
+        AudioEngine.stopGranular();
+      } else {
+        const v = voicesRef.current.get(i);
+        if (v) {
+          AudioEngine.stopSample(v);
+          voicesRef.current.set(i, null);
+        }
+      }
+      setActiveChops((s) => {
+        const n = new Set(s);
+        n.delete(i);
+        return n;
+      });
+    },
+    [chopStates],
+  );
+
+  const toggleChop = useCallback(
+    (i: number) => {
+      if (activeChops.has(i)) stopChop(i);
+      else startChop(i);
+    },
+    [activeChops, startChop, stopChop],
+  );
 
   // Keyboard input
   useEffect(() => {
@@ -126,7 +148,8 @@ export function EnhancedSampler() {
       const idx = KEYS.indexOf(k);
       if (idx >= 0 && idx < numChops && !e.repeat) {
         e.preventDefault();
-        latch ? toggleChop(idx) : startChop(idx);
+        if (latch) toggleChop(idx);
+        else startChop(idx);
       }
     };
     const up = (e: KeyboardEvent) => {
@@ -136,13 +159,18 @@ export function EnhancedSampler() {
     };
     window.addEventListener("keydown", down);
     window.addEventListener("keyup", up);
-    return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
   }, [latch, numChops, startChop, stopChop, toggleChop]);
 
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      voicesRef.current.forEach((v) => { if (v) AudioEngine.stopSample(v); });
+      voicesRef.current.forEach((v) => {
+        if (v) AudioEngine.stopSample(v);
+      });
       AudioEngine.stopGranular();
     };
   }, []);
@@ -236,13 +264,18 @@ export function EnhancedSampler() {
     <div className="space-y-4">
       {/* Load zone */}
       <div
-        onDrop={(e) => { e.preventDefault(); e.dataTransfer.files[0] && loadFile(e.dataTransfer.files[0]); }}
+        onDrop={(e) => {
+          e.preventDefault();
+          if (e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+        }}
         onDragOver={(e) => e.preventDefault()}
         onClick={() => {
           const inp = document.createElement("input");
           inp.type = "file";
           inp.accept = "audio/*";
-          inp.onchange = () => inp.files?.[0] && loadFile(inp.files[0]);
+          inp.onchange = () => {
+            if (inp.files?.[0]) loadFile(inp.files[0]);
+          };
           inp.click();
         }}
         className="border-2 border-dashed border-border rounded-lg p-4 text-center cursor-pointer hover:border-primary transition-colors"
@@ -253,24 +286,41 @@ export function EnhancedSampler() {
       </div>
 
       {/* Waveform */}
-      <canvas ref={canvasRef} width={800} height={200} className="w-full h-48 border border-border rounded bg-black/50" />
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={200}
+        className="w-full h-48 border border-border rounded bg-black/50"
+      />
 
       {/* Pads */}
       <div className="grid grid-cols-4 md:grid-cols-8 gap-2">
         {Array.from({ length: numChops }).map((_, i) => (
           <button
             key={i}
-            onMouseDown={() => { setSelectedChop(i); latch ? toggleChop(i) : startChop(i); }}
+            onMouseDown={() => {
+              setSelectedChop(i);
+              if (latch) toggleChop(i);
+              else startChop(i);
+            }}
             onMouseUp={() => !latch && stopChop(i)}
             onMouseLeave={() => !latch && activeChops.has(i) && stopChop(i)}
-            onTouchStart={(e) => { e.preventDefault(); setSelectedChop(i); latch ? toggleChop(i) : startChop(i); }}
-            onTouchEnd={(e) => { e.preventDefault(); if (!latch) stopChop(i); }}
+            onTouchStart={(e) => {
+              e.preventDefault();
+              setSelectedChop(i);
+              if (latch) toggleChop(i);
+              else startChop(i);
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              if (!latch) stopChop(i);
+            }}
             className={`aspect-square rounded border flex flex-col items-center justify-center transition-all ${
               activeChops.has(i)
                 ? "bg-primary text-primary-foreground border-primary scale-105"
                 : selectedChop === i
-                ? "bg-amber-500/20 border-amber-500/50"
-                : "bg-card border-border hover:border-primary/50"
+                  ? "bg-amber-500/20 border-amber-500/50"
+                  : "bg-card border-border hover:border-primary/50"
             }`}
           >
             <span className="text-lg font-bold">{i + 1}</span>
@@ -284,27 +334,43 @@ export function EnhancedSampler() {
       <div className="grid gap-3 md:grid-cols-4">
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">Chops ({numChops})</label>
-          <input type="range" min={2} max={MAX_CHOPS} value={numChops} step={1}
+          <input
+            type="range"
+            min={2}
+            max={MAX_CHOPS}
+            value={numChops}
+            step={1}
             onChange={(e) => setNumChops(parseInt(e.target.value))}
-            className="w-full accent-primary" />
+            className="w-full accent-primary"
+          />
         </div>
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">Length ({lenPct}%)</label>
-          <input type="range" min={1} max={100} value={lenPct} step={1}
+          <input
+            type="range"
+            min={1}
+            max={100}
+            value={lenPct}
+            step={1}
             onChange={(e) => setLenPct(parseInt(e.target.value))}
-            className="w-full accent-primary" />
+            className="w-full accent-primary"
+          />
         </div>
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">Latch Mode</label>
-          <button onClick={() => setLatch(!latch)}
-            className={`px-3 py-1.5 rounded text-sm border w-full ${latch ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}>
+          <button
+            onClick={() => setLatch(!latch)}
+            className={`px-3 py-1.5 rounded text-sm border w-full ${latch ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}
+          >
             {latch ? "ON" : "OFF"}
           </button>
         </div>
         <div className="space-y-1">
           <label className="text-xs text-muted-foreground">Click-free Xfade</label>
-          <button onClick={() => setXfade(!xfade)}
-            className={`px-3 py-1.5 rounded text-sm border w-full ${xfade ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}>
+          <button
+            onClick={() => setXfade(!xfade)}
+            className={`px-3 py-1.5 rounded text-sm border w-full ${xfade ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}
+          >
             {xfade ? "ON" : "OFF"}
           </button>
         </div>
@@ -319,40 +385,76 @@ export function EnhancedSampler() {
           </div>
           <div className="grid gap-3 md:grid-cols-3">
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Volume ({(cs.volume * 100).toFixed(0)}%)</label>
-              <input type="range" min={0} max={1} value={cs.volume} step={0.01}
+              <label className="text-xs text-muted-foreground">
+                Volume ({(cs.volume * 100).toFixed(0)}%)
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={1}
+                value={cs.volume}
+                step={0.01}
                 onChange={(e) => updateChop(selectedChop, { volume: parseFloat(e.target.value) })}
-                className="w-full accent-primary" />
+                className="w-full accent-primary"
+              />
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Pan ({cs.pan.toFixed(2)})</label>
-              <input type="range" min={-1} max={1} value={cs.pan} step={0.01}
+              <input
+                type="range"
+                min={-1}
+                max={1}
+                value={cs.pan}
+                step={0.01}
                 onChange={(e) => updateChop(selectedChop, { pan: parseFloat(e.target.value) })}
-                className="w-full accent-primary" />
+                className="w-full accent-primary"
+              />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Pitch ({cs.pitch.toFixed(2)}x)</label>
-              <input type="range" min={0.25} max={4} value={cs.pitch} step={0.01}
+              <label className="text-xs text-muted-foreground">
+                Pitch ({cs.pitch.toFixed(2)}x)
+              </label>
+              <input
+                type="range"
+                min={0.25}
+                max={4}
+                value={cs.pitch}
+                step={0.01}
                 onChange={(e) => updateChop(selectedChop, { pitch: parseFloat(e.target.value) })}
-                className="w-full accent-primary" />
+                className="w-full accent-primary"
+              />
             </div>
             <div className="space-y-1">
-              <label className="text-xs text-muted-foreground">Start Offset ({(cs.startOffset * 100).toFixed(0)}%)</label>
-              <input type="range" min={0} max={0.9} value={cs.startOffset} step={0.01}
-                onChange={(e) => updateChop(selectedChop, { startOffset: parseFloat(e.target.value) })}
-                className="w-full accent-primary" />
+              <label className="text-xs text-muted-foreground">
+                Start Offset ({(cs.startOffset * 100).toFixed(0)}%)
+              </label>
+              <input
+                type="range"
+                min={0}
+                max={0.9}
+                value={cs.startOffset}
+                step={0.01}
+                onChange={(e) =>
+                  updateChop(selectedChop, { startOffset: parseFloat(e.target.value) })
+                }
+                className="w-full accent-primary"
+              />
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Reverse</label>
-              <button onClick={() => updateChop(selectedChop, { reverse: !cs.reverse })}
-                className={`px-3 py-1.5 rounded text-sm border w-full flex items-center justify-center gap-1 ${cs.reverse ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}>
+              <button
+                onClick={() => updateChop(selectedChop, { reverse: !cs.reverse })}
+                className={`px-3 py-1.5 rounded text-sm border w-full flex items-center justify-center gap-1 ${cs.reverse ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}
+              >
                 <RotateCcw className="w-3 h-3" /> {cs.reverse ? "ON" : "OFF"}
               </button>
             </div>
             <div className="space-y-1">
               <label className="text-xs text-muted-foreground">Granular Mode</label>
-              <button onClick={() => updateChop(selectedChop, { granular: !cs.granular })}
-                className={`px-3 py-1.5 rounded text-sm border w-full flex items-center justify-center gap-1 ${cs.granular ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}>
+              <button
+                onClick={() => updateChop(selectedChop, { granular: !cs.granular })}
+                className={`px-3 py-1.5 rounded text-sm border w-full flex items-center justify-center gap-1 ${cs.granular ? "bg-primary text-primary-foreground" : "bg-card border-border"}`}
+              >
                 <Sparkles className="w-3 h-3" /> {cs.granular ? "ON" : "OFF"}
               </button>
             </div>
@@ -360,16 +462,36 @@ export function EnhancedSampler() {
           {cs.granular && (
             <div className="grid gap-3 md:grid-cols-2 pt-2 border-t border-border/50">
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Grain Size ({cs.grainSize.toFixed(3)}s)</label>
-                <input type="range" min={0.01} max={0.3} value={cs.grainSize} step={0.001}
-                  onChange={(e) => updateChop(selectedChop, { grainSize: parseFloat(e.target.value) })}
-                  className="w-full accent-primary" />
+                <label className="text-xs text-muted-foreground">
+                  Grain Size ({cs.grainSize.toFixed(3)}s)
+                </label>
+                <input
+                  type="range"
+                  min={0.01}
+                  max={0.3}
+                  value={cs.grainSize}
+                  step={0.001}
+                  onChange={(e) =>
+                    updateChop(selectedChop, { grainSize: parseFloat(e.target.value) })
+                  }
+                  className="w-full accent-primary"
+                />
               </div>
               <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">Density ({cs.grainDensity} grains/s)</label>
-                <input type="range" min={5} max={80} value={cs.grainDensity} step={1}
-                  onChange={(e) => updateChop(selectedChop, { grainDensity: parseInt(e.target.value) })}
-                  className="w-full accent-primary" />
+                <label className="text-xs text-muted-foreground">
+                  Density ({cs.grainDensity} grains/s)
+                </label>
+                <input
+                  type="range"
+                  min={5}
+                  max={80}
+                  value={cs.grainDensity}
+                  step={1}
+                  onChange={(e) =>
+                    updateChop(selectedChop, { grainDensity: parseInt(e.target.value) })
+                  }
+                  className="w-full accent-primary"
+                />
               </div>
             </div>
           )}

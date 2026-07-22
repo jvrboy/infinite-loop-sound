@@ -39,7 +39,9 @@ export class ExecutionOptimizationAgent {
         status: "completed",
         timestamp: Date.now(),
         output: { strategy },
-        insights: [`Optimized entry for ${params.symbol} ${params.side} order at ${strategy.optimalEntry}`],
+        insights: [
+          `Optimized entry for ${params.symbol} ${params.side} order at ${strategy.optimalEntry}`,
+        ],
         duration: Date.now() - startTime,
       };
     } catch (error) {

@@ -6,7 +6,7 @@
 export interface Criterion {
   name: string;
   weight: number;
-  type: 'benefit' | 'cost';
+  type: "benefit" | "cost";
 }
 
 export interface Alternative {
@@ -40,7 +40,7 @@ export class MultiCriteriaDecisionAnalyzer {
       let score = 0;
       for (const criterion of criteria) {
         const value = alt.values[criterion.name] ?? 0;
-        const normalized = criterion.type === 'benefit' ? value : 1 / (value || 0.001);
+        const normalized = criterion.type === "benefit" ? value : 1 / (value || 0.001);
         score += normalized * weights[criteria.indexOf(criterion)];
       }
       return { alternative: alt.name, score, rank: 0 };
@@ -49,7 +49,7 @@ export class MultiCriteriaDecisionAnalyzer {
     scores.sort((a, b) => b.score - a.score);
     scores.forEach((s, i) => (s.rank = i + 1));
 
-    return { rankings: scores, method: 'AHP', consistencyRatio };
+    return { rankings: scores, method: "AHP", consistencyRatio };
   }
 
   topsis(alternatives: Alternative[], criteria: Criterion[]): MCDAAResult {
@@ -61,7 +61,7 @@ export class MultiCriteriaDecisionAnalyzer {
     const idealWorst: number[] = [];
     for (let j = 0; j < criteria.length; j++) {
       const col = weightedMatrix.map((row) => row[j]);
-      if (criteria[j].type === 'benefit') {
+      if (criteria[j].type === "benefit") {
         idealBest.push(Math.max(...col));
         idealWorst.push(Math.min(...col));
       } else {
@@ -71,8 +71,12 @@ export class MultiCriteriaDecisionAnalyzer {
     }
 
     const scores = alternatives.map((alt, i) => {
-      const distBest = Math.sqrt(weightedMatrix[i].reduce((sum, v, j) => sum + Math.pow(v - idealBest[j], 2), 0));
-      const distWorst = Math.sqrt(weightedMatrix[i].reduce((sum, v, j) => sum + Math.pow(v - idealWorst[j], 2), 0));
+      const distBest = Math.sqrt(
+        weightedMatrix[i].reduce((sum, v, j) => sum + Math.pow(v - idealBest[j], 2), 0),
+      );
+      const distWorst = Math.sqrt(
+        weightedMatrix[i].reduce((sum, v, j) => sum + Math.pow(v - idealWorst[j], 2), 0),
+      );
       const score = distWorst / (distBest + distWorst || 1);
       return { alternative: alt.name, score, rank: 0 };
     });
@@ -80,7 +84,7 @@ export class MultiCriteriaDecisionAnalyzer {
     scores.sort((a, b) => b.score - a.score);
     scores.forEach((s, i) => (s.rank = i + 1));
 
-    return { rankings: scores, method: 'TOPSIS', consistencyRatio: 0 };
+    return { rankings: scores, method: "TOPSIS", consistencyRatio: 0 };
   }
 
   electre(alternatives: Alternative[], criteria: Criterion[]): MCDAAResult {
@@ -101,7 +105,7 @@ export class MultiCriteriaDecisionAnalyzer {
         let concordance = 0;
         let maxDiscordance = 0;
         for (let k = 0; k < criteria.length; k++) {
-          if (criteria[k].type === 'benefit') {
+          if (criteria[k].type === "benefit") {
             if (weighted[i][k] >= weighted[j][k]) concordance += weights[k];
             maxDiscordance = Math.max(maxDiscordance, Math.abs(weighted[j][k] - weighted[i][k]));
           } else {
@@ -115,14 +119,17 @@ export class MultiCriteriaDecisionAnalyzer {
     }
 
     const scores = alternatives.map((alt, i) => {
-      const outranking = concordanceMatrix[i].reduce((sum, c, j) => sum + (c > 0.5 && discordanceMatrix[i][j] < 0.3 ? 1 : 0), 0);
+      const outranking = concordanceMatrix[i].reduce(
+        (sum, c, j) => sum + (c > 0.5 && discordanceMatrix[i][j] < 0.3 ? 1 : 0),
+        0,
+      );
       return { alternative: alt.name, score: outranking, rank: 0 };
     });
 
     scores.sort((a, b) => b.score - a.score);
     scores.forEach((s, i) => (s.rank = i + 1));
 
-    return { rankings: scores, method: 'ELECTRE', consistencyRatio: 0 };
+    return { rankings: scores, method: "ELECTRE", consistencyRatio: 0 };
   }
 
   private normalizeMatrix(alternatives: Alternative[], criteria: Criterion[]): number[][] {
@@ -146,7 +153,10 @@ export class MultiCriteriaDecisionAnalyzer {
 
   private consistencyRatio(matrix: number[][], weights: number[]): number {
     const n = matrix.length;
-    const lambdaMax = matrix.reduce((sum, row, i) => sum + row.reduce((s, v, j) => s + v * weights[j], 0) * weights[i], 0);
+    const lambdaMax = matrix.reduce(
+      (sum, row, i) => sum + row.reduce((s, v, j) => s + v * weights[j], 0) * weights[i],
+      0,
+    );
     const ci = (lambdaMax - n) / (n - 1);
     const ri = [0, 0, 0.58, 0.9, 1.12, 1.24, 1.32, 1.41, 1.45, 1.49][n] || 1.49;
     return ri > 0 ? ci / ri : 0;

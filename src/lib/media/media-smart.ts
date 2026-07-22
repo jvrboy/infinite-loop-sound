@@ -11,21 +11,21 @@ export function promptToEdit(prompt: string): PromptToEditResult {
     return { prompt: "", parsedActions: [], status: "empty" };
   }
   const keywords: Record<string, string> = {
-    "cut": "trim",
-    "trim": "trim",
-    "speed": "change-speed",
-    "slow": "change-speed",
-    "color": "color-correct",
-    "grade": "color-correct",
-    "transition": "add-transition",
-    "fade": "add-transition",
-    "text": "add-text",
-    "title": "add-text",
-    "zoom": "add-zoom",
-    "blur": "add-blur",
-    "music": "add-music",
-    "audio": "adjust-audio",
-    "stabilize": "stabilize",
+    cut: "trim",
+    trim: "trim",
+    speed: "change-speed",
+    slow: "change-speed",
+    color: "color-correct",
+    grade: "color-correct",
+    transition: "add-transition",
+    fade: "add-transition",
+    text: "add-text",
+    title: "add-text",
+    zoom: "add-zoom",
+    blur: "add-blur",
+    music: "add-music",
+    audio: "adjust-audio",
+    stabilize: "stabilize",
   };
   const lower = prompt.toLowerCase();
   const parsedActions: string[] = [];
@@ -114,8 +114,14 @@ export function emotionTag(clipId: string): EmotionTagResult {
   const subjectPool = ["person", "landscape", "vehicle", "animal", "building", "object"];
   // Deterministic pick based on clipId hash
   const hash = clipId.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-  const emotions = [emotionPool[hash % emotionPool.length], emotionPool[(hash + 1) % emotionPool.length]];
-  const subjects = [subjectPool[hash % subjectPool.length], subjectPool[(hash + 2) % subjectPool.length]];
+  const emotions = [
+    emotionPool[hash % emotionPool.length],
+    emotionPool[(hash + 1) % emotionPool.length],
+  ];
+  const subjects = [
+    subjectPool[hash % subjectPool.length],
+    subjectPool[(hash + 2) % subjectPool.length],
+  ];
   const confidence = Math.round((0.7 + (hash % 30) / 100) * 100) / 100;
   return { clipId, emotions, subjects, confidence };
 }
@@ -158,11 +164,39 @@ export function accessibilityCheck(options: AccessibilityOptions): Record<string
 }
 
 export const SMART_TOOLS = [
-  { name: "promptToEdit", label: "Prompt-to-Edit", description: "Parse a natural-language prompt into edit actions" },
-  { name: "autoEdit", label: "Auto-Edit", description: "Generate a first cut from a brief and footage count" },
-  { name: "highlightReel", label: "Highlight Reel", description: "Extract highlight timestamps from a video" },
-  { name: "contentSearch", label: "Content Search", description: "Semantic search across the media library" },
-  { name: "emotionTag", label: "Emotion Tag", description: "Tag clips with detected emotions and subjects" },
-  { name: "copyrightCheck", label: "Copyright Check", description: "Scan media for potential copyright issues" },
-  { name: "accessibilityCheck", label: "Accessibility Check", description: "Verify alt text, color-blind safety, and captions" },
+  {
+    name: "promptToEdit",
+    label: "Prompt-to-Edit",
+    description: "Parse a natural-language prompt into edit actions",
+  },
+  {
+    name: "autoEdit",
+    label: "Auto-Edit",
+    description: "Generate a first cut from a brief and footage count",
+  },
+  {
+    name: "highlightReel",
+    label: "Highlight Reel",
+    description: "Extract highlight timestamps from a video",
+  },
+  {
+    name: "contentSearch",
+    label: "Content Search",
+    description: "Semantic search across the media library",
+  },
+  {
+    name: "emotionTag",
+    label: "Emotion Tag",
+    description: "Tag clips with detected emotions and subjects",
+  },
+  {
+    name: "copyrightCheck",
+    label: "Copyright Check",
+    description: "Scan media for potential copyright issues",
+  },
+  {
+    name: "accessibilityCheck",
+    label: "Accessibility Check",
+    description: "Verify alt text, color-blind safety, and captions",
+  },
 ];

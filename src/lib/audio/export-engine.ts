@@ -68,7 +68,11 @@ export interface ExportResult {
   mimeType: string;
 }
 
-function processBuffer(ctx: BaseAudioContext, input: AudioBuffer, opts: ExportOptions): AudioBuffer {
+function processBuffer(
+  ctx: BaseAudioContext,
+  input: AudioBuffer,
+  opts: ExportOptions,
+): AudioBuffer {
   const out = ctx.createBuffer(input.numberOfChannels, input.length, input.sampleRate);
   let peak = 0;
   for (let ch = 0; ch < input.numberOfChannels; ch++) {
@@ -104,7 +108,9 @@ function encodeWav(buffer: AudioBuffer, bitDepth: 16 | 24 | 32): Blob {
   const len = buffer.length * numCh * bytesPerSample;
   const ab = new ArrayBuffer(44 + len);
   const view = new DataView(ab);
-  const writeStr = (off: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  const writeStr = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+  };
   writeStr(0, "RIFF");
   view.setUint32(4, 36 + len, true);
   writeStr(8, "WAVE");
@@ -143,7 +149,9 @@ function encodeAiff(buffer: AudioBuffer): Blob {
   const len = buffer.length * numCh * bytesPerSample;
   const ab = new ArrayBuffer(54 + len);
   const view = new DataView(ab);
-  const writeStr = (off: number, s: string) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  const writeStr = (off: number, s: string) => {
+    for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i));
+  };
   writeStr(0, "FORM");
   view.setUint32(4, 46 + len, false);
   writeStr(8, "AIFF");
@@ -202,55 +210,134 @@ function encodeFlacFallback(buffer: AudioBuffer): Blob {
   return new Blob([wav], { type: "audio/flac" });
 }
 
-async function tryExternalEncoder(format: ExportFormat, buffer: AudioBuffer, bitrate: number): Promise<Blob | null> {
+async function tryExternalEncoder(
+  format: ExportFormat,
+  buffer: AudioBuffer,
+  bitrate: number,
+): Promise<Blob | null> {
   try {
-    const encoders = (window as unknown as { __audioEncoders?: Record<string, unknown> }).__audioEncoders;
+    const encoders = (window as unknown as { __audioEncoders?: Record<string, unknown> })
+      .__audioEncoders;
     if (encoders && typeof encoders[format] === "function") {
-      return await (encoders[format] as (b: AudioBuffer, br: number) => Promise<Blob>)(buffer, bitrate);
+      return await (encoders[format] as (b: AudioBuffer, br: number) => Promise<Blob>)(
+        buffer,
+        bitrate,
+      );
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return null;
 }
 
-export async function exportAudio(ctx: BaseAudioContext, input: AudioBuffer, opts: Partial<ExportOptions> = {}): Promise<ExportResult> {
+export async function exportAudio(
+  ctx: BaseAudioContext,
+  input: AudioBuffer,
+  opts: Partial<ExportOptions> = {},
+): Promise<ExportResult> {
   const o = { ...DEFAULT_EXPORT, ...opts };
   const processed = processBuffer(ctx, input, o);
-  let blob: Blob; let extension: string; let mimeType: string;
+  let blob: Blob;
+  let extension: string;
+  let mimeType: string;
   switch (o.format) {
-    case "wav-16": blob = encodeWav(processed, 16); extension = "wav"; mimeType = "audio/wav"; break;
-    case "wav-24": blob = encodeWav(processed, 24); extension = "wav"; mimeType = "audio/wav"; break;
-    case "wav-32": blob = encodeWav(processed, 32); extension = "wav"; mimeType = "audio/wav"; break;
-    case "mp3-128": case "mp3-192": case "mp3-256": case "mp3-320": {
+    case "wav-16":
+      blob = encodeWav(processed, 16);
+      extension = "wav";
+      mimeType = "audio/wav";
+      break;
+    case "wav-24":
+      blob = encodeWav(processed, 24);
+      extension = "wav";
+      mimeType = "audio/wav";
+      break;
+    case "wav-32":
+      blob = encodeWav(processed, 32);
+      extension = "wav";
+      mimeType = "audio/wav";
+      break;
+    case "mp3-128":
+    case "mp3-192":
+    case "mp3-256":
+    case "mp3-320": {
       const br = Number(o.format.split("-")[1]);
       const ext = await tryExternalEncoder(o.format, processed, br);
-      if (ext) { blob = ext; extension = "mp3"; mimeType = "audio/mpeg"; }
-      else { blob = encodeWav(processed, 16); extension = "wav"; mimeType = "audio/wav"; }
+      if (ext) {
+        blob = ext;
+        extension = "mp3";
+        mimeType = "audio/mpeg";
+      } else {
+        blob = encodeWav(processed, 16);
+        extension = "wav";
+        mimeType = "audio/wav";
+      }
       break;
     }
-    case "flac": blob = encodeFlacFallback(processed); extension = "flac"; mimeType = "audio/flac"; break;
+    case "flac":
+      blob = encodeFlacFallback(processed);
+      extension = "flac";
+      mimeType = "audio/flac";
+      break;
     case "ogg": {
       const ext = await tryExternalEncoder("ogg", processed, 192);
-      if (ext) { blob = ext; extension = "ogg"; mimeType = "audio/ogg"; }
-      else { blob = encodeWav(processed, 16); extension = "wav"; mimeType = "audio/wav"; }
+      if (ext) {
+        blob = ext;
+        extension = "ogg";
+        mimeType = "audio/ogg";
+      } else {
+        blob = encodeWav(processed, 16);
+        extension = "wav";
+        mimeType = "audio/wav";
+      }
       break;
     }
-    case "aiff": blob = encodeAiff(processed); extension = "aiff"; mimeType = "audio/aiff"; break;
-    case "pcm-raw": blob = encodeRawPcm(processed, o.bitDepth); extension = "pcm"; mimeType = "application/octet-stream"; break;
+    case "aiff":
+      blob = encodeAiff(processed);
+      extension = "aiff";
+      mimeType = "audio/aiff";
+      break;
+    case "pcm-raw":
+      blob = encodeRawPcm(processed, o.bitDepth);
+      extension = "pcm";
+      mimeType = "application/octet-stream";
+      break;
     case "m4a": {
       const ext = await tryExternalEncoder("m4a", processed, 256);
-      if (ext) { blob = ext; extension = "m4a"; mimeType = "audio/mp4"; }
-      else { blob = encodeWav(processed, 16); extension = "wav"; mimeType = "audio/wav"; }
+      if (ext) {
+        blob = ext;
+        extension = "m4a";
+        mimeType = "audio/mp4";
+      } else {
+        blob = encodeWav(processed, 16);
+        extension = "wav";
+        mimeType = "audio/wav";
+      }
       break;
     }
-    default: blob = encodeWav(processed, 16); extension = "wav"; mimeType = "audio/wav";
+    default:
+      blob = encodeWav(processed, 16);
+      extension = "wav";
+      mimeType = "audio/wav";
   }
-  return { blob, format: o.format, size: blob.size, duration: input.length / input.sampleRate, sampleRate: o.sampleRate, channels: o.channels, extension, mimeType };
+  return {
+    blob,
+    format: o.format,
+    size: blob.size,
+    duration: input.length / input.sampleRate,
+    sampleRate: o.sampleRate,
+    channels: o.channels,
+    extension,
+    mimeType,
+  };
 }
 
 export function downloadBlob(blob: Blob, filename: string) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

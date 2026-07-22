@@ -29,7 +29,15 @@ export interface PatternRecognitionResult {
 export function recognizePatterns(candles: Candle[]): PatternRecognitionResult {
   const n = candles.length;
   const patterns: DetectedPattern[] = [];
-  if (n < 20) return { patterns: [], dominantPattern: null, trendDirection: "sideways", supportLevels: [], resistanceLevels: [], summary: "Not enough data" };
+  if (n < 20)
+    return {
+      patterns: [],
+      dominantPattern: null,
+      trendDirection: "sideways",
+      supportLevels: [],
+      resistanceLevels: [],
+      summary: "Not enough data",
+    };
 
   const close = candles.map((c) => c.close);
   const e20 = ema(close, 20);
@@ -221,18 +229,22 @@ export function recognizePatterns(candles: Candle[]): PatternRecognitionResult {
   }
 
   // ---------- Dominant Pattern ----------
-  const dominantPattern = patterns.length > 0
-    ? patterns.reduce((a, b) => (a.confidence > b.confidence ? a : b))
-    : null;
+  const dominantPattern =
+    patterns.length > 0 ? patterns.reduce((a, b) => (a.confidence > b.confidence ? a : b)) : null;
 
   // ---------- Summary ----------
-  const bullCount = patterns.filter((p) => p.category === "bullish" || p.category === "bull").length;
-  const bearCount = patterns.filter((p) => p.category === "bearish" || p.category === "bear").length;
+  const bullCount = patterns.filter(
+    (p) => p.category === "bullish" || p.category === "bull",
+  ).length;
+  const bearCount = patterns.filter(
+    (p) => p.category === "bearish" || p.category === "bear",
+  ).length;
   let summary = `Trend: ${trendDirection.toUpperCase()}. ${patterns.length} patterns detected. `;
   if (bullCount > bearCount) summary += "Bias: BULLISH. ";
   else if (bearCount > bullCount) summary += "Bias: BEARISH. ";
   else summary += "Bias: NEUTRAL. ";
-  if (dominantPattern) summary += `Dominant: ${dominantPattern.name} (${dominantPattern.confidence}% confidence).`;
+  if (dominantPattern)
+    summary += `Dominant: ${dominantPattern.name} (${dominantPattern.confidence}% confidence).`;
   else summary += "No dominant pattern.";
 
   return { patterns, dominantPattern, trendDirection, supportLevels, resistanceLevels, summary };

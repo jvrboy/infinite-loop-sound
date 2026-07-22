@@ -7,7 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Gauge, Upload, Download, Play, Sliders, Activity, Zap, Music } from "lucide-react";
-import { autoMaster, autoMix, MASTER_PRESETS, type MasterPreset, type MasterResult } from "@/lib/audio/auto-master";
+import {
+  autoMaster,
+  autoMix,
+  MASTER_PRESETS,
+  type MasterPreset,
+  type MasterResult,
+} from "@/lib/audio/auto-master";
 import { AudioEngine } from "@/lib/audio/engine";
 import { downloadBlob } from "@/lib/audio/export-engine";
 import { stemToWav } from "@/lib/audio/stem-splitter";
@@ -17,7 +23,11 @@ export const Route = createFileRoute("/auto-master")({
   head: () => ({
     meta: [
       { title: "Auto Master — DivergenceIQ" },
-      { name: "description", content: "Automatic mixing and mastering with 6 presets, loudness normalization, EQ balancing, and stereo imaging." },
+      {
+        name: "description",
+        content:
+          "Automatic mixing and mastering with 6 presets, loudness normalization, EQ balancing, and stereo imaging.",
+      },
     ],
   }),
   component: AutoMasterPage,
@@ -31,7 +41,9 @@ function AutoMasterPage() {
   const [busy, setBusy] = useState(false);
   const ctxRef = useRef<BaseAudioContext | null>(null);
 
-  useEffect(() => { ctxRef.current = AudioEngine.ctx ?? new AudioContext(); }, []);
+  useEffect(() => {
+    ctxRef.current = AudioEngine.ctx ?? new AudioContext();
+  }, []);
 
   const handleFile = async (file: File) => {
     if (!ctxRef.current) return;
@@ -44,15 +56,25 @@ function AutoMasterPage() {
   const handleMaster = async () => {
     if (!buffer || !ctxRef.current) return;
     setBusy(true);
-    try { setResult(await autoMaster(ctxRef.current, buffer, preset)); }
-    catch (e) { console.error(e); } finally { setBusy(false); }
+    try {
+      setResult(await autoMaster(ctxRef.current, buffer, preset));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleMixMaster = async () => {
     if (stems.length === 0 || !ctxRef.current) return;
     setBusy(true);
-    try { setResult(await autoMix(ctxRef.current, stems, preset)); }
-    catch (e) { console.error(e); } finally { setBusy(false); }
+    try {
+      setResult(await autoMix(ctxRef.current, stems, preset));
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
   };
 
   const handleDownload = () => {
@@ -81,9 +103,18 @@ function AutoMasterPage() {
           action={buffer && <Badge variant="outline">{buffer.duration.toFixed(1)}s</Badge>}
         />
 
-        <ProCard title="Import Audio" description="Load a stereo mix or stems for mastering." icon={<Upload className="w-4 h-4" />}>
+        <ProCard
+          title="Import Audio"
+          description="Load a stereo mix or stems for mastering."
+          icon={<Upload className="w-4 h-4" />}
+        >
           <div className="flex gap-2 items-center">
-            <Input type="file" accept="audio/*" onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])} className="flex-1" />
+            <Input
+              type="file"
+              accept="audio/*"
+              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+              className="flex-1"
+            />
             {buffer && (
               <Button onClick={handleMaster} disabled={busy}>
                 {busy ? "Processing…" : "Master"}
@@ -97,13 +128,22 @@ function AutoMasterPage() {
           </div>
         </ProCard>
 
-        <ProCard title="Mastering Presets" description="Choose a target sound profile." icon={<Sliders className="w-4 h-4" />}>
+        <ProCard
+          title="Mastering Presets"
+          description="Choose a target sound profile."
+          icon={<Sliders className="w-4 h-4" />}
+        >
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {MASTER_PRESETS.map((p) => (
-              <button key={p.id} onClick={() => setPreset(p)}
+              <button
+                key={p.id}
+                onClick={() => setPreset(p)}
                 className={`text-left rounded-lg border p-4 transition-all ${
-                  preset.id === p.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"
-                }`}>
+                  preset.id === p.id
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:bg-card/80"
+                }`}
+              >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold">{p.name}</span>
                   {preset.id === p.id && <Badge variant="outline">ACTIVE</Badge>}
@@ -118,13 +158,19 @@ function AutoMasterPage() {
         </ProCard>
 
         {result && (
-          <ProCard title="Mastering Result" description="Loudness analysis and export." icon={<Activity className="w-4 h-4" />}>
-            <KpiGrid tiles={[
-              { label: "Measured LUFS", value: result.measuredLufs.toFixed(1) },
-              { label: "True Peak", value: `${result.measuredPeak.toFixed(1)} dB` },
-              { label: "Gain Reduction", value: `${result.gainReduction.toFixed(1)} dB` },
-              { label: "Processing", value: `${result.durationMs} ms` },
-            ]} />
+          <ProCard
+            title="Mastering Result"
+            description="Loudness analysis and export."
+            icon={<Activity className="w-4 h-4" />}
+          >
+            <KpiGrid
+              tiles={[
+                { label: "Measured LUFS", value: result.measuredLufs.toFixed(1) },
+                { label: "True Peak", value: `${result.measuredPeak.toFixed(1)} dB` },
+                { label: "Gain Reduction", value: `${result.gainReduction.toFixed(1)} dB` },
+                { label: "Processing", value: `${result.durationMs} ms` },
+              ]}
+            />
             <div className="flex gap-2 mt-4">
               <Button variant="outline" onClick={() => handlePlay(result.buffer)}>
                 <Play className="w-4 h-4" /> Play Mastered

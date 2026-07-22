@@ -7,7 +7,13 @@ export interface TechnicalIndicators {
   atr: number;
   adx: number;
   cci: number;
-  ichimoku: { tenkanSen: number; kijunSen: number; senkouSpanA: number; senkouSpanB: number; chikouSpan: number };
+  ichimoku: {
+    tenkanSen: number;
+    kijunSen: number;
+    senkouSpanA: number;
+    senkouSpanB: number;
+    chikouSpan: number;
+  };
   parabolicSAR: number;
   vwap: number;
 }
@@ -18,13 +24,17 @@ export function calculateRSI(prices: number[], period = 14): number {
   for (let i = 1; i < prices.length; i++) {
     deltas.push(prices[i] - prices[i - 1]);
   }
-  const gains = deltas.filter(d => d > 0).reduce((a, b) => a + b, 0) / period;
-  const losses = Math.abs(deltas.filter(d => d < 0).reduce((a, b) => a + b, 0)) / period;
+  const gains = deltas.filter((d) => d > 0).reduce((a, b) => a + b, 0) / period;
+  const losses = Math.abs(deltas.filter((d) => d < 0).reduce((a, b) => a + b, 0)) / period;
   const rs = gains / (losses || 0.001);
-  return 100 - (100 / (1 + rs));
+  return 100 - 100 / (1 + rs);
 }
 
-export function calculateMACD(prices: number[]): { line: number; signal: number; histogram: number } {
+export function calculateMACD(prices: number[]): {
+  line: number;
+  signal: number;
+  histogram: number;
+} {
   const ema12 = calculateEMA(prices, 12);
   const ema26 = calculateEMA(prices, 26);
   const line = ema12 - ema26;
@@ -32,26 +42,39 @@ export function calculateMACD(prices: number[]): { line: number; signal: number;
   return { line, signal, histogram: line - signal };
 }
 
-export function calculateBollingerBands(prices: number[], period = 20): { upper: number; middle: number; lower: number } {
+export function calculateBollingerBands(
+  prices: number[],
+  period = 20,
+): { upper: number; middle: number; lower: number } {
   const middle = prices.slice(-period).reduce((a, b) => a + b) / period;
-  const variance = prices.slice(-period).reduce((sum, p) => sum + Math.pow(p - middle, 2), 0) / period;
+  const variance =
+    prices.slice(-period).reduce((sum, p) => sum + Math.pow(p - middle, 2), 0) / period;
   const stdDev = Math.sqrt(variance);
   return {
-    upper: middle + (2 * stdDev),
+    upper: middle + 2 * stdDev,
     middle,
-    lower: middle - (2 * stdDev)
+    lower: middle - 2 * stdDev,
   };
 }
 
-export function calculateMovingAverages(prices: number[]): { ma20: number; ma50: number; ma200: number } {
+export function calculateMovingAverages(prices: number[]): {
+  ma20: number;
+  ma50: number;
+  ma200: number;
+} {
   return {
     ma20: calculateSMA(prices, 20),
     ma50: calculateSMA(prices, 50),
-    ma200: calculateSMA(prices, 200)
+    ma200: calculateSMA(prices, 200),
   };
 }
 
-export function calculateATR(highs: number[], lows: number[], closes: number[], period = 14): number {
+export function calculateATR(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  period = 14,
+): number {
   const trs = [];
   for (let i = 1; i < highs.length; i++) {
     const tr1 = highs[i] - lows[i];
@@ -62,7 +85,12 @@ export function calculateATR(highs: number[], lows: number[], closes: number[], 
   return trs.slice(-period).reduce((a, b) => a + b) / period;
 }
 
-export function calculateStochastic(highs: number[], lows: number[], closes: number[], period = 14): { k: number; d: number } {
+export function calculateStochastic(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  period = 14,
+): { k: number; d: number } {
   const h = Math.max(...highs.slice(-period));
   const l = Math.min(...lows.slice(-period));
   const k = ((closes[closes.length - 1] - l) / (h - l)) * 100;
@@ -74,14 +102,29 @@ export function calculateADX(highs: number[], lows: number[], period = 14): numb
   return 25 + Math.random() * 30;
 }
 
-export function calculateCCI(highs: number[], lows: number[], closes: number[], period = 20): number {
+export function calculateCCI(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+  period = 20,
+): number {
   const tp = closes.slice(-period).map((c, i) => (highs[i] + lows[i] + c) / 3);
   const sma = tp.reduce((a, b) => a + b) / period;
   const mad = tp.reduce((sum, p) => sum + Math.abs(p - sma), 0) / period;
   return (closes[closes.length - 1] - sma) / (0.015 * mad || 0.001);
 }
 
-export function calculateIchimoku(highs: number[], lows: number[], closes: number[]): { tenkanSen: number; kijunSen: number; senkouSpanA: number; senkouSpanB: number; chikouSpan: number } {
+export function calculateIchimoku(
+  highs: number[],
+  lows: number[],
+  closes: number[],
+): {
+  tenkanSen: number;
+  kijunSen: number;
+  senkouSpanA: number;
+  senkouSpanB: number;
+  chikouSpan: number;
+} {
   const calculatePeriodMidpoint = (h: number[], l: number[], period: number) => {
     const periodHighs = h.slice(-period);
     const periodLows = l.slice(-period);
@@ -97,7 +140,12 @@ export function calculateIchimoku(highs: number[], lows: number[], closes: numbe
   return { tenkanSen, kijunSen, senkouSpanA, senkouSpanB, chikouSpan };
 }
 
-export function calculateParabolicSAR(highs: number[], lows: number[], acceleration = 0.02, maximum = 0.2): number {
+export function calculateParabolicSAR(
+  highs: number[],
+  lows: number[],
+  acceleration = 0.02,
+  maximum = 0.2,
+): number {
   // Simplified Parabolic SAR implementation for demonstration
   let sar = lows[0];
   let ep = highs[0];

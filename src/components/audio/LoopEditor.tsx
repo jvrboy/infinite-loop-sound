@@ -17,12 +17,16 @@ function findSnap(ch: Float32Array, target: number, mode: SnapMode, radius = 512
   let best = target;
   let bestScore = Infinity;
   for (let i = lo; i < hi; i++) {
-    const a = ch[i - 1], b = ch[i];
-    if (a === 0 || (a < 0) !== (b < 0)) {
+    const a = ch[i - 1],
+      b = ch[i];
+    if (a === 0 || a < 0 !== b < 0) {
       const slopeOk = mode === "zero" || b > a; // upward zero-cross
       if (slopeOk) {
         const score = Math.abs(i - target);
-        if (score < bestScore) { bestScore = score; best = i; }
+        if (score < bestScore) {
+          bestScore = score;
+          best = i;
+        }
       }
     }
   }
@@ -50,7 +54,10 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
   const ch = useMemo(() => buffer.getChannelData(0), [buffer]);
 
   useEffect(() => {
-    setStart(0); setEnd(buffer.length - 1); setPan(0); setZoom(1);
+    setStart(0);
+    setEnd(buffer.length - 1);
+    setPan(0);
+    setZoom(1);
   }, [buffer]);
 
   const view = useMemo(() => {
@@ -60,21 +67,29 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
     return { off, span };
   }, [buffer.length, zoom, pan]);
 
-  const sampleToX = useCallback((s: number, w: number) => {
-    return ((s - view.off) / view.span) * w;
-  }, [view]);
+  const sampleToX = useCallback(
+    (s: number, w: number) => {
+      return ((s - view.off) / view.span) * w;
+    },
+    [view],
+  );
 
-  const xToSample = useCallback((x: number, w: number) => {
-    return Math.round(view.off + (x / w) * view.span);
-  }, [view]);
+  const xToSample = useCallback(
+    (x: number, w: number) => {
+      return Math.round(view.off + (x / w) * view.span);
+    },
+    [view],
+  );
 
   // Draw waveform
   useEffect(() => {
     const cv = canvasRef.current;
     if (!cv) return;
     const dpr = window.devicePixelRatio || 1;
-    const w = cv.clientWidth, h = cv.clientHeight;
-    cv.width = w * dpr; cv.height = h * dpr;
+    const w = cv.clientWidth,
+      h = cv.clientHeight;
+    cv.width = w * dpr;
+    cv.height = h * dpr;
     const g = cv.getContext("2d")!;
     g.scale(dpr, dpr);
     g.clearRect(0, 0, w, h);
@@ -86,7 +101,10 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
     // center line
     g.strokeStyle = "hsl(var(--border))";
     g.lineWidth = 1;
-    g.beginPath(); g.moveTo(0, h / 2); g.lineTo(w, h / 2); g.stroke();
+    g.beginPath();
+    g.moveTo(0, h / 2);
+    g.lineTo(w, h / 2);
+    g.stroke();
 
     // waveform min/max per pixel
     const step = view.span / w;
@@ -96,7 +114,8 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
     for (let x = 0; x < w; x++) {
       const i0 = Math.floor(view.off + x * step);
       const i1 = Math.floor(view.off + (x + 1) * step);
-      let mn = 1, mx = -1;
+      let mn = 1,
+        mx = -1;
       for (let i = i0; i < i1 && i < ch.length; i++) {
         const v = ch[i];
         if (v < mn) mn = v;
@@ -118,14 +137,20 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
     // start handle
     g.strokeStyle = "hsl(var(--primary))";
     g.lineWidth = 2;
-    g.beginPath(); g.moveTo(sx, 0); g.lineTo(sx, h); g.stroke();
+    g.beginPath();
+    g.moveTo(sx, 0);
+    g.lineTo(sx, h);
+    g.stroke();
     g.fillStyle = "hsl(var(--primary))";
     g.fillRect(sx - 6, 0, 12, 10);
     g.fillRect(sx - 6, h - 10, 12, 10);
 
     // end handle
     g.strokeStyle = "hsl(var(--destructive))";
-    g.beginPath(); g.moveTo(ex, 0); g.lineTo(ex, h); g.stroke();
+    g.beginPath();
+    g.moveTo(ex, 0);
+    g.lineTo(ex, h);
+    g.stroke();
     g.fillStyle = "hsl(var(--destructive))";
     g.fillRect(ex - 6, 0, 12, 10);
     g.fillRect(ex - 6, h - 10, 12, 10);
@@ -135,7 +160,10 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
       const px = sampleToX(playhead, w);
       g.strokeStyle = "hsl(var(--foreground))";
       g.lineWidth = 1;
-      g.beginPath(); g.moveTo(px, 0); g.lineTo(px, h); g.stroke();
+      g.beginPath();
+      g.moveTo(px, 0);
+      g.lineTo(px, h);
+      g.stroke();
     }
   }, [ch, view, start, end, playhead, playing, sampleToX]);
 
@@ -157,7 +185,8 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
 
     if (e.type === "pointerdown") {
       let d: "start" | "end" | null = null;
-      if (Math.abs(x - sx) < Math.abs(x - ex)) d = "start"; else d = "end";
+      if (Math.abs(x - sx) < Math.abs(x - ex)) d = "start";
+      else d = "end";
       if (Math.abs(x - sx) > 30 && Math.abs(x - ex) > 30) d = null;
       if (d) {
         setDragging(d);
@@ -233,14 +262,17 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
         const loopLen = end - start;
         sample = start + ((sample - start) % loopLen);
       } else if (mode === "one-shot" && sample >= buffer.length) {
-        stop(); return;
+        stop();
+        return;
       }
       setPlayhead(sample);
       rafRef.current = requestAnimationFrame(tick);
     };
     rafRef.current = requestAnimationFrame(tick);
 
-    src.onended = () => { if (mode === "one-shot") stop(); };
+    src.onended = () => {
+      if (mode === "one-shot") stop();
+    };
   }, [buffer, start, end, mode, buildPingPong, stop]);
 
   useEffect(() => () => stop(), [stop]);
@@ -268,18 +300,34 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
         <div>
           <div className="text-muted-foreground mb-1">Zoom {zoom.toFixed(1)}x</div>
-          <input type="range" min={1} max={64} step={0.5} value={zoom}
-            onChange={(e) => setZoom(Number(e.target.value))} className="w-full" />
+          <input
+            type="range"
+            min={1}
+            max={64}
+            step={0.5}
+            value={zoom}
+            onChange={(e) => setZoom(Number(e.target.value))}
+            className="w-full"
+          />
         </div>
         <div>
           <div className="text-muted-foreground mb-1">Pan</div>
-          <input type="range" min={0} max={Math.max(0, buffer.length - view.span)} value={pan}
-            onChange={(e) => setPan(Number(e.target.value))} className="w-full" />
+          <input
+            type="range"
+            min={0}
+            max={Math.max(0, buffer.length - view.span)}
+            value={pan}
+            onChange={(e) => setPan(Number(e.target.value))}
+            className="w-full"
+          />
         </div>
         <div>
           <div className="text-muted-foreground mb-1">Snap</div>
-          <select className="w-full bg-background border border-border rounded px-2 py-1"
-            value={snap} onChange={(e) => setSnap(e.target.value as SnapMode)}>
+          <select
+            className="w-full bg-background border border-border rounded px-2 py-1"
+            value={snap}
+            onChange={(e) => setSnap(e.target.value as SnapMode)}
+          >
             <option value="off">Off</option>
             <option value="zero">Zero-cross</option>
             <option value="zero-slope">Zero + upward</option>
@@ -289,10 +337,15 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
           <div className="text-muted-foreground mb-1">Loop Mode</div>
           <div className="flex gap-1">
             {(["sustain", "one-shot", "ping-pong"] as LoopMode[]).map((m) => (
-              <button key={m} onClick={() => setMode(m)}
+              <button
+                key={m}
+                onClick={() => setMode(m)}
                 className={`flex-1 rounded border px-2 py-1 text-[10px] ${
                   mode === m ? "border-primary bg-primary/10" : "border-border"
-                }`}>{m}</button>
+                }`}
+              >
+                {m}
+              </button>
             ))}
           </div>
         </div>
@@ -302,14 +355,30 @@ export function LoopEditor({ buffer, onExport }: LoopEditorProps) {
         <Badge variant="outline">Start {fmt(start)}</Badge>
         <Badge variant="outline">End {fmt(end)}</Badge>
         <Badge variant="outline">Length {((end - start) / buffer.sampleRate).toFixed(4)}s</Badge>
-        <Button size="sm" variant="outline" onClick={snapNow}>Snap Both</Button>
-        <Button size="sm" variant="outline" onClick={() => { setStart(0); setEnd(buffer.length - 1); }}>Reset</Button>
-        {playing
-          ? <Button size="sm" onClick={stop}>Stop</Button>
-          : <Button size="sm" onClick={play}>Preview Loop</Button>}
+        <Button size="sm" variant="outline" onClick={snapNow}>
+          Snap Both
+        </Button>
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => {
+            setStart(0);
+            setEnd(buffer.length - 1);
+          }}
+        >
+          Reset
+        </Button>
+        {playing ? (
+          <Button size="sm" onClick={stop}>
+            Stop
+          </Button>
+        ) : (
+          <Button size="sm" onClick={play}>
+            Preview Loop
+          </Button>
+        )}
         {onExport && (
-          <Button size="sm" variant="default"
-            onClick={() => onExport({ start, end, mode })}>
+          <Button size="sm" variant="default" onClick={() => onExport({ start, end, mode })}>
             Export with Loop Points
           </Button>
         )}

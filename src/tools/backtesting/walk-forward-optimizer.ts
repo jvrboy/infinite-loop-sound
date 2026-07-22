@@ -8,7 +8,7 @@ export interface WalkForwardConfig {
   outOfSampleSize: number;
   stepSize: number;
   parameterGrid: Record<string, number[]>;
-  fitnessMetric: 'sharpe' | 'profit_factor' | 'calmar' | 'sortino';
+  fitnessMetric: "sharpe" | "profit_factor" | "calmar" | "sortino";
 }
 
 export interface WalkForwardResult {
@@ -41,11 +41,17 @@ export class WalkForwardOptimizer {
 
   optimize(
     data: { timestamp: number; value: number }[],
-    strategyFn: (params: Record<string, number>, data: { timestamp: number; value: number }[]) => number,
+    strategyFn: (
+      params: Record<string, number>,
+      data: { timestamp: number; value: number }[],
+    ) => number,
   ): WalkForwardResult {
     const windows: WalkForwardWindow[] = [];
     const totalSize = this.config.inSampleSize + this.config.outOfSampleSize;
-    const numWindows = Math.max(0, Math.floor((data.length - totalSize) / this.config.stepSize) + 1);
+    const numWindows = Math.max(
+      0,
+      Math.floor((data.length - totalSize) / this.config.stepSize) + 1,
+    );
 
     const parameterCombinations = this.generateParameterCombinations();
     const allOptimalParams: Record<string, number[]> = {};
@@ -89,8 +95,12 @@ export class WalkForwardOptimizer {
 
     const inSampleReturns = windows.map((w) => w.inSampleFitness);
     const oosReturns = windows.map((w) => w.outOfSampleFitness);
-    const avgIn = inSampleReturns.length > 0 ? inSampleReturns.reduce((a, b) => a + b, 0) / inSampleReturns.length : 0;
-    const avgOos = oosReturns.length > 0 ? oosReturns.reduce((a, b) => a + b, 0) / oosReturns.length : 0;
+    const avgIn =
+      inSampleReturns.length > 0
+        ? inSampleReturns.reduce((a, b) => a + b, 0) / inSampleReturns.length
+        : 0;
+    const avgOos =
+      oosReturns.length > 0 ? oosReturns.reduce((a, b) => a + b, 0) / oosReturns.length : 0;
     const efficiencyRatio = avgIn !== 0 ? avgOos / avgIn : 0;
     const degradationScore = Math.max(0, 1 - efficiencyRatio);
 
@@ -105,7 +115,9 @@ export class WalkForwardOptimizer {
       parameterStability[key] = mean !== 0 ? Math.max(0, 1 - stdDev / Math.abs(mean)) : 0;
     }
 
-    const avgStability = Object.values(parameterStability).reduce((a, b) => a + b, 0) / (Object.values(parameterStability).length || 1);
+    const avgStability =
+      Object.values(parameterStability).reduce((a, b) => a + b, 0) /
+      (Object.values(parameterStability).length || 1);
     const isOverfit = efficiencyRatio < 0.5 || avgStability < 0.4;
 
     return {

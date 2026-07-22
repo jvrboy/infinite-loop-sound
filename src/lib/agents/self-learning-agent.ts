@@ -61,7 +61,12 @@ export async function recordSignalOutcome(
   });
 
   if (error) {
-    return { recorded: false, weightsUpdated: 0, totalSamples: 0, insights: [`Insert failed: ${error.message}`] };
+    return {
+      recorded: false,
+      weightsUpdated: 0,
+      totalSamples: 0,
+      insights: [`Insert failed: ${error.message}`],
+    };
   }
 
   insights.push(`Recorded ${record.outcome} for ${record.strategy} on ${record.pair}`);
@@ -143,10 +148,7 @@ async function updateWeight(
   return 1;
 }
 
-export async function getLearnedWeights(
-  pair: string,
-  session?: string,
-): Promise<LearnedWeights> {
+export async function getLearnedWeights(pair: string, session?: string): Promise<LearnedWeights> {
   let query = supabase.from("confluence_weights").select("*").eq("pair", pair);
   if (session) query = query.eq("session", session);
 
@@ -181,10 +183,7 @@ export async function getStrategyPerformance(pair?: string) {
   const wins = data.filter((r) => r.outcome === "win").length;
   const losses = data.filter((r) => r.outcome === "loss").length;
   const winRate = total > 0 ? wins / total : 0;
-  const avgPnl =
-    total > 0
-      ? data.reduce((sum, r) => sum + Number(r.pnl_pips ?? 0), 0) / total
-      : 0;
+  const avgPnl = total > 0 ? data.reduce((sum, r) => sum + Number(r.pnl_pips ?? 0), 0) / total : 0;
 
   return { total, wins, losses, winRate, avgPnl };
 }

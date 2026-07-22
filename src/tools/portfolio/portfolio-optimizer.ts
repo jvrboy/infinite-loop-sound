@@ -23,9 +23,20 @@ export interface CovarianceMatrix {
 }
 
 export class PortfolioOptimizer {
-  meanVariance(assets: AssetReturn[], covariance: CovarianceMatrix, riskFreeRate = 0.02): OptimizationResult {
+  meanVariance(
+    assets: AssetReturn[],
+    covariance: CovarianceMatrix,
+    riskFreeRate = 0.02,
+  ): OptimizationResult {
     const n = assets.length;
-    if (n === 0) return { weights: {}, expectedReturn: 0, volatility: 0, sharpeRatio: 0, method: 'mean_variance' };
+    if (n === 0)
+      return {
+        weights: {},
+        expectedReturn: 0,
+        volatility: 0,
+        sharpeRatio: 0,
+        method: "mean_variance",
+      };
 
     let bestSharpe = -Infinity;
     let bestWeights = new Array(n).fill(1 / n);
@@ -50,7 +61,7 @@ export class PortfolioOptimizer {
       expectedReturn: ret,
       volatility: vol,
       sharpeRatio: bestSharpe,
-      method: 'mean_variance',
+      method: "mean_variance",
     };
   }
 
@@ -72,10 +83,20 @@ export class PortfolioOptimizer {
     const weightsMap: Record<string, number> = {};
     assets.forEach((a, i) => (weightsMap[a.symbol] = bestWeights[i]));
 
-    return { weights: weightsMap, expectedReturn: ret, volatility: vol, sharpeRatio: ret / (vol || 1), method: 'min_variance' };
+    return {
+      weights: weightsMap,
+      expectedReturn: ret,
+      volatility: vol,
+      sharpeRatio: ret / (vol || 1),
+      method: "min_variance",
+    };
   }
 
-  riskBudgeting(assets: AssetReturn[], covariance: CovarianceMatrix, riskBudgets?: number[]): OptimizationResult {
+  riskBudgeting(
+    assets: AssetReturn[],
+    covariance: CovarianceMatrix,
+    riskBudgets?: number[],
+  ): OptimizationResult {
     const n = assets.length;
     const budgets = riskBudgets ?? new Array(n).fill(1 / n);
     const inverseVol = assets.map((a, i) => 1 / (a.volatility || 0.001));
@@ -86,7 +107,13 @@ export class PortfolioOptimizer {
     const weightsMap: Record<string, number> = {};
     assets.forEach((a, i) => (weightsMap[a.symbol] = weights[i]));
 
-    return { weights: weightsMap, expectedReturn: ret, volatility: vol, sharpeRatio: ret / (vol || 1), method: 'risk_budgeting' };
+    return {
+      weights: weightsMap,
+      expectedReturn: ret,
+      volatility: vol,
+      sharpeRatio: ret / (vol || 1),
+      method: "risk_budgeting",
+    };
   }
 
   blackLitterman(
@@ -100,8 +127,8 @@ export class PortfolioOptimizer {
     const symbols = assets.map((a) => a.symbol);
 
     const marketRiskPremium = 0.04;
-    const impliedReturns = covariance.matrix.map((row, i) =>
-      row.reduce((sum, cov, j) => sum + cov * marketWeights[j], 0) * marketRiskPremium,
+    const impliedReturns = covariance.matrix.map(
+      (row, i) => row.reduce((sum, cov, j) => sum + cov * marketWeights[j], 0) * marketRiskPremium,
     );
 
     const P: number[][] = Array.from({ length: views.length }, () => new Array(n).fill(0));
@@ -121,9 +148,14 @@ export class PortfolioOptimizer {
     const ptTauSigmaP = this.multiplyMatrices(ptTauSigma, P);
     const omegaPlusPtTauSigmaP = this.addMatrices(omega, ptTauSigmaP);
     const omegaInverse = this.invertMatrix(omegaPlusPtTauSigmaP);
-    const qMinusPtMu = Q.map((q, i) => q - P[i].reduce((sum, p, j) => sum + p * impliedReturns[j], 0));
+    const qMinusPtMu = Q.map(
+      (q, i) => q - P[i].reduce((sum, p, j) => sum + p * impliedReturns[j], 0),
+    );
     const tauSigmaPt = this.multiplyMatrices(tauSigma, this.transpose(P));
-    const adjustment = this.multiplyMatrixVector(tauSigmaPt, this.multiplyMatrixVector(omegaInverse, qMinusPtMu));
+    const adjustment = this.multiplyMatrixVector(
+      tauSigmaPt,
+      this.multiplyMatrixVector(omegaInverse, qMinusPtMu),
+    );
 
     const posteriorReturns = impliedReturns.map((r, i) => r + adjustment[i]);
 
@@ -135,7 +167,11 @@ export class PortfolioOptimizer {
     return this.meanVariance(assetsWithViews, covariance);
   }
 
-  efficientFrontier(assets: AssetReturn[], covariance: CovarianceMatrix, numPoints = 50): { return: number; volatility: number; sharpe: number }[] {
+  efficientFrontier(
+    assets: AssetReturn[],
+    covariance: CovarianceMatrix,
+    numPoints = 50,
+  ): { return: number; volatility: number; sharpe: number }[] {
     const frontier: { return: number; volatility: number; sharpe: number }[] = [];
     for (let i = 0; i < numPoints; i++) {
       const weights = this.randomWeights(assets.length);
@@ -152,7 +188,11 @@ export class PortfolioOptimizer {
     return weights.map((w) => w / sum);
   }
 
-  private portfolioStats(weights: number[], assets: AssetReturn[], covariance: CovarianceMatrix): { ret: number; vol: number } {
+  private portfolioStats(
+    weights: number[],
+    assets: AssetReturn[],
+    covariance: CovarianceMatrix,
+  ): { ret: number; vol: number } {
     const ret = weights.reduce((sum, w, i) => sum + w * assets[i].expectedReturn, 0);
     let vol = 0;
     for (let i = 0; i < weights.length; i++) {
@@ -168,7 +208,11 @@ export class PortfolioOptimizer {
   }
 
   private multiplyMatrices(a: number[][], b: number[][]): number[][] {
-    return a.map((row) => b[0].map((_, j) => row.reduce((sum, _, k) => sum + a[row.length === a.length ? k : 0][k] * b[k][j], 0)));
+    return a.map((row) =>
+      b[0].map((_, j) =>
+        row.reduce((sum, _, k) => sum + a[row.length === a.length ? k : 0][k] * b[k][j], 0),
+      ),
+    );
   }
 
   private addMatrices(a: number[][], b: number[][]): number[][] {
@@ -177,7 +221,9 @@ export class PortfolioOptimizer {
 
   private invertMatrix(m: number[][]): number[][] {
     const n = m.length;
-    const identity = Array.from({ length: n }, (_, i) => Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)));
+    const identity = Array.from({ length: n }, (_, i) =>
+      Array.from({ length: n }, (_, j) => (i === j ? 1 : 0)),
+    );
     const augmented = m.map((row, i) => [...row, ...identity[i]]);
     for (let i = 0; i < n; i++) {
       const pivot = augmented[i][i];

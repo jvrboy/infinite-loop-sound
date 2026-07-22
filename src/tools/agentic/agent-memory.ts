@@ -6,7 +6,7 @@
 export interface MemoryEntry {
   id: string;
   agentId: string;
-  type: 'episodic' | 'semantic' | 'procedural';
+  type: "episodic" | "semantic" | "procedural";
   content: string;
   tags: string[];
   importance: number;
@@ -18,7 +18,7 @@ export interface MemoryEntry {
 
 export interface MemoryQuery {
   agentId?: string;
-  type?: MemoryEntry['type'];
+  type?: MemoryEntry["type"];
   tags?: string[];
   minImportance?: number;
   textSearch?: string;
@@ -45,7 +45,7 @@ export class AgentMemory {
     this.maxEntries = maxEntries;
   }
 
-  store(entry: Omit<MemoryEntry, 'id' | 'timestamp' | 'lastAccessed' | 'accessCount'>): string {
+  store(entry: Omit<MemoryEntry, "id" | "timestamp" | "lastAccessed" | "accessCount">): string {
     const id = `mem-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const fullEntry: MemoryEntry = {
       ...entry,
@@ -124,8 +124,14 @@ export class AgentMemory {
     }
 
     results.sort((a, b) => {
-      const scoreA = a.importance * (1 + Math.log(a.accessCount + 1)) * (1 / (1 + (Date.now() - a.lastAccessed) / 86400000));
-      const scoreB = b.importance * (1 + Math.log(b.accessCount + 1)) * (1 / (1 + (Date.now() - b.lastAccessed) / 86400000));
+      const scoreA =
+        a.importance *
+        (1 + Math.log(a.accessCount + 1)) *
+        (1 / (1 + (Date.now() - a.lastAccessed) / 86400000));
+      const scoreB =
+        b.importance *
+        (1 + Math.log(b.accessCount + 1)) *
+        (1 / (1 + (Date.now() - b.lastAccessed) / 86400000));
       return scoreB - scoreA;
     });
 
@@ -168,10 +174,11 @@ export class AgentMemory {
     const entries = Array.from(this.memories.values());
     return {
       totalEntries: entries.length,
-      episodicCount: entries.filter((e) => e.type === 'episodic').length,
-      semanticCount: entries.filter((e) => e.type === 'semantic').length,
-      proceduralCount: entries.filter((e) => e.type === 'procedural').length,
-      avgImportance: entries.length > 0 ? entries.reduce((s, e) => s + e.importance, 0) / entries.length : 0,
+      episodicCount: entries.filter((e) => e.type === "episodic").length,
+      semanticCount: entries.filter((e) => e.type === "semantic").length,
+      proceduralCount: entries.filter((e) => e.type === "procedural").length,
+      avgImportance:
+        entries.length > 0 ? entries.reduce((s, e) => s + e.importance, 0) / entries.length : 0,
       oldestEntry: entries.length > 0 ? Math.min(...entries.map((e) => e.timestamp)) : 0,
       newestEntry: entries.length > 0 ? Math.max(...entries.map((e) => e.timestamp)) : 0,
     };

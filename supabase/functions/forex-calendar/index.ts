@@ -22,8 +22,8 @@ interface FFEvent {
   country: string;
   currency: string;
   impact: "High" | "Medium" | "Low" | "Holiday";
-  date: string;         // ISO UTC
-  sast: string;         // formatted in Africa/Johannesburg
+  date: string; // ISO UTC
+  sast: string; // formatted in Africa/Johannesburg
   forecast: string;
   previous: string;
   actual: string;
@@ -56,9 +56,15 @@ function parseImpact(s: string): FFEvent["impact"] {
 
 // Currency → country/flag table (covers ForexFactory's primary set).
 const CCY_TO_COUNTRY: Record<string, string> = {
-  USD: "United States", EUR: "European Union", GBP: "United Kingdom",
-  JPY: "Japan",         AUD: "Australia",      NZD: "New Zealand",
-  CAD: "Canada",        CHF: "Switzerland",    CNY: "China",
+  USD: "United States",
+  EUR: "European Union",
+  GBP: "United Kingdom",
+  JPY: "Japan",
+  AUD: "Australia",
+  NZD: "New Zealand",
+  CAD: "Canada",
+  CHF: "Switzerland",
+  CNY: "China",
 };
 
 // Tiny tag extractor — the FF feed is well-formed enough that a regex is fine
@@ -94,16 +100,16 @@ function parseFeed(xml: string): FFEvent[] {
   const out: FFEvent[] = [];
   const items = xml.match(/<event>[\s\S]*?<\/event>/g) || [];
   for (const block of items) {
-    const title    = extractAll(block, "title");
-    const country  = extractAll(block, "country");
-    const date     = extractAll(block, "date");       // e.g. 06-17-2026
-    const time     = extractAll(block, "time");       // e.g. 8:30am
+    const title = extractAll(block, "title");
+    const country = extractAll(block, "country");
+    const date = extractAll(block, "date"); // e.g. 06-17-2026
+    const time = extractAll(block, "time"); // e.g. 8:30am
     const currency = extractAll(block, "currency") || country;
-    const impact   = parseImpact(extractAll(block, "impact"));
+    const impact = parseImpact(extractAll(block, "impact"));
     const forecast = extractAll(block, "forecast");
     const previous = extractAll(block, "previous");
-    const actual   = extractAll(block, "actual");
-    const url      = extractAll(block, "url");
+    const actual = extractAll(block, "actual");
+    const url = extractAll(block, "url");
 
     // Build an ISO timestamp. FF dates are US format "MM-DD-YYYY" in their TZ
     // (Eastern Time historically) — but the public mirror normalises to UTC
@@ -169,9 +175,9 @@ Deno.serve(async (req: Request) => {
     );
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    return new Response(
-      JSON.stringify({ error: msg, events: cache?.data ?? [] }),
-      { status: 502, headers: { "content-type": "application/json", ...cors } },
-    );
+    return new Response(JSON.stringify({ error: msg, events: cache?.data ?? [] }), {
+      status: 502,
+      headers: { "content-type": "application/json", ...cors },
+    });
   }
 });

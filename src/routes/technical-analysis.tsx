@@ -2,8 +2,23 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useState, useCallback } from "react";
 import { deriv, ALL_ASSETS, displayPair, type TF } from "@/lib/engine/deriv";
-import { scanPatterns, type PatternScanResult, type DetectedPattern } from "@/lib/agents/pattern-agent";
-import { Activity, RefreshCw, Loader as Loader, TrendingUp, TrendingDown, Gauge, Flame, ChartCandlestick as CandlestickChart, Layers, Sparkles } from "lucide-react";
+import {
+  scanPatterns,
+  type PatternScanResult,
+  type DetectedPattern,
+} from "@/lib/agents/pattern-agent";
+import {
+  Activity,
+  RefreshCw,
+  Loader as Loader,
+  TrendingUp,
+  TrendingDown,
+  Gauge,
+  Flame,
+  ChartCandlestick as CandlestickChart,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 
 export const Route = createFileRoute("/technical-analysis")({
   head: () => ({
@@ -53,7 +68,8 @@ function TechnicalAnalysisPage() {
 
   const bias = result?.compositeBias ?? "neutral";
   const biasLabel = bias === "bull" ? "BULLISH" : bias === "bear" ? "BEARISH" : "NEUTRAL";
-  const biasCls = bias === "bull" ? "text-bull" : bias === "bear" ? "text-bear" : "text-muted-foreground";
+  const biasCls =
+    bias === "bull" ? "text-bull" : bias === "bear" ? "text-bear" : "text-muted-foreground";
 
   return (
     <AppShell>
@@ -65,10 +81,12 @@ function TechnicalAnalysisPage() {
                 <Sparkles className="h-3 w-3" /> Agentic Pattern Engine
               </span>
             </div>
-            <h1 className="text-2xl font-semibold tracking-normal md:text-3xl">Technical Analysis</h1>
+            <h1 className="text-2xl font-semibold tracking-normal md:text-3xl">
+              Technical Analysis
+            </h1>
             <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
-              Candlestick patterns, trend filters, momentum, and volatility compression scored into a
-              composite bias by the pattern-recognition agent.
+              Candlestick patterns, trend filters, momentum, and volatility compression scored into
+              a composite bias by the pattern-recognition agent.
             </p>
           </div>
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
@@ -99,14 +117,20 @@ function TechnicalAnalysisPage() {
               disabled={loading}
               className="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border bg-secondary px-3 text-sm font-medium text-secondary-foreground transition hover:bg-accent disabled:opacity-50"
             >
-              {loading ? <Loader className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              {loading ? (
+                <Loader className="h-4 w-4 animate-spin" />
+              ) : (
+                <RefreshCw className="h-4 w-4" />
+              )}
               Rescan
             </button>
           </div>
         </section>
 
         {error && (
-          <div className="rounded-lg border border-bear/40 bg-bear/10 p-3 text-sm text-bear">{error}</div>
+          <div className="rounded-lg border border-bear/40 bg-bear/10 p-3 text-sm text-bear">
+            {error}
+          </div>
         )}
 
         {result && (
@@ -122,13 +146,21 @@ function TechnicalAnalysisPage() {
                 icon={Activity}
                 label="Composite Score"
                 value={`${result.compositeScore > 0 ? "+" : ""}${result.compositeScore}`}
-                tone={result.compositeScore > 0 ? "bull" : result.compositeScore < 0 ? "bear" : "neutral"}
+                tone={
+                  result.compositeScore > 0
+                    ? "bull"
+                    : result.compositeScore < 0
+                      ? "bear"
+                      : "neutral"
+                }
               />
               <StatCard
                 icon={Flame}
                 label="HA Trend"
                 value={result.haTrend.toUpperCase()}
-                tone={result.haTrend === "up" ? "bull" : result.haTrend === "down" ? "bear" : "neutral"}
+                tone={
+                  result.haTrend === "up" ? "bull" : result.haTrend === "down" ? "bear" : "neutral"
+                }
               />
               <StatCard
                 icon={Layers}
@@ -144,7 +176,9 @@ function TechnicalAnalysisPage() {
                 Detected Patterns ({result.patterns.length})
               </div>
               {result.patterns.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No high-confidence patterns detected on this timeframe.</p>
+                <p className="text-sm text-muted-foreground">
+                  No high-confidence patterns detected on this timeframe.
+                </p>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
@@ -170,9 +204,9 @@ function TechnicalAnalysisPage() {
             <section className="rounded-lg border border-border bg-card/80 p-4 text-xs text-muted-foreground shadow-sm">
               <span className="font-medium text-foreground">Momentum score:</span>{" "}
               {result.momentum > 0 ? "+" : ""}
-              {result.momentum.toFixed(1)} (−100 … +100). Scan runs candlestick detectors, Supertrend,
-              Ichimoku TK cross, ADX trend strength, RSI/MACD momentum, and Keltner squeeze, then
-              weight-averages them into the composite score.
+              {result.momentum.toFixed(1)} (−100 … +100). Scan runs candlestick detectors,
+              Supertrend, Ichimoku TK cross, ADX trend strength, RSI/MACD momentum, and Keltner
+              squeeze, then weight-averages them into the composite score.
             </section>
           </>
         )}

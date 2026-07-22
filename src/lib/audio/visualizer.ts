@@ -79,11 +79,21 @@ export class Visualizer {
     const W = this.canvas.width;
     const H = this.canvas.height;
     switch (this.config.type) {
-      case "spectrum": this.renderSpectrum(W, H); break;
-      case "spectrogram": this.renderSpectrogram(W, H); break;
-      case "oscilloscope": this.renderOscilloscope(W, H); break;
-      case "vectorscope": this.renderVectorscope(W, H); break;
-      case "loudness": this.renderLoudness(W, H); break;
+      case "spectrum":
+        this.renderSpectrum(W, H);
+        break;
+      case "spectrogram":
+        this.renderSpectrogram(W, H);
+        break;
+      case "oscilloscope":
+        this.renderOscilloscope(W, H);
+        break;
+      case "vectorscope":
+        this.renderVectorscope(W, H);
+        break;
+      case "loudness":
+        this.renderLoudness(W, H);
+        break;
     }
   }
 

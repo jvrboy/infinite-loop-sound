@@ -13,8 +13,8 @@ export interface StemResult {
 
 export interface SplitOptions {
   vocalsCutoff: number; // Hz, vocals isolation band low edge
-  vocalsHi: number;    // Hz, vocals isolation band high edge
-  bassCutoff: number;  // Hz, bass band high edge
+  vocalsHi: number; // Hz, vocals isolation band high edge
+  bassCutoff: number; // Hz, bass band high edge
   drumsHarmonic: number; // 0..1, amount of harmonic suppression for drums
   midSideBalance: number; // 0..1, 0 = full mid, 1 = full side
 }
@@ -49,11 +49,7 @@ async function bandPass(
   hi: number,
   order = 2,
 ): Promise<AudioBuffer> {
-  const offline = new OfflineAudioContext(
-    input.numberOfChannels,
-    input.length,
-    input.sampleRate,
-  );
+  const offline = new OfflineAudioContext(input.numberOfChannels, input.length, input.sampleRate);
   const src = offline.createBufferSource();
   src.buffer = input;
   const loFilter = offline.createBiquadFilter();
@@ -92,8 +88,10 @@ async function midSideSplit(
   for (let i = 0; i < input.length; i++) {
     const m = (l[i] + r[i]) * 0.5;
     const s = (l[i] - r[i]) * 0.5;
-    midL[i] = m; midR[i] = m;
-    sideL[i] = s; sideR[i] = s;
+    midL[i] = m;
+    midR[i] = m;
+    sideL[i] = s;
+    sideR[i] = s;
   }
   return [midBuf, sideBuf];
 }

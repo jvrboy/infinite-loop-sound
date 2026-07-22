@@ -4,7 +4,14 @@
 import { AudioEngine } from "./engine";
 
 export type ModSource = "lfo1" | "lfo2" | "lfo3" | "lfo4" | "env1" | "env2" | "step1" | "random1";
-export type ModTarget = "pitch" | "filterFreq" | "volume" | "distortion" | "delayTime" | "reverb" | "pan";
+export type ModTarget =
+  | "pitch"
+  | "filterFreq"
+  | "volume"
+  | "distortion"
+  | "delayTime"
+  | "reverb"
+  | "pan";
 
 export interface ModulationRouting {
   id: string;
@@ -72,8 +79,15 @@ export class ModulationEngine {
 
   stop() {
     this.state.active = false;
-    if (this.interval) { clearInterval(this.interval); this.interval = null; }
-    this.lfoNodes.forEach((n) => { try { (n as any).stop?.(); } catch {} });
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+    this.lfoNodes.forEach((n) => {
+      try {
+        (n as any).stop?.();
+      } catch {}
+    });
     this.lfoNodes.clear();
     this.lfoGains.clear();
   }
@@ -133,7 +147,8 @@ export class ModulationEngine {
           const baseFreq = 20000;
           AudioEngine.filterNode.frequency.setTargetAtTime(
             Math.max(100, baseFreq + modValue * baseFreq * 0.5),
-            t, 0.02,
+            t,
+            0.02,
           );
         }
         break;
@@ -167,20 +182,32 @@ export class ModulationEngine {
   addRouting(source: ModSource, target: ModTarget, depth: number) {
     this.state.routings.push({
       id: `${source}-${target}-${Date.now()}`,
-      source, target, depth, enabled: true,
+      source,
+      target,
+      depth,
+      enabled: true,
     });
-    if (this.state.active) { this.stop(); this.start(); }
+    if (this.state.active) {
+      this.stop();
+      this.start();
+    }
   }
 
   removeRouting(id: string) {
     this.state.routings = this.state.routings.filter((r) => r.id !== id);
-    if (this.state.active) { this.stop(); this.start(); }
+    if (this.state.active) {
+      this.stop();
+      this.start();
+    }
   }
 
   updateLFO(id: string, params: Partial<LFOParams>) {
     if (this.state.lfos[id]) {
       this.state.lfos[id] = { ...this.state.lfos[id], ...params };
-      if (this.state.active) { this.stop(); this.start(); }
+      if (this.state.active) {
+        this.stop();
+        this.start();
+      }
     }
   }
 }

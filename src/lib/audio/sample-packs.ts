@@ -17,7 +17,18 @@ export interface Sample {
   id: string;
   name: string;
   packId: string;
-  category: "kick" | "snare" | "hihat" | "perc" | "bass" | "synth" | "vocal" | "fx" | "loop" | "one-shot" | "instrument";
+  category:
+    | "kick"
+    | "snare"
+    | "hihat"
+    | "perc"
+    | "bass"
+    | "synth"
+    | "vocal"
+    | "fx"
+    | "loop"
+    | "one-shot"
+    | "instrument";
   buffer?: AudioBuffer;
   file?: File;
   url?: string;
@@ -29,7 +40,11 @@ export interface Sample {
   waveform?: number[];
 }
 
-export interface SampleCategory { id: string; name: string; icon: string; }
+export interface SampleCategory {
+  id: string;
+  name: string;
+  icon: string;
+}
 
 export const SAMPLE_CATEGORIES: SampleCategory[] = [
   { id: "kick", name: "Kicks", icon: "Circle" },
@@ -49,7 +64,13 @@ const PACKS_KEY = "diq.sample-packs.v1";
 
 export function createBuiltinPack(ctx: BaseAudioContext): SamplePack {
   const samples: Sample[] = [];
-  const makeTone = (name: string, freq: number, dur: number, category: Sample["category"], decay: number = 0.3): Sample => {
+  const makeTone = (
+    name: string,
+    freq: number,
+    dur: number,
+    category: Sample["category"],
+    decay: number = 0.3,
+  ): Sample => {
     const buf = ctx.createBuffer(1, Math.floor(dur * ctx.sampleRate), ctx.sampleRate);
     const d = buf.getChannelData(0);
     for (let i = 0; i < d.length; i++) {
@@ -57,7 +78,16 @@ export function createBuiltinPack(ctx: BaseAudioContext): SamplePack {
       const env = Math.exp(-t / decay);
       d[i] = Math.sin(2 * Math.PI * freq * t) * env * 0.7;
     }
-    return { id: crypto.randomUUID(), name, packId: "builtin", category, buffer: buf, sizeBytes: buf.length * 4, durationSec: dur, tags: ["builtin", "generated"] };
+    return {
+      id: crypto.randomUUID(),
+      name,
+      packId: "builtin",
+      category,
+      buffer: buf,
+      sizeBytes: buf.length * 4,
+      durationSec: dur,
+      tags: ["builtin", "generated"],
+    };
   };
   samples.push(makeTone("Kick 808", 60, 0.5, "kick", 0.2));
   samples.push(makeTone("Kick Punch", 80, 0.3, "kick", 0.15));
@@ -67,17 +97,37 @@ export function createBuiltinPack(ctx: BaseAudioContext): SamplePack {
   samples.push(makeTone("Clap", 2000, 0.15, "perc", 0.08));
   samples.push(makeTone("Bass Sub", 50, 1.0, "bass", 0.5));
   samples.push(makeTone("Synth Lead", 440, 0.5, "synth", 0.3));
-  return { id: "builtin", name: "Builtin Sounds", description: "Generated demo samples — no external assets required.", category: "builtin", tags: ["builtin", "demo"], samples, createdAt: Date.now(), source: "builtin" };
+  return {
+    id: "builtin",
+    name: "Builtin Sounds",
+    description: "Generated demo samples — no external assets required.",
+    category: "builtin",
+    tags: ["builtin", "demo"],
+    samples,
+    createdAt: Date.now(),
+    source: "builtin",
+  };
 }
 
-export async function loadSampleFile(ctx: BaseAudioContext, file: File, packId: string): Promise<Sample> {
+export async function loadSampleFile(
+  ctx: BaseAudioContext,
+  file: File,
+  packId: string,
+): Promise<Sample> {
   const arrayBuf = await file.arrayBuffer();
   const audioBuf = await ctx.decodeAudioData(arrayBuf);
   const category = guessCategory(file.name);
   return {
-    id: crypto.randomUUID(), name: file.name.replace(/\.[^.]+$/, ""), packId, category,
-    file, buffer: audioBuf, url: URL.createObjectURL(file),
-    sizeBytes: file.size, durationSec: audioBuf.duration, tags: ["local"],
+    id: crypto.randomUUID(),
+    name: file.name.replace(/\.[^.]+$/, ""),
+    packId,
+    category,
+    file,
+    buffer: audioBuf,
+    url: URL.createObjectURL(file),
+    sizeBytes: file.size,
+    durationSec: audioBuf.duration,
+    tags: ["local"],
     waveform: renderWaveformPeaks(audioBuf, 200),
   };
 }
@@ -113,9 +163,15 @@ export function renderWaveformPeaks(buffer: AudioBuffer, peaks: number): number[
   return result;
 }
 
-export async function importFolder(ctx: BaseAudioContext, onProgress?: (loaded: number, total: number) => void): Promise<SamplePack | null> {
-  if (!("showDirectoryPicker" in window)) throw new Error("File System Access API not supported. Use file input instead.");
-  const dirHandle = await (window as unknown as { showDirectoryPicker: () => Promise<FileSystemDirectoryHandle> }).showDirectoryPicker();
+export async function importFolder(
+  ctx: BaseAudioContext,
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<SamplePack | null> {
+  if (!("showDirectoryPicker" in window))
+    throw new Error("File System Access API not supported. Use file input instead.");
+  const dirHandle = await (
+    window as unknown as { showDirectoryPicker: () => Promise<FileSystemDirectoryHandle> }
+  ).showDirectoryPicker();
   const samples: Sample[] = [];
   const audioExts = [".wav", ".mp3", ".ogg", ".flac", ".m4a", ".aiff", ".aac"];
   const files: File[] = [];
@@ -126,38 +182,96 @@ export async function importFolder(ctx: BaseAudioContext, onProgress?: (loaded: 
     }
   }
   for (let i = 0; i < files.length; i++) {
-    try { samples.push(await loadSampleFile(ctx, files[i], "folder-import")); }
-    catch (e) { console.warn("Failed to load", files[i].name, e); }
+    try {
+      samples.push(await loadSampleFile(ctx, files[i], "folder-import"));
+    } catch (e) {
+      console.warn("Failed to load", files[i].name, e);
+    }
     onProgress?.(i + 1, files.length);
   }
-  return { id: crypto.randomUUID(), name: dirHandle.name, description: `Imported from ${dirHandle.name}`, category: "local", tags: ["local", "folder"], samples, createdAt: Date.now(), source: "folder", folderHandle: dirHandle };
+  return {
+    id: crypto.randomUUID(),
+    name: dirHandle.name,
+    description: `Imported from ${dirHandle.name}`,
+    category: "local",
+    tags: ["local", "folder"],
+    samples,
+    createdAt: Date.now(),
+    source: "folder",
+    folderHandle: dirHandle,
+  };
 }
 
-export async function importFiles(ctx: BaseAudioContext, files: FileList, onProgress?: (loaded: number, total: number) => void): Promise<SamplePack> {
+export async function importFiles(
+  ctx: BaseAudioContext,
+  files: FileList,
+  onProgress?: (loaded: number, total: number) => void,
+): Promise<SamplePack> {
   const samples: Sample[] = [];
   const audioExts = [".wav", ".mp3", ".ogg", ".flac", ".m4a", ".aiff", ".aac"];
-  const audioFiles = Array.from(files).filter((f) => audioExts.some((ext) => f.name.toLowerCase().endsWith(ext)));
+  const audioFiles = Array.from(files).filter((f) =>
+    audioExts.some((ext) => f.name.toLowerCase().endsWith(ext)),
+  );
   for (let i = 0; i < audioFiles.length; i++) {
-    try { samples.push(await loadSampleFile(ctx, audioFiles[i], "file-import")); }
-    catch (e) { console.warn("Failed to load", audioFiles[i].name, e); }
+    try {
+      samples.push(await loadSampleFile(ctx, audioFiles[i], "file-import"));
+    } catch (e) {
+      console.warn("Failed to load", audioFiles[i].name, e);
+    }
     onProgress?.(i + 1, audioFiles.length);
   }
-  return { id: crypto.randomUUID(), name: `Import ${new Date().toLocaleString()}`, description: `${audioFiles.length} files imported`, category: "local", tags: ["local", "import"], samples, createdAt: Date.now(), source: "local" };
+  return {
+    id: crypto.randomUUID(),
+    name: `Import ${new Date().toLocaleString()}`,
+    description: `${audioFiles.length} files imported`,
+    category: "local",
+    tags: ["local", "import"],
+    samples,
+    createdAt: Date.now(),
+    source: "local",
+  };
 }
 
 export function savePackMetadata(pack: SamplePack) {
   const packs = readPackMetadata();
-  const meta = { id: pack.id, name: pack.name, description: pack.description, category: pack.category, tags: pack.tags, createdAt: pack.createdAt, source: pack.source, sampleCount: pack.samples.length };
+  const meta = {
+    id: pack.id,
+    name: pack.name,
+    description: pack.description,
+    category: pack.category,
+    tags: pack.tags,
+    createdAt: pack.createdAt,
+    source: pack.source,
+    sampleCount: pack.samples.length,
+  };
   const existing = packs.findIndex((p) => p.id === pack.id);
-  if (existing >= 0) packs[existing] = meta; else packs.push(meta);
+  if (existing >= 0) packs[existing] = meta;
+  else packs.push(meta);
   localStorage.setItem(PACKS_KEY, JSON.stringify(packs));
 }
 
-export function readPackMetadata(): Array<{ id: string; name: string; description: string; category: string; tags: string[]; createdAt: number; source: string; sampleCount: number }> {
-  try { return JSON.parse(localStorage.getItem(PACKS_KEY) || "[]"); } catch { return []; }
+export function readPackMetadata(): Array<{
+  id: string;
+  name: string;
+  description: string;
+  category: string;
+  tags: string[];
+  createdAt: number;
+  source: string;
+  sampleCount: number;
+}> {
+  try {
+    return JSON.parse(localStorage.getItem(PACKS_KEY) || "[]");
+  } catch {
+    return [];
+  }
 }
 
-export function playOneShot(ctx: AudioContext, sample: Sample, opts: { gain?: number; pitch?: number; pan?: number; startTime?: number } = {}): void {
+export function playOneShot(
+  ctx: AudioContext,
+  sample: Sample,
+  opts: { gain?: number; pitch?: number; pan?: number; startTime?: number } = {},
+): void {
   if (!sample.buffer) return;
   const src = ctx.createBufferSource();
   src.buffer = sample.buffer;

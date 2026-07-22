@@ -10,7 +10,10 @@ export const Route = createFileRoute("/signal-stats")({
   head: () => ({
     meta: [
       { title: "Signal Statistics" },
-      { name: "description", content: "Win-rate, avg score, and session breakdown for scanner signals." },
+      {
+        name: "description",
+        content: "Win-rate, avg score, and session breakdown for scanner signals.",
+      },
     ],
   }),
   component: SignalStats,
@@ -224,7 +227,9 @@ function SignalStats() {
                       <span className="font-mono w-12">{t.tf}</span>
                       <span className="text-xs text-muted-foreground">{t.total} signals</span>
                       <div className="ml-auto flex items-center gap-3">
-                        <span className="text-xs">{t.wins}W / {t.closed - t.wins}L</span>
+                        <span className="text-xs">
+                          {t.wins}W / {t.closed - t.wins}L
+                        </span>
                         <Badge variant="outline">{t.closed ? t.wr.toFixed(0) + "%" : "—"}</Badge>
                       </div>
                     </div>
@@ -246,7 +251,9 @@ function SignalStats() {
                       <span className="w-16">{s.session}</span>
                       <span className="text-xs text-muted-foreground">{s.total} signals</span>
                       <div className="ml-auto flex items-center gap-3">
-                        <span className="text-xs">{s.wins}W / {s.closed - s.wins}L</span>
+                        <span className="text-xs">
+                          {s.wins}W / {s.closed - s.wins}L
+                        </span>
                         <Badge variant="outline">{s.closed ? s.wr.toFixed(0) + "%" : "—"}</Badge>
                       </div>
                     </div>

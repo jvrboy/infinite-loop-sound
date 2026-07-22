@@ -23,7 +23,20 @@ import {
   terrainGen,
   exportMesh,
 } from "@/lib/three-d/three-d-tools";
-import { Box, Camera, Layers, ScanLine, Palette, Bone, Gauge, Eraser, Mountain, Sparkles, Wind, Package } from "lucide-react";
+import {
+  Box,
+  Camera,
+  Layers,
+  ScanLine,
+  Palette,
+  Bone,
+  Gauge,
+  Eraser,
+  Mountain,
+  Sparkles,
+  Wind,
+  Package,
+} from "lucide-react";
 
 function Component() {
   const [prompt, setPrompt] = useState("ancient stone temple");
@@ -70,9 +83,21 @@ function Component() {
         />
 
         <KpiGrid>
-          <StatTile label="Mesh Vertices" value={mesh.vertices.toLocaleString()} icon={<Box className="h-4 w-4" />} />
-          <StatTile label="UV Coverage" value={`${uv.coverage}%`} icon={<Layers className="h-4 w-4" />} />
-          <StatTile label="PBR Channels" value={pbr.channels.length} icon={<Palette className="h-4 w-4" />} />
+          <StatTile
+            label="Mesh Vertices"
+            value={mesh.vertices.toLocaleString()}
+            icon={<Box className="h-4 w-4" />}
+          />
+          <StatTile
+            label="UV Coverage"
+            value={`${uv.coverage}%`}
+            icon={<Layers className="h-4 w-4" />}
+          />
+          <StatTile
+            label="PBR Channels"
+            value={pbr.channels.length}
+            icon={<Palette className="h-4 w-4" />}
+          />
           <StatTile label="Rig Bones" value={rig.bones} icon={<Bone className="h-4 w-4" />} />
         </KpiGrid>
 
@@ -101,7 +126,13 @@ function Component() {
         <ProCard title="Image-to-Mesh" icon={<Camera className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Views: {views}</Label>
-            <Slider min={3} max={12} step={1} value={[views]} onValueChange={(v) => setViews(v[0] ?? views)} />
+            <Slider
+              min={3}
+              max={12}
+              step={1}
+              value={[views]}
+              onValueChange={(v) => setViews(v[0] ?? views)}
+            />
             <DataPanel data={imgMesh} />
           </div>
         </ProCard>
@@ -109,7 +140,13 @@ function Component() {
         <ProCard title="Retopology" icon={<Layers className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Target Quads: {targetQuads.toLocaleString()}</Label>
-            <Slider min={1000} max={20000} step={500} value={[targetQuads]} onValueChange={(v) => setTargetQuads(v[0] ?? targetQuads)} />
+            <Slider
+              min={1000}
+              max={20000}
+              step={500}
+              value={[targetQuads]}
+              onValueChange={(v) => setTargetQuads(v[0] ?? targetQuads)}
+            />
             <MeterBar label="Quad Percentage" value={retopo.quadPercentage} max={100} suffix="%" />
             <DataPanel data={retopo} />
           </div>
@@ -119,7 +156,12 @@ function Component() {
           <div className="space-y-3">
             <div className="flex gap-2">
               {["auto", "manual", "island"].map((s) => (
-                <Button key={s} size="sm" variant={seamStrategy === s ? "default" : "outline"} onClick={() => setSeamStrategy(s)}>
+                <Button
+                  key={s}
+                  size="sm"
+                  variant={seamStrategy === s ? "default" : "outline"}
+                  onClick={() => setSeamStrategy(s)}
+                >
                   {s}
                 </Button>
               ))}
@@ -132,7 +174,13 @@ function Component() {
         <ProCard title="PBR Texture" icon={<Palette className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Resolution: {texRes}px</Label>
-            <Slider min={512} max={4096} step={512} value={[texRes]} onValueChange={(v) => setTexRes(v[0] ?? texRes)} />
+            <Slider
+              min={512}
+              max={4096}
+              step={512}
+              value={[texRes]}
+              onValueChange={(v) => setTexRes(v[0] ?? texRes)}
+            />
             <div className="flex flex-wrap gap-2">
               {["albedo", "normal", "roughness", "metallic", "AO", "height"].map((c) => {
                 const active = channels.includes(c);
@@ -158,7 +206,12 @@ function Component() {
           <div className="space-y-3">
             <div className="flex gap-2">
               {["humanoid", "quadruped", "custom"].map((b) => (
-                <Button key={b} size="sm" variant={bodyType === b ? "default" : "outline"} onClick={() => setBodyType(b)}>
+                <Button
+                  key={b}
+                  size="sm"
+                  variant={bodyType === b ? "default" : "outline"}
+                  onClick={() => setBodyType(b)}
+                >
                   {b}
                 </Button>
               ))}
@@ -177,7 +230,9 @@ function Component() {
                   size="sm"
                   variant={lodLevels.includes(l) ? "default" : "outline"}
                   onClick={() =>
-                    setLodLevels((prev) => (prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l].sort()))
+                    setLodLevels((prev) =>
+                      prev.includes(l) ? prev.filter((x) => x !== l) : [...prev, l].sort(),
+                    )
                   }
                 >
                   {l}
@@ -186,7 +241,12 @@ function Component() {
             </div>
             <div className="space-y-1">
               {lods.lods.map((lod) => (
-                <MeterBar key={lod.level} label={`LOD ${lod.level}`} value={lod.polys} max={100000} />
+                <MeterBar
+                  key={lod.level}
+                  label={`LOD ${lod.level}`}
+                  value={lod.polys}
+                  max={100000}
+                />
               ))}
             </div>
           </div>
@@ -195,9 +255,19 @@ function Component() {
         <ProCard title="Decimate" icon={<Eraser className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Target Ratio: {decRatio}</Label>
-            <Slider min={0.05} max={1} step={0.05} value={[decRatio]} onValueChange={(v) => setDecRatio(v[0] ?? decRatio)} />
+            <Slider
+              min={0.05}
+              max={1}
+              step={0.05}
+              value={[decRatio]}
+              onValueChange={(v) => setDecRatio(v[0] ?? decRatio)}
+            />
             <div className="flex items-center gap-2">
-              <Button size="sm" variant={preserveSil ? "default" : "outline"} onClick={() => setPreserveSil(!preserveSil)}>
+              <Button
+                size="sm"
+                variant={preserveSil ? "default" : "outline"}
+                onClick={() => setPreserveSil(!preserveSil)}
+              >
                 Preserve Silhouette
               </Button>
             </div>
@@ -208,7 +278,13 @@ function Component() {
         <ProCard title="Photogrammetry" icon={<Camera className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Images: {photoCount}</Label>
-            <Slider min={20} max={300} step={10} value={[photoCount]} onValueChange={(v) => setPhotoCount(v[0] ?? photoCount)} />
+            <Slider
+              min={20}
+              max={300}
+              step={10}
+              value={[photoCount]}
+              onValueChange={(v) => setPhotoCount(v[0] ?? photoCount)}
+            />
             <DataPanel data={photo} />
           </div>
         </ProCard>
@@ -216,7 +292,13 @@ function Component() {
         <ProCard title="Material Graph" icon={<Sparkles className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Nodes: {matNodes}</Label>
-            <Slider min={2} max={30} step={1} value={[matNodes]} onValueChange={(v) => setMatNodes(v[0] ?? matNodes)} />
+            <Slider
+              min={2}
+              max={30}
+              step={1}
+              value={[matNodes]}
+              onValueChange={(v) => setMatNodes(v[0] ?? matNodes)}
+            />
             <DataPanel data={matGraph} />
           </div>
         </ProCard>
@@ -225,13 +307,24 @@ function Component() {
           <div className="space-y-3">
             <div className="flex gap-2">
               {["cloth", "soft-body", "rigid-body"].map((p) => (
-                <Button key={p} size="sm" variant={physType === p ? "default" : "outline"} onClick={() => setPhysType(p)}>
+                <Button
+                  key={p}
+                  size="sm"
+                  variant={physType === p ? "default" : "outline"}
+                  onClick={() => setPhysType(p)}
+                >
                   {p}
                 </Button>
               ))}
             </div>
             <Label>Duration: {physDur}s</Label>
-            <Slider min={1} max={30} step={1} value={[physDur]} onValueChange={(v) => setPhysDur(v[0] ?? physDur)} />
+            <Slider
+              min={1}
+              max={30}
+              step={1}
+              value={[physDur]}
+              onValueChange={(v) => setPhysDur(v[0] ?? physDur)}
+            />
             <DataPanel data={phys} />
           </div>
         </ProCard>
@@ -239,9 +332,21 @@ function Component() {
         <ProCard title="Hair Groom" icon={<Wind className="h-4 w-4" />}>
           <div className="space-y-3">
             <Label>Guide Curves: {hairGuides}</Label>
-            <Slider min={50} max={500} step={10} value={[hairGuides]} onValueChange={(v) => setHairGuides(v[0] ?? hairGuides)} />
+            <Slider
+              min={50}
+              max={500}
+              step={10}
+              value={[hairGuides]}
+              onValueChange={(v) => setHairGuides(v[0] ?? hairGuides)}
+            />
             <Label>Length: {hairLen}cm</Label>
-            <Slider min={1} max={50} step={1} value={[hairLen]} onValueChange={(v) => setHairLen(v[0] ?? hairLen)} />
+            <Slider
+              min={1}
+              max={50}
+              step={1}
+              value={[hairLen]}
+              onValueChange={(v) => setHairLen(v[0] ?? hairLen)}
+            />
             <DataPanel data={hair} />
           </div>
         </ProCard>
@@ -250,7 +355,12 @@ function Component() {
           <div className="space-y-3">
             <div className="flex gap-2">
               {["heightmap", "prompt"].map((s) => (
-                <Button key={s} size="sm" variant={terrainSrc === s ? "default" : "outline"} onClick={() => setTerrainSrc(s)}>
+                <Button
+                  key={s}
+                  size="sm"
+                  variant={terrainSrc === s ? "default" : "outline"}
+                  onClick={() => setTerrainSrc(s)}
+                >
                   {s}
                 </Button>
               ))}
@@ -270,7 +380,9 @@ function Component() {
                     variant={active ? "default" : "outline"}
                     className="cursor-pointer"
                     onClick={() =>
-                      setExportFormats((prev) => (active ? prev.filter((x) => x !== f) : [...prev, f]))
+                      setExportFormats((prev) =>
+                        active ? prev.filter((x) => x !== f) : [...prev, f],
+                      )
                     }
                   >
                     {f}
@@ -288,7 +400,10 @@ function Component() {
 
 export const Route = createFileRoute("/three-d-studio")({
   head: () => ({
-    meta: [{ title: "3D Studio | Infinite Loop Sound" }, { name: "description", content: "AI-assisted 3D modeling and asset generation tools" }],
+    meta: [
+      { title: "3D Studio | Infinite Loop Sound" },
+      { name: "description", content: "AI-assisted 3D modeling and asset generation tools" },
+    ],
   }),
   component: Component,
 });

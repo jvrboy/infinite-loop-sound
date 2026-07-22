@@ -29,7 +29,8 @@ export function parseMidi(buffer: ArrayBuffer): MidiFile {
   let offset = 0;
 
   const readUint32 = () => {
-    const val = (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
+    const val =
+      (data[offset] << 24) | (data[offset + 1] << 16) | (data[offset + 2] << 8) | data[offset + 3];
     offset += 4;
     return val >>> 0;
   };
@@ -127,7 +128,9 @@ export function parseMidi(buffer: ArrayBuffer): MidiFile {
   }
 
   const tempo = 500000;
-  const duration = Math.max(...tracks.map((t) => Math.max(...t.notes.map((n) => n.startTick + n.duration), 0))) || 0;
+  const duration =
+    Math.max(...tracks.map((t) => Math.max(...t.notes.map((n) => n.startTick + n.duration), 0))) ||
+    0;
 
   return { tracks, ticksPerQuarter, tempo, duration };
 }
@@ -230,9 +233,7 @@ export function midiToNoteName(midi: number): string {
 }
 
 export function midiToNoteNames(midi: MidiFile): string[][] {
-  return midi.tracks.map((track) =>
-    track.notes.map((n) => midiToNoteName(n.note)),
-  );
+  return midi.tracks.map((track) => track.notes.map((n) => midiToNoteName(n.note)));
 }
 
 // 5. Generate MIDI from note arrays

@@ -15,16 +15,34 @@ export function writeWavWithLoop(
   const ab = new ArrayBuffer(total);
   const v = new DataView(ab);
   let p = 0;
-  const str = (s: string) => { for (let i = 0; i < s.length; i++) v.setUint8(p++, s.charCodeAt(i)); };
-  const u32 = (n: number) => { v.setUint32(p, n, true); p += 4; };
-  const u16 = (n: number) => { v.setUint16(p, n, true); p += 2; };
+  const str = (s: string) => {
+    for (let i = 0; i < s.length; i++) v.setUint8(p++, s.charCodeAt(i));
+  };
+  const u32 = (n: number) => {
+    v.setUint32(p, n, true);
+    p += 4;
+  };
+  const u16 = (n: number) => {
+    v.setUint16(p, n, true);
+    p += 2;
+  };
 
   // RIFF
-  str("RIFF"); u32(total - 8); str("WAVE");
+  str("RIFF");
+  u32(total - 8);
+  str("WAVE");
   // fmt
-  str("fmt "); u32(16); u16(1); u16(numCh); u32(sr); u32(sr * numCh * 2); u16(numCh * 2); u16(16);
+  str("fmt ");
+  u32(16);
+  u16(1);
+  u16(numCh);
+  u32(sr);
+  u32(sr * numCh * 2);
+  u16(numCh * 2);
+  u16(16);
   // smpl
-  str("smpl"); u32(smplBytes);
+  str("smpl");
+  u32(smplBytes);
   u32(0); // manufacturer
   u32(0); // product
   u32(Math.round(1e9 / sr)); // sample period (ns)
@@ -42,7 +60,8 @@ export function writeWavWithLoop(
   u32(0); // fraction
   u32(0); // play count (0=infinite)
   // data
-  str("data"); u32(dataBytes);
+  str("data");
+  u32(dataBytes);
   const chans: Float32Array[] = [];
   for (let c = 0; c < numCh; c++) chans.push(buffer.getChannelData(c));
   for (let i = 0; i < buffer.length; i++) {
@@ -59,6 +78,8 @@ export function downloadWav(buffer: ArrayBuffer, name: string) {
   const blob = new Blob([buffer], { type: "audio/wav" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = name; a.click();
+  a.href = url;
+  a.download = name;
+  a.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

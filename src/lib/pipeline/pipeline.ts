@@ -250,23 +250,83 @@ export function pipelineRunAll(prompt: string) {
 }
 
 export const PIPELINE_TOOLS: ToolMeta[] = [
-  { name: "intakeStage", description: "Parse prompt and classify app type/domain", category: "stage" },
+  {
+    name: "intakeStage",
+    description: "Parse prompt and classify app type/domain",
+    category: "stage",
+  },
   { name: "planningStage", description: "Select tech stack and estimate scope", category: "stage" },
-  { name: "architectureStage", description: "Design file tree, models, routes, state", category: "stage" },
-  { name: "scaffoldingStage", description: "Scaffold files and install dependencies", category: "stage" },
-  { name: "codeGenStage", description: "Generate frontend, backend, DB, tests, styles", category: "stage" },
-  { name: "sandboxStage", description: "Build, typecheck, lint, and test in sandbox", category: "stage" },
+  {
+    name: "architectureStage",
+    description: "Design file tree, models, routes, state",
+    category: "stage",
+  },
+  {
+    name: "scaffoldingStage",
+    description: "Scaffold files and install dependencies",
+    category: "stage",
+  },
+  {
+    name: "codeGenStage",
+    description: "Generate frontend, backend, DB, tests, styles",
+    category: "stage",
+  },
+  {
+    name: "sandboxStage",
+    description: "Build, typecheck, lint, and test in sandbox",
+    category: "stage",
+  },
   { name: "debugStage", description: "Iteratively fix generated errors", category: "stage" },
-  { name: "browserExploreStage", description: "Explore rendered app in headless browser", category: "stage" },
-  { name: "functionalTestStage", description: "Run functional tests and measure coverage", category: "stage" },
-  { name: "logAuditStage", description: "Audit logs for errors and security issues", category: "stage" },
-  { name: "screenshotStage", description: "Capture screenshots across breakpoints", category: "stage" },
+  {
+    name: "browserExploreStage",
+    description: "Explore rendered app in headless browser",
+    category: "stage",
+  },
+  {
+    name: "functionalTestStage",
+    description: "Run functional tests and measure coverage",
+    category: "stage",
+  },
+  {
+    name: "logAuditStage",
+    description: "Audit logs for errors and security issues",
+    category: "stage",
+  },
+  {
+    name: "screenshotStage",
+    description: "Capture screenshots across breakpoints",
+    category: "stage",
+  },
   { name: "reportStage", description: "Generate HTML report of results", category: "stage" },
   { name: "artifactStage", description: "Package artifacts into a zip", category: "stage" },
-  { name: "deliveryStage", description: "Deliver preview, zip, and report URLs", category: "stage" },
-  { name: "orchestrator", description: "Dispatch actions across pipeline stages", category: "cross-cutting" },
-  { name: "memoryStore", description: "Store/retrieve short or long-term memory", category: "cross-cutting" },
-  { name: "guardrails", description: "Filter prompt injection and detect secrets", category: "cross-cutting" },
-  { name: "budgetGovernor", description: "Enforce token, cost, and time budgets", category: "cross-cutting" },
-  { name: "pipelineRunAll", description: "Execute the full 14-stage pipeline end-to-end", category: "orchestration" },
+  {
+    name: "deliveryStage",
+    description: "Deliver preview, zip, and report URLs",
+    category: "stage",
+  },
+  {
+    name: "orchestrator",
+    description: "Dispatch actions across pipeline stages",
+    category: "cross-cutting",
+  },
+  {
+    name: "memoryStore",
+    description: "Store/retrieve short or long-term memory",
+    category: "cross-cutting",
+  },
+  {
+    name: "guardrails",
+    description: "Filter prompt injection and detect secrets",
+    category: "cross-cutting",
+  },
+  {
+    name: "budgetGovernor",
+    description: "Enforce token, cost, and time budgets",
+    category: "cross-cutting",
+  },
+  {
+    name: "pipelineRunAll",
+    description: "Execute the full 14-stage pipeline end-to-end",
+    category: "orchestration",
+  },
 ];

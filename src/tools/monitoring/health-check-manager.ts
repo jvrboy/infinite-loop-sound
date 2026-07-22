@@ -6,13 +6,13 @@
 export interface ServiceHealth {
   name: string;
   url: string;
-  status: 'healthy' | 'degraded' | 'unhealthy' | 'down';
+  status: "healthy" | "degraded" | "unhealthy" | "down";
   responseTime: number;
   uptime: number;
   lastCheck: number;
   consecutiveFailures: number;
   consecutiveSuccesses: number;
-  circuitState: 'closed' | 'open' | 'half-open';
+  circuitState: "closed" | "open" | "half-open";
   history: { timestamp: number; status: string; responseTime: number }[];
 }
 
@@ -31,17 +31,21 @@ export class HealthCheckManager {
 
   constructor(private config: HealthCheckConfig) {}
 
-  registerService(name: string, checkFn: () => Promise<boolean>, recoveryFn?: () => Promise<void>): void {
+  registerService(
+    name: string,
+    checkFn: () => Promise<boolean>,
+    recoveryFn?: () => Promise<void>,
+  ): void {
     this.services.set(name, {
       name,
-      url: '',
-      status: 'healthy',
+      url: "",
+      status: "healthy",
       responseTime: 0,
       uptime: 100,
       lastCheck: 0,
       consecutiveFailures: 0,
       consecutiveSuccesses: 0,
-      circuitState: 'closed',
+      circuitState: "closed",
       history: [],
     });
     this.checkFns.set(name, checkFn);
@@ -53,12 +57,12 @@ export class HealthCheckManager {
     const checkFn = this.checkFns.get(name);
     if (!service || !checkFn) return this.emptyHealth(name);
 
-    if (service.circuitState === 'open') {
+    if (service.circuitState === "open") {
       const elapsed = Date.now() - service.lastCheck;
       if (elapsed > this.config.circuitOpenDurationMs) {
-        service.circuitState = 'half-open';
+        service.circuitState = "half-open";
       } else {
-        service.status = 'down';
+        service.status = "down";
         return service;
       }
     }
@@ -67,7 +71,7 @@ export class HealthCheckManager {
     let success = false;
     try {
       const timeoutPromise = new Promise<boolean>((_, reject) =>
-        setTimeout(() => reject(new Error('timeout')), this.config.timeoutMs),
+        setTimeout(() => reject(new Error("timeout")), this.config.timeoutMs),
       );
       success = await Promise.race([checkFn(), timeoutPromise]);
     } catch {
@@ -77,28 +81,36 @@ export class HealthCheckManager {
 
     service.lastCheck = Date.now();
     service.responseTime = responseTime;
-    service.history.push({ timestamp: Date.now(), status: success ? 'healthy' : 'unhealthy', responseTime });
+    service.history.push({
+      timestamp: Date.now(),
+      status: success ? "healthy" : "unhealthy",
+      responseTime,
+    });
     if (service.history.length > 100) service.history.shift();
 
     if (success) {
       service.consecutiveSuccesses++;
       service.consecutiveFailures = 0;
-      if (service.circuitState === 'half-open') {
-        service.circuitState = 'closed';
+      if (service.circuitState === "half-open") {
+        service.circuitState = "closed";
       }
-      service.status = responseTime > 1000 ? 'degraded' : 'healthy';
+      service.status = responseTime > 1000 ? "degraded" : "healthy";
     } else {
       service.consecutiveFailures++;
       service.consecutiveSuccesses = 0;
       if (service.consecutiveFailures >= this.config.failureThreshold) {
-        service.circuitState = 'open';
-        service.status = 'down';
+        service.circuitState = "open";
+        service.status = "down";
         const recoveryFn = this.recoveryFns.get(name);
         if (recoveryFn) {
-          try { await recoveryFn(); } catch { /* ignore */ }
+          try {
+            await recoveryFn();
+          } catch {
+            /* ignore */
+          }
         }
       } else {
-        service.status = 'unhealthy';
+        service.status = "unhealthy";
       }
     }
 
@@ -114,17 +126,24 @@ export class HealthCheckManager {
     return results;
   }
 
-  private calculateUptime(history: ServiceHealth['history']): number {
+  private calculateUptime(history: ServiceHealth["history"]): number {
     if (history.length === 0) return 100;
-    const healthy = history.filter((h) => h.status === 'healthy' || h.status === 'degraded').length;
+    const healthy = history.filter((h) => h.status === "healthy" || h.status === "degraded").length;
     return (healthy / history.length) * 100;
   }
 
   private emptyHealth(name: string): ServiceHealth {
     return {
-      name, url: '', status: 'down', responseTime: 0, uptime: 0,
-      lastCheck: 0, consecutiveFailures: 0, consecutiveSuccesses: 0,
-      circuitState: 'open', history: [],
+      name,
+      url: "",
+      status: "down",
+      responseTime: 0,
+      uptime: 0,
+      lastCheck: 0,
+      consecutiveFailures: 0,
+      consecutiveSuccesses: 0,
+      circuitState: "open",
+      history: [],
     };
   }
 

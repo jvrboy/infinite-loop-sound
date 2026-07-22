@@ -34,7 +34,12 @@ export interface SequencerState {
 
 export const DRUM_NAMES = ["Kick", "Snare", "Hat", "Clap", "Tom", "Rim", "Crash", "Perc"];
 
-export function createDefaultTrack(id: string, name: string, type: "drum" | "synth", steps = 16): SequencerTrack {
+export function createDefaultTrack(
+  id: string,
+  name: string,
+  type: "drum" | "synth",
+  steps = 16,
+): SequencerTrack {
   return {
     id,
     name,
@@ -148,14 +153,30 @@ function playHat(velocity: number) {
 
 function playDrum(name: string, velocity: number) {
   switch (name.toLowerCase()) {
-    case "kick": playKick(velocity); break;
-    case "snare": playSnare(velocity); break;
-    case "hat": playHat(velocity); break;
-    case "clap": playSnare(velocity * 0.7); break;
-    case "tom": playKick(velocity * 0.5); break;
-    case "rim": playHat(velocity * 0.4); break;
-    case "crash": playHat(velocity * 0.6); break;
-    default: playHat(velocity); break;
+    case "kick":
+      playKick(velocity);
+      break;
+    case "snare":
+      playSnare(velocity);
+      break;
+    case "hat":
+      playHat(velocity);
+      break;
+    case "clap":
+      playSnare(velocity * 0.7);
+      break;
+    case "tom":
+      playKick(velocity * 0.5);
+      break;
+    case "rim":
+      playHat(velocity * 0.4);
+      break;
+    case "crash":
+      playHat(velocity * 0.6);
+      break;
+    default:
+      playHat(velocity);
+      break;
   }
 }
 
@@ -181,7 +202,10 @@ export class SequencerEngine {
 
   stop() {
     this.state.playing = false;
-    if (this.timer) { clearTimeout(this.timer); this.timer = null; }
+    if (this.timer) {
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
   }
 
   private getStepDuration(): number {
@@ -245,8 +269,12 @@ export class SequencerEngine {
     }, delay * 1000);
   }
 
-  setBpm(bpm: number) { this.state.bpm = bpm; }
-  setSwing(swing: number) { this.state.swing = swing; }
+  setBpm(bpm: number) {
+    this.state.bpm = bpm;
+  }
+  setSwing(swing: number) {
+    this.state.swing = swing;
+  }
   toggleStep(trackId: string, step: number) {
     const track = this.state.tracks.find((t) => t.id === trackId);
     if (track) track.steps[step].active = !track.steps[step].active;

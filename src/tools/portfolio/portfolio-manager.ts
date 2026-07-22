@@ -16,7 +16,7 @@ export interface PortfolioAllocation {
   currentAllocation: number;
   targetAllocation: number;
   difference: number;
-  action: 'buy' | 'sell' | 'hold';
+  action: "buy" | "sell" | "hold";
   shares: number;
 }
 
@@ -32,8 +32,8 @@ export interface PortfolioMetrics {
 }
 
 export interface RebalanceStrategy {
-  type: 'equal_weight' | 'market_cap' | 'custom';
-  frequency: 'daily' | 'weekly' | 'monthly' | 'quarterly';
+  type: "equal_weight" | "market_cap" | "custom";
+  frequency: "daily" | "weekly" | "monthly" | "quarterly";
   threshold: number; // Rebalance if drift exceeds this %
   lastRebalance: number;
 }
@@ -45,8 +45,8 @@ export class PortfolioManager {
 
   constructor(rebalanceStrategy?: RebalanceStrategy) {
     this.rebalanceStrategy = rebalanceStrategy || {
-      type: 'equal_weight',
-      frequency: 'monthly',
+      type: "equal_weight",
+      frequency: "monthly",
       threshold: 5,
       lastRebalance: Date.now(),
     };
@@ -204,7 +204,7 @@ export class PortfolioManager {
    * Check if rebalancing is needed
    */
   shouldRebalance(): boolean {
-    if (this.rebalanceStrategy.type === 'equal_weight') {
+    if (this.rebalanceStrategy.type === "equal_weight") {
       const targetWeight = 100 / this.assets.size;
 
       for (const asset of this.assets.values()) {
@@ -225,7 +225,7 @@ export class PortfolioManager {
     const actions: PortfolioAllocation[] = [];
     const totalValue = this.getTotalValue();
 
-    if (this.rebalanceStrategy.type === 'equal_weight') {
+    if (this.rebalanceStrategy.type === "equal_weight") {
       const targetWeight = 100 / this.assets.size;
 
       for (const asset of this.assets.values()) {
@@ -233,15 +233,15 @@ export class PortfolioManager {
         const currentValue = asset.quantity * asset.currentPrice;
         const difference = ((targetValue - currentValue) / currentValue) * 100;
 
-        let action: 'buy' | 'sell' | 'hold' = 'hold';
+        let action: "buy" | "sell" | "hold" = "hold";
         let shares = 0;
 
         if (Math.abs(difference) > this.rebalanceStrategy.threshold) {
           if (difference > 0) {
-            action = 'buy';
+            action = "buy";
             shares = Math.floor((targetValue - currentValue) / asset.currentPrice);
           } else {
-            action = 'sell';
+            action = "sell";
             shares = Math.floor((currentValue - targetValue) / asset.currentPrice);
           }
         }
@@ -269,9 +269,9 @@ export class PortfolioManager {
     for (const action of actions) {
       const asset = this.assets.get(action.asset);
       if (asset) {
-        if (action.action === 'buy') {
+        if (action.action === "buy") {
           asset.quantity += action.shares;
-        } else if (action.action === 'sell') {
+        } else if (action.action === "sell") {
           asset.quantity -= action.shares;
         }
       }

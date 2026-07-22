@@ -1,7 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useMemo, useState, useCallback } from "react";
-import { Cpu, Radar, Orbit, Zap, Activity, RefreshCw, Play, Square, Shield, Layers, Waves, Globe, Server, TrainFront, Gauge } from "lucide-react";
+import {
+  Cpu,
+  Radar,
+  Orbit,
+  Zap,
+  Activity,
+  RefreshCw,
+  Play,
+  Square,
+  Shield,
+  Layers,
+  Waves,
+  Globe,
+  Server,
+  TrainFront,
+  Gauge,
+} from "lucide-react";
 import { ProCard, MeterBar, DataPanel, SectionHeader, KpiGrid } from "@/components/pro";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,8 +38,12 @@ const ICONS: Record<string, React.ReactNode> = {
 };
 
 function synthCandles(n: number, seed: number) {
-  let price = 100, s = seed;
-  const rand = () => { s = (s * 1103515245 + 12345) & 0x7fffffff; return s / 0x7fffffff; };
+  let price = 100,
+    s = seed;
+  const rand = () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return s / 0x7fffffff;
+  };
   const out = [];
   for (let i = 0; i < n; i++) {
     const o = price;
@@ -51,7 +71,9 @@ function SwarmPage() {
         a.config.id === id ? { ...a, config: { ...a.config, enabled: !a.config.enabled } } : a,
       ),
     );
-    swarm.all.forEach((a) => { if (a.config.id === id) a.config.enabled = !a.config.enabled; });
+    swarm.all.forEach((a) => {
+      if (a.config.id === id) a.config.enabled = !a.config.enabled;
+    });
   };
 
   const runAll = useCallback(async () => {
@@ -84,7 +106,9 @@ function SwarmPage() {
     setTraining(trainV2Agents(candles));
   }, []);
 
-  const workerCount = agents.filter((a) => a.config.id !== "v2_swarm_coordinator" && a.config.enabled).length;
+  const workerCount = agents.filter(
+    (a) => a.config.id !== "v2_swarm_coordinator" && a.config.enabled,
+  ).length;
 
   return (
     <AppShell>
@@ -108,10 +132,34 @@ function SwarmPage() {
 
         <KpiGrid
           tiles={[
-            { label: "Active Workers", value: workerCount, sub: `${agents.length} total agents`, accent: "primary", icon: <Cpu className="w-4 h-4" /> },
-            { label: "Consensus Score", value: `${(heartbeat.consensusScore * 100).toFixed(0)}%`, sub: heartbeat.pipelineStage, accent: heartbeat.consensusScore > 0.6 ? "bull" : "neutral", icon: <Activity className="w-4 h-4" /> },
-            { label: "Raw Signals", value: heartbeat.totalSignals, sub: "last run", accent: "primary", icon: <Zap className="w-4 h-4" /> },
-            { label: "Coordinator", value: "ONLINE", sub: swarm.coordinator.config.id, accent: "bull", icon: <Server className="w-4 h-4" /> },
+            {
+              label: "Active Workers",
+              value: workerCount,
+              sub: `${agents.length} total agents`,
+              accent: "primary",
+              icon: <Cpu className="w-4 h-4" />,
+            },
+            {
+              label: "Consensus Score",
+              value: `${(heartbeat.consensusScore * 100).toFixed(0)}%`,
+              sub: heartbeat.pipelineStage,
+              accent: heartbeat.consensusScore > 0.6 ? "bull" : "neutral",
+              icon: <Activity className="w-4 h-4" />,
+            },
+            {
+              label: "Raw Signals",
+              value: heartbeat.totalSignals,
+              sub: "last run",
+              accent: "primary",
+              icon: <Zap className="w-4 h-4" />,
+            },
+            {
+              label: "Coordinator",
+              value: "ONLINE",
+              sub: swarm.coordinator.config.id,
+              accent: "bull",
+              icon: <Server className="w-4 h-4" />,
+            },
           ]}
         />
 
@@ -120,16 +168,28 @@ function SwarmPage() {
             title="Training Output"
             description={`Calibrated from ${training.sampleSize} sample candles`}
             icon={<TrainFront className="w-4 h-4" />}
-            action={<Badge variant="outline">trained {(training.volBaseline).toFixed(3)}% vol</Badge>}
+            action={<Badge variant="outline">trained {training.volBaseline.toFixed(3)}% vol</Badge>}
           >
             <DataPanel
               dense
               headers={["Parameter", "Value"]}
               rows={[
-                ["Volatility baseline", <span className="font-mono">{training.volBaseline.toFixed(3)}%</span>],
-                ["Trend threshold (ADX)", <span className="font-mono">{training.trendThreshold.toFixed(1)}</span>],
-                ["Quiet threshold", <span className="font-mono">{training.quietThreshold.toFixed(3)}%</span>],
-                ["Sweep proximity (pips)", <span className="font-mono">{training.sweepProximityPips.toFixed(1)}</span>],
+                [
+                  "Volatility baseline",
+                  <span className="font-mono">{training.volBaseline.toFixed(3)}%</span>,
+                ],
+                [
+                  "Trend threshold (ADX)",
+                  <span className="font-mono">{training.trendThreshold.toFixed(1)}</span>,
+                ],
+                [
+                  "Quiet threshold",
+                  <span className="font-mono">{training.quietThreshold.toFixed(3)}%</span>,
+                ],
+                [
+                  "Sweep proximity (pips)",
+                  <span className="font-mono">{training.sweepProximityPips.toFixed(1)}</span>,
+                ],
               ]}
             />
           </ProCard>
@@ -150,7 +210,10 @@ function SwarmPage() {
                     <Badge variant={a.config.priority === "critical" ? "destructive" : "outline"}>
                       {a.config.priority}
                     </Badge>
-                    <Switch checked={a.config.enabled} onCheckedChange={() => toggleAgent(a.config.id)} />
+                    <Switch
+                      checked={a.config.enabled}
+                      onCheckedChange={() => toggleAgent(a.config.id)}
+                    />
                   </div>
                 }
               >
@@ -158,7 +221,12 @@ function SwarmPage() {
                   <div className="flex items-center gap-2 text-xs">
                     <span className="text-muted-foreground">ID:</span>
                     <code className="font-mono">{a.config.id}</code>
-                    {isCoord && <Badge className="ml-auto"><Orbit className="w-3 h-3 mr-1" />coordinator</Badge>}
+                    {isCoord && (
+                      <Badge className="ml-auto">
+                        <Orbit className="w-3 h-3 mr-1" />
+                        coordinator
+                      </Badge>
+                    )}
                   </div>
                   {r ? (
                     <>
@@ -173,7 +241,10 @@ function SwarmPage() {
                           <p className="text-xs font-semibold mb-1">Signals emitted</p>
                           {r.signals.map((s: any) => (
                             <div key={s.id} className="flex items-center gap-2 text-xs">
-                              <Badge variant="outline" className={s.direction === "BUY" ? "text-bull" : "text-bear"}>
+                              <Badge
+                                variant="outline"
+                                className={s.direction === "BUY" ? "text-bull" : "text-bear"}
+                              >
                                 {s.direction}
                               </Badge>
                               <span className="font-mono">{s.pair}</span>
@@ -187,7 +258,9 @@ function SwarmPage() {
                       )}
                     </>
                   ) : (
-                    <p className="text-xs text-muted-foreground">Not run yet. Click "Run Swarm" to execute.</p>
+                    <p className="text-xs text-muted-foreground">
+                      Not run yet. Click "Run Swarm" to execute.
+                    </p>
                   )}
                 </div>
               </ProCard>

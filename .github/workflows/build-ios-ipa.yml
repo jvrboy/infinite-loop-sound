@@ -3,10 +3,12 @@ name: Build Unsigned iOS IPA
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
   build-ios:
+    name: Build unsigned Capacitor IPA (iOS 15+)
     runs-on: macos-latest
     permissions:
       contents: write
@@ -24,12 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Capacitor
-        run: npm install @capacitor/core @capacitor/cli @capacitor/ios
-
-      - name: Install sharp for icon conversion
-        run: npm install sharp --save-dev
-
       - name: Generate TanStack Router route tree
         run: npx tsr generate
         continue-on-error: true
@@ -39,163 +35,141 @@ jobs:
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
-      - name: Prepare dist/ for Capacitor
+      - name: Prepare static web bundle for Capacitor
         run: |
+          rm -rf dist
           mkdir -p dist
           if [ -d ".vercel/output/static" ]; then
-            echo "Copying .vercel/output/static to dist/"
-            cp -r .vercel/output/static/. dist/
+            cp -R .vercel/output/static/. dist/
+          elif [ -d ".output/public" ]; then
+            cp -R .output/public/. dist/
+          else
+            echo "::error title=Missing static output::No .vercel/output/static or .output/public directory was produced."
+            exit 1
           fi
-          if [ -d ".output/public" ]; then
-            echo "Copying .output/public to dist/"
-            cp -r .output/public/. dist/
-          fi
-          echo "dist/ contents:"
-          ls dist/
-          echo "dist/ size:"
-          du -sh dist/
-          python3 - << 'PYEOF'
-          import os, glob
-          dist = 'dist'
-          if os.path.exists(os.path.join(dist, 'index.html')):
-              print("index.html already exists")
-          else:
-              print("Generating index.html...")
-              js_files = sorted(glob.glob(f'{dist}/assets/*.js'))
-              css_files = sorted(glob.glob(f'{dist}/assets/*.css'))
-              main_js = next((f for f in js_files if any(x in f for x in ['index', 'main', 'app'])), js_files[-1] if js_files else '')
-              main_css = css_files[0] if css_files else ''
-              js_name = os.path.basename(main_js) if main_js else ''
-              css_name = os.path.basename(main_css) if main_css else ''
-              css_tag = f'<link rel="stylesheet" href="/assets/{css_name}" />' if css_name else ''
-              js_tag = f'<script type="module" src="/assets/{js_name}"></script>' if js_name else ''
-              html = f'''<!DOCTYPE html>
-          <html lang="en" class="dark">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-              <meta name="apple-mobile-web-app-capable" content="yes" />
-              <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-              <link rel="apple-touch-icon" href="/app-icons/default.svg" />
-              <title>Divergence IQ</title>
-              {css_tag}
-            </head>
-            <body class="dark">
-              <div id="app"></div>
-              {js_tag}
-            </body>
-          </html>'''
-              with open(os.path.join(dist, 'index.html'), 'w') as f:
-                  f.write(html)
-              print(f"Generated index.html (js={js_name}, css={css_name})")
-          PYEOF
-          echo "index.html exists: $([ -f dist/index.html ] && echo YES || echo NO)"
 
-      - name: Add iOS platform
-        run: npx cap add ios
-        continue-on-error: true
+          if [ ! -f dist/index.html ]; then
+            node <<'NODE'
+          const fs = require('fs');
+          const path = require('path');
+          const assetsDir = path.join('dist', 'assets');
+          const assets = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir) : [];
+          const js = assets.find((name) => name.endsWith('.js'));
+          const css = assets.find((name) => name.endsWith('.css'));
+          fs.writeFileSync(
+            path.join('dist', 'index.html'),
+            `<!doctype html><html lang="en" class="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><title>Divergence IQ</title>${css ? `<link rel="stylesheet" href="/assets/${css}">` : ''}</head><body class="dark"><div id="app"></div>${js ? `<script type="module" src="/assets/${js}"></script>` : ''}</body></html>`
+          );
+          NODE
+          fi
+
+          test -s dist/index.html
+          du -sh dist
+
+      - name: Create and sync Capacitor iOS project
+        run: |
+          if [ ! -d ios/App ]; then
+            npx cap add ios
+          fi
+          npx cap sync ios
 
       - name: Generate iOS app icons
         run: |
-          node -e "
+          node <<'NODE'
           const sharp = require('sharp');
           const fs = require('fs');
           const path = require('path');
           const svgPath = 'public/app-icons/default.svg';
-          if (!fs.existsSync(svgPath)) { console.log('No SVG found'); process.exit(0); }
+          if (!fs.existsSync(svgPath)) throw new Error(`Missing ${svgPath}`);
           const iconSetDir = 'ios/App/App/Assets.xcassets/AppIcon.appiconset';
-          if (!fs.existsSync(iconSetDir)) fs.mkdirSync(iconSetDir, { recursive: true });
+          fs.mkdirSync(iconSetDir, { recursive: true });
           const svgBuffer = fs.readFileSync(svgPath);
-          const iosIcons = [
-            { size: 20, name: 'icon-20.png' },
-            { size: 29, name: 'icon-29.png' },
-            { size: 40, name: 'icon-40.png' },
-            { size: 60, name: 'icon-60.png' },
-            { size: 76, name: 'icon-76.png' },
-            { size: 87, name: 'icon-87.png' },
-            { size: 80, name: 'icon-80.png' },
-            { size: 120, name: 'icon-120.png' },
-            { size: 152, name: 'icon-152.png' },
-            { size: 167, name: 'icon-167.png' },
-            { size: 180, name: 'icon-180.png' },
-            { size: 1024, name: 'icon-1024.png' },
-          ];
+          const icons = [20, 29, 40, 60, 76, 80, 87, 120, 152, 167, 180, 1024];
           const contents = { images: [], info: { version: 1, author: 'xcode' } };
           (async () => {
-            for (const icon of iosIcons) {
-              const outPath = path.join(iconSetDir, icon.name);
-              await sharp(svgBuffer).resize(icon.size, icon.size).png().toFile(outPath);
-              contents.images.push({ idiom: 'universal', size: icon.size + 'x' + icon.size, filename: icon.name, platform: 'ios' });
+            for (const size of icons) {
+              const filename = `icon-${size}.png`;
+              await sharp(svgBuffer).resize(size, size).png().toFile(path.join(iconSetDir, filename));
+              contents.images.push({ idiom: 'universal', size: `${size}x${size}`, filename, platform: 'ios' });
             }
             fs.writeFileSync(path.join(iconSetDir, 'Contents.json'), JSON.stringify(contents, null, 2));
-            console.log('Generated iOS app icons');
-          })().catch(err => { console.error(err); process.exit(1); });
-          "
+          })().catch((error) => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
 
-      - name: Fix iOS deployment targets (iOS 15+)
+      - name: Enforce iOS 15 deployment target
         run: |
           PODFILE="ios/App/Podfile"
           PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
           if [ -f "$PODFILE" ]; then
-            echo "Fixing Podfile..."
-            sed -i '' "s/platform :ios, '[0-9.]*/platform :ios, '15.0/" "$PODFILE"
-            if ! grep -q "platform :ios" "$PODFILE"; then
-              sed -i '' '1s/^/platform :ios, '"'"'15.0'"'"'\n/' "$PODFILE"
+            if grep -q "platform :ios" "$PODFILE"; then
+              sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '15.0'/" "$PODFILE"
+            else
+              sed -i '' "1s/^/platform :ios, '15.0'\n/" "$PODFILE"
             fi
-            grep "platform :ios" "$PODFILE"
           fi
           if [ -f "$PBXPROJ" ]; then
-            echo "Fixing Xcode project deployment target..."
             sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' "$PBXPROJ"
-            grep "IPHONEOS_DEPLOYMENT_TARGET" "$PBXPROJ" | head -5
           fi
+          grep -R "IPHONEOS_DEPLOYMENT_TARGET = 15.0" ios/App/App.xcodeproj/project.pbxproj >/dev/null
 
-      - name: Sync iOS platform
-        run: npx cap sync ios
+      - name: Install CocoaPods
+        working-directory: ios/App
+        run: pod install --repo-update
 
       - name: Build unsigned IPA
+        working-directory: ios/App
         run: |
-          cd ios/App
+          set -euo pipefail
           xcodebuild clean archive \
             -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -sdk iphoneos \
-            -archivePath $PWD/build/App.xcarchive \
+            -destination generic/platform=iOS \
+            -archivePath "$PWD/build/App.xcarchive" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
+            AD_HOC_CODE_SIGNING_ALLOWED=NO \
+            DEVELOPMENT_TEAM="" \
             PROVISIONING_PROFILE="" \
             PROVISIONING_PROFILE_SPECIFIER=""
-          mkdir -p build/Payload
-          cp -r build/App.xcarchive/Products/Applications/App.app build/Payload/
-          cd build
-          zip -r App.ipa Payload
 
-      - name: Verify IPA
+          rm -rf build/Payload build/App.ipa
+          mkdir -p build/Payload
+          cp -R build/App.xcarchive/Products/Applications/App.app build/Payload/
+          (cd build && zip -qry App.ipa Payload)
+
+      - name: Verify IPA contents
         run: |
+          set -euo pipefail
           IPA_PATH="ios/App/build/App.ipa"
-          if [ ! -f "$IPA_PATH" ]; then
-            echo "ERROR: IPA not found at $IPA_PATH"
-            find ios -name "*.ipa" 2>/dev/null
-            exit 1
+          test -s "$IPA_PATH"
+          unzip -t "$IPA_PATH" >/dev/null
+          unzip -l "$IPA_PATH" | grep -E 'Payload/App\.app/(Info\.plist|public/index\.html)'
+          IPA_SIZE=$(stat -f%z "$IPA_PATH")
+          if [ "$IPA_SIZE" -lt 5000000 ]; then
+            echo "::warning title=Small IPA::IPA is $IPA_SIZE bytes; inspect the artifact if this is unexpected."
           fi
-          IPA_SIZE=$(stat -f%z "$IPA_PATH" 2>/dev/null || stat -c%s "$IPA_PATH" 2>/dev/null || echo 0)
-          IPA_SIZE_MB=$((IPA_SIZE / 1024 / 1024))
-          echo "IPA size: ${IPA_SIZE_MB}MB"
-          if [ "$IPA_SIZE_MB" -lt 5 ]; then
-            echo "WARNING: IPA is only ${IPA_SIZE_MB}MB — may be incomplete"
-          fi
-          echo "IPA verified at $IPA_PATH"
+          echo "IPA_PATH=$IPA_PATH" >> "$GITHUB_ENV"
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DivergenceIQ-Unsigned-iOS15-IPA
+          path: ${{ env.IPA_PATH }}
+          if-no-files-found: error
 
       - name: Upload IPA as GitHub Release
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          IPA_PATH="ios/App/build/App.ipa"
           TAG="ios-unsigned-$(date +%Y%m%d-%H%M%S)"
           gh release create "$TAG" \
             --title "Unsigned iOS IPA - $(date +%Y-%m-%d)" \
-            --notes "Auto-built unsigned iOS IPA (Capacitor, iOS 15+, no code signing)" \
-            "$IPA_PATH#DivergenceIQ-Unsigned.ipa"
-          echo "Release created: $TAG"
+            --notes "Auto-built unsigned Capacitor IPA for iOS 15+. This build intentionally disables code signing." \
+            "$IPA_PATH#DivergenceIQ-Unsigned-iOS15.ipa"

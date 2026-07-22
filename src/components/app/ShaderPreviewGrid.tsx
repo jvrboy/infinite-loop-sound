@@ -24,9 +24,14 @@ export function ShaderPreviewGrid() {
       {SHADER_REGISTRY.map((s) => (
         <button
           key={s.id}
-          onClick={() => { setShader(s.id); setActive(s.id); }}
+          onClick={() => {
+            setShader(s.id);
+            setActive(s.id);
+          }}
           className={`group relative overflow-hidden rounded-lg border transition-all hover:scale-[1.02] ${
-            active === s.id ? "border-primary ring-2 ring-primary/30" : "border-border hover:border-primary/50"
+            active === s.id
+              ? "border-primary ring-2 ring-primary/30"
+              : "border-border hover:border-primary/50"
           }`}
         >
           <div
@@ -39,7 +44,9 @@ export function ShaderPreviewGrid() {
           </div>
           {active === s.id && (
             <div className="absolute top-2 right-2">
-              <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground font-bold">ACTIVE</span>
+              <span className="text-[9px] px-1.5 py-0.5 rounded bg-primary text-primary-foreground font-bold">
+                ACTIVE
+              </span>
             </div>
           )}
         </button>

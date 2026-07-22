@@ -172,7 +172,9 @@ export async function runFullAnalysis(input: FullAnalysisInput): Promise<Orchest
     status: "completed",
     timestamp: Date.now(),
     output: { ...patternScan },
-    insights: patternScan.patterns.slice(0, 5).map((p) => `${p.name} (${p.bias}, ${p.confidence.toFixed(0)}%): ${p.note}`),
+    insights: patternScan.patterns
+      .slice(0, 5)
+      .map((p) => `${p.name} (${p.bias}, ${p.confidence.toFixed(0)}%): ${p.note}`),
   };
   state.results["pattern-agent"] = patternResult;
   newMessages.push({
@@ -192,7 +194,10 @@ export async function runFullAnalysis(input: FullAnalysisInput): Promise<Orchest
     const topFactors = Object.entries(learnedWeights)
       .sort((a, b) => b[1].weight - a[1].weight)
       .slice(0, 3)
-      .map(([k, v]) => `${k}=${v.weight.toFixed(2)} (${v.samples}s, ${Math.round(v.winRate * 100)}%WR)`);
+      .map(
+        ([k, v]) =>
+          `${k}=${v.weight.toFixed(2)} (${v.samples}s, ${Math.round(v.winRate * 100)}%WR)`,
+      );
     learnedInsights.push(`Top learned factors: ${topFactors.join(", ")}`);
   }
   if (perf.total > 0) {

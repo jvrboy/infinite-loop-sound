@@ -64,23 +64,72 @@ function haTrend(candles: Candle[]): "up" | "down" | "flat" {
 export function scanPatterns(candles: Candle[]): PatternScanResult {
   const patterns: DetectedPattern[] = [];
   if (candles.length < 35) {
-    return { patterns, compositeBias: "neutral", compositeScore: 0, haTrend: "flat", squeeze: false, momentum: 0 };
+    return {
+      patterns,
+      compositeBias: "neutral",
+      compositeScore: 0,
+      haTrend: "flat",
+      squeeze: false,
+      momentum: 0,
+    };
   }
   const close = candles.map((c) => c.close);
   const last = close.length - 1;
 
   // Candlestick detectors.
   const eng = engulfing(candles);
-  if (eng) patterns.push({ name: "Engulfing", bias: eng, confidence: 72, category: "candlestick", note: `${eng} engulfing on last bar` });
+  if (eng)
+    patterns.push({
+      name: "Engulfing",
+      bias: eng,
+      confidence: 72,
+      category: "candlestick",
+      note: `${eng} engulfing on last bar`,
+    });
   const pin = pinBar(candles);
-  if (pin) patterns.push({ name: "Pin Bar", bias: pin, confidence: 68, category: "candlestick", note: `${pin} pin-bar rejection` });
-  if (doji(candles)) patterns.push({ name: "Doji", bias: "neutral", confidence: 55, category: "candlestick", note: "Indecision at current levels" });
+  if (pin)
+    patterns.push({
+      name: "Pin Bar",
+      bias: pin,
+      confidence: 68,
+      category: "candlestick",
+      note: `${pin} pin-bar rejection`,
+    });
+  if (doji(candles))
+    patterns.push({
+      name: "Doji",
+      bias: "neutral",
+      confidence: 55,
+      category: "candlestick",
+      note: "Indecision at current levels",
+    });
   const tb = threeBars(candles);
-  if (tb) patterns.push({ name: "Three White Soldiers / Black Crows", bias: tb, confidence: 78, category: "candlestick", note: `Three ${tb === "bull" ? "soldiers" : "crows"}` });
+  if (tb)
+    patterns.push({
+      name: "Three White Soldiers / Black Crows",
+      bias: tb,
+      confidence: 78,
+      category: "candlestick",
+      note: `Three ${tb === "bull" ? "soldiers" : "crows"}`,
+    });
   const tls = threeLineStrike(candles);
-  if (tls) patterns.push({ name: "Three-Line Strike", bias: tls, confidence: 82, category: "candlestick", note: `${tls} three-line strike continuation` });
+  if (tls)
+    patterns.push({
+      name: "Three-Line Strike",
+      bias: tls,
+      confidence: 82,
+      category: "candlestick",
+      note: `${tls} three-line strike continuation`,
+    });
   const ab = abandonedBaby(candles);
-  if (ab) patterns.push({ name: "Abandoned Baby", bias: ab, confidence: 88, category: "candlestick", note: `Rare ${ab} reversal doji` });
+  if (ab)
+    patterns.push({
+      name: "Abandoned Baby",
+      bias: ab,
+      confidence: 88,
+      category: "candlestick",
+      note: `Rare ${ab} reversal doji`,
+    });
 
   // Trend filters.
   const st = supertrend(candles);
@@ -97,7 +146,13 @@ export function scanPatterns(candles: Candle[]): PatternScanResult {
   const ich = ichimoku(candles);
   if (ich.tenkan[last] != null && ich.kijun[last] != null) {
     const tk = ich.tenkan[last]! > ich.kijun[last]! ? "bull" : "bear";
-    patterns.push({ name: "Ichimoku TK Cross", bias: tk, confidence: 70, category: "trend", note: `Tenkan ${tk === "bull" ? "above" : "below"} Kijun` });
+    patterns.push({
+      name: "Ichimoku TK Cross",
+      bias: tk,
+      confidence: 70,
+      category: "trend",
+      note: `Tenkan ${tk === "bull" ? "above" : "below"} Kijun`,
+    });
   }
   const adxVals = adx(candles);
   const adxLast = adxVals.adx[adxVals.adx.length - 1];
@@ -114,8 +169,22 @@ export function scanPatterns(candles: Candle[]): PatternScanResult {
   // Momentum.
   const rsiVals = rsi(close, 14);
   const r = rsiVals[last] ?? 50;
-  if (r < 30) patterns.push({ name: "RSI Oversold", bias: "bull", confidence: clamp(50 + (30 - r)), category: "momentum", note: `RSI ${r.toFixed(1)} — oversold` });
-  else if (r > 70) patterns.push({ name: "RSI Overbought", bias: "bear", confidence: clamp(50 + (r - 70)), category: "momentum", note: `RSI ${r.toFixed(1)} — overbought` });
+  if (r < 30)
+    patterns.push({
+      name: "RSI Oversold",
+      bias: "bull",
+      confidence: clamp(50 + (30 - r)),
+      category: "momentum",
+      note: `RSI ${r.toFixed(1)} — oversold`,
+    });
+  else if (r > 70)
+    patterns.push({
+      name: "RSI Overbought",
+      bias: "bear",
+      confidence: clamp(50 + (r - 70)),
+      category: "momentum",
+      note: `RSI ${r.toFixed(1)} — overbought`,
+    });
   const macdVals = macd(close);
   const hist = macdVals.hist[last] ?? 0;
   if (Math.abs(hist) > 0) {
@@ -144,7 +213,13 @@ export function scanPatterns(candles: Candle[]): PatternScanResult {
 
   // Composite score: weighted average of biases.
   const weightOf = (p: DetectedPattern) =>
-    p.category === "candlestick" ? 1.2 : p.category === "trend" ? 1.0 : p.category === "momentum" ? 0.8 : 0.6;
+    p.category === "candlestick"
+      ? 1.2
+      : p.category === "trend"
+        ? 1.0
+        : p.category === "momentum"
+          ? 0.8
+          : 0.6;
   let weighted = 0;
   let totalW = 0;
   for (const p of patterns) {
@@ -154,7 +229,8 @@ export function scanPatterns(candles: Candle[]): PatternScanResult {
     totalW += w;
   }
   const compositeScore = totalW > 0 ? Math.round((weighted / totalW) * 100) : 0;
-  const compositeBias: PatternBias = compositeScore > 15 ? "bull" : compositeScore < -15 ? "bear" : "neutral";
+  const compositeBias: PatternBias =
+    compositeScore > 15 ? "bull" : compositeScore < -15 ? "bear" : "neutral";
 
   return {
     patterns,

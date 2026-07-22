@@ -26,11 +26,24 @@ export function createDefaultExtendedFX(type: ExtendedFXType): ExtendedFXConfig 
   const defaults: Record<ExtendedFXType, Record<string, number>> = {
     "convolution-reverb": { decay: 2.0, predelay: 0.02, damping: 0.5, width: 1.0 },
     "tape-echo": { time: 0.3, feedback: 0.4, saturation: 0.3, wow: 0.1, flutter: 0.05 },
-    "granular-cloud": { density: 0.5, grainSize: 0.05, pitchSpread: 0.2, position: 0.5, spray: 0.1 },
+    "granular-cloud": {
+      density: 0.5,
+      grainSize: 0.05,
+      pitchSpread: 0.2,
+      position: 0.5,
+      spray: 0.1,
+    },
     "spectral-freezer": { freeze: 0, blend: 0.5, smoothness: 0.7 },
     "harmonic-enhancer": { drive: 0.3, frequency: 2000, amount: 0.5, tone: 0.5 },
     "transient-designer": { attack: 0.5, sustain: 0.5, punch: 0.5 },
-    "multiband-comp": { lowThreshold: -20, midThreshold: -18, highThreshold: -16, ratio: 3, attack: 0.003, release: 0.1 },
+    "multiband-comp": {
+      lowThreshold: -20,
+      midThreshold: -18,
+      highThreshold: -16,
+      ratio: 3,
+      attack: 0.003,
+      release: 0.1,
+    },
     "stereo-imager": { width: 1.0, lowWidth: 0.5, highWidth: 1.0, centerFreq: 200 },
     "vocoder-fx": { bands: 16, formantShift: 0, dryWet: 0.8, inputGain: 1.0 },
     "lofi-degrader": { bitDepth: 8, sampleRate: 22050, noise: 0.05, wobble: 0.1, saturation: 0.3 },
@@ -39,7 +52,10 @@ export function createDefaultExtendedFX(type: ExtendedFXType): ExtendedFXConfig 
   return { type, enabled: false, mix: 1.0, params: defaults[type] };
 }
 
-export function createExtendedFXChain(engine: AudioEngine, configs: ExtendedFXConfig[]): AudioNode[] {
+export function createExtendedFXChain(
+  engine: AudioEngine,
+  configs: ExtendedFXConfig[],
+): AudioNode[] {
   const nodes: AudioNode[] = [];
 
   for (const config of configs) {
@@ -60,7 +76,11 @@ function createExtendedFXNode(engine: AudioEngine, config: ExtendedFXConfig): Au
   switch (config.type) {
     case "convolution-reverb": {
       const convolver = ctx.createConvolver();
-      convolver.buffer = generateImpulseResponse(ctx, config.params.decay || 2.0, config.params.damping || 0.5);
+      convolver.buffer = generateImpulseResponse(
+        ctx,
+        config.params.decay || 2.0,
+        config.params.damping || 0.5,
+      );
       const input = ctx.createGain();
       const dry = ctx.createGain();
       const wet = ctx.createGain();
@@ -217,7 +237,7 @@ function createExtendedFXNode(engine: AudioEngine, config: ExtendedFXConfig): Au
       const levels = Math.pow(2, bitDepth) - 1;
       const curve = new Float32Array(256);
       for (let i = 0; i < 256; i++) {
-        curve[i] = Math.round((i / 255) * levels) / levels * 2 - 1;
+        curve[i] = (Math.round((i / 255) * levels) / levels) * 2 - 1;
       }
       bitcrush.curve = curve;
       input.connect(bitcrush);
@@ -245,8 +265,8 @@ function makeSaturationCurve(amount: number): Float32Array {
   const curve = new Float32Array(256);
   const k = amount * 10;
   for (let i = 0; i < 256; i++) {
-    const x = (i / 128) - 1;
-    curve[i] = (1 + k) * x / (1 + k * Math.abs(x));
+    const x = i / 128 - 1;
+    curve[i] = ((1 + k) * x) / (1 + k * Math.abs(x));
   }
   return curve;
 }

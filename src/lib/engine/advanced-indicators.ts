@@ -158,7 +158,11 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   const lastKijun = ich.kijun[n - 1];
   if (lastTenkan != null && lastKijun != null) {
     const v = lastTenkan > lastKijun ? 1 : lastTenkan < lastKijun ? -1 : 0;
-    signals.push({ name: "Ichimoku TK", value: v, signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral" });
+    signals.push({
+      name: "Ichimoku TK",
+      value: v,
+      signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral",
+    });
   }
 
   // Supertrend
@@ -171,7 +175,11 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   const wrVal = wr[n - 1];
   if (wrVal != null) {
     const v = wrVal < -80 ? 1 : wrVal > -20 ? -1 : 0;
-    signals.push({ name: "Williams %R", value: v, signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral" });
+    signals.push({
+      name: "Williams %R",
+      value: v,
+      signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral",
+    });
   }
 
   // CCI
@@ -197,7 +205,11 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   const obvPrev = obvArr[n - 5];
   if (obvNow != null && obvPrev != null) {
     const v = obvNow > obvPrev ? 1 : obvNow < obvPrev ? -1 : 0;
-    signals.push({ name: "OBV Trend", value: v, signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral" });
+    signals.push({
+      name: "OBV Trend",
+      value: v,
+      signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral",
+    });
   }
 
   // Aroon
@@ -205,7 +217,11 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   const arOsc = ar.oscillator[n - 1];
   if (arOsc != null) {
     const v = arOsc > 0 ? 1 : arOsc < 0 ? -1 : 0;
-    signals.push({ name: "Aroon Osc", value: v, signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral" });
+    signals.push({
+      name: "Aroon Osc",
+      value: v,
+      signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral",
+    });
   }
 
   // Vortex
@@ -222,7 +238,11 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   const mom = sq.momentum[n - 1];
   if (mom != null) {
     const v = mom > 0 ? 1 : mom < 0 ? -1 : 0;
-    signals.push({ name: "TTM Momentum", value: v, signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral" });
+    signals.push({
+      name: "TTM Momentum",
+      value: v,
+      signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral",
+    });
   }
 
   // MFI
@@ -238,7 +258,11 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   const aoVal = ao[n - 1];
   if (aoVal != null) {
     const v = aoVal > 0 ? 1 : aoVal < 0 ? -1 : 0;
-    signals.push({ name: "Awesome Osc", value: v, signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral" });
+    signals.push({
+      name: "Awesome Osc",
+      value: v,
+      signal: v > 0 ? "bull" : v < 0 ? "bear" : "neutral",
+    });
   }
 
   // Choppiness
@@ -250,9 +274,7 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
   }
 
   const score =
-    signals.length > 0
-      ? signals.reduce((a, s) => a + (s.value * 100) / signals.length, 0)
-      : 0;
+    signals.length > 0 ? signals.reduce((a, s) => a + (s.value * 100) / signals.length, 0) : 0;
   const bias: AdvancedScore["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
   return { score, bias, signals };
 }

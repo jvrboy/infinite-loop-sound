@@ -2,7 +2,19 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@/components/app/AppShell";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Bot, Send, Loader as Loader, Plus, MessageSquare, Sparkles, Cpu, Files, Settings, Activity, CircleCheck as CircleCheck } from "lucide-react";
+import {
+  Bot,
+  Send,
+  Loader as Loader,
+  Plus,
+  MessageSquare,
+  Sparkles,
+  Cpu,
+  Files,
+  Settings,
+  Activity,
+  CircleCheck as CircleCheck,
+} from "lucide-react";
 import { aiChat, loadKeys, PROVIDER_LABELS } from "@/lib/ai/client";
 import { toast } from "sonner";
 import { useThreads, useUsage, type Msg } from "@/hooks/use-chat-store";
@@ -141,7 +153,9 @@ function ChatPage() {
         setSwarmOutputs(result.outputs);
         const reply =
           result.synthesized ??
-          result.outputs.map((o) => `### ${o.name}\n${o.ok ? o.text : `[failed: ${o.error}]`}`).join("\n\n");
+          result.outputs
+            .map((o) => `### ${o.name}\n${o.ok ? o.text : `[failed: ${o.error}]`}`)
+            .join("\n\n");
         const assistant: Msg = {
           role: "assistant",
           content: reply,
@@ -383,9 +397,13 @@ function ChatPage() {
                         )}
                         <span className="text-xs font-medium">{o.name}</span>
                         {o.ok ? (
-                          <span className="ml-auto text-[9px] font-mono uppercase text-bull">ok</span>
+                          <span className="ml-auto text-[9px] font-mono uppercase text-bull">
+                            ok
+                          </span>
                         ) : (
-                          <span className="ml-auto text-[9px] font-mono uppercase text-bear">fail</span>
+                          <span className="ml-auto text-[9px] font-mono uppercase text-bear">
+                            fail
+                          </span>
                         )}
                         {o.provider && (
                           <span className="text-[9px] font-mono uppercase text-muted-foreground">

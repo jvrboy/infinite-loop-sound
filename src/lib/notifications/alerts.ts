@@ -1,5 +1,5 @@
-export type AlertChannel = 'telegram' | 'discord' | 'email' | 'push';
-export type AlertSeverity = 'info' | 'warning' | 'error';
+export type AlertChannel = "telegram" | "discord" | "email" | "push";
+export type AlertSeverity = "info" | "warning" | "error";
 
 export interface AlertConfig {
   enabled: boolean;
@@ -28,8 +28,8 @@ export function configureAlert(channel: AlertChannel, config: AlertConfig): void
 export async function sendAlert(
   title: string,
   message: string,
-  severity: AlertSeverity = 'info',
-  channels?: AlertChannel[]
+  severity: AlertSeverity = "info",
+  channels?: AlertChannel[],
 ): Promise<void> {
   const alert: Alert = {
     id: Date.now().toString(),
@@ -37,7 +37,8 @@ export async function sendAlert(
     severity,
     title,
     message,
-    channels: channels || Array.from(alertConfigs.keys()).filter(c => alertConfigs.get(c)?.enabled)
+    channels:
+      channels || Array.from(alertConfigs.keys()).filter((c) => alertConfigs.get(c)?.enabled),
   };
 
   alertHistory.push(alert);
@@ -46,17 +47,23 @@ export async function sendAlert(
   for (const channel of alert.channels) {
     const config = alertConfigs.get(channel);
     if (config?.enabled && config.webhook) {
-      await deliverAlert(channel, config, alert).catch(e => console.error(`Failed to send ${channel} alert:`, e));
+      await deliverAlert(channel, config, alert).catch((e) =>
+        console.error(`Failed to send ${channel} alert:`, e),
+      );
     }
   }
 }
 
-async function deliverAlert(channel: AlertChannel, config: AlertConfig, alert: Alert): Promise<void> {
+async function deliverAlert(
+  channel: AlertChannel,
+  config: AlertConfig,
+  alert: Alert,
+): Promise<void> {
   const payload = { title: alert.title, message: alert.message, severity: alert.severity };
-  await fetch(config.webhook || '', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+  await fetch(config.webhook || "", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
 }
 

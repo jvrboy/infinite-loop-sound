@@ -30,7 +30,14 @@ const trendColor: Record<Trend, string> = {
 };
 
 export function StatTile({
-  label, value, sub, trend, delta, icon, accent = "primary", className,
+  label,
+  value,
+  sub,
+  trend,
+  delta,
+  icon,
+  accent = "primary",
+  className,
 }: StatTileProps) {
   return (
     <div
@@ -43,7 +50,9 @@ export function StatTile({
     >
       <div className="flex items-start justify-between gap-2 pl-2">
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">{label}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground truncate">
+            {label}
+          </p>
           <p className="mt-1 text-2xl font-bold tabular-nums leading-tight">{value}</p>
           {sub && <p className="mt-0.5 text-xs text-muted-foreground truncate">{sub}</p>}
         </div>
@@ -51,7 +60,10 @@ export function StatTile({
       </div>
       {delta && (
         <div className="mt-2 pl-2">
-          <Badge variant="outline" className={cn("font-mono text-[10px]", trend && trendColor[trend])}>
+          <Badge
+            variant="outline"
+            className={cn("font-mono text-[10px]", trend && trendColor[trend])}
+          >
             {trend === "up" ? "▲" : trend === "down" ? "▼" : "■"} {delta}
           </Badge>
         </div>
@@ -68,7 +80,16 @@ interface ProCardProps extends React.HTMLAttributes<HTMLDivElement> {
   glow?: boolean;
 }
 
-export function ProCard({ title, description, icon, action, glow, className, children, ...props }: ProCardProps) {
+export function ProCard({
+  title,
+  description,
+  icon,
+  action,
+  glow,
+  className,
+  children,
+  ...props
+}: ProCardProps) {
   return (
     <div
       className={cn(
@@ -82,7 +103,9 @@ export function ProCard({ title, description, icon, action, glow, className, chi
       {(title || action) && (
         <div className="flex items-start justify-between gap-3 border-b border-border/60 p-4">
           <div className="flex items-start gap-3 min-w-0">
-            {icon && <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{icon}</div>}
+            {icon && (
+              <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{icon}</div>
+            )}
             <div className="min-w-0">
               {title && <h3 className="font-semibold leading-tight truncate">{title}</h3>}
               {description && <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>}
@@ -106,7 +129,9 @@ interface DataPanelProps {
 
 export function DataPanel({ headers, rows, empty, dense, className }: DataPanelProps) {
   if (rows.length === 0 && empty) {
-    return <div className={cn("text-sm text-muted-foreground p-4 text-center", className)}>{empty}</div>;
+    return (
+      <div className={cn("text-sm text-muted-foreground p-4 text-center", className)}>{empty}</div>
+    );
   }
   return (
     <div className={cn("overflow-x-auto", className)}>
@@ -114,7 +139,15 @@ export function DataPanel({ headers, rows, empty, dense, className }: DataPanelP
         <thead>
           <tr className="border-b border-border text-left">
             {headers.map((h, i) => (
-              <th key={i} className={cn("font-medium text-muted-foreground whitespace-nowrap", dense ? "px-2 py-1.5 text-[11px]" : "px-3 py-2 text-xs")}>{h}</th>
+              <th
+                key={i}
+                className={cn(
+                  "font-medium text-muted-foreground whitespace-nowrap",
+                  dense ? "px-2 py-1.5 text-[11px]" : "px-3 py-2 text-xs",
+                )}
+              >
+                {h}
+              </th>
             ))}
           </tr>
         </thead>
@@ -122,7 +155,15 @@ export function DataPanel({ headers, rows, empty, dense, className }: DataPanelP
           {rows.map((r, ri) => (
             <tr key={ri} className="border-b border-border/40 transition-colors hover:bg-primary/5">
               {r.map((c, ci) => (
-                <td key={ci} className={cn("whitespace-nowrap", dense ? "px-2 py-1.5 text-[11px]" : "px-3 py-2")}>{c}</td>
+                <td
+                  key={ci}
+                  className={cn(
+                    "whitespace-nowrap",
+                    dense ? "px-2 py-1.5 text-[11px]" : "px-3 py-2",
+                  )}
+                >
+                  {c}
+                </td>
               ))}
             </tr>
           ))}
@@ -154,11 +195,16 @@ export function MeterBar({ value, label, color = "primary", showValue, className
       {(label || showValue) && (
         <div className="flex items-center justify-between mb-1">
           {label && <span className="text-xs text-muted-foreground">{label}</span>}
-          {showValue && <span className="text-xs font-mono font-semibold tabular-nums">{v.toFixed(0)}%</span>}
+          {showValue && (
+            <span className="text-xs font-mono font-semibold tabular-nums">{v.toFixed(0)}%</span>
+          )}
         </div>
       )}
       <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-        <div className={cn("h-full rounded-full transition-all duration-500", meterColor[color])} style={{ width: `${v}%` }} />
+        <div
+          className={cn("h-full rounded-full transition-all duration-500", meterColor[color])}
+          style={{ width: `${v}%` }}
+        />
       </div>
     </div>
   );
@@ -195,7 +241,9 @@ interface KpiGridProps {
 export function KpiGrid({ tiles, className }: KpiGridProps) {
   return (
     <div className={cn("grid gap-3 grid-cols-2 lg:grid-cols-4", className)}>
-      {tiles.map((t, i) => (<StatTile key={i} {...t} />))}
+      {tiles.map((t, i) => (
+        <StatTile key={i} {...t} />
+      ))}
     </div>
   );
 }

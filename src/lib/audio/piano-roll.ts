@@ -7,30 +7,30 @@ import { AudioEngine, noteToFreq, NOTE_NAMES, SCALES } from "./engine";
 
 export interface PianoNote {
   id: string;
-  midi: number;           // MIDI note number (0-127)
-  startTick: number;       // Position in ticks
-  duration: number;        // Length in ticks
-  velocity: number;        // 0-127
-  pan: number;             // -1 (L) to +1 (R)
-  channel: number;         // 0-15
+  midi: number; // MIDI note number (0-127)
+  startTick: number; // Position in ticks
+  duration: number; // Length in ticks
+  velocity: number; // 0-127
+  pan: number; // -1 (L) to +1 (R)
+  channel: number; // 0-15
   // Ultra-advanced per-note slide system
-  slides: NoteSlide[];     // Per-note pitch automation curves
+  slides: NoteSlide[]; // Per-note pitch automation curves
   // Per-note expression
-  pitchBend: number;       // -8192..+8192 (MIDI pitch bend range)
-  microTuning: number;     // cents offset (-100..+100)
-  gain: number;            // per-note gain multiplier (0..2)
+  pitchBend: number; // -8192..+8192 (MIDI pitch bend range)
+  microTuning: number; // cents offset (-100..+100)
+  gain: number; // per-note gain multiplier (0..2)
   mute: boolean;
   solo: boolean;
-  color: string;           // visual color for the note
-  group: string;           // group ID for grouped notes
-  locked: boolean;         // locked notes can't be moved
+  color: string; // visual color for the note
+  group: string; // group ID for grouped notes
+  locked: boolean; // locked notes can't be moved
   // Advanced expression
-  vibrato: number;         // 0..1 depth
-  vibratoRate: number;     // Hz
-  tremolo: number;         // 0..1 depth
-  tremoloRate: number;     // Hz
-  expression: number;      // 0..1 CC11 expression
-  breath: number;          // 0..1 CC2 breath control
+  vibrato: number; // 0..1 depth
+  vibratoRate: number; // Hz
+  tremolo: number; // 0..1 depth
+  tremoloRate: number; // Hz
+  expression: number; // 0..1 CC11 expression
+  breath: number; // 0..1 CC2 breath control
   // Slide automation curves (ultra advanced)
   volumeAutomation: AutomationPoint[];
   panAutomation: AutomationPoint[];
@@ -39,15 +39,15 @@ export interface PianoNote {
 
 export interface NoteSlide {
   id: string;
-  startTick: number;       // Position within note where slide starts
-  endTick: number;         // Position within note where slide ends
-  startPitch: number;     // Starting MIDI note (can be fractional for microtonal)
-  endPitch: number;       // Ending MIDI note (can be fractional)
-  curveType: SlideCurve;   // Curve interpolation type
-  curveAmount: number;     // -1..1 (negative = ease-in, positive = ease-out, 0 = linear)
-  infinite: boolean;       // If true, slide continues infinitely beyond endPitch
+  startTick: number; // Position within note where slide starts
+  endTick: number; // Position within note where slide ends
+  startPitch: number; // Starting MIDI note (can be fractional for microtonal)
+  endPitch: number; // Ending MIDI note (can be fractional)
+  curveType: SlideCurve; // Curve interpolation type
+  curveAmount: number; // -1..1 (negative = ease-in, positive = ease-out, 0 = linear)
+  infinite: boolean; // If true, slide continues infinitely beyond endPitch
   infiniteDirection: number; // -1 (down) or +1 (up) for infinite slide
-  infiniteRate: number;    // semitones per tick for infinite slide
+  infiniteRate: number; // semitones per tick for infinite slide
   enabled: boolean;
 }
 
@@ -89,7 +89,7 @@ export interface PianoRollState {
   scale: string;
   showScaleGuides: boolean;
   ghostNotes: boolean;
-  playhead: number;       // Current playback position in ticks
+  playhead: number; // Current playback position in ticks
   playing: boolean;
   loopMode: boolean;
   loopStart: number;
@@ -232,7 +232,13 @@ export function evaluateSlide(slide: NoteSlide, tick: number): number {
   }
 
   const progress = (tick - slide.startTick) / Math.max(1, slide.endTick - slide.startTick);
-  return interpolateCurve(slide.startPitch, slide.endPitch, progress, slide.curveType, slide.curveAmount);
+  return interpolateCurve(
+    slide.startPitch,
+    slide.endPitch,
+    progress,
+    slide.curveType,
+    slide.curveAmount,
+  );
 }
 
 // Curve interpolation functions
@@ -254,7 +260,10 @@ export function interpolateCurve(
       return start + range * (t === 0 ? 0 : Math.pow(2, (t - 1) * (1 + amount * 3)));
 
     case "logarithmic":
-      return start + range * (t === 1 ? 1 : Math.log(1 + t * (1 + amount * 3)) / Math.log(2 + amount * 3));
+      return (
+        start +
+        range * (t === 1 ? 1 : Math.log(1 + t * (1 + amount * 3)) / Math.log(2 + amount * 3))
+      );
 
     case "sine":
       return start + range * (0.5 - 0.5 * Math.cos(Math.PI * t * (1 + amount)));
@@ -274,13 +283,13 @@ export function interpolateCurve(
     case "elastic": {
       const elasticity = 1 + amount * 10;
       const decay = Math.pow(2, -elasticity * t);
-      const oscillation = Math.sin((t * Math.PI * 2 * (1 + amount * 3)));
+      const oscillation = Math.sin(t * Math.PI * 2 * (1 + amount * 3));
       return start + range * (1 - decay * (1 + oscillation * 0.5));
     }
 
     case "step": {
       const steps = Math.max(2, Math.floor(2 + amount * 10));
-      return start + range * Math.floor(t * steps) / steps;
+      return start + (range * Math.floor(t * steps)) / steps;
     }
 
     case "custom":
@@ -332,7 +341,13 @@ export function evaluateAutomation(points: AutomationPoint[], tick: number): num
   for (let i = 0; i < points.length - 1; i++) {
     if (tick >= points[i].tick && tick <= points[i + 1].tick) {
       const progress = (tick - points[i].tick) / Math.max(1, points[i + 1].tick - points[i].tick);
-      return interpolateCurve(points[i].value, points[i + 1].value, progress, points[i].curve, points[i].curveAmount);
+      return interpolateCurve(
+        points[i].value,
+        points[i + 1].value,
+        progress,
+        points[i].curve,
+        points[i].curveAmount,
+      );
     }
   }
   return points[points.length - 1].value;
@@ -358,14 +373,22 @@ export function removeNotes(state: PianoRollState, noteIds: string[]): PianoRoll
   };
 }
 
-export function updateNote(state: PianoRollState, noteId: string, updates: Partial<PianoNote>): PianoRollState {
+export function updateNote(
+  state: PianoRollState,
+  noteId: string,
+  updates: Partial<PianoNote>,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) => (n.id === noteId ? { ...n, ...updates } : n)),
   };
 }
 
-export function selectNote(state: PianoRollState, noteId: string, additive: boolean = false): PianoRollState {
+export function selectNote(
+  state: PianoRollState,
+  noteId: string,
+  additive: boolean = false,
+): PianoRollState {
   if (additive) {
     return {
       ...state,
@@ -386,10 +409,16 @@ export function deselectAll(state: PianoRollState): PianoRollState {
 }
 
 export function copyNotes(state: PianoRollState, noteIds: string[]): PianoNote[] {
-  return state.notes.filter((n) => noteIds.includes(n.id)).map((n) => ({ ...n, id: generateNoteId() }));
+  return state.notes
+    .filter((n) => noteIds.includes(n.id))
+    .map((n) => ({ ...n, id: generateNoteId() }));
 }
 
-export function pasteNotes(state: PianoRollState, notes: PianoNote[], offsetTick: number = 0): PianoRollState {
+export function pasteNotes(
+  state: PianoRollState,
+  notes: PianoNote[],
+  offsetTick: number = 0,
+): PianoRollState {
   const pastedNotes = notes.map((n) => ({
     ...n,
     id: generateNoteId(),
@@ -418,7 +447,12 @@ export function duplicateNotes(state: PianoRollState, noteIds: string[]): PianoR
   };
 }
 
-export function moveNotes(state: PianoRollState, noteIds: string[], deltaTick: number, deltaMidi: number): PianoRollState {
+export function moveNotes(
+  state: PianoRollState,
+  noteIds: string[],
+  deltaTick: number,
+  deltaMidi: number,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) => {
@@ -432,7 +466,11 @@ export function moveNotes(state: PianoRollState, noteIds: string[], deltaTick: n
   };
 }
 
-export function resizeNote(state: PianoRollState, noteId: string, newDuration: number): PianoRollState {
+export function resizeNote(
+  state: PianoRollState,
+  noteId: string,
+  newDuration: number,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) =>
@@ -443,7 +481,11 @@ export function resizeNote(state: PianoRollState, noteId: string, newDuration: n
   };
 }
 
-export function transposeNotes(state: PianoRollState, noteIds: string[], semitones: number): PianoRollState {
+export function transposeNotes(
+  state: PianoRollState,
+  noteIds: string[],
+  semitones: number,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) =>
@@ -454,7 +496,11 @@ export function transposeNotes(state: PianoRollState, noteIds: string[], semiton
   };
 }
 
-export function changeVelocity(state: PianoRollState, noteIds: string[], velocity: number): PianoRollState {
+export function changeVelocity(
+  state: PianoRollState,
+  noteIds: string[],
+  velocity: number,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) =>
@@ -485,16 +531,22 @@ export function changeGain(state: PianoRollState, noteIds: string[], gain: numbe
 
 // ============= SLIDE OPERATIONS =============
 
-export function addSlideToNote(state: PianoRollState, noteId: string, slide: NoteSlide): PianoRollState {
+export function addSlideToNote(
+  state: PianoRollState,
+  noteId: string,
+  slide: NoteSlide,
+): PianoRollState {
   return {
     ...state,
-    notes: state.notes.map((n) =>
-      n.id === noteId ? { ...n, slides: [...n.slides, slide] } : n,
-    ),
+    notes: state.notes.map((n) => (n.id === noteId ? { ...n, slides: [...n.slides, slide] } : n)),
   };
 }
 
-export function removeSlideFromNote(state: PianoRollState, noteId: string, slideId: string): PianoRollState {
+export function removeSlideFromNote(
+  state: PianoRollState,
+  noteId: string,
+  slideId: string,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) =>
@@ -503,7 +555,12 @@ export function removeSlideFromNote(state: PianoRollState, noteId: string, slide
   };
 }
 
-export function updateSlide(state: PianoRollState, noteId: string, slideId: string, updates: Partial<NoteSlide>): PianoRollState {
+export function updateSlide(
+  state: PianoRollState,
+  noteId: string,
+  slideId: string,
+  updates: Partial<NoteSlide>,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) =>
@@ -516,7 +573,11 @@ export function updateSlide(state: PianoRollState, noteId: string, slideId: stri
 
 // ============= QUANTIZE =============
 
-export function quantizeNotes(state: PianoRollState, noteIds: string[], snapMode: SnapMode): PianoRollState {
+export function quantizeNotes(
+  state: PianoRollState,
+  noteIds: string[],
+  snapMode: SnapMode,
+): PianoRollState {
   return {
     ...state,
     notes: state.notes.map((n) =>
@@ -543,7 +604,7 @@ export function getScaleNotes(key: string, scaleType: string, octaveRange: numbe
   const notes: number[] = [];
   for (let oct = 0; oct < octaveRange; oct++) {
     for (const interval of scale) {
-      notes.push((oct + 2) * 12 + (keyIndex + interval) % 12);
+      notes.push((oct + 2) * 12 + ((keyIndex + interval) % 12));
     }
   }
   return notes;
@@ -608,7 +669,7 @@ export class PianoRollPlayer {
 
     if (this.state.loopMode && this.playhead >= this.state.loopEnd) {
       this.playhead = this.state.loopStart;
-      this.startTime = now - (this.playhead / this.ticksPerMs);
+      this.startTime = now - this.playhead / this.ticksPerMs;
       this.activeNoteIds.forEach((id) => this.engine.noteOff(`proll-${id}`));
       this.activeNoteIds.clear();
     }
@@ -627,7 +688,11 @@ export class PianoRollPlayer {
       const noteStart = note.startTick;
       const noteEnd = note.startTick + note.duration;
 
-      if (this.playhead >= noteStart && this.playhead < noteEnd && !this.activeNoteIds.has(note.id)) {
+      if (
+        this.playhead >= noteStart &&
+        this.playhead < noteEnd &&
+        !this.activeNoteIds.has(note.id)
+      ) {
         const pitch = evaluateNotePitch(note, this.playhead);
         const freq = 440 * Math.pow(2, (pitch - 69) / 12);
         const volAutomation = evaluateAutomation(note.volumeAutomation, this.playhead - noteStart);

@@ -59,24 +59,60 @@ export interface ChordProgression {
 }
 
 const PROGRESSIONS: Record<string, number[][]> = {
-  "I-V-vi-IV": [[0, 4, 7], [7, 11, 2], [9, 0, 4], [5, 9, 0]],
-  "I-IV-V-I": [[0, 4, 7], [5, 9, 0], [7, 11, 2], [0, 4, 7]],
-  "ii-V-I": [[2, 5, 9], [7, 11, 2], [0, 4, 7]],
-  "I-vi-IV-V": [[0, 4, 7], [9, 0, 4], [5, 9, 0], [7, 11, 2]],
-  "vi-IV-I-V": [[9, 0, 4], [5, 9, 0], [0, 4, 7], [7, 11, 2]],
-  "I-iii-IV-V": [[0, 4, 7], [4, 7, 11], [5, 9, 0], [7, 11, 2]],
-  "i-VII-VI-VII": [[0, 3, 7], [10, 2, 5], [8, 0, 3], [10, 2, 5]],
-  "i-iv-VII-III": [[0, 3, 7], [5, 8, 0], [10, 2, 5], [3, 7, 10]],
+  "I-V-vi-IV": [
+    [0, 4, 7],
+    [7, 11, 2],
+    [9, 0, 4],
+    [5, 9, 0],
+  ],
+  "I-IV-V-I": [
+    [0, 4, 7],
+    [5, 9, 0],
+    [7, 11, 2],
+    [0, 4, 7],
+  ],
+  "ii-V-I": [
+    [2, 5, 9],
+    [7, 11, 2],
+    [0, 4, 7],
+  ],
+  "I-vi-IV-V": [
+    [0, 4, 7],
+    [9, 0, 4],
+    [5, 9, 0],
+    [7, 11, 2],
+  ],
+  "vi-IV-I-V": [
+    [9, 0, 4],
+    [5, 9, 0],
+    [0, 4, 7],
+    [7, 11, 2],
+  ],
+  "I-iii-IV-V": [
+    [0, 4, 7],
+    [4, 7, 11],
+    [5, 9, 0],
+    [7, 11, 2],
+  ],
+  "i-VII-VI-VII": [
+    [0, 3, 7],
+    [10, 2, 5],
+    [8, 0, 3],
+    [10, 2, 5],
+  ],
+  "i-iv-VII-III": [
+    [0, 3, 7],
+    [5, 8, 0],
+    [10, 2, 5],
+    [3, 7, 10],
+  ],
 };
 
-export function generateProgression(
-  key: string,
-  name: string = "I-V-vi-IV",
-): ChordProgression {
+export function generateProgression(key: string, name: string = "I-V-vi-IV"): ChordProgression {
   const keyIndex = NOTE_NAMES.indexOf(key) || 0;
   const base = PROGRESSIONS[name] || PROGRESSIONS["I-V-vi-IV"];
   const roman = name.split("-");
-  const chords = base.map((chord) => chord.map((n) => (n + keyIndex) % 12 + 48));
+  const chords = base.map((chord) => chord.map((n) => ((n + keyIndex) % 12) + 48));
   return { name, chords, romanNumerals: roman };
 }
 
@@ -119,7 +155,9 @@ export function generateDrumPattern(
   });
 
   // Snare (track 1) — on beats 2 and 4
-  [4, 12].forEach((step) => { if (step < steps) pattern[1][step].active = true; });
+  [4, 12].forEach((step) => {
+    if (step < steps) pattern[1][step].active = true;
+  });
 
   // Hi-hat (track 2) — every other step
   for (let i = 0; i < steps; i += 2) {
@@ -161,15 +199,17 @@ export function generateArpeggio(
       case "down":
         idx = allNotes.length - 1 - (i % allNotes.length);
         break;
-      case "updown":
+      case "updown": {
         const cycle = allNotes.length * 2 - 2;
         const pos = i % cycle;
         idx = pos < allNotes.length ? pos : cycle - pos;
         break;
-      case "updown2":
+      }
+      case "updown2": {
         const cycle2 = allNotes.length * 2;
         idx = i % cycle2 < allNotes.length ? i % allNotes.length : cycle2 - 1 - (i % cycle2);
         break;
+      }
       case "random":
         idx = Math.floor(Math.random() * allNotes.length);
         break;
@@ -204,8 +244,8 @@ export function generateBassLine(
   const pattern = patterns[genre] || patterns.house;
 
   for (let bar = 0; bar < bars; bar++) {
-    const barNotes = pattern.map((interval) =>
-      interval >= 0 ? keyIndex + interval + 36 : -1, // -1 = rest, octave 3
+    const barNotes = pattern.map(
+      (interval) => (interval >= 0 ? keyIndex + interval + 36 : -1), // -1 = rest, octave 3
     );
     bass.push(barNotes);
   }
@@ -242,7 +282,11 @@ export function harmonize(melody: number[], intervals: number[] = [3, 5]): numbe
 }
 
 // 8. Rhythm Generator — Euclidean rhythm patterns
-export function generateEuclideanRhythm(steps: number, pulses: number, rotation: number = 0): boolean[] {
+export function generateEuclideanRhythm(
+  steps: number,
+  pulses: number,
+  rotation: number = 0,
+): boolean[] {
   const rhythm: boolean[] = new Array(steps).fill(false);
   const bucketSize = pulses / steps;
   let bucket = rotation * bucketSize;
@@ -305,9 +349,21 @@ export function generateSongStructure(genre: string = "pop"): SongSection[] {
 
   const sections = structures[genre] || structures.pop;
   const energyMap: Record<string, number> = {
-    intro: 0.2, verse: 0.4, chorus: 0.9, hook: 0.85, bridge: 0.6,
-    build: 0.5, drop: 1.0, breakdown: 0.3, drive: 0.8, break: 0.2,
-    loop: 0.5, evolve: 0.5, peak: 0.9, fade: 0.3, outro: 0.2,
+    intro: 0.2,
+    verse: 0.4,
+    chorus: 0.9,
+    hook: 0.85,
+    bridge: 0.6,
+    build: 0.5,
+    drop: 1.0,
+    breakdown: 0.3,
+    drive: 0.8,
+    break: 0.2,
+    loop: 0.5,
+    evolve: 0.5,
+    peak: 0.9,
+    fade: 0.3,
+    outro: 0.2,
   };
 
   return sections.map((name, i) => ({

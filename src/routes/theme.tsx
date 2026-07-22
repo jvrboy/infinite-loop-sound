@@ -2,7 +2,12 @@ import { createFileRoute } from "@tanstack/react-router";
 import { AppShell } from "@components/app/AppShell";
 import { Palette, Check, Eye, Sparkles, AppWindow } from "lucide-react";
 import { ProCard, SectionHeader } from "@components/pro";
-import { ShaderPicker, SHADER_REGISTRY, getShader, setShader } from "@components/app/ShaderRegistry";
+import {
+  ShaderPicker,
+  SHADER_REGISTRY,
+  getShader,
+  setShader,
+} from "@components/app/ShaderRegistry";
 import { THEMES, useTheme, applyTheme, type ThemeId } from "@hooks/use-theme";
 import { APP_ICONS, getActiveIcon, setActiveIcon } from "@lib/app-icons";
 import { useEffect, useState } from "react";
@@ -38,7 +43,12 @@ function ThemePage() {
           title="Theme & Appearance"
           subtitle="Customize the look and feel of your trading terminal."
           icon={<Palette className="w-5 h-5" />}
-          action={<Badge variant="outline"><Sparkles className="w-3 h-3 mr-1" />{THEMES.find((t) => t.id === theme)?.label}</Badge>}
+          action={
+            <Badge variant="outline">
+              <Sparkles className="w-3 h-3 mr-1" />
+              {THEMES.find((t) => t.id === theme)?.label}
+            </Badge>
+          }
         />
 
         <ProCard
@@ -52,7 +62,9 @@ function ThemePage() {
                 key={t.id}
                 onClick={() => setTheme(t.id as ThemeId)}
                 className={`relative text-left rounded-lg border p-3 transition-all hover:border-primary/60 ${
-                  theme === t.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"
+                  theme === t.id
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:bg-card/80"
                 }`}
               >
                 <div
@@ -79,7 +91,9 @@ function ThemePage() {
                 key={icon.id}
                 onClick={() => setActiveIcon(icon.id)}
                 className={`relative text-left rounded-lg border p-2 transition-all hover:border-primary/60 ${
-                  activeIcon === icon.id ? "border-primary bg-primary/10" : "border-border bg-card hover:bg-card/80"
+                  activeIcon === icon.id
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-card hover:bg-card/80"
                 }`}
               >
                 <div className="w-full aspect-square rounded-lg overflow-hidden mb-1 border border-border/40">
@@ -93,7 +107,9 @@ function ThemePage() {
             ))}
           </div>
           <div className="mt-4 flex items-center gap-2">
-            <Badge variant="outline">Active: {APP_ICONS.find((i) => i.id === activeIcon)?.name}</Badge>
+            <Badge variant="outline">
+              Active: {APP_ICONS.find((i) => i.id === activeIcon)?.name}
+            </Badge>
             <Button variant="ghost" size="sm" onClick={() => setActiveIcon("default")}>
               Reset to default
             </Button>
@@ -107,17 +123,16 @@ function ThemePage() {
         >
           <ShaderPicker />
           <div className="mt-4 flex items-center gap-2">
-            <Badge variant="outline">Active: {SHADER_REGISTRY.find((s) => s.id === activeShader)?.label}</Badge>
+            <Badge variant="outline">
+              Active: {SHADER_REGISTRY.find((s) => s.id === activeShader)?.label}
+            </Badge>
             <Button variant="ghost" size="sm" onClick={() => setShader("none")}>
               Disable background
             </Button>
           </div>
         </ProCard>
 
-        <ProCard
-          title="Reset"
-          description="Restore default appearance settings."
-        >
+        <ProCard title="Reset" description="Restore default appearance settings.">
           <Button
             variant="outline"
             onClick={() => {

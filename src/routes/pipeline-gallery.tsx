@@ -38,19 +38,69 @@ import {
 } from "lucide-react";
 
 const PIPELINES = [
-  { id: "data-analysis", name: "Data Analysis", icon: BarChart3, run: () => dataAnalysisPipeline("sales_q4.csv") },
-  { id: "content-creation", name: "Content Creation", icon: PenLine, run: () => contentCreationPipeline("AI in healthcare") },
-  { id: "research", name: "Research", icon: Search, run: () => researchPipeline("What are the latest advances in quantum computing?") },
-  { id: "security-audit", name: "Security Audit", icon: ShieldCheck, run: () => securityAuditPipeline("web-app") },
-  { id: "migration", name: "Migration", icon: ArrowRightLeft, run: () => migrationPipeline("postgres", "supabase") },
-  { id: "onboarding", name: "Onboarding", icon: UserPlus, run: () => onboardingPipeline("user_12345") },
+  {
+    id: "data-analysis",
+    name: "Data Analysis",
+    icon: BarChart3,
+    run: () => dataAnalysisPipeline("sales_q4.csv"),
+  },
+  {
+    id: "content-creation",
+    name: "Content Creation",
+    icon: PenLine,
+    run: () => contentCreationPipeline("AI in healthcare"),
+  },
+  {
+    id: "research",
+    name: "Research",
+    icon: Search,
+    run: () => researchPipeline("What are the latest advances in quantum computing?"),
+  },
+  {
+    id: "security-audit",
+    name: "Security Audit",
+    icon: ShieldCheck,
+    run: () => securityAuditPipeline("web-app"),
+  },
+  {
+    id: "migration",
+    name: "Migration",
+    icon: ArrowRightLeft,
+    run: () => migrationPipeline("postgres", "supabase"),
+  },
+  {
+    id: "onboarding",
+    name: "Onboarding",
+    icon: UserPlus,
+    run: () => onboardingPipeline("user_12345"),
+  },
   { id: "compliance", name: "Compliance", icon: FileCheck, run: () => compliancePipeline("SOC2") },
   { id: "devops", name: "DevOps", icon: Server, run: () => devopsPipeline("api-gateway") },
-  { id: "ml-training", name: "ML Training", icon: Brain, run: () => mlTrainingPipeline("imagenet", "resnet50") },
-  { id: "customer-support", name: "Customer Support", icon: Headset, run: () => customerSupportPipeline("TICKET-90210") },
+  {
+    id: "ml-training",
+    name: "ML Training",
+    icon: Brain,
+    run: () => mlTrainingPipeline("imagenet", "resnet50"),
+  },
+  {
+    id: "customer-support",
+    name: "Customer Support",
+    icon: Headset,
+    run: () => customerSupportPipeline("TICKET-90210"),
+  },
   { id: "hiring", name: "Hiring", icon: Users, run: () => hiringPipeline("Senior Engineer") },
-  { id: "product-launch", name: "Product Launch", icon: Rocket, run: () => productLaunchPipeline("MobileApp v2") },
-  { id: "incident-response", name: "Incident Response", icon: AlertTriangle, run: () => incidentResponsePipeline("SEV-1") },
+  {
+    id: "product-launch",
+    name: "Product Launch",
+    icon: Rocket,
+    run: () => productLaunchPipeline("MobileApp v2"),
+  },
+  {
+    id: "incident-response",
+    name: "Incident Response",
+    icon: AlertTriangle,
+    run: () => incidentResponsePipeline("SEV-1"),
+  },
 ];
 
 type RunResult = { stages: string[]; status: string; [key: string]: unknown };
@@ -77,9 +127,21 @@ function Component() {
         />
 
         <KpiGrid>
-          <StatTile label="Pipelines" value={PIPELINES.length} icon={<Rocket className="h-4 w-4" />} />
-          <StatTile label="Completed" value={completedCount} icon={<CheckCircle2 className="h-4 w-4" />} />
-          <StatTile label="Remaining" value={PIPELINES.length - completedCount} icon={<Play className="h-4 w-4" />} />
+          <StatTile
+            label="Pipelines"
+            value={PIPELINES.length}
+            icon={<Rocket className="h-4 w-4" />}
+          />
+          <StatTile
+            label="Completed"
+            value={completedCount}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+          />
+          <StatTile
+            label="Remaining"
+            value={PIPELINES.length - completedCount}
+            icon={<Play className="h-4 w-4" />}
+          />
         </KpiGrid>
 
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -91,7 +153,9 @@ function Component() {
               <div
                 key={p.id}
                 className={`rounded-xl border p-4 space-y-3 cursor-pointer transition ${
-                  isActive ? "border-primary ring-2 ring-primary/20" : "border-border hover:border-primary/50"
+                  isActive
+                    ? "border-primary ring-2 ring-primary/20"
+                    : "border-border hover:border-primary/50"
                 }`}
                 onClick={() => setActive(p.id)}
               >
@@ -117,7 +181,9 @@ function Component() {
                     </div>
                   </div>
                 ) : (
-                  <p className="text-xs text-muted-foreground">Not yet run. Click Run to execute.</p>
+                  <p className="text-xs text-muted-foreground">
+                    Not yet run. Click Run to execute.
+                  </p>
                 )}
 
                 <Button
@@ -138,7 +204,10 @@ function Component() {
         </div>
 
         {activePipeline && activeResult && (
-          <ProCard title={`${activePipeline.name} — Result`} icon={<activePipeline.icon className="h-4 w-4" />}>
+          <ProCard
+            title={`${activePipeline.name} — Result`}
+            icon={<activePipeline.icon className="h-4 w-4" />}
+          >
             <DataPanel data={activeResult} />
           </ProCard>
         )}
@@ -149,7 +218,10 @@ function Component() {
 
 export const Route = createFileRoute("/pipeline-gallery")({
   head: () => ({
-    meta: [{ title: "Pipeline Gallery | Infinite Loop Sound" }, { name: "description", content: "13 specialized domain pipelines" }],
+    meta: [
+      { title: "Pipeline Gallery | Infinite Loop Sound" },
+      { name: "description", content: "13 specialized domain pipelines" },
+    ],
   }),
   component: Component,
 });

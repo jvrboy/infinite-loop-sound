@@ -166,10 +166,9 @@ function UltraConfluencePage() {
             ai,
             optionsFlow,
             darkPool,
-            prediction:
-              p.symbol.includes("XAU")
-                ? `$${sign}${Math.round(movePips * 0.3)}`
-                : `${sign}${movePips} pips`,
+            prediction: p.symbol.includes("XAU")
+              ? `$${sign}${Math.round(movePips * 0.3)}`
+              : `${sign}${movePips} pips`,
             confidence,
             lastClose,
             atrPips,
@@ -208,22 +207,12 @@ function UltraConfluencePage() {
   // Aggregate factor averages for the overview cards
   const factorAvgs = signals.length
     ? {
-        technical: Math.round(
-          signals.reduce((s, x) => s + x.technical, 0) / signals.length,
-        ),
-        sentiment: Math.round(
-          signals.reduce((s, x) => s + x.sentiment, 0) / signals.length,
-        ),
-        fundamental: Math.round(
-          signals.reduce((s, x) => s + x.fundamental, 0) / signals.length,
-        ),
+        technical: Math.round(signals.reduce((s, x) => s + x.technical, 0) / signals.length),
+        sentiment: Math.round(signals.reduce((s, x) => s + x.sentiment, 0) / signals.length),
+        fundamental: Math.round(signals.reduce((s, x) => s + x.fundamental, 0) / signals.length),
         ai: Math.round(signals.reduce((s, x) => s + x.ai, 0) / signals.length),
-        optionsFlow: Math.round(
-          signals.reduce((s, x) => s + x.optionsFlow, 0) / signals.length,
-        ),
-        darkPool: Math.round(
-          signals.reduce((s, x) => s + x.darkPool, 0) / signals.length,
-        ),
+        optionsFlow: Math.round(signals.reduce((s, x) => s + x.optionsFlow, 0) / signals.length),
+        darkPool: Math.round(signals.reduce((s, x) => s + x.darkPool, 0) / signals.length),
       }
     : { technical: 0, sentiment: 0, fundamental: 0, ai: 0, optionsFlow: 0, darkPool: 0 };
 
@@ -239,8 +228,8 @@ function UltraConfluencePage() {
               Ultra Confluence
             </h1>
             <p className="text-sm text-muted-foreground mt-2">
-              6-factor analysis from live Deriv H1 candles · Technical + Sentiment + Fundamental + AI
-              + Options Flow + Dark Pool
+              6-factor analysis from live Deriv H1 candles · Technical + Sentiment + Fundamental +
+              AI + Options Flow + Dark Pool
             </p>
           </div>
           <div className="flex items-center gap-3">

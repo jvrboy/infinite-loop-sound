@@ -127,7 +127,11 @@ async function loadWllama(opts: LoadOptions) {
       return typeof out === "string" ? out : "";
     },
     unload: async () => {
-      try { await wllama.exit?.(); } catch { /* noop */ }
+      try {
+        await wllama.exit?.();
+      } catch {
+        /* noop */
+      }
     },
     engine: "wllama",
   };

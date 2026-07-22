@@ -144,9 +144,7 @@ const VALID_EVENT_BUS_ACTIONS: EventBusAction[] = ["publish", "subscribe"];
 
 function assertValid(value: string, allowed: readonly string[], label: string): void {
   if (!allowed.includes(value as never)) {
-    throw new Error(
-      `Invalid ${label}: "${value}". Allowed: ${allowed.join(", ")}`,
-    );
+    throw new Error(`Invalid ${label}: "${value}". Allowed: ${allowed.join(", ")}`);
   }
 }
 
@@ -190,11 +188,7 @@ export function addNode(
   };
 }
 
-export function connectNodes(
-  from: string,
-  to: string,
-  label = "default",
-): CanvasEdge {
+export function connectNodes(from: string, to: string, label = "default"): CanvasEdge {
   assertNonEmpty(from, "from");
   assertNonEmpty(to, "to");
   if (from === to) {
@@ -245,10 +239,7 @@ export function webhookListener(path: string, method: string): WebhookListener {
   return { path, method: method.toUpperCase(), log: [] };
 }
 
-export function scheduleTask(
-  cron: string,
-  naturalLanguage: string,
-): ScheduledTask {
+export function scheduleTask(cron: string, naturalLanguage: string): ScheduledTask {
   assertNonEmpty(cron, "cron");
   assertNonEmpty(naturalLanguage, "naturalLanguage");
   return {
@@ -269,19 +260,13 @@ export function errorHandler(
   return { retry, fallback, escalation };
 }
 
-export function versionControl(
-  action: string,
-  versionId: string,
-): VersionControlEntry {
+export function versionControl(action: string, versionId: string): VersionControlEntry {
   assertValid(action, VALID_VERSION_ACTIONS, "version action");
   assertNonEmpty(versionId, "versionId");
   return { action, versionId, timestamp: Date.now() };
 }
 
-export function approvalStep(
-  approver: string,
-  timeout: number,
-): ApprovalStepConfig {
+export function approvalStep(approver: string, timeout: number): ApprovalStepConfig {
   assertNonEmpty(approver, "approver");
   assertPositive(timeout, "timeout");
   return { approver, timeout, status: "pending" };
@@ -293,20 +278,14 @@ export function rateLimiter(maxRps: number, window: number): RateLimiterConfig {
   return { maxRps, window, current: 0 };
 }
 
-export function queueTask(
-  priority: number,
-  deadLetter: boolean,
-): QueueTaskConfig {
+export function queueTask(priority: number, deadLetter: boolean): QueueTaskConfig {
   if (!Number.isInteger(priority) || priority < 1 || priority > 10) {
     throw new Error("priority must be an integer between 1 and 10");
   }
   return { priority, deadLetter, position: 0 };
 }
 
-export function batchProcess(
-  count: number,
-  parallel: number,
-): BatchProcessConfig {
+export function batchProcess(count: number, parallel: number): BatchProcessConfig {
   assertPositive(count, "count");
   assertPositive(parallel, "parallel");
   if (parallel === 0) {
@@ -315,10 +294,7 @@ export function batchProcess(
   return { count, parallel, batches: Math.ceil(count / parallel) };
 }
 
-export function eventBus(
-  topic: string,
-  action: string,
-): EventBusConfig {
+export function eventBus(topic: string, action: string): EventBusConfig {
   assertNonEmpty(topic, "topic");
   assertValid(action, VALID_EVENT_BUS_ACTIONS, "event bus action");
   return { topic, action, subscribers: action === "subscribe" ? 1 : 0 };
@@ -330,10 +306,7 @@ export function costEstimate(nodes: number, runs: number): CostEstimateConfig {
   return { nodes, runs, estimatedCost: Number((nodes * runs * 0.001).toFixed(4)) };
 }
 
-export function toApiEndpoint(
-  canvasId: string,
-  method: string,
-): ApiEndpointConfig {
+export function toApiEndpoint(canvasId: string, method: string): ApiEndpointConfig {
   assertNonEmpty(canvasId, "canvasId");
   assertNonEmpty(method, "method");
   return {

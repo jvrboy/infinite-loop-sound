@@ -428,7 +428,11 @@ function BacktestPage() {
           <>
             {/* Key Metrics */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-              <MetricCard icon={BarChartIcon} label="Signals" value={String(result.signals.length)} />
+              <MetricCard
+                icon={BarChartIcon}
+                label="Signals"
+                value={String(result.signals.length)}
+              />
               <MetricCard
                 icon={TrendingUp}
                 label="Wins"

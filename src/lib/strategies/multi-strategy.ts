@@ -2,7 +2,7 @@ export interface StrategyConfig {
   id: string;
   name: string;
   enabled: boolean;
-  mode: 'signal' | 'scalper';
+  mode: "signal" | "scalper";
   weight: number;
   maxRiskPercent: number;
   instruments: string[];
@@ -33,7 +33,7 @@ export function createStrategy(config: StrategyConfig): void {
     losses: 0,
     winRate: 0,
     totalPnl: 0,
-    maxDrawdown: 0
+    maxDrawdown: 0,
   });
 }
 

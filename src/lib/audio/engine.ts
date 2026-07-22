@@ -197,7 +197,7 @@ class AudioEngineClass {
     main.start(t);
     oscs.push(main);
     // Detuned unison for richness
-    if (params.detune !== 0 || true) {
+    if (params.detune !== 0 || params.waveform !== "sine") {
       const osc2 = this.ctx.createOscillator();
       osc2.type = params.waveform;
       osc2.frequency.value = freq;
@@ -279,8 +279,7 @@ class AudioEngineClass {
     const buf = this.granularBuffer;
     const grainDur = params.grainSize;
     const pos =
-      (params.position + (Math.random() - 0.5) * params.positionJitter) *
-      (buf.duration - grainDur);
+      (params.position + (Math.random() - 0.5) * params.positionJitter) * (buf.duration - grainDur);
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
     src.playbackRate.value = params.pitch;
@@ -294,9 +293,7 @@ class AudioEngineClass {
     g.gain.linearRampToValueAtTime(0.3, t + attack);
     g.gain.linearRampToValueAtTime(0, t + grainDur);
     // Stereo spread
-    const pan = this.ctx.createStereoPanner
-      ? this.ctx.createStereoPanner()
-      : null;
+    const pan = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
     if (pan) {
       pan.pan.value = (Math.random() - 0.5) * params.spread * 2;
       src.connect(g).connect(pan).connect(this.bus);
@@ -308,13 +305,7 @@ class AudioEngineClass {
   }
 
   // ---------- Sampler ----------
-  playSample(
-    buffer: AudioBuffer,
-    start: number,
-    duration: number,
-    rate: number,
-    loop: boolean,
-  ) {
+  playSample(buffer: AudioBuffer, start: number, duration: number, rate: number, loop: boolean) {
     if (!this.ctx || !this.bus) return;
     this.resume();
     const src = this.ctx.createBufferSource();
@@ -384,12 +375,14 @@ class AudioEngineClass {
     if (type === "white") {
       for (let i = 0; i < len; i++) d[i] = Math.random() * 2 - 1;
     } else if (type === "pink") {
-      let b0 = 0, b1 = 0, b2 = 0;
+      let b0 = 0,
+        b1 = 0,
+        b2 = 0;
       for (let i = 0; i < len; i++) {
         const w = Math.random() * 2 - 1;
-        b0 = 0.99765 * b0 + w * 0.0990460;
-        b1 = 0.96300 * b1 + w * 0.2965164;
-        b2 = 0.57000 * b2 + w * 1.0526913;
+        b0 = 0.99765 * b0 + w * 0.099046;
+        b1 = 0.963 * b1 + w * 0.2965164;
+        b2 = 0.57 * b2 + w * 1.0526913;
         d[i] = (b0 + b1 + b2 + w * 0.1848) * 0.2;
       }
     } else {
@@ -431,6 +424,4 @@ export const SCALES: Record<string, number[]> = {
   mixolydian: [0, 2, 4, 5, 7, 9, 10],
 };
 
-export const NOTE_NAMES = [
-  "C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B",
-];
+export const NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];

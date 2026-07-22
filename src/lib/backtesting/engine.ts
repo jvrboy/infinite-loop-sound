@@ -55,7 +55,10 @@ export class BacktestEngine {
 
   async runBacktest(
     candles: Candle[],
-    strategy: (candles: Candle[], index: number) => { action: "BUY" | "SELL" | "HOLD"; price: number },
+    strategy: (
+      candles: Candle[],
+      index: number,
+    ) => { action: "BUY" | "SELL" | "HOLD"; price: number },
   ): Promise<BacktestResult> {
     let position: { entryPrice: number; entryTime: Date; size: number } | null = null;
 
@@ -151,7 +154,8 @@ export class BacktestEngine {
       trades: this.trades,
       equityByTime: this.equityByTime,
       finalCapital: this.equity,
-      returnPercentage: ((this.equity - this.config.initialCapital) / this.config.initialCapital) * 100,
+      returnPercentage:
+        ((this.equity - this.config.initialCapital) / this.config.initialCapital) * 100,
     };
   }
 
@@ -171,14 +175,17 @@ export class BacktestEngine {
   private calculateSharpeRatio(): number {
     const returns: number[] = [];
     for (let i = 1; i < this.equityByTime.length; i++) {
-      const ret = (this.equityByTime[i].equity - this.equityByTime[i - 1].equity) / this.equityByTime[i - 1].equity;
+      const ret =
+        (this.equityByTime[i].equity - this.equityByTime[i - 1].equity) /
+        this.equityByTime[i - 1].equity;
       returns.push(ret);
     }
 
     if (returns.length < 2) return 0;
 
     const mean = returns.reduce((a, b) => a + b) / returns.length;
-    const variance = returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
+    const variance =
+      returns.reduce((sum, r) => sum + Math.pow(r - mean, 2), 0) / (returns.length - 1);
     const stdDev = Math.sqrt(variance);
 
     return stdDev > 0 ? (mean / stdDev) * Math.sqrt(252) : 0;
