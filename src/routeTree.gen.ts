@@ -14,6 +14,7 @@ import { Route as WyckoffRouteImport } from './routes/wyckoff'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as WebhooksRouteImport } from './routes/webhooks'
 import { Route as WebhookEventsRouteImport } from './routes/webhook-events'
+import { Route as WatchlistRouteImport } from './routes/watchlist'
 import { Route as WalkForwardRouteImport } from './routes/walk-forward'
 import { Route as VwapRouteImport } from './routes/vwap'
 import { Route as VolumeProfileRouteImport } from './routes/volume-profile'
@@ -31,6 +32,7 @@ import { Route as SwarmRouteImport } from './routes/swarm'
 import { Route as SurveillanceRouteImport } from './routes/surveillance'
 import { Route as StreakRouteImport } from './routes/streak'
 import { Route as StrategyMarketRouteImport } from './routes/strategy-market'
+import { Route as StrategyLabRouteImport } from './routes/strategy-lab'
 import { Route as StrategiesRouteImport } from './routes/strategies'
 import { Route as StemSplitterRouteImport } from './routes/stem-splitter'
 import { Route as SmcRouteImport } from './routes/smc'
@@ -49,12 +51,14 @@ import { Route as ScannerRouteImport } from './routes/scanner'
 import { Route as ScalingRouteImport } from './routes/scaling'
 import { Route as SamplerRouteImport } from './routes/sampler'
 import { Route as SamplePacksRouteImport } from './routes/sample-packs'
+import { Route as RiskManagerRouteImport } from './routes/risk-manager'
 import { Route as RiskCalculatorRouteImport } from './routes/risk-calculator'
 import { Route as ReplayRouteImport } from './routes/replay'
 import { Route as RenkoRouteImport } from './routes/renko'
 import { Route as RecoveryRouteImport } from './routes/recovery'
 import { Route as ProMediaRouteImport } from './routes/pro-media'
 import { Route as PortfolioProRouteImport } from './routes/portfolio-pro'
+import { Route as PortfolioRouteImport } from './routes/portfolio'
 import { Route as PnlRouteImport } from './routes/pnl'
 import { Route as PlaylistRouteImport } from './routes/playlist'
 import { Route as PlanRouteImport } from './routes/plan'
@@ -71,6 +75,7 @@ import { Route as OptionsFlowRouteImport } from './routes/options-flow'
 import { Route as OptionsCalcRouteImport } from './routes/options-calc'
 import { Route as OptimizerRouteImport } from './routes/optimizer'
 import { Route as OptimizationRouteImport } from './routes/optimization'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as NeuralRouteImport } from './routes/neural'
 import { Route as NativeToolsRouteImport } from './routes/native-tools'
 import { Route as MusicRouteImport } from './routes/music'
@@ -81,6 +86,7 @@ import { Route as MediaStudioRouteImport } from './routes/media-studio'
 import { Route as McpServersRouteImport } from './routes/mcp-servers'
 import { Route as MarketSystemsRouteImport } from './routes/market-systems'
 import { Route as MarketProfileRouteImport } from './routes/market-profile'
+import { Route as MarketNewsRouteImport } from './routes/market-news'
 import { Route as MarketBreadthRouteImport } from './routes/market-breadth'
 import { Route as MarginRouteImport } from './routes/margin'
 import { Route as LocalAiRouteImport } from './routes/local-ai'
@@ -132,6 +138,7 @@ import { Route as AlertsRouteImport } from './routes/alerts'
 import { Route as AlertBuilderRouteImport } from './routes/alert-builder'
 import { Route as AiMediaRouteImport } from './routes/ai-media'
 import { Route as AiLabRouteImport } from './routes/ai-lab'
+import { Route as AiAgentsRouteImport } from './routes/ai-agents'
 import { Route as AdvancedAnalysisRouteImport } from './routes/advanced-analysis'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiPublicHealthRouteImport } from './routes/api/public/health'
@@ -171,6 +178,11 @@ const WebhooksRoute = WebhooksRouteImport.update({
 const WebhookEventsRoute = WebhookEventsRouteImport.update({
   id: '/webhook-events',
   path: '/webhook-events',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WatchlistRoute = WatchlistRouteImport.update({
+  id: '/watchlist',
+  path: '/watchlist',
   getParentRoute: () => rootRouteImport,
 } as any)
 const WalkForwardRoute = WalkForwardRouteImport.update({
@@ -256,6 +268,11 @@ const StreakRoute = StreakRouteImport.update({
 const StrategyMarketRoute = StrategyMarketRouteImport.update({
   id: '/strategy-market',
   path: '/strategy-market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StrategyLabRoute = StrategyLabRouteImport.update({
+  id: '/strategy-lab',
+  path: '/strategy-lab',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StrategiesRoute = StrategiesRouteImport.update({
@@ -348,6 +365,11 @@ const SamplePacksRoute = SamplePacksRouteImport.update({
   path: '/sample-packs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RiskManagerRoute = RiskManagerRouteImport.update({
+  id: '/risk-manager',
+  path: '/risk-manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RiskCalculatorRoute = RiskCalculatorRouteImport.update({
   id: '/risk-calculator',
   path: '/risk-calculator',
@@ -376,6 +398,11 @@ const ProMediaRoute = ProMediaRouteImport.update({
 const PortfolioProRoute = PortfolioProRouteImport.update({
   id: '/portfolio-pro',
   path: '/portfolio-pro',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PortfolioRoute = PortfolioRouteImport.update({
+  id: '/portfolio',
+  path: '/portfolio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PnlRoute = PnlRouteImport.update({
@@ -458,6 +485,11 @@ const OptimizationRoute = OptimizationRouteImport.update({
   path: '/optimization',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NeuralRoute = NeuralRouteImport.update({
   id: '/neural',
   path: '/neural',
@@ -506,6 +538,11 @@ const MarketSystemsRoute = MarketSystemsRouteImport.update({
 const MarketProfileRoute = MarketProfileRouteImport.update({
   id: '/market-profile',
   path: '/market-profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketNewsRoute = MarketNewsRouteImport.update({
+  id: '/market-news',
+  path: '/market-news',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MarketBreadthRoute = MarketBreadthRouteImport.update({
@@ -763,6 +800,11 @@ const AiLabRoute = AiLabRouteImport.update({
   path: '/ai-lab',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AiAgentsRoute = AiAgentsRouteImport.update({
+  id: '/ai-agents',
+  path: '/ai-agents',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdvancedAnalysisRoute = AdvancedAnalysisRouteImport.update({
   id: '/advanced-analysis',
   path: '/advanced-analysis',
@@ -848,6 +890,7 @@ const ApiPublicV1SignalsIncomingRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/advanced-analysis': typeof AdvancedAnalysisRoute
+  '/ai-agents': typeof AiAgentsRoute
   '/ai-lab': typeof AiLabRoute
   '/ai-media': typeof AiMediaRoute
   '/alert-builder': typeof AlertBuilderRoute
@@ -899,6 +942,7 @@ export interface FileRoutesByFullPath {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-breadth': typeof MarketBreadthRoute
+  '/market-news': typeof MarketNewsRoute
   '/market-profile': typeof MarketProfileRoute
   '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
@@ -909,6 +953,7 @@ export interface FileRoutesByFullPath {
   '/music': typeof MusicRoute
   '/native-tools': typeof NativeToolsRoute
   '/neural': typeof NeuralRoute
+  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
@@ -925,12 +970,14 @@ export interface FileRoutesByFullPath {
   '/plan': typeof PlanRoute
   '/playlist': typeof PlaylistRoute
   '/pnl': typeof PnlRoute
+  '/portfolio': typeof PortfolioRoute
   '/portfolio-pro': typeof PortfolioProRoute
   '/pro-media': typeof ProMediaRoute
   '/recovery': typeof RecoveryRoute
   '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
+  '/risk-manager': typeof RiskManagerRoute
   '/sample-packs': typeof SamplePacksRoute
   '/sampler': typeof SamplerRoute
   '/scaling': typeof ScalingRoute
@@ -949,6 +996,7 @@ export interface FileRoutesByFullPath {
   '/smc': typeof SmcRoute
   '/stem-splitter': typeof StemSplitterRoute
   '/strategies': typeof StrategiesRoute
+  '/strategy-lab': typeof StrategyLabRoute
   '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
   '/surveillance': typeof SurveillanceRoute
@@ -966,6 +1014,7 @@ export interface FileRoutesByFullPath {
   '/volume-profile': typeof VolumeProfileRoute
   '/vwap': typeof VwapRoute
   '/walk-forward': typeof WalkForwardRoute
+  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
@@ -988,6 +1037,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/advanced-analysis': typeof AdvancedAnalysisRoute
+  '/ai-agents': typeof AiAgentsRoute
   '/ai-lab': typeof AiLabRoute
   '/ai-media': typeof AiMediaRoute
   '/alert-builder': typeof AlertBuilderRoute
@@ -1039,6 +1089,7 @@ export interface FileRoutesByTo {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-breadth': typeof MarketBreadthRoute
+  '/market-news': typeof MarketNewsRoute
   '/market-profile': typeof MarketProfileRoute
   '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
@@ -1049,6 +1100,7 @@ export interface FileRoutesByTo {
   '/music': typeof MusicRoute
   '/native-tools': typeof NativeToolsRoute
   '/neural': typeof NeuralRoute
+  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
@@ -1065,12 +1117,14 @@ export interface FileRoutesByTo {
   '/plan': typeof PlanRoute
   '/playlist': typeof PlaylistRoute
   '/pnl': typeof PnlRoute
+  '/portfolio': typeof PortfolioRoute
   '/portfolio-pro': typeof PortfolioProRoute
   '/pro-media': typeof ProMediaRoute
   '/recovery': typeof RecoveryRoute
   '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
+  '/risk-manager': typeof RiskManagerRoute
   '/sample-packs': typeof SamplePacksRoute
   '/sampler': typeof SamplerRoute
   '/scaling': typeof ScalingRoute
@@ -1089,6 +1143,7 @@ export interface FileRoutesByTo {
   '/smc': typeof SmcRoute
   '/stem-splitter': typeof StemSplitterRoute
   '/strategies': typeof StrategiesRoute
+  '/strategy-lab': typeof StrategyLabRoute
   '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
   '/surveillance': typeof SurveillanceRoute
@@ -1106,6 +1161,7 @@ export interface FileRoutesByTo {
   '/volume-profile': typeof VolumeProfileRoute
   '/vwap': typeof VwapRoute
   '/walk-forward': typeof WalkForwardRoute
+  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
@@ -1129,6 +1185,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/advanced-analysis': typeof AdvancedAnalysisRoute
+  '/ai-agents': typeof AiAgentsRoute
   '/ai-lab': typeof AiLabRoute
   '/ai-media': typeof AiMediaRoute
   '/alert-builder': typeof AlertBuilderRoute
@@ -1180,6 +1237,7 @@ export interface FileRoutesById {
   '/local-ai': typeof LocalAiRoute
   '/margin': typeof MarginRoute
   '/market-breadth': typeof MarketBreadthRoute
+  '/market-news': typeof MarketNewsRoute
   '/market-profile': typeof MarketProfileRoute
   '/market-systems': typeof MarketSystemsRoute
   '/mcp-servers': typeof McpServersRoute
@@ -1190,6 +1248,7 @@ export interface FileRoutesById {
   '/music': typeof MusicRoute
   '/native-tools': typeof NativeToolsRoute
   '/neural': typeof NeuralRoute
+  '/notifications': typeof NotificationsRoute
   '/optimization': typeof OptimizationRoute
   '/optimizer': typeof OptimizerRoute
   '/options-calc': typeof OptionsCalcRoute
@@ -1206,12 +1265,14 @@ export interface FileRoutesById {
   '/plan': typeof PlanRoute
   '/playlist': typeof PlaylistRoute
   '/pnl': typeof PnlRoute
+  '/portfolio': typeof PortfolioRoute
   '/portfolio-pro': typeof PortfolioProRoute
   '/pro-media': typeof ProMediaRoute
   '/recovery': typeof RecoveryRoute
   '/renko': typeof RenkoRoute
   '/replay': typeof ReplayRoute
   '/risk-calculator': typeof RiskCalculatorRoute
+  '/risk-manager': typeof RiskManagerRoute
   '/sample-packs': typeof SamplePacksRoute
   '/sampler': typeof SamplerRoute
   '/scaling': typeof ScalingRoute
@@ -1230,6 +1291,7 @@ export interface FileRoutesById {
   '/smc': typeof SmcRoute
   '/stem-splitter': typeof StemSplitterRoute
   '/strategies': typeof StrategiesRoute
+  '/strategy-lab': typeof StrategyLabRoute
   '/strategy-market': typeof StrategyMarketRoute
   '/streak': typeof StreakRoute
   '/surveillance': typeof SurveillanceRoute
@@ -1247,6 +1309,7 @@ export interface FileRoutesById {
   '/volume-profile': typeof VolumeProfileRoute
   '/vwap': typeof VwapRoute
   '/walk-forward': typeof WalkForwardRoute
+  '/watchlist': typeof WatchlistRoute
   '/webhook-events': typeof WebhookEventsRoute
   '/webhooks': typeof WebhooksRoute
   '/welcome': typeof WelcomeRoute
@@ -1271,6 +1334,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/advanced-analysis'
+    | '/ai-agents'
     | '/ai-lab'
     | '/ai-media'
     | '/alert-builder'
@@ -1322,6 +1386,7 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-breadth'
+    | '/market-news'
     | '/market-profile'
     | '/market-systems'
     | '/mcp-servers'
@@ -1332,6 +1397,7 @@ export interface FileRouteTypes {
     | '/music'
     | '/native-tools'
     | '/neural'
+    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
@@ -1348,12 +1414,14 @@ export interface FileRouteTypes {
     | '/plan'
     | '/playlist'
     | '/pnl'
+    | '/portfolio'
     | '/portfolio-pro'
     | '/pro-media'
     | '/recovery'
     | '/renko'
     | '/replay'
     | '/risk-calculator'
+    | '/risk-manager'
     | '/sample-packs'
     | '/sampler'
     | '/scaling'
@@ -1372,6 +1440,7 @@ export interface FileRouteTypes {
     | '/smc'
     | '/stem-splitter'
     | '/strategies'
+    | '/strategy-lab'
     | '/strategy-market'
     | '/streak'
     | '/surveillance'
@@ -1389,6 +1458,7 @@ export interface FileRouteTypes {
     | '/volume-profile'
     | '/vwap'
     | '/walk-forward'
+    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
@@ -1411,6 +1481,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/advanced-analysis'
+    | '/ai-agents'
     | '/ai-lab'
     | '/ai-media'
     | '/alert-builder'
@@ -1462,6 +1533,7 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-breadth'
+    | '/market-news'
     | '/market-profile'
     | '/market-systems'
     | '/mcp-servers'
@@ -1472,6 +1544,7 @@ export interface FileRouteTypes {
     | '/music'
     | '/native-tools'
     | '/neural'
+    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
@@ -1488,12 +1561,14 @@ export interface FileRouteTypes {
     | '/plan'
     | '/playlist'
     | '/pnl'
+    | '/portfolio'
     | '/portfolio-pro'
     | '/pro-media'
     | '/recovery'
     | '/renko'
     | '/replay'
     | '/risk-calculator'
+    | '/risk-manager'
     | '/sample-packs'
     | '/sampler'
     | '/scaling'
@@ -1512,6 +1587,7 @@ export interface FileRouteTypes {
     | '/smc'
     | '/stem-splitter'
     | '/strategies'
+    | '/strategy-lab'
     | '/strategy-market'
     | '/streak'
     | '/surveillance'
@@ -1529,6 +1605,7 @@ export interface FileRouteTypes {
     | '/volume-profile'
     | '/vwap'
     | '/walk-forward'
+    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
@@ -1551,6 +1628,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/advanced-analysis'
+    | '/ai-agents'
     | '/ai-lab'
     | '/ai-media'
     | '/alert-builder'
@@ -1602,6 +1680,7 @@ export interface FileRouteTypes {
     | '/local-ai'
     | '/margin'
     | '/market-breadth'
+    | '/market-news'
     | '/market-profile'
     | '/market-systems'
     | '/mcp-servers'
@@ -1612,6 +1691,7 @@ export interface FileRouteTypes {
     | '/music'
     | '/native-tools'
     | '/neural'
+    | '/notifications'
     | '/optimization'
     | '/optimizer'
     | '/options-calc'
@@ -1628,12 +1708,14 @@ export interface FileRouteTypes {
     | '/plan'
     | '/playlist'
     | '/pnl'
+    | '/portfolio'
     | '/portfolio-pro'
     | '/pro-media'
     | '/recovery'
     | '/renko'
     | '/replay'
     | '/risk-calculator'
+    | '/risk-manager'
     | '/sample-packs'
     | '/sampler'
     | '/scaling'
@@ -1652,6 +1734,7 @@ export interface FileRouteTypes {
     | '/smc'
     | '/stem-splitter'
     | '/strategies'
+    | '/strategy-lab'
     | '/strategy-market'
     | '/streak'
     | '/surveillance'
@@ -1669,6 +1752,7 @@ export interface FileRouteTypes {
     | '/volume-profile'
     | '/vwap'
     | '/walk-forward'
+    | '/watchlist'
     | '/webhook-events'
     | '/webhooks'
     | '/welcome'
@@ -1692,6 +1776,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdvancedAnalysisRoute: typeof AdvancedAnalysisRoute
+  AiAgentsRoute: typeof AiAgentsRoute
   AiLabRoute: typeof AiLabRoute
   AiMediaRoute: typeof AiMediaRoute
   AlertBuilderRoute: typeof AlertBuilderRoute
@@ -1743,6 +1828,7 @@ export interface RootRouteChildren {
   LocalAiRoute: typeof LocalAiRoute
   MarginRoute: typeof MarginRoute
   MarketBreadthRoute: typeof MarketBreadthRoute
+  MarketNewsRoute: typeof MarketNewsRoute
   MarketProfileRoute: typeof MarketProfileRoute
   MarketSystemsRoute: typeof MarketSystemsRoute
   McpServersRoute: typeof McpServersRoute
@@ -1753,6 +1839,7 @@ export interface RootRouteChildren {
   MusicRoute: typeof MusicRoute
   NativeToolsRoute: typeof NativeToolsRoute
   NeuralRoute: typeof NeuralRoute
+  NotificationsRoute: typeof NotificationsRoute
   OptimizationRoute: typeof OptimizationRoute
   OptimizerRoute: typeof OptimizerRoute
   OptionsCalcRoute: typeof OptionsCalcRoute
@@ -1769,12 +1856,14 @@ export interface RootRouteChildren {
   PlanRoute: typeof PlanRoute
   PlaylistRoute: typeof PlaylistRoute
   PnlRoute: typeof PnlRoute
+  PortfolioRoute: typeof PortfolioRoute
   PortfolioProRoute: typeof PortfolioProRoute
   ProMediaRoute: typeof ProMediaRoute
   RecoveryRoute: typeof RecoveryRoute
   RenkoRoute: typeof RenkoRoute
   ReplayRoute: typeof ReplayRoute
   RiskCalculatorRoute: typeof RiskCalculatorRoute
+  RiskManagerRoute: typeof RiskManagerRoute
   SamplePacksRoute: typeof SamplePacksRoute
   SamplerRoute: typeof SamplerRoute
   ScalingRoute: typeof ScalingRoute
@@ -1793,6 +1882,7 @@ export interface RootRouteChildren {
   SmcRoute: typeof SmcRoute
   StemSplitterRoute: typeof StemSplitterRoute
   StrategiesRoute: typeof StrategiesRoute
+  StrategyLabRoute: typeof StrategyLabRoute
   StrategyMarketRoute: typeof StrategyMarketRoute
   StreakRoute: typeof StreakRoute
   SurveillanceRoute: typeof SurveillanceRoute
@@ -1810,6 +1900,7 @@ export interface RootRouteChildren {
   VolumeProfileRoute: typeof VolumeProfileRoute
   VwapRoute: typeof VwapRoute
   WalkForwardRoute: typeof WalkForwardRoute
+  WatchlistRoute: typeof WatchlistRoute
   WebhookEventsRoute: typeof WebhookEventsRoute
   WebhooksRoute: typeof WebhooksRoute
   WelcomeRoute: typeof WelcomeRoute
@@ -1864,6 +1955,13 @@ declare module '@tanstack/react-router' {
       path: '/webhook-events'
       fullPath: '/webhook-events'
       preLoaderRoute: typeof WebhookEventsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/watchlist': {
+      id: '/watchlist'
+      path: '/watchlist'
+      fullPath: '/watchlist'
+      preLoaderRoute: typeof WatchlistRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/walk-forward': {
@@ -1983,6 +2081,13 @@ declare module '@tanstack/react-router' {
       path: '/strategy-market'
       fullPath: '/strategy-market'
       preLoaderRoute: typeof StrategyMarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/strategy-lab': {
+      id: '/strategy-lab'
+      path: '/strategy-lab'
+      fullPath: '/strategy-lab'
+      preLoaderRoute: typeof StrategyLabRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/strategies': {
@@ -2111,6 +2216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SamplePacksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/risk-manager': {
+      id: '/risk-manager'
+      path: '/risk-manager'
+      fullPath: '/risk-manager'
+      preLoaderRoute: typeof RiskManagerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/risk-calculator': {
       id: '/risk-calculator'
       path: '/risk-calculator'
@@ -2151,6 +2263,13 @@ declare module '@tanstack/react-router' {
       path: '/portfolio-pro'
       fullPath: '/portfolio-pro'
       preLoaderRoute: typeof PortfolioProRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/portfolio': {
+      id: '/portfolio'
+      path: '/portfolio'
+      fullPath: '/portfolio'
+      preLoaderRoute: typeof PortfolioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/pnl': {
@@ -2265,6 +2384,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OptimizationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/neural': {
       id: '/neural'
       path: '/neural'
@@ -2333,6 +2459,13 @@ declare module '@tanstack/react-router' {
       path: '/market-profile'
       fullPath: '/market-profile'
       preLoaderRoute: typeof MarketProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market-news': {
+      id: '/market-news'
+      path: '/market-news'
+      fullPath: '/market-news'
+      preLoaderRoute: typeof MarketNewsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/market-breadth': {
@@ -2692,6 +2825,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AiLabRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ai-agents': {
+      id: '/ai-agents'
+      path: '/ai-agents'
+      fullPath: '/ai-agents'
+      preLoaderRoute: typeof AiAgentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/advanced-analysis': {
       id: '/advanced-analysis'
       path: '/advanced-analysis'
@@ -2814,6 +2954,7 @@ const ApiPublicV1SignalsRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdvancedAnalysisRoute: AdvancedAnalysisRoute,
+  AiAgentsRoute: AiAgentsRoute,
   AiLabRoute: AiLabRoute,
   AiMediaRoute: AiMediaRoute,
   AlertBuilderRoute: AlertBuilderRoute,
@@ -2865,6 +3006,7 @@ const rootRouteChildren: RootRouteChildren = {
   LocalAiRoute: LocalAiRoute,
   MarginRoute: MarginRoute,
   MarketBreadthRoute: MarketBreadthRoute,
+  MarketNewsRoute: MarketNewsRoute,
   MarketProfileRoute: MarketProfileRoute,
   MarketSystemsRoute: MarketSystemsRoute,
   McpServersRoute: McpServersRoute,
@@ -2875,6 +3017,7 @@ const rootRouteChildren: RootRouteChildren = {
   MusicRoute: MusicRoute,
   NativeToolsRoute: NativeToolsRoute,
   NeuralRoute: NeuralRoute,
+  NotificationsRoute: NotificationsRoute,
   OptimizationRoute: OptimizationRoute,
   OptimizerRoute: OptimizerRoute,
   OptionsCalcRoute: OptionsCalcRoute,
@@ -2891,12 +3034,14 @@ const rootRouteChildren: RootRouteChildren = {
   PlanRoute: PlanRoute,
   PlaylistRoute: PlaylistRoute,
   PnlRoute: PnlRoute,
+  PortfolioRoute: PortfolioRoute,
   PortfolioProRoute: PortfolioProRoute,
   ProMediaRoute: ProMediaRoute,
   RecoveryRoute: RecoveryRoute,
   RenkoRoute: RenkoRoute,
   ReplayRoute: ReplayRoute,
   RiskCalculatorRoute: RiskCalculatorRoute,
+  RiskManagerRoute: RiskManagerRoute,
   SamplePacksRoute: SamplePacksRoute,
   SamplerRoute: SamplerRoute,
   ScalingRoute: ScalingRoute,
@@ -2915,6 +3060,7 @@ const rootRouteChildren: RootRouteChildren = {
   SmcRoute: SmcRoute,
   StemSplitterRoute: StemSplitterRoute,
   StrategiesRoute: StrategiesRoute,
+  StrategyLabRoute: StrategyLabRoute,
   StrategyMarketRoute: StrategyMarketRoute,
   StreakRoute: StreakRoute,
   SurveillanceRoute: SurveillanceRoute,
@@ -2932,6 +3078,7 @@ const rootRouteChildren: RootRouteChildren = {
   VolumeProfileRoute: VolumeProfileRoute,
   VwapRoute: VwapRoute,
   WalkForwardRoute: WalkForwardRoute,
+  WatchlistRoute: WatchlistRoute,
   WebhookEventsRoute: WebhookEventsRoute,
   WebhooksRoute: WebhooksRoute,
   WelcomeRoute: WelcomeRoute,

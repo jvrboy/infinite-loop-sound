@@ -3,10 +3,12 @@ name: Sync to Hugging Face Space
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
   sync-to-hub:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
