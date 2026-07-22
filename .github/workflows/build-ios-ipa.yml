@@ -26,10 +26,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate TanStack Router route tree
-        run: npx tsr generate
-        continue-on-error: true
-
       - name: Build web app
         run: npm run build
         env:

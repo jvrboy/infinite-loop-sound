@@ -56,14 +56,17 @@ const FOLDERS_KEY = "diq.chat.folders.v1";
 const ARTIFACTS_KEY = "diq.chat.artifacts.v1";
 const USAGE_KEY = "diq.chat.usage.v1";
 
-const safeRead = <T>(k: string, fallback: T): T => {
+const safeRead = <T>(k: string, fallback: T, validate?: (value: unknown) => value is T): T => {
   if (typeof window === "undefined") return fallback;
   try {
-    return JSON.parse(localStorage.getItem(k) || "null") ?? fallback;
+    const parsed = JSON.parse(localStorage.getItem(k) || "null") ?? fallback;
+    return validate && !validate(parsed) ? fallback : (parsed as T);
   } catch {
     return fallback;
   }
 };
+
+const isArray = <T = unknown>(value: unknown): value is T[] => Array.isArray(value);
 
 const safeWrite = (k: string, v: unknown) => {
   if (typeof window === "undefined") return;
@@ -75,7 +78,7 @@ const safeWrite = (k: string, v: unknown) => {
 export function useThreads() {
   const [threads, setThreads] = useState<Thread[]>([]);
   useEffect(() => {
-    setThreads(safeRead<Thread[]>(THREADS_KEY, []));
+    setThreads(safeRead<Thread[]>(THREADS_KEY, [], isArray));
   }, []);
 
   const persist = useCallback((t: Thread[]) => {
@@ -203,7 +206,7 @@ export function useThreads() {
 export function useFolders() {
   const [folders, setFolders] = useState<ChatFolder[]>([]);
   useEffect(() => {
-    setFolders(safeRead<ChatFolder[]>(FOLDERS_KEY, []));
+    setFolders(safeRead<ChatFolder[]>(FOLDERS_KEY, [], isArray));
   }, []);
 
   const persist = useCallback((f: ChatFolder[]) => {
@@ -265,7 +268,7 @@ export function useFolders() {
 export function useArtifacts(threadId?: string | null) {
   const [all, setAll] = useState<Artifact[]>([]);
   useEffect(() => {
-    setAll(safeRead<Artifact[]>(ARTIFACTS_KEY, []));
+    setAll(safeRead<Artifact[]>(ARTIFACTS_KEY, [], isArray));
   }, []);
 
   const persist = useCallback((a: Artifact[]) => {
@@ -295,7 +298,7 @@ export function useArtifacts(threadId?: string | null) {
 export function useUsage() {
   const [events, setEvents] = useState<UsageEvent[]>([]);
   useEffect(() => {
-    setEvents(safeRead<UsageEvent[]>(USAGE_KEY, []));
+    setEvents(safeRead<UsageEvent[]>(USAGE_KEY, [], isArray));
   }, []);
 
   const track = useCallback((e: UsageEvent) => {

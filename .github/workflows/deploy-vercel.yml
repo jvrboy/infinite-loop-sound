@@ -3,6 +3,7 @@ name: Deploy to Vercel
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -56,7 +57,7 @@ jobs:
 
   deploy:
     needs: build-check
-    if: ${{ needs.build-check.outputs.ok == 'true' }}
+    if: ${{ needs.build-check.outputs.ok == 'true' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

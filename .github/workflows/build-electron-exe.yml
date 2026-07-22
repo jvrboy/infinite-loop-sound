@@ -3,6 +3,7 @@ name: Build Electron EXE
 on:
   push:
     branches: [main]
+  pull_request:
   workflow_dispatch:
 
 jobs:
@@ -86,10 +87,6 @@ jobs:
           generate().catch(err => { console.error(err); process.exit(1); });
           "
 
-      - name: Generate TanStack Router route tree
-        run: npx tsr generate
-        continue-on-error: true
-
       - name: Build web app
         run: npm run build
         env:
@@ -155,6 +152,7 @@ jobs:
         shell: pwsh
 
       - name: Upload EXE as GitHub Release
+        if: github.event_name != 'pull_request'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

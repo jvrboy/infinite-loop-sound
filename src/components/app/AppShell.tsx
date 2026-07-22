@@ -67,7 +67,6 @@ import {
   Star,
   Dna,
   Grid,
-  Grid,
   Orbit,
   Workflow,
   Network,
