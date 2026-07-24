@@ -20,7 +20,10 @@ export async function runExecutionFlowAgent(
   const start = Date.now();
 
   const recentTicks = ticks.slice(-100);
-  const spreads = recentTicks.map((t) => (t.bid && t.ask ? t.ask - t.bid : 0)).filter((s) => s > 0);
+  // Tick type { epoch, quote } doesn't have bid/ask — use quote as a proxy
+  const spreads = recentTicks.length > 1
+    ? recentTicks.slice(1).map((t, i) => Math.abs(t.quote - recentTicks[i].quote)).filter((s) => s > 0)
+    : [];
   const avgSpread = spreads.length > 0 ? spreads.reduce((a, b) => a + b, 0) / spreads.length : 0;
   const spreadScore = Math.max(0, Math.round(100 - avgSpread * 10000));
 
@@ -52,6 +55,8 @@ export async function runExecutionFlowAgent(
 
   return {
     agentId: "execution-flow-agent",
+    status: "completed",
+    timestamp: Date.now(),
     success: true,
     duration: Date.now() - start,
     optimalWindow,

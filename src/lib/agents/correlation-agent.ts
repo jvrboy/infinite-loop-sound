@@ -66,6 +66,8 @@ export async function runCorrelationAgent(
 
   return {
     agentId: "correlation-agent",
+    status: "completed",
+    timestamp: Date.now(),
     success: true,
     duration: Date.now() - start,
     correlations,
