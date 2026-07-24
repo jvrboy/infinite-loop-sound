@@ -81,10 +81,17 @@ jobs:
 
       - name: Create and sync Capacitor iOS project
         run: |
-          if [ ! -d ios/App ]; then
-            npx cap add ios
-          fi
+          # Remove stale ios/App from previous failed runs to ensure fresh Podfile generation
+          rm -rf ios/App ios/App.xcworkspace 2>/dev/null || true
+          npx cap add ios
           npx cap sync ios
+          # Verify Podfile was created
+          if [ ! -f ios/App/Podfile ]; then
+            echo "::error title=Missing Podfile::Capacitor sync did not generate a Podfile"
+            ls -la ios/App/ 2>/dev/null || echo "ios/App/ does not exist"
+            exit 1
+          fi
+          echo "Podfile found: ios/App/Podfile"
 
       - name: Generate iOS app icons
         run: |
