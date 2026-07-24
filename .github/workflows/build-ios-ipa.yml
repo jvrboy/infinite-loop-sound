@@ -81,47 +81,54 @@ jobs:
 
       - name: Create and sync Capacitor iOS project
         run: |
-          echo "Checking Capacitor CLI availability..."
-          npx @capacitor/cli --version || echo "::warning::@capacitor/cli not found via npx"
+          set +e
+          echo "=== Step: Create and sync Capacitor iOS project ==="
 
-          # Remove stale ios directory entirely
+          echo "Cleaning stale ios/ directory..."
           rm -rf ios 2>/dev/null || true
 
-          echo "Adding iOS platform..."
-          npx @capacitor/cli add ios --skip-install 2>&1 || npx cap add ios 2>&1
-          echo "--- ios directory after add ---"
-          ls -la ios/App/ 2>/dev/null || echo "ios/App/ not created"
+          echo "Adding iOS platform via cap add..."
+          npx cap add ios 2>&1
+          CAP_ADD_EXIT=$?
+          echo "cap add ios exit code: $CAP_ADD_EXIT"
+          ls -la ios/App/ 2>/dev/null | head -5 || echo "ios/App/ not created"
 
-          echo "Syncing iOS project..."
+          echo "Syncing iOS project via cap sync..."
           npx cap sync ios 2>&1
+          CAP_SYNC_EXIT=$?
+          echo "cap sync ios exit code: $CAP_SYNC_EXIT"
 
-          echo "--- Final state ---"
-          ls -la ios/App/ 2>/dev/null | head -20
-          test -f ios/App/Podfile && echo "Podfile EXISTS" || echo "Podfile MISSING"
-          if [ ! -f ios/App/Podfile ]; then
-            echo "::error title=Missing Podfile::Capacitor did not generate a Podfile"
-            echo "Creating Podfile via Node.js..."
-            mkdir -p ios/App
+          echo "Checking for Podfile..."
+          if [ -f ios/App/Podfile ]; then
+            echo "Podfile already exists (from capacitor)"
+          elif [ -f ios/App/Podfile ]; then
+            echo "Podfile exists at ios/App/Podfile"
+          else
+            echo "Podfile not found - creating manually via Node.js..."
+            mkdir -p ios/App ios/App/App.xcodeproj
             node -e "
               const fs = require('fs');
-              const content = [
+              const lines = [
                 \"platform :ios, '16.0'\",
                 \"use_frameworks! :static\",
                 \"\",
                 \"target 'App' do\",
                 \"  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'\",
                 \"  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/cordova'\",
-                \"  pod 'CapacitorHttp', :path => '../../node_modules/@capacitor/http'\",
-                \"  pod 'CapacitorLocalNotifications', :path => '../../node_modules/@capacitor/local-notifications'\",
                 \"end\",
                 \"\",
-              ].join('\\n');
-              fs.writeFileSync('ios/App/Podfile', content);
-              console.log('Manual Podfile created via Node.js');
+              ];
+              fs.writeFileSync('ios/App/Podfile', lines.join('\\n'));
+              console.log('Manual Podfile created');
             "
           fi
+
+          echo "Verifying ios/App contents..."
+          ls -la ios/App/ 2>/dev/null | head -20
           echo "Podfile content:"
-          cat ios/App/Podfile 2>/dev/null || echo "No Podfile to show"
+          head -10 ios/App/Podfile 2>/dev/null || echo "NO PODFILE"
+          echo "=== Done ==="
+          set -e
 
       - name: Generate iOS app icons
         run: |
