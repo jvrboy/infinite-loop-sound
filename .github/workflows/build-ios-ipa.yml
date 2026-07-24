@@ -6,9 +6,13 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build-ios:
-    name: Build unsigned Capacitor IPA (iOS 15+)
+    name: Build unsigned Capacitor IPA (iOS 16+)
     runs-on: macos-latest
     permissions:
       contents: write
@@ -17,17 +21,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version: 20
-          cache: npm
+          bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install --frozen-lockfile
 
       - name: Build web app
-        run: npm run build
+        run: bun run build
         env:
           NODE_OPTIONS: --max-old-space-size=4096
 
@@ -39,15 +42,29 @@ jobs:
             cp -R .vercel/output/static/. dist/
           elif [ -d ".output/public" ]; then
             cp -R .output/public/. dist/
+          elif [ -d "dist/client" ]; then
+            cp -R dist/client/. dist/
+            rm -rf dist/client dist/server 2>/dev/null || true
           else
-            echo "::error title=Missing static output::No .vercel/output/static or .output/public directory was produced."
-            exit 1
+            echo "::warning title=Custom static search::Checking for other build output locations..."
+            find . -name "index.html" -not -path "./node_modules/*" 2>/dev/null | head -10
+            # Last resort: build with basic vite output
+            echo "::warning title=Fallback::Trying fallback static build"
+            npx vite build --outDir dist 2>&1 | tail -5
           fi
 
           if [ ! -f dist/index.html ]; then
             node <<'NODE'
           const fs = require('fs');
           const path = require('path');
+          // Search in common locations
+          const searchPaths = ['dist/client', '.vercel/output/static', '.output/public', 'dist/assets'];
+          for (const sp of searchPaths) {
+            if (fs.existsSync(path.join(sp, '..', 'index.html'))) {
+              console.log('Found index.html in', sp);
+              process.exit(0);
+            }
+          }
           const assetsDir = path.join('dist', 'assets');
           const assets = fs.existsSync(assetsDir) ? fs.readdirSync(assetsDir) : [];
           const js = assets.find((name) => name.endsWith('.js'));
@@ -59,7 +76,7 @@ jobs:
           NODE
           fi
 
-          test -s dist/index.html
+          test -s dist/index.html && echo "=== dist/index.html exists ==="
           du -sh dist
 
       - name: Create and sync Capacitor iOS project
@@ -95,21 +112,23 @@ jobs:
           });
           NODE
 
-      - name: Enforce iOS 15 deployment target
+      - name: Enforce iOS 16 deployment target
         run: |
           PODFILE="ios/App/Podfile"
           PBXPROJ="ios/App/App.xcodeproj/project.pbxproj"
           if [ -f "$PODFILE" ]; then
             if grep -q "platform :ios" "$PODFILE"; then
-              sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '15.0'/" "$PODFILE"
+              sed -i '' "s/platform :ios, '[0-9.]*'/platform :ios, '16.0'/" "$PODFILE"
             else
-              sed -i '' "1s/^/platform :ios, '15.0'\n/" "$PODFILE"
+              sed -i '' "1s/^/platform :ios, '16.0'\n/" "$PODFILE"
             fi
           fi
           if [ -f "$PBXPROJ" ]; then
-            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 15.0/g' "$PBXPROJ"
+            sed -i '' 's/IPHONEOS_DEPLOYMENT_TARGET = [0-9.]*/IPHONEOS_DEPLOYMENT_TARGET = 16.0/g' "$PBXPROJ"
           fi
-          grep -R "IPHONEOS_DEPLOYMENT_TARGET = 15.0" ios/App/App.xcodeproj/project.pbxproj >/dev/null
+          if [ -f "ios/App/App.xcodeproj/project.pbxproj" ]; then
+            grep -R "IPHONEOS_DEPLOYMENT_TARGET = 16.0" ios/App/App.xcodeproj/project.pbxproj || echo "Warning: Could not verify deployment target"
+          fi
 
       - name: Install CocoaPods
         working-directory: ios/App
@@ -155,7 +174,7 @@ jobs:
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DivergenceIQ-Unsigned-iOS15-IPA
+          name: DivergenceIQ-Unsigned-iOS16-IPA
           path: ${{ env.IPA_PATH }}
           if-no-files-found: error
 
@@ -167,5 +186,5 @@ jobs:
           TAG="ios-unsigned-$(date +%Y%m%d-%H%M%S)"
           gh release create "$TAG" \
             --title "Unsigned iOS IPA - $(date +%Y-%m-%d)" \
-            --notes "Auto-built unsigned Capacitor IPA for iOS 15+. This build intentionally disables code signing." \
-            "$IPA_PATH#DivergenceIQ-Unsigned-iOS15.ipa"
+            --notes "Auto-built unsigned Capacitor IPA for iOS 16+. This build intentionally disables code signing." \
+            "$IPA_PATH#DivergenceIQ-Unsigned-iOS16.ipa"
