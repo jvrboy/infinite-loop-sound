@@ -100,20 +100,25 @@ jobs:
           test -f ios/App/Podfile && echo "Podfile EXISTS" || echo "Podfile MISSING"
           if [ ! -f ios/App/Podfile ]; then
             echo "::error title=Missing Podfile::Capacitor did not generate a Podfile"
-            # Try alternative: create Podfile manually
-            echo "Attempting to create Podfile manually..."
+            echo "Creating Podfile via Node.js..."
             mkdir -p ios/App
-            cat > ios/App/Podfile << 'PODEOF'
-            platform :ios, '16.0'
-            use_frameworks! :static
-            target 'App' do
-              pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
-              pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/cordova'
-              pod 'CapacitorHttp', :path => '../../node_modules/@capacitor/http'
-              pod 'CapacitorLocalNotifications', :path => '../../node_modules/@capacitor/local-notifications'
-            end
-PODEOF
-            echo "Manual Podfile created"
+            node -e "
+              const fs = require('fs');
+              const content = [
+                \"platform :ios, '16.0'\",
+                \"use_frameworks! :static\",
+                \"\",
+                \"target 'App' do\",
+                \"  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'\",
+                \"  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/cordova'\",
+                \"  pod 'CapacitorHttp', :path => '../../node_modules/@capacitor/http'\",
+                \"  pod 'CapacitorLocalNotifications', :path => '../../node_modules/@capacitor/local-notifications'\",
+                \"end\",
+                \"\",
+              ].join('\\n');
+              fs.writeFileSync('ios/App/Podfile', content);
+              console.log('Manual Podfile created via Node.js');
+            "
           fi
           echo "Podfile content:"
           cat ios/App/Podfile 2>/dev/null || echo "No Podfile to show"
