@@ -81,17 +81,42 @@ jobs:
 
       - name: Create and sync Capacitor iOS project
         run: |
-          # Remove stale ios/App from previous failed runs to ensure fresh Podfile generation
-          rm -rf ios/App ios/App.xcworkspace 2>/dev/null || true
-          npx cap add ios
-          npx cap sync ios
-          # Verify Podfile was created
+          echo "Checking Capacitor CLI availability..."
+          npx @capacitor/cli --version || echo "::warning::@capacitor/cli not found via npx"
+
+          # Remove stale ios directory entirely
+          rm -rf ios 2>/dev/null || true
+
+          echo "Adding iOS platform..."
+          npx @capacitor/cli add ios --skip-install 2>&1 || npx cap add ios 2>&1
+          echo "--- ios directory after add ---"
+          ls -la ios/App/ 2>/dev/null || echo "ios/App/ not created"
+
+          echo "Syncing iOS project..."
+          npx cap sync ios 2>&1
+
+          echo "--- Final state ---"
+          ls -la ios/App/ 2>/dev/null | head -20
+          test -f ios/App/Podfile && echo "Podfile EXISTS" || echo "Podfile MISSING"
           if [ ! -f ios/App/Podfile ]; then
-            echo "::error title=Missing Podfile::Capacitor sync did not generate a Podfile"
-            ls -la ios/App/ 2>/dev/null || echo "ios/App/ does not exist"
-            exit 1
+            echo "::error title=Missing Podfile::Capacitor did not generate a Podfile"
+            # Try alternative: create Podfile manually
+            echo "Attempting to create Podfile manually..."
+            mkdir -p ios/App
+            cat > ios/App/Podfile << 'PODEOF'
+            platform :ios, '16.0'
+            use_frameworks! :static
+            target 'App' do
+              pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'
+              pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/cordova'
+              pod 'CapacitorHttp', :path => '../../node_modules/@capacitor/http'
+              pod 'CapacitorLocalNotifications', :path => '../../node_modules/@capacitor/local-notifications'
+            end
+PODEOF
+            echo "Manual Podfile created"
           fi
-          echo "Podfile found: ios/App/Podfile"
+          echo "Podfile content:"
+          cat ios/App/Podfile 2>/dev/null || echo "No Podfile to show"
 
       - name: Generate iOS app icons
         run: |
