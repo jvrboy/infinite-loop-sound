@@ -82,51 +82,39 @@ jobs:
       - name: Create and sync Capacitor iOS project
         run: |
           set +e
-          echo "=== Step: Create and sync Capacitor iOS project ==="
+          echo "=== Setting up Capacitor iOS project ==="
 
-          echo "Cleaning stale ios/ directory..."
-          rm -rf ios 2>/dev/null || true
-
-          echo "Adding iOS platform via cap add..."
+          echo "Adding iOS platform..."
           npx cap add ios 2>&1
-          CAP_ADD_EXIT=$?
-          echo "cap add ios exit code: $CAP_ADD_EXIT"
-          ls -la ios/App/ 2>/dev/null | head -5 || echo "ios/App/ not created"
+          echo "---"
 
-          echo "Syncing iOS project via cap sync..."
+          echo "Syncing iOS project..."
           npx cap sync ios 2>&1
-          CAP_SYNC_EXIT=$?
-          echo "cap sync ios exit code: $CAP_SYNC_EXIT"
+          echo "---"
 
           echo "Checking for Podfile..."
           if [ -f ios/App/Podfile ]; then
-            echo "Podfile already exists (from capacitor)"
-          elif [ -f ios/App/Podfile ]; then
-            echo "Podfile exists at ios/App/Podfile"
+            echo "Podfile EXISTS - using it"
           else
-            echo "Podfile not found - creating manually via Node.js..."
-            mkdir -p ios/App ios/App/App.xcodeproj
+            echo "Podfile MISSING - creating manually"
+            mkdir -p ios/App
             node -e "
-              const fs = require('fs');
-              const lines = [
-                \"platform :ios, '16.0'\",
-                \"use_frameworks! :linkage => :static\",
-                \"\",
-                \"target 'App' do\",
-                \"  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'\",
-                \"  pod 'CapacitorCordova', :path => '../../node_modules/@capacitor/cordova'\",
-                \"end\",
-                \"\",
-              ];
-              fs.writeFileSync('ios/App/Podfile', lines.join('\\n'));
-              console.log('Manual Podfile created');
-            "
+var fs=require('fs');
+var lines=[
+'platform :ios, \"16.0\"',
+'use_frameworks! :linkage => :static',
+'',
+'target \"App\" do',
+'  pod \"Capacitor\", :path => \"../../node_modules/@capacitor/ios\"',
+'end',
+''];
+fs.writeFileSync('ios/App/Podfile',lines.join('\\n'));
+console.log('Manual Podfile created');
+"
           fi
 
-          echo "Verifying ios/App contents..."
-          ls -la ios/App/ 2>/dev/null | head -20
-          echo "Podfile content:"
-          head -10 ios/App/Podfile 2>/dev/null || echo "NO PODFILE"
+          echo "Podfile:"
+          cat ios/App/Podfile
           echo "=== Done ==="
           set -e
 
