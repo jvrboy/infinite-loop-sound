@@ -110,7 +110,7 @@ jobs:
               const fs = require('fs');
               const lines = [
                 \"platform :ios, '16.0'\",
-                \"use_frameworks! :static\",
+                \"use_frameworks! :linkage => :static\",
                 \"\",
                 \"target 'App' do\",
                 \"  pod 'Capacitor', :path => '../../node_modules/@capacitor/ios'\",
