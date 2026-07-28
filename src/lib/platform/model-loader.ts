@@ -112,7 +112,7 @@ async function loadWllama(opts: LoadOptions) {
   if (opts.file) {
     await wllama.loadModel([opts.file], loadOpts);
   } else if (opts.url) {
-    await wllama.loadModelFromUrl(opts.url, loadOpts);
+    await (wllama as any).loadModelFromUrl(opts.url, loadOpts);
   } else {
     throw new Error("No model source provided");
   }
@@ -120,7 +120,7 @@ async function loadWllama(opts: LoadOptions) {
   return {
     generate: async (prompt: string, maxTokens?: number) => {
       const formatted = `<|im_start|>user\n${prompt}<|im_end|>\n<|im_start|>assistant\n`;
-      const out = await wllama.createCompletion(formatted, {
+      const out = await (wllama as any).createCompletion(formatted, {
         nPredict: maxTokens || 256,
         sampling: { temp: 0.7, top_p: 0.9, top_k: 40 },
       });

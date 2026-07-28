@@ -102,7 +102,9 @@ function LocalAI() {
       const effectiveSource = typeof source === "string" ? proxiedUrl(source) : source;
 
       if (typeof effectiveSource === "string") {
-        setModelName(source.split("/").pop() || "model.gguf");
+        setModelName(
+          (typeof source === "string" ? source : effectiveSource).split("/").pop() || "model.gguf",
+        );
       } else {
         setModelName((source as File).name);
       }

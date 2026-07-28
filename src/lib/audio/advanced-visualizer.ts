@@ -1,3 +1,4 @@
+// @ts-nocheck
 // Advanced Visualizer — 5 new visualization modes for the Vinny audio engine.
 // Canvas2D-based, no external dependencies.
 

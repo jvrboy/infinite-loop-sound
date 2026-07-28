@@ -68,6 +68,63 @@ const safeRead = <T>(k: string, fallback: T, validate?: (value: unknown) => valu
 
 const isArray = <T = unknown>(value: unknown): value is T[] => Array.isArray(value);
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
+
+const safeId = () =>
+  globalThis.crypto?.randomUUID?.() ??
+  `chat-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+
+const safeTimestamp = (value: unknown, fallback = Date.now()) =>
+  typeof value === "number" && Number.isFinite(value) ? value : fallback;
+
+const sanitizeMessage = (value: unknown): Msg | null => {
+  if (!isRecord(value)) return null;
+  const role = value.role;
+  const content = value.content;
+  if (role !== "system" && role !== "user" && role !== "assistant") return null;
+  if (typeof content !== "string") return null;
+
+  return {
+    role,
+    content,
+    ts: safeTimestamp(value.ts),
+    provider: typeof value.provider === "string" ? value.provider : undefined,
+  };
+};
+
+const sanitizeThread = (value: unknown): Thread | null => {
+  if (!isRecord(value)) return null;
+  const rawMessages = Array.isArray(value.messages) ? value.messages : [];
+  const messages = rawMessages.map(sanitizeMessage).filter((msg): msg is Msg => Boolean(msg));
+  const updatedFallback = messages.at(0)?.ts ?? Date.now();
+
+  return {
+    id: typeof value.id === "string" && value.id ? value.id : safeId(),
+    title: typeof value.title === "string" && value.title.trim() ? value.title : "New chat",
+    messages,
+    updated: safeTimestamp(value.updated, updatedFallback),
+    pinned: typeof value.pinned === "boolean" ? value.pinned : undefined,
+    archived: typeof value.archived === "boolean" ? value.archived : undefined,
+    deleted: typeof value.deleted === "boolean" ? value.deleted : undefined,
+    deletedAt: typeof value.deletedAt === "number" ? value.deletedAt : undefined,
+    folderId: typeof value.folderId === "string" ? value.folderId : null,
+    clonedFrom: typeof value.clonedFrom === "string" ? value.clonedFrom : undefined,
+  };
+};
+
+const sanitizeFolder = (value: unknown, index: number): ChatFolder | null => {
+  if (!isRecord(value)) return null;
+  const name = typeof value.name === "string" && value.name.trim() ? value.name : "Untitled";
+  return {
+    id: typeof value.id === "string" && value.id ? value.id : safeId(),
+    name,
+    color: typeof value.color === "string" && value.color ? value.color : "#3b82f6",
+    order: typeof value.order === "number" && Number.isFinite(value.order) ? value.order : index,
+    createdAt: safeTimestamp(value.createdAt),
+  };
+};
+
 const safeWrite = (k: string, v: unknown) => {
   if (typeof window === "undefined") return;
   try {
@@ -77,75 +134,92 @@ const safeWrite = (k: string, v: unknown) => {
 
 export function useThreads() {
   const [threads, setThreads] = useState<Thread[]>([]);
+  const [ready, setReady] = useState(false);
+
   useEffect(() => {
-    setThreads(safeRead<Thread[]>(THREADS_KEY, [], isArray));
+    const stored = safeRead<unknown[]>(THREADS_KEY, [], isArray)
+      .map(sanitizeThread)
+      .filter((thread): thread is Thread => Boolean(thread));
+    setThreads(stored);
+    setReady(true);
   }, []);
 
-  const persist = useCallback((t: Thread[]) => {
-    setThreads(t);
-    safeWrite(THREADS_KEY, t);
+  const persist = useCallback((next: Thread[] | ((previous: Thread[]) => Thread[])) => {
+    setThreads((previous) => {
+      const resolved = typeof next === "function" ? next(previous) : next;
+      safeWrite(THREADS_KEY, resolved);
+      return resolved;
+    });
   }, []);
 
   const create = useCallback(
     (title = "New chat", folderId: string | null = null): Thread => {
-      const t: Thread = {
-        id: crypto.randomUUID(),
+      const thread: Thread = {
+        id: safeId(),
         title,
         messages: [],
         updated: Date.now(),
         folderId,
       };
-      persist([t, ...threads]);
-      return t;
+      persist((previous) => [thread, ...previous]);
+      return thread;
     },
-    [persist, threads],
+    [persist],
   );
 
   const update = useCallback(
     (id: string, patch: Partial<Thread>) => {
-      persist(threads.map((t) => (t.id === id ? { ...t, ...patch, updated: Date.now() } : t)));
+      persist((previous) =>
+        previous.map((thread) =>
+          thread.id === id ? { ...thread, ...patch, updated: Date.now() } : thread,
+        ),
+      );
     },
-    [persist, threads],
+    [persist],
   );
 
   const remove = useCallback(
     (id: string) => {
-      persist(
-        threads.map((t) =>
-          t.id === id ? { ...t, deleted: true, deletedAt: Date.now(), pinned: false } : t,
+      persist((previous) =>
+        previous.map((thread) =>
+          thread.id === id
+            ? { ...thread, deleted: true, deletedAt: Date.now(), pinned: false }
+            : thread,
         ),
       );
     },
-    [persist, threads],
+    [persist],
   );
 
   const hardRemove = useCallback(
     (id: string) => {
-      persist(threads.filter((t) => t.id !== id));
+      persist((previous) => previous.filter((thread) => thread.id !== id));
     },
-    [persist, threads],
+    [persist],
   );
 
   const restore = useCallback(
     (id: string) => {
-      persist(
-        threads.map((t) => (t.id === id ? { ...t, deleted: false, deletedAt: undefined } : t)),
+      persist((previous) =>
+        previous.map((thread) =>
+          thread.id === id ? { ...thread, deleted: false, deletedAt: undefined } : thread,
+        ),
       );
     },
-    [persist, threads],
+    [persist],
   );
 
   const emptyTrash = useCallback(() => {
-    persist(threads.filter((t) => !t.deleted));
-  }, [persist, threads]);
+    persist((previous) => previous.filter((thread) => !thread.deleted));
+  }, [persist]);
 
   const clone = useCallback(
     (id: string): Thread | null => {
-      const original = threads.find((t) => t.id === id);
+      const original = threads.find((thread) => thread.id === id);
       if (!original) return null;
       const copy: Thread = {
         ...original,
-        id: crypto.randomUUID(),
+        id: safeId(),
         title: `${original.title} (clone)`,
         updated: Date.now(),
         pinned: false,
@@ -154,7 +228,7 @@ export function useThreads() {
         deletedAt: undefined,
         clonedFrom: id,
       };
-      persist([copy, ...threads]);
+      persist((previous) => [copy, ...previous]);
       return copy;
     },
     [persist, threads],
@@ -162,33 +236,42 @@ export function useThreads() {
 
   const move = useCallback(
     (id: string, folderId: string | null) => {
-      persist(threads.map((t) => (t.id === id ? { ...t, folderId, updated: Date.now() } : t)));
+      persist((previous) =>
+        previous.map((thread) =>
+          thread.id === id ? { ...thread, folderId, updated: Date.now() } : thread,
+        ),
+      );
     },
-    [persist, threads],
+    [persist],
   );
 
   const togglePin = useCallback(
     (id: string) => {
-      persist(
-        threads.map((t) => (t.id === id ? { ...t, pinned: !t.pinned, updated: Date.now() } : t)),
+      persist((previous) =>
+        previous.map((thread) =>
+          thread.id === id ? { ...thread, pinned: !thread.pinned, updated: Date.now() } : thread,
+        ),
       );
     },
-    [persist, threads],
+    [persist],
   );
 
   const toggleArchive = useCallback(
     (id: string) => {
-      persist(
-        threads.map((t) =>
-          t.id === id ? { ...t, archived: !t.archived, updated: Date.now() } : t,
+      persist((previous) =>
+        previous.map((thread) =>
+          thread.id === id
+            ? { ...thread, archived: !thread.archived, updated: Date.now() }
+            : thread,
         ),
       );
     },
-    [persist, threads],
+    [persist],
   );
 
   return {
     threads,
+    ready,
     persist,
     create,
     update,
@@ -206,7 +289,11 @@ export function useThreads() {
 export function useFolders() {
   const [folders, setFolders] = useState<ChatFolder[]>([]);
   useEffect(() => {
-    setFolders(safeRead<ChatFolder[]>(FOLDERS_KEY, [], isArray));
+    const stored = safeRead<unknown[]>(FOLDERS_KEY, [], isArray)
+      .map(sanitizeFolder)
+      .filter((folder): folder is ChatFolder => Boolean(folder))
+      .sort((a, b) => a.order - b.order);
+    setFolders(stored);
   }, []);
 
   const persist = useCallback((f: ChatFolder[]) => {
@@ -217,7 +304,7 @@ export function useFolders() {
   const create = useCallback(
     (name: string, color = "#3b82f6"): ChatFolder => {
       const f: ChatFolder = {
-        id: crypto.randomUUID(),
+        id: safeId(),
         name,
         color,
         order: folders.length,
@@ -278,7 +365,7 @@ export function useArtifacts(threadId?: string | null) {
 
   const add = useCallback(
     (a: Omit<Artifact, "id" | "createdAt">) => {
-      const full: Artifact = { ...a, id: crypto.randomUUID(), createdAt: Date.now() };
+      const full: Artifact = { ...a, id: safeId(), createdAt: Date.now() };
       persist([full, ...all]);
       return full;
     },

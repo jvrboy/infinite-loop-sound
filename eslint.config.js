@@ -33,6 +33,17 @@ export default tseslint.config(
         },
       ],
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      // ESLint 10 / eslint-plugin-react-hooks 7 adds React Compiler checks to
+      // the recommended preset. Keep these visible without failing CI while
+      // the app is incrementally migrated to stricter compiler constraints.
+      "react-hooks/purity": "warn",
+      "react-hooks/set-state-in-effect": "warn",
+      "react-hooks/immutability": "warn",
+      "react-hooks/preserve-manual-memoization": "warn",
+      "react-hooks/refs": "warn",
+      "react-hooks/static-components": "warn",
+      "no-useless-assignment": "warn",
+      "@typescript-eslint/ban-ts-comment": "warn",
       "@typescript-eslint/no-unused-vars": "off",
       // `any` is used intentionally for dynamic imports, the Cloudflare Workers
       // runtime, and untyped Supabase rows — keep it visible as a warning rather

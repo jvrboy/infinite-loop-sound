@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { aiChat, loadKeys, PROVIDER_LABELS } from "@/lib/ai/client";
 import { toast } from "sonner";
-import { useThreads, useUsage, type Msg } from "@/hooks/use-chat-store";
+import { useFolders, useThreads, useUsage, type Msg } from "@/hooks/use-chat-store";
 import { ChatList } from "@/components/chat/ChatList";
 import { ArtifactsPanel } from "@/components/chat/ArtifactsPanel";
 import { CustomizePanel } from "@/components/chat/CustomizePanel";
@@ -72,12 +72,23 @@ const estimateTokens = (s: string) => Math.ceil(s.length / 4);
 function ChatPage() {
   const {
     threads,
+    ready: threadsReady,
     create: createThread,
     update: updateThread,
     remove: removeThread,
+    hardRemove: hardRemoveThread,
+    restore: restoreThread,
+    clone: cloneThread,
+    move: moveThread,
     togglePin,
     toggleArchive,
   } = useThreads();
+  const {
+    folders,
+    create: createFolder,
+    rename: renameFolder,
+    remove: removeFolder,
+  } = useFolders();
   const { track } = useUsage();
 
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -86,6 +97,7 @@ function ChatPage() {
   const [keysCount, setKeysCount] = useState(0);
   const [tab, setTab] = useState<SidebarTab>("chats");
   const [showArchived, setShowArchived] = useState(false);
+  const [showTrash, setShowTrash] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const [pipelineActive, setPipelineActive] = useState(false);
@@ -96,12 +108,21 @@ function ChatPage() {
 
   // bootstrap: pick first thread, or create one
   useEffect(() => {
-    if (threads.length > 0 && !activeId) setActiveId(threads[0].id);
-    else if (threads.length === 0 && !activeId) {
-      const t = createThread("New chat");
-      setActiveId(t.id);
+    if (!threadsReady || activeId) return;
+
+    const firstOpenThread =
+      threads.find((thread) => !thread.deleted && !thread.archived) ??
+      threads.find((thread) => !thread.deleted) ??
+      null;
+
+    if (firstOpenThread) {
+      setActiveId(firstOpenThread.id);
+      return;
     }
-  }, [threads.length]); // eslint-disable-line react-hooks/exhaustive-deps
+
+    const thread = createThread("New chat");
+    setActiveId(thread.id);
+  }, [activeId, createThread, threads, threadsReady]);
 
   useEffect(() => {
     setKeysCount(loadKeys().length);
@@ -126,8 +147,9 @@ function ChatPage() {
       return;
     }
     const user: Msg = { role: "user", content: input.trim(), ts: Date.now() };
+    const messagesWithUser = [...active.messages, user];
     updateThread(active.id, {
-      messages: [...active.messages, user],
+      messages: messagesWithUser,
       // auto-title from first user message
       title: active.messages.length === 0 ? user.content.slice(0, 40) : active.title,
     });
@@ -141,7 +163,7 @@ function ChatPage() {
       setCurrentStep((s) => Math.min(s + 1, PIPELINE_STEPS.length - 1));
     }, 750);
 
-    const history = [...active.messages, user].map((m) => ({
+    const history = messagesWithUser.map((m) => ({
       role: m.role,
       content: m.content,
     }));
@@ -162,9 +184,8 @@ function ChatPage() {
           ts: Date.now(),
           provider: result.synthProvider,
         };
-        const cur = threads.find((t) => t.id === active.id);
         updateThread(active.id, {
-          messages: [...(cur?.messages ?? active.messages), assistant],
+          messages: [...messagesWithUser, assistant],
         });
         track({
           ts: Date.now(),
@@ -185,9 +206,8 @@ function ChatPage() {
           ts: Date.now(),
           provider,
         };
-        const cur = threads.find((t) => t.id === active.id);
         updateThread(active.id, {
-          messages: [...(cur?.messages ?? active.messages), assistant],
+          messages: [...messagesWithUser, assistant],
         });
         track({
           ts: Date.now(),
@@ -203,7 +223,7 @@ function ChatPage() {
         content: `⚠ Error: ${e?.message || "Unknown error"}`,
         ts: Date.now(),
       };
-      updateThread(active.id, { messages: [...active.messages, user, err] });
+      updateThread(active.id, { messages: [...messagesWithUser, err] });
     } finally {
       clearInterval(stepInterval);
       setPipelineActive(false);
@@ -252,29 +272,61 @@ function ChatPage() {
           <div className="flex-1 overflow-y-auto py-2">
             {tab === "chats" && (
               <>
-                <div className="px-2 mb-2 flex items-center gap-2 text-[10px] text-muted-foreground">
+                <div className="px-2 mb-2 flex flex-wrap items-center gap-3 text-[10px] text-muted-foreground">
                   <label className="flex items-center gap-1 cursor-pointer">
                     <input
                       type="checkbox"
                       className="accent-primary"
                       checked={showArchived}
-                      onChange={(e) => setShowArchived(e.target.checked)}
+                      onChange={(e) => {
+                        setShowArchived(e.target.checked);
+                        if (e.target.checked) setShowTrash(false);
+                      }}
                     />
                     Show archived
+                  </label>
+                  <label className="flex items-center gap-1 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="accent-primary"
+                      checked={showTrash}
+                      onChange={(e) => {
+                        setShowTrash(e.target.checked);
+                        if (e.target.checked) setShowArchived(false);
+                      }}
+                    />
+                    Trash
                   </label>
                 </div>
                 <ChatList
                   threads={threads}
+                  folders={folders}
                   activeId={activeId}
                   onPick={(id) => setActiveId(id)}
                   onRename={(id, title) => updateThread(id, { title })}
                   onDelete={(id) => {
-                    removeThread(id);
+                    if (showTrash) hardRemoveThread(id);
+                    else removeThread(id);
                     if (activeId === id) setActiveId(null);
                   }}
                   onTogglePin={togglePin}
                   onToggleArchive={toggleArchive}
+                  onClone={(id) => {
+                    const cloned = cloneThread(id);
+                    if (cloned) setActiveId(cloned.id);
+                  }}
+                  onRestore={restoreThread}
+                  onMove={moveThread}
                   showArchived={showArchived}
+                  showTrash={showTrash}
+                  onCreateFolder={(name) => createFolder(name)}
+                  onRenameFolder={renameFolder}
+                  onDeleteFolder={(folderId) => {
+                    threads
+                      .filter((thread) => thread.folderId === folderId)
+                      .forEach((thread) => moveThread(thread.id, null));
+                    removeFolder(folderId);
+                  }}
                 />
               </>
             )}

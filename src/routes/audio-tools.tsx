@@ -59,7 +59,7 @@ function AudioToolsPage() {
 
   useEffect(() => {
     try {
-      const engine = new AudioEngine();
+      const engine = AudioEngine;
       engineRef.current = engine;
       toolsRef.current = new AudioTools(engine);
     } catch (e: any) {
@@ -67,7 +67,7 @@ function AudioToolsPage() {
     }
     return () => {
       try {
-        engineRef.current?.ctx?.close();
+        engineRef.current?.ctx?.close?.();
       } catch {}
     };
   }, []);
@@ -78,6 +78,7 @@ function AudioToolsPage() {
     setError(null);
     try {
       const arrayBuffer = await file.arrayBuffer();
+      if (!engineRef.current.ctx) throw new Error("Audio context is not initialized");
       const buffer = await engineRef.current.ctx.decodeAudioData(arrayBuffer);
       setAudioBuffer(buffer);
       setBpm(null);

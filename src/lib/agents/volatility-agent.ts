@@ -78,6 +78,8 @@ export async function runVolatilityAgent(
 
   return {
     agentId: "volatility-agent",
+    status: "completed",
+    timestamp: Date.now(),
     success: true,
     duration: Date.now() - start,
     regime,

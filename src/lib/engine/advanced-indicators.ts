@@ -3,7 +3,8 @@
 // All inputs are Candle[] or number[] aligned to candle index.
 
 import type { Candle } from "./indicators";
-import { ema, sma, atr } from "./indicators";
+import { ema, sma, atr, ichimoku, supertrend, adx, awesomeOscillator } from "./indicators";
+import { williamsR, cci, obv, vortex, mfi } from "./extra-indicators";
 
 // ---------- Aroon Up/Down ----------
 export interface AroonResult {
@@ -167,7 +168,7 @@ export function advancedScore(candles: Candle[]): AdvancedScore {
 
   // Supertrend
   const st = supertrend(candles);
-  const stTrend = st.trend[n - 1];
+  const stTrend = st.trend[n - 1] ?? 0;
   signals.push({ name: "Supertrend", value: stTrend, signal: stTrend > 0 ? "bull" : "bear" });
 
   // Williams %R

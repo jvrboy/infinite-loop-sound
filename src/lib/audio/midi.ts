@@ -23,7 +23,7 @@ export type MIDIEventHandler = {
 
 export class MIDIInput {
   private access: MIDIAccess | null = null;
-  private inputs: MIDIInput[] = [];
+  private inputs: globalThis.MIDIInput[] = [];
   private handler: MIDIEventHandler = {};
   connected = false;
 

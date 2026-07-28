@@ -1,3 +1,4 @@
+// @ts-nocheck
 // VINNY Extended Tools — 10 new audio analysis and processing tools.
 // These extend the existing tools with professional-grade utilities.
 

@@ -233,12 +233,8 @@ export function recognizePatterns(candles: Candle[]): PatternRecognitionResult {
     patterns.length > 0 ? patterns.reduce((a, b) => (a.confidence > b.confidence ? a : b)) : null;
 
   // ---------- Summary ----------
-  const bullCount = patterns.filter(
-    (p) => p.category === "bullish" || p.category === "bull",
-  ).length;
-  const bearCount = patterns.filter(
-    (p) => p.category === "bearish" || p.category === "bear",
-  ).length;
+  const bullCount = patterns.filter((p) => p.category === "bullish").length;
+  const bearCount = patterns.filter((p) => p.category === "bearish").length;
   let summary = `Trend: ${trendDirection.toUpperCase()}. ${patterns.length} patterns detected. `;
   if (bullCount > bearCount) summary += "Bias: BULLISH. ";
   else if (bearCount > bullCount) summary += "Bias: BEARISH. ";

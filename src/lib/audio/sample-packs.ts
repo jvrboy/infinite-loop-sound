@@ -175,9 +175,11 @@ export async function importFolder(
   const samples: Sample[] = [];
   const audioExts = [".wav", ".mp3", ".ogg", ".flac", ".m4a", ".aiff", ".aac"];
   const files: File[] = [];
-  for await (const entry of dirHandle.values()) {
+  for await (const entry of (
+    dirHandle as unknown as { values: () => AsyncIterable<FileSystemHandle> }
+  ).values()) {
     if (entry.kind === "file") {
-      const file = await entry.getFile();
+      const file = await (entry as FileSystemFileHandle).getFile();
       if (audioExts.some((ext) => file.name.toLowerCase().endsWith(ext))) files.push(file);
     }
   }

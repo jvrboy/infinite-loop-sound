@@ -98,9 +98,33 @@ const DEFAULT_CONFIG: ExecutionConfig = {
 };
 
 const DEFAULT_ROUTING_RULES: RoutingRule[] = [
-  { venue: "primary", priority: 1, maxQuantity: 1000, allowedTypes: ["market", "limit", "stop", "stop_limit"], enabled: true, latencyBps: 1, feeBps: 2 },
-  { venue: "secondary", priority: 2, maxQuantity: 500, allowedTypes: ["market", "limit"], enabled: true, latencyBps: 3, feeBps: 1 },
-  { venue: "darkpool", priority: 3, maxQuantity: 200, allowedTypes: ["limit"], enabled: true, latencyBps: 5, feeBps: 0.5 },
+  {
+    venue: "primary",
+    priority: 1,
+    maxQuantity: 1000,
+    allowedTypes: ["market", "limit", "stop", "stop_limit"],
+    enabled: true,
+    latencyBps: 1,
+    feeBps: 2,
+  },
+  {
+    venue: "secondary",
+    priority: 2,
+    maxQuantity: 500,
+    allowedTypes: ["market", "limit"],
+    enabled: true,
+    latencyBps: 3,
+    feeBps: 1,
+  },
+  {
+    venue: "darkpool",
+    priority: 3,
+    maxQuantity: 200,
+    allowedTypes: ["limit"],
+    enabled: true,
+    latencyBps: 5,
+    feeBps: 0.5,
+  },
 ];
 
 export class ExecutionEngine {
@@ -245,9 +269,7 @@ export class ExecutionEngine {
     }
     const valid = this.routingRules.filter(
       (r) =>
-        r.enabled &&
-        r.allowedTypes.includes(request.type) &&
-        r.maxQuantity >= request.quantity,
+        r.enabled && r.allowedTypes.includes(request.type) && r.maxQuantity >= request.quantity,
     );
     return valid.sort((a, b) => a.priority - b.priority)[0] || this.routingRules[0];
   }
@@ -281,7 +303,7 @@ export class ExecutionEngine {
       remainingQuantity: request.quantity,
       price: request.price,
       stopPrice: request.stopPrice,
-      averageFilledPrice: undefined,
+      avgFillPrice: undefined,
       fills: [],
       timeInForce: request.timeInForce || this.config.defaultTimeInForce,
       reduceOnly: request.reduceOnly || false,
@@ -304,7 +326,7 @@ export class ExecutionEngine {
     order.status = "filled";
     order.filledQuantity = order.quantity;
     order.remainingQuantity = 0;
-    order.averageFilledPrice = fillPrice;
+    order.avgFillPrice = fillPrice;
     order.fills.push({
       price: fillPrice,
       quantity: order.quantity,
@@ -322,7 +344,7 @@ export class ExecutionEngine {
       order.status = "filled";
       order.filledQuantity = order.quantity;
       order.remainingQuantity = 0;
-      order.averageFilledPrice = order.price || this.marketPrice;
+      order.avgFillPrice = order.price || this.marketPrice;
       order.fills.push({
         price: order.price || this.marketPrice,
         quantity: order.quantity,
@@ -336,10 +358,7 @@ export class ExecutionEngine {
     order.updatedAt = timestamp;
   }
 
-  private async submitOCO(
-    request: OrderRequest,
-    startTime: number,
-  ): Promise<ExecutionReport> {
+  private async submitOCO(request: OrderRequest, startTime: number): Promise<ExecutionReport> {
     const limitRequest: OrderRequest = {
       ...request,
       type: "limit",
@@ -375,11 +394,7 @@ export class ExecutionEngine {
     };
   }
 
-  private rejectOrder(
-    request: OrderRequest,
-    reason: string,
-    timestamp: number,
-  ): ExecutionReport {
+  private rejectOrder(request: OrderRequest, reason: string, timestamp: number): ExecutionReport {
     const order: Order = {
       id: request.id,
       symbol: request.symbol,

@@ -140,21 +140,15 @@ export class DecisionEngine {
     const highRiskCount = riskMetrics.filter((r) => r.risk === "high").length;
     const mediumRiskCount = riskMetrics.filter((r) => r.risk === "medium").length;
 
-    let overallRisk: "low" | "medium" | "high" = "low";
-    let riskScore = 0;
-
     if (highRiskCount > riskMetrics.length / 2) {
-      overallRisk = "high";
-      riskScore = 0.8;
-    } else if (mediumRiskCount > riskMetrics.length / 2) {
-      overallRisk = "medium";
-      riskScore = 0.5;
-    } else {
-      overallRisk = "low";
-      riskScore = 0.2;
+      return { overallRisk: "high", riskScore: 0.8 };
     }
 
-    return { overallRisk, riskScore };
+    if (mediumRiskCount > riskMetrics.length / 2) {
+      return { overallRisk: "medium", riskScore: 0.5 };
+    }
+
+    return { overallRisk: "low", riskScore: 0.2 };
   }
 
   /**

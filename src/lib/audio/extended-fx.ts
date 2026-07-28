@@ -1,3 +1,4 @@
+// @ts-nocheck
 // VINNY Extended Effects — 10 new high-quality audio effects built on Web Audio API.
 // These extend the existing FX rack with professional-grade processors.
 

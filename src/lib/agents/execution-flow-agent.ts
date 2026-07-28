@@ -21,9 +21,13 @@ export async function runExecutionFlowAgent(
 
   const recentTicks = ticks.slice(-100);
   // Tick type { epoch, quote } doesn't have bid/ask — use quote as a proxy
-  const spreads = recentTicks.length > 1
-    ? recentTicks.slice(1).map((t, i) => Math.abs(t.quote - recentTicks[i].quote)).filter((s) => s > 0)
-    : [];
+  const spreads =
+    recentTicks.length > 1
+      ? recentTicks
+          .slice(1)
+          .map((t, i) => Math.abs(t.quote - recentTicks[i].quote))
+          .filter((s) => s > 0)
+      : [];
   const avgSpread = spreads.length > 0 ? spreads.reduce((a, b) => a + b, 0) / spreads.length : 0;
   const spreadScore = Math.max(0, Math.round(100 - avgSpread * 10000));
 
