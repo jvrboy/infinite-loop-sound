@@ -99,7 +99,7 @@ export class Visualizer {
 
   private renderSpectrum(W: number, H: number) {
     if (!this.ctx || !this.analyser) return;
-    this.analyser.getByteFrequencyData(this.freqData);
+    this.analyser.getByteFrequencyData(this.freqData as Uint8Array<ArrayBuffer>);
     this.ctx.fillStyle = "rgba(5,5,10,0.3)";
     this.ctx.fillRect(0, 0, W, H);
     const bars = Math.min(this.freqData.length, 128);
@@ -117,7 +117,7 @@ export class Visualizer {
 
   private renderSpectrogram(W: number, H: number) {
     if (!this.ctx || !this.analyser) return;
-    this.analyser.getByteFrequencyData(this.freqData);
+    this.analyser.getByteFrequencyData(this.freqData as Uint8Array<ArrayBuffer>);
     // Scroll left and draw new column on right
     const colW = 2;
     const img = this.ctx.getImageData(colW, 0, W - colW, H);
@@ -135,7 +135,7 @@ export class Visualizer {
 
   private renderOscilloscope(W: number, H: number) {
     if (!this.ctx || !this.analyser) return;
-    this.analyser.getByteTimeDomainData(this.timeData);
+    this.analyser.getByteTimeDomainData(this.timeData as Uint8Array<ArrayBuffer>);
     this.ctx.fillStyle = "rgba(5,5,10,0.2)";
     this.ctx.fillRect(0, 0, W, H);
     this.ctx.strokeStyle = this.config.color;
@@ -153,7 +153,7 @@ export class Visualizer {
 
   private renderVectorscope(W: number, H: number) {
     if (!this.ctx || !this.analyser) return;
-    this.analyser.getByteTimeDomainData(this.timeData);
+    this.analyser.getByteTimeDomainData(this.timeData as Uint8Array<ArrayBuffer>);
     this.ctx.fillStyle = "rgba(5,5,10,0.1)";
     this.ctx.fillRect(0, 0, W, H);
     const cx = W / 2;
@@ -174,7 +174,7 @@ export class Visualizer {
 
   private renderLoudness(W: number, H: number) {
     if (!this.ctx || !this.analyser) return;
-    this.analyser.getByteTimeDomainData(this.timeData);
+    this.analyser.getByteTimeDomainData(this.timeData as Uint8Array<ArrayBuffer>);
     let sum = 0;
     for (let i = 0; i < this.timeData.length; i++) {
       const v = (this.timeData[i] - 128) / 128;

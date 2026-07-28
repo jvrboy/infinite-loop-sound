@@ -31,8 +31,8 @@ export function calcPivots(
         s2: pp - (high - low),
         r3: high + 2 * (pp - low),
         s3: low - 2 * (high - pp),
-        r4: r3 + (high - low),
-        s4: s3 - (high - low),
+        r4: high + 2 * (pp - low) + (high - low),
+        s4: low - 2 * (high - pp) - (high - low),
       };
     }
     case "fibonacci": {
@@ -75,12 +75,12 @@ export function calcPivots(
         s2: pp - range,
         r3: high + 2 * (pp - low),
         s3: low - 2 * (high - pp),
-        r4: r3 + range,
-        s4: s3 - range,
+        r4: high + 2 * (pp - low) + range,
+        s4: low - 2 * (high - pp) - range,
       };
     }
     case "demark": {
-      const x = close > open ? 2 * high + low + close : 2 * low + high + close;
+      const x = close > (high + low) / 2 ? 2 * high + low + close : 2 * low + high + close;
       const pp = x / 4;
       return {
         pp,

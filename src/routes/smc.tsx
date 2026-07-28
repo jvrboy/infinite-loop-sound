@@ -281,7 +281,7 @@ function SMCPage() {
         (o) => o.type === "bearish" && !o.mitigated,
       ).length;
       const bullScore = bullishBreaks * 2 + unmitigatedBull;
-      const bearScore = bearBreaks * 2 + unmitigatedBear;
+      const bearScore = bearishBreaks * 2 + unmitigatedBear;
       const biasScore = Math.round(
         ((bullScore - bearScore) / Math.max(1, bullScore + bearScore)) * 100,
       );

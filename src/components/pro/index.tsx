@@ -3,6 +3,16 @@ import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 
 type Trend = "up" | "down" | "flat";
+type IconLike = React.ReactNode | React.ComponentType<{ className?: string }>;
+
+const renderIcon = (icon: IconLike) => {
+  if (!icon) return null;
+  if (typeof icon === "function") {
+    const Icon = icon;
+    return <Icon className="h-4 w-4" />;
+  }
+  return icon;
+};
 
 interface StatTileProps {
   label: string;
@@ -10,7 +20,7 @@ interface StatTileProps {
   sub?: React.ReactNode;
   trend?: Trend;
   delta?: string;
-  icon?: React.ReactNode;
+  icon?: IconLike;
   accent?: "primary" | "bull" | "bear" | "warning" | "neutral";
   className?: string;
 }
@@ -39,6 +49,7 @@ export function StatTile({
   accent = "primary",
   className,
 }: StatTileProps) {
+  const iconNode = renderIcon(icon);
   return (
     <div
       className={cn(
@@ -56,7 +67,9 @@ export function StatTile({
           <p className="mt-1 text-2xl font-bold tabular-nums leading-tight">{value}</p>
           {sub && <p className="mt-0.5 text-xs text-muted-foreground truncate">{sub}</p>}
         </div>
-        {icon && <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{icon}</div>}
+        {iconNode && (
+          <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{iconNode}</div>
+        )}
       </div>
       {delta && (
         <div className="mt-2 pl-2">
@@ -72,10 +85,10 @@ export function StatTile({
   );
 }
 
-interface ProCardProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ProCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   title?: React.ReactNode;
   description?: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: IconLike;
   action?: React.ReactNode;
   glow?: boolean;
 }
@@ -90,6 +103,7 @@ export function ProCard({
   children,
   ...props
 }: ProCardProps) {
+  const iconNode = renderIcon(icon);
   return (
     <div
       className={cn(
@@ -103,8 +117,8 @@ export function ProCard({
       {(title || action) && (
         <div className="flex items-start justify-between gap-3 border-b border-border/60 p-4">
           <div className="flex items-start gap-3 min-w-0">
-            {icon && (
-              <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{icon}</div>
+            {iconNode && (
+              <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{iconNode}</div>
             )}
             <div className="min-w-0">
               {title && <h3 className="font-semibold leading-tight truncate">{title}</h3>}
@@ -120,15 +134,56 @@ export function ProCard({
 }
 
 interface DataPanelProps {
-  headers: React.ReactNode[];
-  rows: React.ReactNode[][];
+  headers?: React.ReactNode[];
+  rows?: React.ReactNode[][];
   empty?: React.ReactNode;
   dense?: boolean;
   className?: string;
+  children?: React.ReactNode;
+  title?: React.ReactNode;
+  data?: unknown;
 }
 
-export function DataPanel({ headers, rows, empty, dense, className }: DataPanelProps) {
-  if (rows.length === 0 && empty) {
+const renderData = (data: unknown) => {
+  if (data == null) return null;
+  if (typeof data === "string" || typeof data === "number" || typeof data === "boolean") {
+    return String(data);
+  }
+  return JSON.stringify(data, null, 2);
+};
+
+export function DataPanel({
+  headers,
+  rows,
+  empty,
+  dense,
+  className,
+  children,
+  title,
+  data,
+}: DataPanelProps) {
+  if (children) {
+    return (
+      <div className={cn("rounded-lg border border-border bg-card/60 p-4", className)}>
+        {children}
+      </div>
+    );
+  }
+
+  if (data !== undefined) {
+    return (
+      <div className={cn("rounded-lg border border-border bg-card/60 p-4", className)}>
+        {title && <div className="mb-2 text-sm font-semibold">{title}</div>}
+        <pre className="overflow-x-auto whitespace-pre-wrap text-xs text-muted-foreground">
+          {renderData(data)}
+        </pre>
+      </div>
+    );
+  }
+
+  const safeRows = rows ?? [];
+  const safeHeaders = headers ?? [];
+  if (safeRows.length === 0 && empty) {
     return (
       <div className={cn("text-sm text-muted-foreground p-4 text-center", className)}>{empty}</div>
     );
@@ -138,7 +193,7 @@ export function DataPanel({ headers, rows, empty, dense, className }: DataPanelP
       <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border text-left">
-            {headers.map((h, i) => (
+            {safeHeaders.map((h, i) => (
               <th
                 key={i}
                 className={cn(
@@ -152,7 +207,7 @@ export function DataPanel({ headers, rows, empty, dense, className }: DataPanelP
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, ri) => (
+          {safeRows.map((r, ri) => (
             <tr key={ri} className="border-b border-border/40 transition-colors hover:bg-primary/5">
               {r.map((c, ci) => (
                 <td
@@ -175,9 +230,12 @@ export function DataPanel({ headers, rows, empty, dense, className }: DataPanelP
 
 interface MeterBarProps {
   value: number;
+  max?: number;
   label?: string;
   color?: "primary" | "bull" | "bear" | "warning";
   showValue?: boolean;
+  suffix?: string;
+  format?: (value: number) => React.ReactNode;
   className?: string;
 }
 
@@ -188,15 +246,26 @@ const meterColor: Record<string, string> = {
   warning: "bg-warning",
 };
 
-export function MeterBar({ value, label, color = "primary", showValue, className }: MeterBarProps) {
-  const v = Math.max(0, Math.min(100, value));
+export function MeterBar({
+  value,
+  max = 100,
+  label,
+  color = "primary",
+  showValue,
+  suffix = "%",
+  format,
+  className,
+}: MeterBarProps) {
+  const normalized = max > 0 ? (value / max) * 100 : value;
+  const v = Math.max(0, Math.min(100, normalized));
+  const display = format ? format(value) : `${value.toFixed(0)}${suffix}`;
   return (
     <div className={cn("w-full", className)}>
       {(label || showValue) && (
         <div className="flex items-center justify-between mb-1">
           {label && <span className="text-xs text-muted-foreground">{label}</span>}
           {showValue && (
-            <span className="text-xs font-mono font-semibold tabular-nums">{v.toFixed(0)}%</span>
+            <span className="text-xs font-mono font-semibold tabular-nums">{display}</span>
           )}
         </div>
       )}
@@ -213,16 +282,19 @@ export function MeterBar({ value, label, color = "primary", showValue, className
 interface SectionHeaderProps {
   title: React.ReactNode;
   subtitle?: React.ReactNode;
-  icon?: React.ReactNode;
+  icon?: IconLike;
   action?: React.ReactNode;
   className?: string;
 }
 
 export function SectionHeader({ title, subtitle, icon, action, className }: SectionHeaderProps) {
+  const iconNode = renderIcon(icon);
   return (
     <div className={cn("flex items-end justify-between gap-3 flex-wrap", className)}>
       <div className="flex items-center gap-3 min-w-0">
-        {icon && <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{icon}</div>}
+        {iconNode && (
+          <div className="shrink-0 rounded-lg bg-primary/10 p-2 text-primary">{iconNode}</div>
+        )}
         <div className="min-w-0">
           <h2 className="text-xl md:text-2xl font-bold tracking-tight truncate">{title}</h2>
           {subtitle && <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>}
@@ -234,16 +306,15 @@ export function SectionHeader({ title, subtitle, icon, action, className }: Sect
 }
 
 interface KpiGridProps {
-  tiles: Omit<StatTileProps, "className">[];
+  tiles?: Omit<StatTileProps, "className">[];
   className?: string;
+  children?: React.ReactNode;
 }
 
-export function KpiGrid({ tiles, className }: KpiGridProps) {
+export function KpiGrid({ tiles, className, children }: KpiGridProps) {
   return (
     <div className={cn("grid gap-3 grid-cols-2 lg:grid-cols-4", className)}>
-      {tiles.map((t, i) => (
-        <StatTile key={i} {...t} />
-      ))}
+      {children ?? tiles?.map((t, i) => <StatTile key={i} {...t} />)}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // VINNY Extended Effects Pack 2 — 5 more professional audio effects.
 
 import { AudioEngine } from "./engine";

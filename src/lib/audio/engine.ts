@@ -113,7 +113,7 @@ class AudioEngineClass {
     this.filterNode.type = "lowpass";
     this.filterNode.frequency.value = 20000;
     this.distortion = this.ctx.createWaveShaper();
-    this.distortion.curve = this.makeDistortionCurve(0);
+    this.distortion.curve = this.makeDistortionCurve(0) as Float32Array<ArrayBuffer>;
     this.compressor = this.ctx.createDynamicsCompressor();
     this.analyser = this.ctx.createAnalyser();
     this.analyser.fftSize = 1024;
@@ -237,7 +237,10 @@ class AudioEngineClass {
     if (this.delayNode) this.delayNode.delayTime.setTargetAtTime(params.delayTime, t, 0.03);
     this.delayFeedback?.gain.setTargetAtTime(params.delayFeedback, t, 0.03);
     this.filterNode?.frequency.setTargetAtTime(params.filterFreq, t, 0.03);
-    if (this.distortion) this.distortion.curve = this.makeDistortionCurve(params.distortion);
+    if (this.distortion)
+      this.distortion.curve = this.makeDistortionCurve(
+        params.distortion,
+      ) as Float32Array<ArrayBuffer>;
     if (this.compressor) {
       this.compressor.threshold.value = -50 + (1 - params.compressor) * 40;
     }
@@ -398,6 +401,7 @@ class AudioEngineClass {
 }
 
 export const AudioEngine = new AudioEngineClass();
+export type AudioEngine = AudioEngineClass;
 
 // ---------- Music theory helpers ----------
 export const NOTE_FREQS: Record<string, number> = {};

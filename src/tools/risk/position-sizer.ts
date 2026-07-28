@@ -102,8 +102,13 @@ export class PositionSizer {
   computeRiskMetrics(trades: { return_: number }[]): RiskMetrics {
     if (trades.length < 5) {
       return {
-        var95: 0, var99: 0, expectedShortfall: 0,
-        maxDrawdown: 0, sharpeRatio: 0, sortinoRatio: 0, calmarRatio: 0,
+        var95: 0,
+        var99: 0,
+        expectedShortfall: 0,
+        maxDrawdown: 0,
+        sharpeRatio: 0,
+        sortinoRatio: 0,
+        calmarRatio: 0,
       };
     }
 
@@ -114,7 +119,8 @@ export class PositionSizer {
     const variance = returns.reduce((a, b) => a + (b - mean) ** 2, 0) / returns.length;
     const std = Math.sqrt(variance);
     const negReturns = returns.filter((r) => r < 0);
-    const downsideVar = negReturns.reduce((a, b) => a + (b - mean) ** 2, 0) / Math.max(negReturns.length, 1);
+    const downsideVar =
+      negReturns.reduce((a, b) => a + (b - mean) ** 2, 0) / Math.max(negReturns.length, 1);
     const downsideStd = Math.sqrt(downsideVar);
 
     const var95Idx = Math.floor(returns.length * 0.05);
@@ -123,33 +129,40 @@ export class PositionSizer {
     const var99 = returns[var99Idx] || 0;
 
     const esTails = returns.slice(0, var95Idx);
-    const expectedShortfall = esTails.length > 0
-      ? esTails.reduce((a, b) => a + b, 0) / esTails.length
-      : 0;
+    const expectedShortfall =
+      esTails.length > 0 ? esTails.reduce((a, b) => a + b, 0) / esTails.length : 0;
 
     // Max drawdown from equity curve
     let peak = 0;
     let maxDd = 0;
     let equity = 1;
     for (const r of returns) {
-      equity *= (1 + r);
+      equity *= 1 + r;
       if (equity > peak) peak = equity;
       const dd = (peak - equity) / peak;
       if (dd > maxDd) maxDd = dd;
     }
 
-    const sharpeRatio = std > 0 ? mean / std * Math.sqrt(252) : 0;
-    const sortinoRatio = downsideStd > 0 ? mean / downsideStd * Math.sqrt(252) : 0;
-    const calmarRatio = maxDd > 0 ? mean * 252 / maxDd : 0;
+    const sharpeRatio = std > 0 ? (mean / std) * Math.sqrt(252) : 0;
+    const sortinoRatio = downsideStd > 0 ? (mean / downsideStd) * Math.sqrt(252) : 0;
+    const calmarRatio = maxDd > 0 ? (mean * 252) / maxDd : 0;
 
-    return { var95, var99, expectedShortfall, maxDrawdown: maxDd, sharpeRatio, sortinoRatio, calmarRatio };
+    return {
+      var95,
+      var99,
+      expectedShortfall,
+      maxDrawdown: maxDd,
+      sharpeRatio,
+      sortinoRatio,
+      calmarRatio,
+    };
   }
 
   private kellySizing(entryPrice: number, riskPerUnit: number): PositionSizeResult {
     const { winRate, avgWin, avgLoss, accountSize, maxRiskPerTrade, maxPositionSize } = this.config;
     const w = winRate || 0.5;
     const r = (avgWin || 0.02) / (avgLoss || 0.01);
-    let kelly = (w * r - (1 - w)) / r;
+    const kelly = (w * r - (1 - w)) / r;
 
     // Apply Kelly multiplier
     let kellyMultiplier = 1;

@@ -13,6 +13,11 @@ const SHADER_PREVIEWS: Record<ShaderId, string> = {
   fluid: "radial-gradient(ellipse at 60% 40%, #053d35, #021510)",
   tunnel: "radial-gradient(circle at 50% 50%, #053d30, #020a08)",
   galaxy: "radial-gradient(spiral at 50% 50%, #0a3528, #051815, #020a08)",
+  kaleidoscope: "conic-gradient(from 45deg, #052820, #0a4030, #051815, #0a4030, #052820)",
+  raymarch: "radial-gradient(circle at 50% 45%, #0b3a33, #041b18 45%, #020706)",
+  neongrid: "linear-gradient(180deg, #0b1028, #07131c 55%, #04110f)",
+  magma: "radial-gradient(ellipse at 50% 60%, #7a2200, #2a0900 45%, #050100)",
+  crystal: "linear-gradient(135deg, #07202a, #0a3d38 48%, #03080c)",
   none: "#0a0e1a",
 };
 

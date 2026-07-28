@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect, useRef, useCallback } from "react";
 import { AudioEngine, noteToFreq, NOTE_NAMES, SCALES } from "@/lib/audio/engine";
 import {

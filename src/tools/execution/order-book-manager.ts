@@ -66,7 +66,10 @@ export class OrderBookManager {
     this.tradeHistory.set(symbol, trades);
   }
 
-  computeDepthProfile(symbol: string, depthThresholds: number[] = [0.001, 0.002, 0.005, 0.01, 0.02]): DepthProfile | null {
+  computeDepthProfile(
+    symbol: string,
+    depthThresholds: number[] = [0.001, 0.002, 0.005, 0.01, 0.02],
+  ): DepthProfile | null {
     const snapshot = this.snapshots.get(symbol);
     if (!snapshot || snapshot.bids.length === 0 || snapshot.asks.length === 0) return null;
 
@@ -77,9 +80,10 @@ export class OrderBookManager {
 
     const totalBidSize = snapshot.bids.reduce((sum, l) => sum + l.size, 0);
     const totalAskSize = snapshot.asks.reduce((sum, l) => sum + l.size, 0);
-    const imbalance = totalBidSize + totalAskSize > 0
-      ? (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize)
-      : 0;
+    const imbalance =
+      totalBidSize + totalAskSize > 0
+        ? (totalBidSize - totalAskSize) / (totalBidSize + totalAskSize)
+        : 0;
 
     const bidLiquidity = new Map<number, number>();
     const askLiquidity = new Map<number, number>();
@@ -167,7 +171,7 @@ export class OrderBookManager {
     let vwapNumerator = 0;
     let high = -Infinity;
     let low = Infinity;
-    let close = relevant[relevant.length - 1].price;
+    const close = relevant[relevant.length - 1].price;
 
     for (const trade of relevant) {
       volume += trade.size;
@@ -202,7 +206,10 @@ export class OrderBookManager {
     return false;
   }
 
-  computeBidAskPressure(symbol: string, levels: number = 5): { bidPressure: number; askPressure: number } {
+  computeBidAskPressure(
+    symbol: string,
+    levels: number = 5,
+  ): { bidPressure: number; askPressure: number } {
     const snapshot = this.snapshots.get(symbol);
     if (!snapshot) return { bidPressure: 0, askPressure: 0 };
 

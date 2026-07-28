@@ -300,12 +300,12 @@ export const mtfAgent: SubAgent = {
     const higherTF = ctx?.higherTfCandles;
     const lowerTF = ctx?.lowerTfCandles;
     const st = supertrend(candles);
-    const baseTrend = st.trend[candles.length - 1];
+    const baseTrend = st.trend[candles.length - 1] ?? 0;
     score += baseTrend * 30;
     insights.push(`Base TF Supertrend: ${baseTrend > 0 ? "Bullish" : "Bearish"}`);
     if (higherTF && higherTF.length > 10) {
       const hst = supertrend(higherTF);
-      const hTrend = hst.trend[higherTF.length - 1];
+      const hTrend = hst.trend[higherTF.length - 1] ?? 0;
       score += hTrend * 25;
       insights.push(`Higher TF Supertrend: ${hTrend > 0 ? "Bullish" : "Bearish"}`);
       if (baseTrend === hTrend) {
@@ -318,7 +318,7 @@ export const mtfAgent: SubAgent = {
     }
     if (lowerTF && lowerTF.length > 10) {
       const lst = supertrend(lowerTF);
-      const lTrend = lst.trend[lowerTF.length - 1];
+      const lTrend = lst.trend[lowerTF.length - 1] ?? 0;
       score += lTrend * 10;
       insights.push(`Lower TF Supertrend: ${lTrend > 0 ? "Bullish" : "Bearish"}`);
     }
@@ -504,7 +504,7 @@ export const trendAgent: SubAgent = {
       }
     }
     const st = supertrend(candles);
-    const stTrend = st.trend[n - 1];
+    const stTrend = st.trend[n - 1] ?? 0;
     score += stTrend * 15;
     insights.push(`Supertrend: ${stTrend > 0 ? "Bullish" : "Bearish"}`);
     const bias: SubAgentResult["bias"] = score > 10 ? "bull" : score < -10 ? "bear" : "neutral";
@@ -625,7 +625,7 @@ export const swingAgent: SubAgent = {
       }
     }
     const st = supertrend(candles, 10, 3);
-    const stTrend = st.trend[n - 1];
+    const stTrend = st.trend[n - 1] ?? 0;
     score += stTrend * 20;
     insights.push(`Supertrend: ${stTrend > 0 ? "Bullish" : "Bearish"}`);
     const adxRes = adx(candles, 14);

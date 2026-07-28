@@ -72,6 +72,8 @@ export async function runLiquidityAgent(
 
   return {
     agentId: "liquidity-agent",
+    status: "completed",
+    timestamp: Date.now(),
     success: true,
     duration: Date.now() - start,
     zones,

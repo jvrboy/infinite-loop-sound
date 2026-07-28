@@ -5,6 +5,8 @@
 
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
+const supabaseClient = supabase as any;
+
 const DB_NAME = "diq-local-store";
 const DB_VERSION = 1;
 const STORE = "kv";
@@ -107,7 +109,7 @@ export function useLocalDataStore(): LocalDataStore {
   return {
     async select<T = any>(table: StoreTable, filter?: Partial<Record<string, any>>) {
       if (configured) {
-        let q = supabase.from(table).select("*");
+        let q = supabaseClient.from(table).select("*");
         if (filter) {
           for (const [k, v] of Object.entries(filter)) {
             q = q.eq(k, v);
@@ -122,7 +124,7 @@ export function useLocalDataStore(): LocalDataStore {
 
     async insert<T = any>(table: StoreTable, row: T) {
       if (configured) {
-        return supabase.from(table).insert(row).select().single() as any;
+        return supabaseClient.from(table).insert(row).select().single() as any;
       }
       const rows = ((await idbGet(table)) as any[]) || [];
       const newRow = { ...row, id: crypto.randomUUID(), created_at: new Date().toISOString() };
@@ -133,7 +135,7 @@ export function useLocalDataStore(): LocalDataStore {
 
     async update<T = any>(table: StoreTable, id: string, patch: Partial<T>) {
       if (configured) {
-        return supabase.from(table).update(patch).eq("id", id).select().single() as any;
+        return supabaseClient.from(table).update(patch).eq("id", id).select().single() as any;
       }
       const rows = ((await idbGet(table)) as any[]) || [];
       const idx = rows.findIndex((r) => r.id === id);
@@ -147,7 +149,7 @@ export function useLocalDataStore(): LocalDataStore {
 
     async remove(table: StoreTable, id: string) {
       if (configured) {
-        return { error: (await supabase.from(table).delete().eq("id", id)).error };
+        return { error: (await supabaseClient.from(table).delete().eq("id", id)).error };
       }
       const rows = ((await idbGet(table)) as any[]) || [];
       await idbSet(
@@ -159,7 +161,7 @@ export function useLocalDataStore(): LocalDataStore {
 
     async upsert<T = any>(table: StoreTable, row: T) {
       if (configured) {
-        return supabase.from(table).upsert(row).select().single() as any;
+        return supabaseClient.from(table).upsert(row).select().single() as any;
       }
       const rows = ((await idbGet(table)) as any[]) || [];
       const rowAny = row as any;

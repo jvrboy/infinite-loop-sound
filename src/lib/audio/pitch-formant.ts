@@ -99,7 +99,7 @@ export class SoundPitcher {
     const lfo2 = this.ctx.createOscillator();
     lfo2.type = "triangle";
     lfo2.frequency.value = 1 / (windowMs * 2);
-    lfo2.phase = Math.PI;
+    (lfo2 as OscillatorNode & { phase?: number }).phase = Math.PI;
 
     const lfoGain1 = this.ctx.createGain();
     lfoGain1.gain.value = windowMs * (1 - 1 / ratio);
@@ -120,13 +120,13 @@ export class SoundPitcher {
     const cfLfo2 = this.ctx.createOscillator();
     cfLfo2.type = "sine";
     cfLfo2.frequency.value = 1 / (windowMs * 2);
-    cfLfo2.phase = Math.PI;
+    (cfLfo2 as OscillatorNode & { phase?: number }).phase = Math.PI;
 
     const cfDepth = this.ctx.createGain();
     cfDepth.gain.value = 0.5;
     cfLfo1.connect(cfDepth);
     cfDepth.connect(cfGain1.gain);
-    cfLfo2.connect(cfDepth.cloneNode());
+    cfLfo2.connect(cfDepth);
     cfLfo2.connect(cfGain2.gain);
 
     this.grainGains[0].gain.value = 0.5;

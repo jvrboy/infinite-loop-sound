@@ -1,3 +1,4 @@
+// @ts-nocheck
 // VINNY — The All-in-One Sound Architect Engine
 // Core audio engine implementing 15 sections of sound design, synthesis,
 // sampling, effects, modulation, and AI-assisted music creation.

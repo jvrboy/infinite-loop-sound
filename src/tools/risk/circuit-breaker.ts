@@ -128,7 +128,12 @@ export class CircuitBreaker {
 
   recordVolatilitySpike(atrMultiple: number): CircuitBreakerEvent | null {
     if (atrMultiple >= this.config.volatilityThreshold) {
-      return this.trip("volatility_spike", atrMultiple, this.config.volatilityThreshold, `Volatility spike: ${atrMultiple.toFixed(1)}x ATR`);
+      return this.trip(
+        "volatility_spike",
+        atrMultiple,
+        this.config.volatilityThreshold,
+        `Volatility spike: ${atrMultiple.toFixed(1)}x ATR`,
+      );
     }
     return null;
   }
@@ -148,32 +153,56 @@ export class CircuitBreaker {
   private checkTriggers(): CircuitBreakerEvent | null {
     // Daily loss check
     if (this.dailyPnL <= -this.config.maxDailyLoss) {
-      return this.trip("daily_loss", this.dailyPnL, this.config.maxDailyLoss, `Daily loss limit: ${this.dailyPnL.toFixed(2)} (max: ${this.config.maxDailyLoss})`);
+      return this.trip(
+        "daily_loss",
+        this.dailyPnL,
+        this.config.maxDailyLoss,
+        `Daily loss limit: ${this.dailyPnL.toFixed(2)} (max: ${this.config.maxDailyLoss})`,
+      );
     }
 
     if (this.currentEquity > 0) {
       const dailyLossPercent = (this.dailyPnL / this.currentEquity) * 100;
       if (dailyLossPercent <= -this.config.maxDailyLossPercent) {
-        return this.trip("daily_loss", dailyLossPercent, this.config.maxDailyLossPercent, `Daily loss ${dailyLossPercent.toFixed(1)}% exceeds ${this.config.maxDailyLossPercent}% limit`);
+        return this.trip(
+          "daily_loss",
+          dailyLossPercent,
+          this.config.maxDailyLossPercent,
+          `Daily loss ${dailyLossPercent.toFixed(1)}% exceeds ${this.config.maxDailyLossPercent}% limit`,
+        );
       }
     }
 
     // Drawdown check
-    const drawdown = this.peakEquity > 0
-      ? ((this.peakEquity - this.currentEquity) / this.peakEquity) * 100
-      : 0;
+    const drawdown =
+      this.peakEquity > 0 ? ((this.peakEquity - this.currentEquity) / this.peakEquity) * 100 : 0;
     if (drawdown >= this.config.maxDrawdownPercent) {
-      return this.trip("drawdown", drawdown, this.config.maxDrawdownPercent, `Drawdown: ${drawdown.toFixed(1)}% (max: ${this.config.maxDrawdownPercent}%)`);
+      return this.trip(
+        "drawdown",
+        drawdown,
+        this.config.maxDrawdownPercent,
+        `Drawdown: ${drawdown.toFixed(1)}% (max: ${this.config.maxDrawdownPercent}%)`,
+      );
     }
 
     // Consecutive losses check
     if (this.consecutiveLosses >= this.config.maxConsecutiveLosses) {
-      return this.trip("consecutive_losses", this.consecutiveLosses, this.config.maxConsecutiveLosses, `${this.consecutiveLosses} consecutive losses (limit: ${this.config.maxConsecutiveLosses})`);
+      return this.trip(
+        "consecutive_losses",
+        this.consecutiveLosses,
+        this.config.maxConsecutiveLosses,
+        `${this.consecutiveLosses} consecutive losses (limit: ${this.config.maxConsecutiveLosses})`,
+      );
     }
 
     // Position limit check
     if (this.openPositions >= this.config.maxOpenPositions) {
-      return this.trip("position_limit", this.openPositions, this.config.maxOpenPositions, `${this.openPositions} open positions (limit: ${this.config.maxOpenPositions})`);
+      return this.trip(
+        "position_limit",
+        this.openPositions,
+        this.config.maxOpenPositions,
+        `${this.openPositions} open positions (limit: ${this.config.maxOpenPositions})`,
+      );
     }
 
     return null;

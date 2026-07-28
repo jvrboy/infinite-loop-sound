@@ -68,15 +68,10 @@ export class HealthCheckManager {
     }
 
     const startTime = performance.now();
-    let success = false;
-    try {
-      const timeoutPromise = new Promise<boolean>((_, reject) =>
-        setTimeout(() => reject(new Error("timeout")), this.config.timeoutMs),
-      );
-      success = await Promise.race([checkFn(), timeoutPromise]);
-    } catch {
-      success = false;
-    }
+    const timeoutPromise = new Promise<boolean>((_, reject) =>
+      setTimeout(() => reject(new Error("timeout")), this.config.timeoutMs),
+    );
+    const success = await Promise.race([checkFn(), timeoutPromise]).catch(() => false);
     const responseTime = performance.now() - startTime;
 
     service.lastCheck = Date.now();

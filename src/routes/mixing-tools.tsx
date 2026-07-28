@@ -163,7 +163,6 @@ function MixingConsolePage() {
                 max={1}
                 step={0.01}
                 value={ch.volume}
-                orient="vertical"
                 onChange={(e) => updateChannel(ch.id, { volume: parseFloat(e.target.value) })}
                 className="w-full h-1 mb-2"
                 onClick={(e) => e.stopPropagation()}
@@ -172,12 +171,12 @@ function MixingConsolePage() {
               {/* Mute/Solo */}
               <div className="flex gap-1">
                 <Button
-                  variant={ch.muted ? "secondary" : "outline"}
+                  variant={ch.mute ? "secondary" : "outline"}
                   size="sm"
                   className="flex-1 h-6 text-[10px]"
                   onClick={(e) => {
                     e.stopPropagation();
-                    updateChannel(ch.id, { muted: !ch.muted });
+                    updateChannel(ch.id, { mute: !ch.mute });
                   }}
                 >
                   M

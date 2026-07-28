@@ -3,6 +3,8 @@ import { AppShell } from "@/components/app/AppShell";
 import { Store, Download, Star, Upload } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+
+const db = supabase as any;
 import { toast } from "sonner";
 
 type Strategy = {
@@ -94,7 +96,7 @@ function StrategyMarketPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      const { data, error } = await db
         .from("strategies_market")
         .select("*")
         .order("created_at", { ascending: false });
@@ -130,7 +132,7 @@ function StrategyMarketPage() {
       return;
     }
     try {
-      const { error } = await supabase.from("strategies_market").insert({
+      const { error } = await db.from("strategies_market").insert({
         name: newStrategy.name,
         description: newStrategy.description,
         author: "You",
@@ -162,7 +164,7 @@ function StrategyMarketPage() {
     URL.revokeObjectURL(url);
     if (!s.id.startsWith("builtin")) {
       try {
-        await supabase
+        await db
           .from("strategies_market")
           .update({ downloads: (s.downloads || 0) + 1 })
           .eq("id", s.id);

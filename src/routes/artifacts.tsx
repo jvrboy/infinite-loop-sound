@@ -331,8 +331,8 @@ function ArtifactsPage() {
             name: "CI",
             on: "push:\n    branches: [main]",
             steps: [
-              { name: "Checkout", uses: "actions/checkout@v4" },
-              { name: "Setup Node", uses: "actions/setup-node@v4" },
+              { name: "Checkout", uses: "actions/checkout@v4", run: "" },
+              { name: "Setup Node", uses: "actions/setup-node@v4", run: "" },
               { name: "Install", run: "npm ci" },
               { name: "Build", run: "npm run build" },
               { name: "Test", run: "npm test" },
