@@ -57,7 +57,7 @@ jobs:
 
   deploy:
     needs: build-check
-    if: ${{ needs.build-check.outputs.ok == 'true' && github.event_name != 'pull_request' }}
+    if: ${{ needs.build-check.outputs.ok == 'true' && github.event_name != 'pull_request' && secrets.VERCEL_TOKEN != '' && secrets.VERCEL_PROJECT_ID != '' && secrets.VERCEL_ORG_ID != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
