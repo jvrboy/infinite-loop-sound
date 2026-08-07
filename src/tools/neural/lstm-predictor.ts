@@ -72,11 +72,7 @@ export class LSTMPredictor {
     return [...a, ...b];
   }
 
-  private gateForward(
-    gate: LSTMGate,
-    input: number[],
-    hidden: number[],
-  ): number[] {
+  private gateForward(gate: LSTMGate, input: number[], hidden: number[]): number[] {
     const combined = this.concat(hidden, input);
     return gate.weights.map((row, idx) => {
       const sum = row.reduce((acc, w, j) => acc + w * combined[j], 0) + gate.bias[idx];
@@ -84,11 +80,7 @@ export class LSTMPredictor {
     });
   }
 
-  private candidateForward(
-    gate: LSTMGate,
-    input: number[],
-    hidden: number[],
-  ): number[] {
+  private candidateForward(gate: LSTMGate, input: number[], hidden: number[]): number[] {
     const combined = this.concat(hidden, input);
     return gate.weights.map((row, idx) => {
       const sum = row.reduce((acc, w, j) => acc + w * combined[j], 0) + gate.bias[idx];
@@ -145,8 +137,9 @@ export class LSTMPredictor {
       return this.outputWeights.reduce((acc, row, j) => acc + outputGrad[j] * row[idx], 0);
     });
 
-    const oGrad = hiddenGrad.map((g, idx) =>
-      g * this.tanh(this.cellState[idx]) * this.hiddenState[idx] * (1 - this.hiddenState[idx]),
+    const oGrad = hiddenGrad.map(
+      (g, idx) =>
+        g * this.tanh(this.cellState[idx]) * this.hiddenState[idx] * (1 - this.hiddenState[idx]),
     );
     const cGrad = hiddenGrad.map((g, idx) => {
       const tanhC = this.tanh(this.cellState[idx]);

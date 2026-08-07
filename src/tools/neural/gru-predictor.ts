@@ -55,7 +55,12 @@ export class GRUPredictor {
     return 1 / (1 + Math.exp(-x));
   }
 
-  private gateForward(weights: number[][], bias: number[], input: number[], hidden: number[]): number[] {
+  private gateForward(
+    weights: number[][],
+    bias: number[],
+    input: number[],
+    hidden: number[],
+  ): number[] {
     const combined = [...hidden, ...input];
     return weights.map((row, idx) => {
       const sum = row.reduce((acc, w, j) => acc + w * combined[j], 0) + bias[idx];

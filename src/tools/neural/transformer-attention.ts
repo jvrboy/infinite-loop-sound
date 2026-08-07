@@ -110,15 +110,9 @@ export class TransformerAttention {
       const start = h * headDim;
       const end = start + headDim;
 
-      const Q = x.map((row) =>
-        this.matVecMul(layer.wQ, row).slice(start, end),
-      );
-      const K = x.map((row) =>
-        this.matVecMul(layer.wK, row).slice(start, end),
-      );
-      const V = x.map((row) =>
-        this.matVecMul(layer.wV, row).slice(start, end),
-      );
+      const Q = x.map((row) => this.matVecMul(layer.wQ, row).slice(start, end));
+      const K = x.map((row) => this.matVecMul(layer.wK, row).slice(start, end));
+      const V = x.map((row) => this.matVecMul(layer.wV, row).slice(start, end));
 
       const headWeights: number[][] = [];
       const headOut: number[][] = [];
@@ -169,19 +163,15 @@ export class TransformerAttention {
       row.map((val, j) => val + (this.positionalEncoding[i]?.[j] ?? 0)),
     );
 
-    const allWeights: number[][][] = [];
+    let allWeights: number[][][] = [];
     let current = x;
 
     for (const layer of this.layers) {
       const attn = this.multiHeadAttention(current, layer);
       allWeights = attn.weights;
 
-      const residual = current.map((row, i) =>
-        row.map((val, j) => val + attn.output[i][j]),
-      );
-      const normed = residual.map((row) =>
-        this.layernorm(row, layer.normGamma, layer.normBeta),
-      );
+      const residual = current.map((row, i) => row.map((val, j) => val + attn.output[i][j]));
+      const normed = residual.map((row) => this.layernorm(row, layer.normGamma, layer.normBeta));
 
       const ffOut = normed.map((row) => {
         const ff = this.feedForward(row, layer);

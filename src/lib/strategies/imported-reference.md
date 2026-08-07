@@ -7,6 +7,7 @@ incrementally. They live here as a reference; the live engine in
 confluence scoring.
 
 ## Indicators
+
 - Trend: SMA, EMA, WMA, DEMA, TEMA, Hull MA, MACD, ADX, Supertrend, Ichimoku, Parabolic SAR
 - Momentum: RSI, Stochastic, Stoch RSI, CCI, Williams %R, ROC, AO, Ultimate Osc
 - Volatility: Bollinger Bands, ATR, Keltner, Donchian, Historical Vol, Chaikin Vol
@@ -17,6 +18,7 @@ confluence scoring.
 - BTMM: M/W formations, 13/50/200 EMA stack, Asian range, stop hunts
 
 ## Strategies
+
 1. EMA Crossover + RSI filter
 2. MACD + ADX trend strength
 3. Bollinger Squeeze (TTM variant)

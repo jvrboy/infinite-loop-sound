@@ -5,10 +5,7 @@
     "output": "release",
     "buildResources": "build-resources"
   },
-  "files": [
-    "dist/**/*",
-    "electron/**/*"
-  ],
+  "files": ["dist/**/*", "electron/**/*"],
   "mac": {
     "category": "public.app-category.finance",
     "target": ["dmg", "zip"],

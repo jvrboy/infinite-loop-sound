@@ -8,10 +8,10 @@ This document outlines the proposed architecture for integrating new technical a
 
 Based on the initial audit, the key components identified are:
 
-*   **`AgentOrchestrator` (`src/tools/agentic/agent-orchestrator.ts`):** Manages multi-agent coordination, task delegation, and result aggregation. It defines `AgentTask` and `AgentResult` interfaces and handles task processing with priority and dependency management.
-*   **Technical Indicators (`src/lib/analysis/indicators.ts`):** Contains functions for calculating various technical indicators such as RSI, MACD, Bollinger Bands, Moving Averages, ATR, Stochastic, ADX, and CCI.
-*   **Trade Metrics (`src/lib/analytics/metrics.ts`):** Provides functions for calculating trade-related metrics like total trades, win rate, profit factor, expectancy, Sharpe ratio, Sortino ratio, and max drawdown.
-*   **Agents (`src/lib/agents/`):** A directory containing various agent implementations (e.g., `automation-agent.ts`, `backtest-agent.ts`, `news-agent.ts`, `risk-agent.ts`, `strategy-agent.ts`) and shared types (`types.ts`).
+- **`AgentOrchestrator` (`src/tools/agentic/agent-orchestrator.ts`):** Manages multi-agent coordination, task delegation, and result aggregation. It defines `AgentTask` and `AgentResult` interfaces and handles task processing with priority and dependency management.
+- **Technical Indicators (`src/lib/analysis/indicators.ts`):** Contains functions for calculating various technical indicators such as RSI, MACD, Bollinger Bands, Moving Averages, ATR, Stochastic, ADX, and CCI.
+- **Trade Metrics (`src/lib/analytics/metrics.ts`):** Provides functions for calculating trade-related metrics like total trades, win rate, profit factor, expectancy, Sharpe ratio, Sortino ratio, and max drawdown.
+- **Agents (`src/lib/agents/`):** A directory containing various agent implementations (e.g., `automation-agent.ts`, `backtest-agent.ts`, `news-agent.ts`, `risk-agent.ts`, `strategy-agent.ts`) and shared types (`types.ts`).
 
 ## 3. Proposed Enhancements
 
@@ -21,10 +21,10 @@ We will expand `src/lib/analysis/indicators.ts` to include additional technical 
 
 **Proposed Additions:**
 
-*   **Ichimoku Cloud:** A comprehensive indicator that shows support and resistance, momentum, and trend direction.
-*   **Parabolic SAR (Stop and Reverse):** Used to determine the future short-term momentum of an asset.
-*   **Average Directional Index (ADX):** Measures the strength of a trend.
-*   **Volume Weighted Average Price (VWAP):** A trading benchmark that represents the average price an instrument traded at throughout the day, based on both volume and price.
+- **Ichimoku Cloud:** A comprehensive indicator that shows support and resistance, momentum, and trend direction.
+- **Parabolic SAR (Stop and Reverse):** Used to determine the future short-term momentum of an asset.
+- **Average Directional Index (ADX):** Measures the strength of a trend.
+- **Volume Weighted Average Price (VWAP):** A trading benchmark that represents the average price an instrument traded at throughout the day, based on both volume and price.
 
 ### 3.2. New General Analysis Tools
 
@@ -32,9 +32,9 @@ New general analysis tools will be introduced, potentially in `src/lib/analytics
 
 **Proposed Additions:**
 
-*   **Portfolio Optimization Metrics:** Metrics like Alpha, Beta, and Correlation for portfolio performance.
-*   **Market Sentiment Analysis Integration:** Tools to process and interpret sentiment data from external sources.
-*   **Statistical Significance Testing:** Functions to perform basic statistical tests on trading results.
+- **Portfolio Optimization Metrics:** Metrics like Alpha, Beta, and Correlation for portfolio performance.
+- **Market Sentiment Analysis Integration:** Tools to process and interpret sentiment data from external sources.
+- **Statistical Significance Testing:** Functions to perform basic statistical tests on trading results.
 
 ### 3.3. New Agents and Sub-Agents
 
@@ -42,14 +42,14 @@ The agent system will be extended with new agents and sub-agents to handle speci
 
 **Proposed Agents:**
 
-*   **Sentiment Analysis Agent:** An agent dedicated to collecting, processing, and interpreting market sentiment data. It will feed insights to other agents, such as the `StrategyAgent` or a new `NewsAgent` enhancement.
-*   **Portfolio Management Agent:** An agent responsible for optimizing portfolio allocation, rebalancing, and risk management based on predefined strategies and market conditions.
-*   **Execution Optimization Agent:** A sub-agent that works under an `ExecutionAgent` (if one exists or is created) to optimize trade entry and exit points based on real-time market data and liquidity.
+- **Sentiment Analysis Agent:** An agent dedicated to collecting, processing, and interpreting market sentiment data. It will feed insights to other agents, such as the `StrategyAgent` or a new `NewsAgent` enhancement.
+- **Portfolio Management Agent:** An agent responsible for optimizing portfolio allocation, rebalancing, and risk management based on predefined strategies and market conditions.
+- **Execution Optimization Agent:** A sub-agent that works under an `ExecutionAgent` (if one exists or is created) to optimize trade entry and exit points based on real-time market data and liquidity.
 
 **Proposed Sub-Agents (examples):**
 
-*   **News Impact Sub-Agent:** A sub-agent of the `NewsAgent` that specifically analyzes the potential market impact of upcoming news events and provides recommendations.
-*   **Pattern Recognition Sub-Agent:** A sub-agent that identifies specific chart patterns or price action setups for various technical analysis tools.
+- **News Impact Sub-Agent:** A sub-agent of the `NewsAgent` that specifically analyzes the potential market impact of upcoming news events and provides recommendations.
+- **Pattern Recognition Sub-Agent:** A sub-agent that identifies specific chart patterns or price action setups for various technical analysis tools.
 
 ## 4. Architectural Changes and Integration Points
 
@@ -63,9 +63,9 @@ For portfolio optimization metrics, a new interface `PortfolioMetrics` will be d
 
 ### 4.3. Agent System (`src/lib/agents/` and `src/tools/agentic/agent-orchestrator.ts`) Modifications
 
-*   **New Agent Files:** New TypeScript files will be created under `src/lib/agents/` for each new agent (e.g., `sentiment-agent.ts`, `portfolio-agent.ts`). These agents will implement a common interface (e.g., `Agent` from `types.ts`) and contain their specific logic.
-*   **`types.ts` Updates:** The `AgentTask` and `AgentConfig` interfaces in `src/tools/agentic/agent-orchestrator.ts` and `src/lib/agents/types.ts` will be reviewed to ensure they can accommodate the new agent types and their specific payloads. New types for sentiment data, portfolio configurations, and execution parameters will be added.
-*   **`AgentOrchestrator` Integration:** The `AgentOrchestrator` will need to be updated to recognize and route tasks to the new agent types. This might involve extending the `AgentTask.type` enum and adding new `handle*Task` methods within the `AgentOrchestrator` or dynamically loading agent handlers.
+- **New Agent Files:** New TypeScript files will be created under `src/lib/agents/` for each new agent (e.g., `sentiment-agent.ts`, `portfolio-agent.ts`). These agents will implement a common interface (e.g., `Agent` from `types.ts`) and contain their specific logic.
+- **`types.ts` Updates:** The `AgentTask` and `AgentConfig` interfaces in `src/tools/agentic/agent-orchestrator.ts` and `src/lib/agents/types.ts` will be reviewed to ensure they can accommodate the new agent types and their specific payloads. New types for sentiment data, portfolio configurations, and execution parameters will be added.
+- **`AgentOrchestrator` Integration:** The `AgentOrchestrator` will need to be updated to recognize and route tasks to the new agent types. This might involve extending the `AgentTask.type` enum and adding new `handle*Task` methods within the `AgentOrchestrator` or dynamically loading agent handlers.
 
 ## 5. Implementation Plan
 

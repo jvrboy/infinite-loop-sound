@@ -25,15 +25,23 @@ export class Autoencoder {
 
   constructor(private config: AutoencoderConfig) {
     const encoderDims = [config.inputSize, ...config.hiddenLayers, config.latentSize];
-    const decoderDims = [config.latentSize, ...[...config.hiddenLayers].reverse(), config.inputSize];
+    const decoderDims = [
+      config.latentSize,
+      ...[...config.hiddenLayers].reverse(),
+      config.inputSize,
+    ];
 
     for (let l = 0; l < encoderDims.length - 1; l++) {
       this.encoderWeights.push(this.initMatrix(encoderDims[l + 1], encoderDims[l]));
-      this.encoderBias.push(new Array(encoderDims[l + 1]).fill(0).map(() => (Math.random() - 0.5) * 0.1));
+      this.encoderBias.push(
+        new Array(encoderDims[l + 1]).fill(0).map(() => (Math.random() - 0.5) * 0.1),
+      );
     }
     for (let l = 0; l < decoderDims.length - 1; l++) {
       this.decoderWeights.push(this.initMatrix(decoderDims[l + 1], decoderDims[l]));
-      this.decoderBias.push(new Array(decoderDims[l + 1]).fill(0).map(() => (Math.random() - 0.5) * 0.1));
+      this.decoderBias.push(
+        new Array(decoderDims[l + 1]).fill(0).map(() => (Math.random() - 0.5) * 0.1),
+      );
     }
   }
 
@@ -73,7 +81,8 @@ export class Autoencoder {
   reconstruct(input: number[]): AutoencoderResult {
     const latent = this.encode(input);
     const reconstruction = this.decode(latent);
-    const reconstructionError = input.reduce((sum, v, i) => sum + (v - reconstruction[i]) ** 2, 0) / input.length;
+    const reconstructionError =
+      input.reduce((sum, v, i) => sum + (v - reconstruction[i]) ** 2, 0) / input.length;
     return { reconstruction, latent, reconstructionError };
   }
 
@@ -110,7 +119,10 @@ export class Autoencoder {
         this.decoderBias[l][i] += lr * grad[i];
       }
       grad = this.decoderWeights[l][0].map((_, j) =>
-        this.decoderWeights[l].reduce((s, row) => s + row[j] * grad[row === this.decoderWeights[l][0] ? 0 : 0], 0),
+        this.decoderWeights[l].reduce(
+          (s, row) => s + row[j] * grad[row === this.decoderWeights[l][0] ? 0 : 0],
+          0,
+        ),
       );
     }
 

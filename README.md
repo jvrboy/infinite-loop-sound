@@ -13,20 +13,20 @@ The app works across all platforms without hard Supabase dependency:
 
 ## AI Multi-Agent System (12 trained agents)
 
-| Agent | Role |
-|------|------|
-| Strategy Agent | Strategy selection and signal generation |
-| Risk Manager | Portfolio heat, drawdown, position sizing |
-| News Sentiment | Market mood scoring from news events |
-| Confluence Engine | Multi-indicator confluence detection |
-| Parameter Optimizer | Walk-forward optimization with anti-overfit |
-| Automation Hub | Automated trade execution orchestration |
-| Pattern Recognition | Chart pattern detection (harmonic, Elliott, Wyckoff) |
-| Self-Learning Core | Adaptive weight learning from trade outcomes |
-| Liquidity Flow | Liquidity zones, stop hunts, order flow imbalance |
-| Volatility Regime | ATR/Bollinger regime classification and forecasting |
-| Correlation Matrix | Cross-asset correlation monitoring for hedging |
-| Execution Flow | Spread/slippage analysis and optimal execution strategy |
+| Agent               | Role                                                    |
+| ------------------- | ------------------------------------------------------- |
+| Strategy Agent      | Strategy selection and signal generation                |
+| Risk Manager        | Portfolio heat, drawdown, position sizing               |
+| News Sentiment      | Market mood scoring from news events                    |
+| Confluence Engine   | Multi-indicator confluence detection                    |
+| Parameter Optimizer | Walk-forward optimization with anti-overfit             |
+| Automation Hub      | Automated trade execution orchestration                 |
+| Pattern Recognition | Chart pattern detection (harmonic, Elliott, Wyckoff)    |
+| Self-Learning Core  | Adaptive weight learning from trade outcomes            |
+| Liquidity Flow      | Liquidity zones, stop hunts, order flow imbalance       |
+| Volatility Regime   | ATR/Bollinger regime classification and forecasting     |
+| Correlation Matrix  | Cross-asset correlation monitoring for hedging          |
+| Execution Flow      | Spread/slippage analysis and optimal execution strategy |
 
 Train all agents from the `/ai-lab` route.
 
@@ -37,13 +37,16 @@ Liquid Blobs, Neural WebGPU, Plasma Fractal, Aurora Flow, Hex Matrix, Voronoi Ce
 ## VINNY Audio Engine
 
 ### Pitch & Formant Tools (`/pitch-tools`)
+
 - **Sound Pitcher**: Granular PSOLA pitch shifting with dual delay-line crossfading, detune, stereo width, feedback
 - **Formant Shifter**: Filter-bank formant resynthesis with 3 formant bands, bandwidth control, resonance, preserve-original mode
 - **Advanced Pitch Engine**: Combined pitch+formant+harmonization+pitch correction with key/scale snapping, glide, stereo spread
 - **Pitch Detection**: Autocorrelation-based pitch tracking with note identification and cents offset
 
 ### Advanced Piano Roll (`/piano-roll`)
+
 Ultra-advanced piano roll with per-note slide system:
+
 - Per-note properties: pitch, length, velocity, pan, gain, micro-tuning, mute, solo, lock
 - Per-note expression: vibrato (depth+rate), tremolo (depth+rate), expression, breath control
 - **Ultra-Advanced Per-Note Slide System**: 8 curve types (linear, exponential, logarithmic, sine, scurve, bounce, elastic, step, custom)
@@ -56,7 +59,9 @@ Ultra-advanced piano roll with per-note slide system:
 - Playback with scheduled note triggering and playhead
 
 ### Playlist / Song Arrangement (`/playlist`)
+
 DAW-style playlist for song arrangement:
+
 - Multi-track layout (drum, instrument, audio, automation, bus, marker, tempo tracks)
 - Clip types: pattern, audio, automation, marker, tempo
 - Clip operations: drag to move, double-click to duplicate, delete, copy/paste
@@ -68,7 +73,9 @@ DAW-style playlist for song arrangement:
 - Keyboard shortcuts (Delete, Ctrl+D, space)
 
 ### Advanced Mixing Console (`/mixing-tools`)
+
 Professional mixing console:
+
 - Channel strips with metering, pan, volume fader, mute/solo
 - 4-band parametric EQ per channel (8 filter types: lowpass, highpass, bandpass, lowshelf, highshelf, peaking, notch, allpass)
 - Compressor with sidechain support (threshold, ratio, attack, release, knee, makeup gain)
@@ -80,6 +87,7 @@ Professional mixing console:
 - Phase invert, dithering, automation-ready
 
 ### Audio Effects (20+ effects)
+
 Original: Compressor, Limiter, Gate, Reverb, Delay, Chorus, Phaser, Flanger, Tremolo, Distortion, Fuzz, Overdrive, Bitcrush, Saturation, Amp, Cabinet, Halfspeed, Vibrato, Autopan, Portal, Shimmer, Freeze, Reverse, Granular FX, Vocoder, Pitch Shift, Harmonizer, Formant, Stereo Widener, Mid-Side, Transient Shaper
 
 Pack 1: Convolution Reverb, Tape Echo, Granular Cloud, Spectral Freezer, Harmonic Enhancer, Transient Designer, Multiband Compressor, Stereo Imager, Vocoder FX, Lo-Fi Degrader
@@ -87,15 +95,19 @@ Pack 1: Convolution Reverb, Tape Echo, Granular Cloud, Spectral Freezer, Harmoni
 Pack 2: Ring Modulator, Frequency Shifter, Resonator, Chorus Ensemble, Multi-Stage Phaser
 
 ### Audio Analysis Tools (`/audio-tools`)
+
 BPM Detector, Key Detector, LUFS Meter, Spectrum Analyzer, Stem Splitter, Noise Gate, Phase Correlation Meter, Dynamic Range Meter, Pitch Tracker, Audio Fingerprinter
 
 ### Vinny Extended Features
+
 AI Melody Generator, Chord Progression Generator, Pattern Sequencer, Arpeggiator Engine, Bass Line Generator, Scale Finder, Harmonizer, Rhythm Generator (Euclidean), Voice Leading Optimizer, Song Structure Generator
 
 ### MIDI Tools
+
 MIDI file parser, MIDI file exporter, MIDI transformer (transpose, quantize, time-stretch, velocity scale), MIDI to note name, MIDI generator
 
 ### Advanced Visualizer (5 modes)
+
 Radial Spectrum, 3D Bars, Waterfall, Phase Scope, Particle Flow
 
 ## Trading Tools (12 extended calculators)
@@ -104,25 +116,25 @@ Pivot Points (5 methods), Position Size, Kelly Criterion, Risk of Ruin (Monte Ca
 
 ## Key Routes
 
-| Route | Description |
-|-------|-------------|
-| `/` | Dashboard with live ticks, signals, KPI ticker |
-| `/theme` | Theme picker + shader selector |
-| `/ai-lab` | Agent training dashboard (12 agents) |
-| `/local-ai` | Platform-aware GGUF model loader |
-| `/shaders` | Shader gallery |
-| `/native-tools` | Device file browser, network status, storage info |
-| `/audio-tools` | Audio analysis suite (BPM, key, LUFS, spectrum) |
-| `/extended-tools` | 12 professional trading calculators |
-| `/pitch-tools` | Sound Pitcher, Formant Shifter, Advanced Pitch Engine |
-| `/piano-roll` | Advanced piano roll with ultra-advanced per-note infinite slide system |
-| `/playlist` | Song arrangement playlist with multi-track clips |
-| `/mixing-tools` | Professional mixing console with EQ, dynamics, sends |
-| `/tools` | Core forex tools (sessions, pivots, volatility) |
-| `/ai-agents` | Agent orchestration |
-| `/portfolio-pro` | Portfolio manager with P&L |
-| `/risk-manager` | Risk configuration |
-| `/strategy-lab` | Strategy builder and backtesting |
+| Route             | Description                                                            |
+| ----------------- | ---------------------------------------------------------------------- |
+| `/`               | Dashboard with live ticks, signals, KPI ticker                         |
+| `/theme`          | Theme picker + shader selector                                         |
+| `/ai-lab`         | Agent training dashboard (12 agents)                                   |
+| `/local-ai`       | Platform-aware GGUF model loader                                       |
+| `/shaders`        | Shader gallery                                                         |
+| `/native-tools`   | Device file browser, network status, storage info                      |
+| `/audio-tools`    | Audio analysis suite (BPM, key, LUFS, spectrum)                        |
+| `/extended-tools` | 12 professional trading calculators                                    |
+| `/pitch-tools`    | Sound Pitcher, Formant Shifter, Advanced Pitch Engine                  |
+| `/piano-roll`     | Advanced piano roll with ultra-advanced per-note infinite slide system |
+| `/playlist`       | Song arrangement playlist with multi-track clips                       |
+| `/mixing-tools`   | Professional mixing console with EQ, dynamics, sends                   |
+| `/tools`          | Core forex tools (sessions, pivots, volatility)                        |
+| `/ai-agents`      | Agent orchestration                                                    |
+| `/portfolio-pro`  | Portfolio manager with P&L                                             |
+| `/risk-manager`   | Risk configuration                                                     |
+| `/strategy-lab`   | Strategy builder and backtesting                                       |
 
 ## Architecture
 

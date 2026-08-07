@@ -48,7 +48,7 @@ export class HopfieldNetwork {
 
   recall(input: number[], maxIterations?: number): HopfieldResult {
     const n = this.config.neuronCount;
-    let state = [...input];
+    const state = [...input];
     const maxIters = maxIterations ?? this.config.maxIterations;
     let iterations = 0;
     let converged = false;
