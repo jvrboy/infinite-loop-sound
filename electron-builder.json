@@ -6,7 +6,7 @@
     "output": "release",
     "buildResources": "build-resources"
   },
-  "files": ["dist/**/*", "electron/**/*"],
+  "files": ["dist/**/*", "electron/**/*", "index.js"],
   "mac": {
     "category": "public.app-category.finance",
     "target": ["dmg", "zip"],

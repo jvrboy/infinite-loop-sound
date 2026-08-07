@@ -128,6 +128,10 @@ jobs:
       - name: Build Electron main process
         run: npx vite build --config electron.vite.config.ts
 
+      - name: Copy Electron entry point
+        run: Copy-Item -Path "dist-electron\main.js" -Destination "index.js" -Force
+        shell: pwsh
+
       - name: Build Electron EXE
         run: npx electron-builder --config electron-builder.json --win --x64
         env:
