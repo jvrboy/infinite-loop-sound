@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
 
       - name: Install dependencies
@@ -46,7 +46,7 @@ jobs:
             await sharp(svgBuffer).resize(256, 256).png().toFile(path.join(iconDir, 'icon.png'));
             const sizes = [16, 32, 48, 64, 128, 256, 512];
             for (const size of sizes) {
-              await sharp(svgBuffer).resize(size, size).png().toFile(path.join(iconDir, `icon-${size}.png`));
+              await sharp(svgBuffer).resize(size, size).png().toFile(path.join(iconDir, 'icon-' + size + '.png'));
             }
             const icon256 = await sharp(svgBuffer).resize(256, 256).png().toBuffer();
             const icon32 = await sharp(svgBuffer).resize(32, 32).png().toBuffer();
