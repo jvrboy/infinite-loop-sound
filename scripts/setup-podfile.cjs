@@ -5,9 +5,6 @@ const lines = [
   '',
   'target "App" do',
   '  pod "Capacitor", :path => "../../node_modules/@capacitor/ios"',
-  '  pod "CapacitorCordova", :path => "../../node_modules/@capacitor/cordova"',
-  '  pod "CapacitorHttp", :path => "../../node_modules/@capacitor/http"',
-  '  pod "CapacitorLocalNotifications", :path => "../../node_modules/@capacitor/local-notifications"',
   'end',
   '',
 ];
