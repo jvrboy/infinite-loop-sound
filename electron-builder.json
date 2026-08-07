@@ -1,7 +1,6 @@
 {
   "appId": "com.divergenceiq.app",
   "productName": "Divergence IQ",
-  "main": "dist-electron/main.js",
   "directories": {
     "output": "release",
     "buildResources": "build-resources"
