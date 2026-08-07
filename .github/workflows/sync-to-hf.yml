@@ -14,13 +14,17 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Check Hugging Face token
+        id: check-hf-token
         run: |
           if [ -z "${{ secrets.HF_TOKEN }}" ]; then
             echo "::warning title=Missing Secret::HF_TOKEN is missing. Skipping Hugging Face sync."
-            exit 0
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Push snapshot to Hugging Face Space
+        if: ${{ steps.check-hf-token.outputs.skip != 'true' }}
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
