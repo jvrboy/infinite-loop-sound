@@ -99,7 +99,7 @@ jobs:
           else
             echo "Podfile MISSING - creating manually"
             mkdir -p ios/App
-            node scripts/setup-podfile.js
+            node scripts/setup-podfile.cjs
           fi
 
           echo "Podfile:"
@@ -109,7 +109,7 @@ jobs:
 
       - name: Generate iOS app icons
         run: |
-          node scripts/generate-ios-icons.js
+          node scripts/generate-ios-icons.cjs
 
       - name: Enforce iOS 16 deployment target
         run: |
