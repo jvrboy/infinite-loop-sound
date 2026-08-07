@@ -28,6 +28,7 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: |
+          curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${HF_TOKEN}" https://huggingface.co/api/whoami-v2 | grep -q "^200$" || { echo "::error title=Invalid HF_TOKEN::Hugging Face token is invalid or expired."; exit 1; }
           # Push a clean single-commit snapshot (old git history contains
           # binary files that Hugging Face rejects over plain git).
           rm -rf .git
