@@ -8,10 +8,17 @@ on:
 
 jobs:
   sync-to-hub:
-    if: github.event_name != 'pull_request' && secrets.HF_TOKEN != ''
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check Hugging Face token
+        run: |
+          if [ -z "${{ secrets.HF_TOKEN }}" ]; then
+            echo "::warning title=Missing Secret::HF_TOKEN is missing. Skipping Hugging Face sync."
+            exit 0
+          fi
 
       - name: Push snapshot to Hugging Face Space
         env:

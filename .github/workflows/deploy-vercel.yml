@@ -57,10 +57,17 @@ jobs:
 
   deploy:
     needs: build-check
-    if: ${{ needs.build-check.outputs.ok == 'true' && github.event_name != 'pull_request' && secrets.VERCEL_TOKEN != '' && secrets.VERCEL_PROJECT_ID != '' && secrets.VERCEL_ORG_ID != '' }}
+    if: ${{ needs.build-check.outputs.ok == 'true' && github.event_name != 'pull_request' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Check Vercel secrets
+        run: |
+          if [ -z "${{ secrets.VERCEL_TOKEN }}" ] || [ -z "${{ secrets.VERCEL_PROJECT_ID }}" ] || [ -z "${{ secrets.VERCEL_ORG_ID }}" ]; then
+            echo "::warning title=Missing Secrets::Vercel secrets are missing. Skipping deploy."
+            exit 0
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
